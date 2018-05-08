@@ -4936,6 +4936,7 @@ mhitm_ad_sedu(
             return;
         }
         buf[0] = '\0';
+        mintroduce(magr);
         switch (steal(magr, buf)) {
         case -1:
             mhm->hitflags = M_ATTK_AGR_DIED; /* return 2??? */
@@ -5025,12 +5026,14 @@ mhitm_ad_ssex(struct monst *magr, struct attack *mattk, struct monst *mdef,
     } else if (mdef == &gy.youmonst) {
         /* mhitu */
         if (SYSOPT_SEDUCE) {
-            if (could_seduce(magr, mdef, mattk) == 1 && !magr->mcan)
+            if (could_seduce(magr, mdef, mattk) == 1 && !magr->mcan) {
+                mintroduce(magr);
                 if (doseduce(magr)) {
                     mhm->hitflags = M_ATTK_AGR_DONE;
                     mhm->done = TRUE;
                     return;
                 }
+            }
             return;
         }
         mhitm_ad_sedu(magr, mattk, mdef, mhm);

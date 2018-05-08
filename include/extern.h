@@ -755,6 +755,7 @@ extern const char *hcolor(const char *);
 extern const char *rndcolor(void);
 extern const char *hliquid(const char *);
 extern const char *roguename(void);
+extern void mintroduce(struct monst *);
 /*
 extern struct obj *realloc_obj(struct obj *, int, genericptr_t, int,
                                const char *);

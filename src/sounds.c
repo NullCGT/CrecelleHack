@@ -1182,6 +1182,7 @@ domonnoise(struct monst *mtmp)
             if (ptr->mlet != S_NYMPH
                 && (could_seduce(mtmp, &gy.youmonst, (struct attack *) 0)
                     == 1)) {
+                mintroduce(mtmp);
                 (void) doseduce(mtmp);
                 break;
             }

@@ -12,7 +12,14 @@
   - The brands are always the same type.
 
 ## Armor
-
+- Armor class functions differently in this variant.
+  - AC: Chance of dodging an attack completely.
+    - AC no longer causes damage reduction. Damage reduction is handled by SO.
+  - SO: Amount of damage absorbed by armor.
+    - Ablative. Damage is soaked up by various pieces of armor.
+    - Enchanting armor increases its SO.
+    - When an armor's soak is used up, it is broken and does not provide its
+      intrinsics or MC.
   - MC: Chance of cancelling a special effect.
     - Every piece of armor adds some amount of magic cancellation.
     - Maxes out at 90%.

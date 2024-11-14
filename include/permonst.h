@@ -66,6 +66,7 @@ struct permonst {
     schar mlevel,               /* base monster level */
         mmove,                  /* move speed */
         ac,                     /* (base) armor class */
+        sok,                    /* (base) soak */
         mr;                     /* (base) magic resistance */
     aligntyp maligntyp;         /* basic monster alignment */
     unsigned short geno;        /* creation/geno mask value */

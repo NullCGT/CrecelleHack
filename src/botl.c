@@ -575,6 +575,7 @@ static struct istat_s initblstats[MAXBLSTATS] = {
     INIT_BLSTAT("power-max", "(%s)", ANY_INT, 10, BL_ENEMAX),
     INIT_BLSTATP("experience-level", " Xp:%s", ANY_INT, 10, BL_EXP, BL_XP),
     INIT_BLSTAT("armor-class", " AC:%s", ANY_INT, 10, BL_AC),
+    INIT_BLSTAT("soak", " Sk:%s", ANY_INT, 10, BL_SK),
     INIT_BLSTAT("magic-cancellation", " MC:%s%%", ANY_INT, 10, BL_MC),
     INIT_BLSTAT("HD", " HD:%s", ANY_INT, 10, BL_HD),
     INIT_BLSTAT("time", " T:%s", ANY_LONG, 20, BL_TIME),
@@ -869,6 +870,9 @@ bot_via_windowport(void)
 
     /* Armor class */
     gb.blstats[idx][BL_AC].a.a_int = u.uac;
+
+    /* Soak */
+    gb.blstats[idx][BL_SK].a.a_int = u.usok;
 
     /* MC */
     gb.blstats[idx][BL_MC].a.a_int = u.umc;
@@ -1950,6 +1954,7 @@ static const struct fieldid_t {
     { "xl",       BL_XP },
     { "xplvl",    BL_XP },
     { "ac",       BL_AC },
+    { "sk",       BL_SK },
     { "mc",       BL_MC },
     { "hit-dice", BL_HD },
     { "turns",    BL_TIME },

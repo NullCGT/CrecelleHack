@@ -2376,20 +2376,35 @@ void
 find_ac(void)
 {
     int uac = mons[u.umonnum].ac; /* base armor class for current form */
+    int usok = mons[u.umonnum].sok; /* base soak for current form */
+    int usok = 0;
+    int umc = magic_negation(&gy.youmonst); /* magic negation calculation */
 
     /* armor class from worn gear */
-    if (uarm)
+    if (uarm) {
         uac -= ARM_BONUS(uarm);
-    if (uarmc)
+        usok += SOK_BONUS(uarm);
+    }
+    if (uarmc) {
         uac -= ARM_BONUS(uarmc);
-    if (uarmh)
+        usok += SOK_BONUS(uarmc);
+    }
+    if (uarmh) {
         uac -= ARM_BONUS(uarmh);
-    if (uarmf)
+        usok += SOK_BONUS(uarmh);
+    }
+    if (uarmf) {
         uac -= ARM_BONUS(uarmf);
-    if (uarms)
+        usok += SOK_BONUS(uarmf);
+    }
+    if (uarms) {
         uac -= ARM_BONUS(uarms);
-    if (uarmg)
+        usok += SOK_BONUS(uarms);
+    }
+    if (uarmg) {
         uac -= ARM_BONUS(uarmg);
+        usok += SOK_BONUS(uarmg);
+    }
     if (uarmu)
         uac -= ARM_BONUS(uarmu);
     if (uleft && uleft->otyp == RIN_PROTECTION)
@@ -2415,6 +2430,7 @@ find_ac(void)
     if (abs(uac) > AC_MAX)
         uac = sgn(uac) * AC_MAX;
 
+    /* Update AC */
     if (uac != u.uac) {
         u.uac = uac;
         disp.botl = TRUE;
@@ -2432,7 +2448,16 @@ find_ac(void)
             record_achievement(ACH_AC_00);
 #endif
 
-    u.umc = magic_negation(&gy.youmonst);
+    }
+    /* Update damage reduction */
+    if (usok != u.usok) {
+        u.usok = usok;
+        disp.botl = TRUE;
+    }
+    /* Update magic negation */
+    if (umc != u.umc) {
+        u.umc = umc;
+        disp.botl = TRUE;
     }
 }
 

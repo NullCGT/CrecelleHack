@@ -30,7 +30,7 @@ extern const struct attack c_sa_no[NATTK];
  */
 #define NAM(name) { (const char *) 0, (const char *) 0, name }
 #define NAMS(namm, namf, namn) { namm, namf, namn }
-#define LVL(lvl, mov, ac, mr, aln) lvl, mov, ac, mr, aln
+#define LVL(lvl, mov, ac, sok, mr, aln) lvl, mov, ac, sok, mr, aln
 #define SIZ(wt, nut, snd, siz) wt, nut, snd, siz
 #define ATTK(at, ad, n, d) { at, ad, n, d }
 #define A(a1, a2, a3, a4, a5, a6) { a1, a2, a3, a4, a5, a6 }
@@ -52,7 +52,7 @@ static struct permonst mons_init[NUMMONS + 1] = {
         sym, lvl, gen, atk, siz, mr1, mr2, flg1, flg2, flg3, d, col     \
     }
     MON(NAM(""), 0,
-        LVL(0, 0, 0, 0, 0), G_NOGEN | G_NOCORPSE,
+        LVL(0, 0, 0, 0, 0, 0), G_NOGEN | G_NOCORPSE,
         A(NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(0, 0, 0, 0), 0, 0,
         0L,  M2_NOPOLY, 0,

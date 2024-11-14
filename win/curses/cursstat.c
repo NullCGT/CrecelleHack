@@ -87,7 +87,7 @@ curses_status_finish(void)
  *      -- fldindex could be any one of the following from botl.h:
  *         BL_TITLE, BL_STR, BL_DX, BL_CO, BL_IN, BL_WI, BL_CH,
  *         BL_ALIGN, BL_SCORE, BL_CAP, BL_GOLD, BL_ENE, BL_ENEMAX,
- *         BL_XP, BL_AC, BL_MC, BL_HD, BL_TIME, BL_HUNGER, BL_HP, BL_HPMAX,
+ *         BL_XP, BL_AC, BL_SK, BL_MC, BL_HD, BL_TIME, BL_HUNGER, BL_HP, BL_HPMAX,
  *         BL_LEVELDESC, BL_EXP, BL_CONDITION
  *      -- fldindex could also be BL_FLUSH (-1), which is not really
  *         a field index, but is a special trigger to tell the
@@ -263,10 +263,10 @@ draw_horizontal(boolean border)
           /*xspace*/ BL_GOLD,
           /*xspace*/ BL_HP, BL_HPMAX,
           /*xspace*/ BL_ENE, BL_ENEMAX,
-          /*xspace*/ BL_AC, BL_MC,
+          /*xspace*/ BL_AC, BL_SK, BL_MC,
           /*xspace*/ BL_XP, BL_EXP,
           /*xspace*/ BL_TIME,
-          /*xspace*/ BL_HUNGER, BL_CAP, BL_CONDITION, BL_VERS,
+          /*xspace*/ BL_HUNGER, BL_CAP, BL_CONDITION,
           BL_FLUSH },
         { BL_FLUSH, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD,
           blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD }
@@ -280,10 +280,10 @@ draw_horizontal(boolean border)
           /*xspace*/ BL_GOLD,
           /*xspace*/ BL_HP, BL_HPMAX,
           /*xspace*/ BL_ENE, BL_ENEMAX,
-          /*xspace*/ BL_AC, BL_MC,
+          /*xspace*/ BL_AC, BL_MC, BL_SK,
           /*xspace*/ BL_XP, BL_EXP, BL_HD,
           /*xspace*/ BL_HUNGER, BL_CAP,
-          BL_FLUSH, blPAD, blPAD },
+          BL_FLUSH, blPAD },
         { BL_LEVELDESC,
           /*xspace*/ BL_TIME,
           /*xspecial*/ BL_CONDITION,
@@ -690,12 +690,12 @@ draw_vertical(boolean border)
         BL_HP, BL_HPMAX,
         BL_ENE, BL_ENEMAX,
         BL_AC,
+        BL_SK,
         BL_MC,
         BL_LEVELDESC,
         BL_ALIGN,
         BL_XP, BL_EXP, BL_HD,
         BL_GOLD,
-        /* 3:blank (but only if time or score or both enabled) */
         BL_TIME,
         BL_SCORE,
         /* 2:blank */

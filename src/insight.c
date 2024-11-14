@@ -745,6 +745,10 @@ basics_enlightenment(int mode UNUSED, int final)
                 (u.uac < 0) ? "best" : "worst");
     enl_msg("Your armor class ", "is ", "was ", buf, "");
 
+    /* DR is already calculated by find_ac() */
+    Sprintf(buf, "%d", u.usok);
+    enl_msg("Your armor soak ", "is ", "was ", buf, "");
+
     /* gold; similar to doprgold (#showgold) but without shop billing info;
        includes container contents, unlike status line but like doprgold */
     {

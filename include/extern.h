@@ -3823,6 +3823,7 @@ extern void mon_adjust_speed(struct monst *, int, struct obj *) NONNULLARG1;
 extern void update_mon_extrinsics(struct monst *, struct obj *, boolean,
                                   boolean) NONNULLARG12;
 extern int find_mac(struct monst *) NONNULLARG1;
+extern int find_msok(struct monst *) NONNULLARG1;
 extern void m_dowear(struct monst *, boolean) NONNULLARG1;
 extern struct obj *which_armor(struct monst *, long) NONNULLARG1;
 extern void mon_break_armor(struct monst *, boolean) NONNULLARG1;

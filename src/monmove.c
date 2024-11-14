@@ -718,6 +718,10 @@ dochug(struct monst *mtmp)
     if (mtmp->mconf && !rn2(50))
         mtmp->mconf = 0;
 
+    /* ablative soak wears off */
+    if (mtmp->mablsok)
+        mtmp->mablsok--;
+
     /* stunned monsters get un-stunned with larger probability */
     if (mtmp->mstun && !rn2(10))
         mtmp->mstun = 0;

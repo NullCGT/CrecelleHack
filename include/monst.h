@@ -111,6 +111,7 @@ struct monst {
     int mhp, mhpmax;
     unsigned mappearance; /* for undetected mimics and the wiz */
     uchar m_ap_type;      /* what mappearance is describing, m_ap_types */
+    uchar mablsok;        /* ablative soak reduction */
 
     schar mtame;                /* level of tameness, implies peaceful */
     unsigned short mintrinsics; /* low 8 correspond to mresists */

@@ -3383,9 +3383,9 @@ mstatusline(struct monst *mtmp)
     Strcpy(monnambuf, x_monnam(mtmp, ARTICLE_THE, (char *) 0,
                                (SUPPRESS_IT | SUPPRESS_INVISIBLE), FALSE));
 
-    pline("Status of %s (%s, %s):  Level %d  HP %d(%d)  AC %d%s.",
+    pline("Status of %s (%s, %s):  Level %d  HP %d(%d)  AC %d  Soak %d%s.",
           monnambuf, align_str(alignment), size_str(mtmp->data->msize),
-          mtmp->m_lev, mtmp->mhp, mtmp->mhpmax, find_mac(mtmp), info);
+          mtmp->m_lev, mtmp->mhp, mtmp->mhpmax, find_mac(mtmp), find_msok(mtmp), info);
 }
 
 /* stethoscope or probing applied to hero -- one-line feedback */
@@ -3473,10 +3473,10 @@ ustatusline(void)
         Snprintf(eos(info), sizeof info - ln, ", in a cloud of %s",
                  reg_damg(reg) ? "poison gas" : "vapor");
 
-    pline("Status of %s (%s):  Level %d  HP %d(%d)  AC %d%s.", svp.plname,
+    pline("Status of %s (%s):  Level %d  HP %d(%d)  AC %d  Soak %d%s.", svp.plname,
           piousness(FALSE, align_str(u.ualign.type)),
           Upolyd ? mons[u.umonnum].mlevel : u.ulevel, Upolyd ? u.mh : u.uhp,
-          Upolyd ? u.mhmax : u.uhpmax, u.uac, info);
+          Upolyd ? u.mhmax : u.uhpmax, u.uac, u.usok, info);
 }
 
 /* for 'onefile' processing where end of this file isn't necessarily the

@@ -1018,6 +1018,7 @@ mdamagem(
     mhm.specialdmg = 0;
     mhm.dieroll = dieroll;
     mhm.done = FALSE;
+    int msok = find_msok(mdef);
 
     if ((touch_petrifies(pd) /* or flesh_petrifies() */
          || (mattk->adtyp == AD_DGST && pd == &mons[PM_MEDUSA]))
@@ -1059,6 +1060,14 @@ mdamagem(
 
     if (!mhm.damage)
         return mhm.hitflags;
+
+    /* Reduce damage by 1-sok */
+    if (mhm.damage && msok) {
+        mhm.damage -= rnd(msok);
+        if (mhm.damage < 1)
+            mhm.damage = 1;
+        mdef->mablsok++;
+    }
 
     mdef->mhp -= mhm.damage;
     if (mdef->mhp < 1) {

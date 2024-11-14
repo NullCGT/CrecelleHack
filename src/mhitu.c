@@ -1171,13 +1171,12 @@ hitmu(struct monst *mtmp, struct attack *mattk)
         mhm.damage = 0;
     }
 
-    /*  Negative armor class reduces damage done instead of fully protecting
-     *  against hits.
-     */
-    if (mhm.damage && u.uac < 0) {
-        mhm.damage -= rnd(-u.uac);
+    /*  Soak reduces damage dealt but is reduced by subsequent hits. */
+    if (mhm.damage && u.usok) {
+        mhm.damage -= rnd(u.usok);
         if (mhm.damage < 1)
             mhm.damage = 1;
+        u.uablsok++;
     }
 
     if (mhm.damage) {

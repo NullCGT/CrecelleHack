@@ -275,6 +275,12 @@ moveloop_core(void)
                     regen_hp(mvl_wtcap);
                 }
 
+                /* Ablative soak fades */
+                if (u.uablsok) {
+                    disp.botl = TRUE;
+                    u.uablsok--;
+                }
+
                 /* moving around while encumbered is hard work */
                 if (mvl_wtcap > MOD_ENCUMBER && u.umoved) {
                     if (!(mvl_wtcap < EXT_ENCUMBER ? svm.moves % 30

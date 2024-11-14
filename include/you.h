@@ -460,9 +460,11 @@ struct you {
     schar usok;
     schar umc;
 #define AC_MAX    99  /* abs(u.uac) <= 99; likewise for monster AC */
+#define SOK_MAX   99
     uchar uspellprot;        /* protection by SPE_PROTECTION */
     uchar usptime;           /* #moves until uspellprot-- */
     uchar uspmtime;          /* #moves between uspellprot-- */
+    uchar uablsok;           /* ablative soak reduction */
     int uhp, uhpmax,         /* hit points, aka health */
         uhppeak;             /* highest value of uhpmax so far */
     int uen, uenmax,         /* magical energy, aka spell power */

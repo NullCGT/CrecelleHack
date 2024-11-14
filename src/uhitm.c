@@ -4010,8 +4010,8 @@ mhitm_ad_phys(
                    to take the damage _before_ being cloned;
                    need to have at least 2 hp left to split */
                 tmp = mhm->damage;
-                if (u.uac < 0)
-                    tmp -= rnd(-u.uac);
+                if (u.usok )
+                    tmp -= rnd(u.usok);
                 if (tmp < 1)
                     tmp = 1;
                 if (u.mh - tmp > 1
@@ -4747,6 +4747,8 @@ damageum(
     mhm.specialdmg = specialdmg;
     mhm.done = FALSE;
 
+    int msok = find_msok(mdef);
+
     if (is_demon(gy.youmonst.data) && !rn2(13) && !uwep
         && u.umonnum != PM_AMOROUS_DEMON && u.umonnum != PM_BALROG) {
         demonpet();
@@ -4757,6 +4759,14 @@ damageum(
 
     if (mhm.done)
         return mhm.hitflags;
+
+    /* Reduce damage by 1-sok */
+    if (mhm.damage && msok) {
+        mhm.damage -= rnd(msok);
+        if (mhm.damage < 1)
+            mhm.damage = 1;
+        mdef->mablsok++;
+    }
 
     mdef->mstrategy &= ~STRAT_WAITFORU; /* in case player is very fast */
     mdef->mhp -= mhm.damage;

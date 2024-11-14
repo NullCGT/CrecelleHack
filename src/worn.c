@@ -661,6 +661,31 @@ find_mac(struct monst *mon)
     return base;
 }
 
+int
+find_msok(struct monst *mon)
+{
+    struct obj *obj;
+    int base = mon->data->sok;
+    long mwflags = mon->misc_worn_check;
+
+    for (obj = mon->minvent; obj; obj = obj->nobj) {
+        if (obj->owornmask & mwflags) {
+            if (obj->otyp == AMULET_OF_GUARDING)
+                base += 2; /* fixed amount, not impacted by erosion */
+            else
+                base += SOK_BONUS(obj);
+        }
+    }
+    if (mon->mablsok)
+        base -= mon->mablsok;
+    /* same cap as for hero [find_ac(do_wear.c)] */
+    if (base > SOK_MAX)
+        base = SOK_MAX;
+    else if (base < 0)
+        base = 0;
+    return base;
+}
+
 /*
  * weapons are handled separately;
  * rings and eyewear aren't used by monsters

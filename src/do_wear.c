@@ -2377,7 +2377,6 @@ find_ac(void)
 {
     int uac = mons[u.umonnum].ac; /* base armor class for current form */
     int usok = mons[u.umonnum].sok; /* base soak for current form */
-    int usok = 0;
     int umc = magic_negation(&gy.youmonst); /* magic negation calculation */
 
     /* armor class from worn gear */
@@ -2421,6 +2420,10 @@ find_ac(void)
     if (Prone)
         uac += 3;
 
+    /* Ablative Soak */
+    if (u.uablsok > 0)
+        usok -= u.uablsok;
+
     /* armor class from other sources */
     if (HProtection & INTRINSIC)
         uac -= u.ublessed;
@@ -2429,6 +2432,11 @@ find_ac(void)
     /* put a cap on armor class [3.7: was +127,-128, now reduced to +/- 99 */
     if (abs(uac) > AC_MAX)
         uac = sgn(uac) * AC_MAX;
+    
+    if (usok > SOK_MAX)
+        usok = SOK_MAX;
+    else if (usok < 0)
+        usok = 0;
 
     /* Update AC */
     if (uac != u.uac) {

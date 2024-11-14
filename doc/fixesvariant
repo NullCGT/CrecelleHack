@@ -14,12 +14,10 @@
 ## Armor
 - Armor class functions differently in this variant.
   - AC: Chance of dodging an attack completely.
-    - AC no longer causes damage reduction. Damage reduction is handled by SO.
-  - SO: Amount of damage absorbed by armor.
-    - Ablative. Damage is soaked up by various pieces of armor.
-    - Enchanting armor increases its SO.
-    - When an armor's soak is used up, it is broken and does not provide its
-      intrinsics or MC.
+    - AC no longer causes damage reduction. Damage reduction is handled by Sk.
+  - Sk: Also known as Soak. Amount of damage absorbed by armor.
+    - Every hit reduces soak by 1. Soak recovers over time.
+    - When hit, damage is reduced by a number between 1 and soak.
   - MC: Chance of cancelling a special effect.
     - Every piece of armor adds some amount of magic cancellation.
     - Maxes out at 90%.

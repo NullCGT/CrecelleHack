@@ -913,6 +913,11 @@ savetrapchn(NHFILE *nhfp, struct trap *trap)
             trap->dst.dlevel -= u.uz.dlevel; /* make it relative */
         if (update_file(nhfp)) {
             Sfo_trap(nhfp, trap, "trap");
+            if (trap->ammo)
+            /* if perform_bwrite, this will save the ammo after the
+               trap; if release_data, this will free the ammo before
+               freeing the trap */
+            saveobjchn(nhfp, &trap->ammo);
         }
         if (use_relative)
             trap->dst.dlevel += u.uz.dlevel; /* reset back to absolute */

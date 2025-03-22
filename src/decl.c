@@ -663,6 +663,7 @@ static const struct instance_globals_p g_init_p = {
     UNDEFINED_VALUE, /* potion_nothing */
     UNDEFINED_VALUE, /* potion_unkn */
     /* pray.c */
+    0, /* p_dindex */
     UNDEFINED_VALUE, /* p_aligntyp */
     UNDEFINED_VALUE, /* p_trouble */
     UNDEFINED_VALUE, /* p_type */

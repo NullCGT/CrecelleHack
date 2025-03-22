@@ -293,11 +293,13 @@ m_initweap(struct monst *mtmp)
             }
         } else if (ptr->msound == MS_PRIEST
                    || quest_mon_represents_role(ptr, PM_CLERIC)) {
-            otmp = mksobj(MACE, FALSE, FALSE);
-            otmp->spe = rnd(3);
-            if (!rn2(2))
-                curse(otmp);
-            (void) mpickobj(mtmp, otmp);
+            if (!has_epri(mtmp)) {
+                otmp = mksobj(MACE, FALSE, FALSE);
+                otmp->spe = rnd(3);
+                if (!rn2(2))
+                    curse(otmp);
+                (void) mpickobj(mtmp, otmp);
+            }
         } else if (mm == PM_NINJA) { /* extra quest villains */
             (void) mongets(mtmp, rn2(4) ? SHURIKEN : DART);
             (void) mongets(mtmp, rn2(4) ? SHORT_SWORD : AXE);
@@ -1480,7 +1482,8 @@ makemon(
         eminp = EMIN(mtmp);
 
         mtmp->isminion = 1;            /* make priest be a roamer */
-        eminp->min_align = rn2(3) - 1; /* no A_NONE */
+        eminp->min_dindex = rn2(DN_MOLOCH);
+        eminp->min_align = deities[eminp->min_dindex].dalign;
         eminp->renegade = (boolean) ((mmflags & MM_ANGRY) ? 1 : !rn2(3));
         mtmp->mpeaceful = (eminp->min_align == u.ualign.type)
                               ? !eminp->renegade

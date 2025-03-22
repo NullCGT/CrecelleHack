@@ -1925,16 +1925,19 @@ attributes_enlightenment(
          * resulting in a false claim that you could have prayed safely.
          */
         if (!final) {
+            for (int i = 0; i < DN_MOLOCH; i++) {
 #if 0
-            /* "can [not] safely pray" vs "could [not] have safely prayed" */
-            Sprintf(buf, "%s%ssafely pray%s", can_pray(FALSE) ? "" : "not ",
-                    final ? "have " : "", final ? "ed" : "");
+                /* "can [not] safely pray" vs "could [not] have safely prayed" */
+                Sprintf(buf, "%s%ssafely pray%s", can_pray(FALSE) ? "" : "not ",
+                        final ? "have " : "", final ? "ed" : "");
 #else
-            Sprintf(buf, "%ssafely pray", can_pray(FALSE) ? "" : "not ");
+                Sprintf(buf, "%ssafely pray to %s", can_pray(i, FALSE) ? "" : "not ", 
+                        indexed_gname(i));
 #endif
-            if (wizard)
-                Sprintf(eos(buf), " (%d)", u.ublesscnt);
-            you_can(buf, "");
+                if (wizard)
+                    Sprintf(eos(buf), " (%d)", u.ublesscnt);
+                you_can(buf, "");
+            }
         }
     }
 

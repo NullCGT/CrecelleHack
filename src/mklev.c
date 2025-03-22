@@ -2213,6 +2213,7 @@ mkaltar(struct mkroom *croom)
 {
     coord m;
     aligntyp al;
+    int dindex;
 
     if (croom->rtype != OROOM)
         return;
@@ -2225,7 +2226,9 @@ mkaltar(struct mkroom *croom)
         return;
 
     /* -1 - A_CHAOTIC, 0 - A_NEUTRAL, 1 - A_LAWFUL */
-    al = rn2((int) A_LAWFUL + 2) - 1;
+    dindex = rn2(DN_MOLOCH);
+    al = deities[dindex].dalign;
+    levl[m.x][m.y].deity_index = dindex;
     levl[m.x][m.y].altarmask = Align2amask(al);
 }
 

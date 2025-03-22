@@ -10,16 +10,16 @@ staticfn struct obj *worst_cursed_item(void);
 staticfn int in_trouble(void);
 staticfn void fix_curse_trouble(struct obj *, const char *);
 staticfn void fix_worst_trouble(int);
-staticfn void angrygods(aligntyp);
+staticfn void angrygods(int);
 staticfn void at_your_feet(const char *);
 staticfn void gcrownu(void);
 staticfn void give_spell(void);
-staticfn void pleased(aligntyp);
-staticfn void godvoice(aligntyp, const char *);
-staticfn void god_zaps_you(aligntyp);
-staticfn void fry_by_god(aligntyp, boolean);
-staticfn void gods_angry(aligntyp);
-staticfn void gods_upset(aligntyp);
+staticfn void pleased(int);
+staticfn void godvoice(int, const char *);
+staticfn void god_zaps_you(int);
+staticfn void fry_by_god(int, boolean);
+staticfn void gods_angry(int);
+staticfn void gods_upset(int);
 staticfn void consume_offering(struct obj *);
 staticfn void offer_too_soon(aligntyp);
 staticfn void offer_real_amulet(struct obj *, aligntyp); /* NORETURN */
@@ -105,6 +105,7 @@ static const char *const godvoices[] = {
 #define on_altar() IS_ALTAR(levl[u.ux][u.uy].typ)
 #define on_shrine() ((levl[u.ux][u.uy].altarmask & AM_SHRINE) != 0)
 #define a_align(x, y) ((aligntyp) Amask2align(levl[x][y].altarmask & AM_MASK))
+#define altar_deity_index(x, y) levl[x][y].deity_index
 
 /* used by turn undead iteration function; always reinitialized
    before iterating that, so don't need to be globals */
@@ -607,7 +608,7 @@ fix_worst_trouble(int trouble)
  * Divine wrath, dungeon walls, and armor follow the same principle.
  */
 staticfn void
-god_zaps_you(aligntyp resp_god)
+god_zaps_you(int dindex)
 {
     if (u.uswallow) {
         pline(
@@ -638,12 +639,12 @@ god_zaps_you(aligntyp resp_god)
             monstseesu(M_SEEN_ELEC);
             monstunseesu(M_SEEN_REFL);
         } else {
-            fry_by_god(resp_god, FALSE);
+            fry_by_god(dindex, FALSE);
             monstunseesu(M_SEEN_REFL | M_SEEN_ELEC);
         }
     }
 
-    pline("%s is not deterred...", align_gname(resp_god));
+    pline("%s is not deterred...", indexed_gname(dindex));
     if (u.uswallow) {
         pline("A wide-angle disintegration beam aimed at you hits %s!",
               mon_nam(u.ustuck));
@@ -670,20 +671,20 @@ god_zaps_you(aligntyp resp_god)
         if (uarmu && !uarm && !uarmc)
             (void) destroy_arm(uarmu);
         if (!Disint_resistance) {
-            fry_by_god(resp_god, TRUE);
+            fry_by_god(dindex, TRUE);
             monstunseesu(M_SEEN_DISINT);
         } else {
             You("bask in its %s glow for a minute...", NH_BLACK);
-            godvoice(resp_god, "I believe it not!");
+            godvoice(dindex, "I believe it not!");
             monstseesu(M_SEEN_DISINT);
         }
         if (Is_astralevel(&u.uz) || Is_sanctum(&u.uz)) {
             /* one more try for high altars */
             SetVoice((struct monst *) 0, 0, 80, voice_deity);
             verbalize("Thou cannot escape my wrath, mortal!");
-            summon_minion(resp_god, FALSE);
-            summon_minion(resp_god, FALSE);
-            summon_minion(resp_god, FALSE);
+            summon_minion(dindex, FALSE);
+            summon_minion(dindex, FALSE);
+            summon_minion(dindex, FALSE);
             SetVoice((struct monst *) 0, 0, 80, voice_deity);
             verbalize("Destroy %s, my servants!", uhim());
         }
@@ -691,27 +692,28 @@ god_zaps_you(aligntyp resp_god)
 }
 
 staticfn void
-fry_by_god(aligntyp resp_god, boolean via_disintegration)
+fry_by_god(int dindex, boolean via_disintegration)
 {
     You("%s!", !via_disintegration ? "fry to a crisp"
                                    : "disintegrate into a pile of dust");
     svk.killer.format = KILLED_BY;
-    Sprintf(svk.killer.name, "the wrath of %s", align_gname(resp_god));
+    Sprintf(svk.killer.name, "the wrath of %s", indexed_gname(dindex));
     done(DIED);
 }
 
 staticfn void
-angrygods(aligntyp resp_god)
+angrygods(int dindex)
 {
     int maxanger, new_ublesscnt;
+    aligntyp dalign = deities[dindex].dalign;
 
     if (Inhell)
-        resp_god = A_NONE;
+        dindex = DN_MOLOCH;
     u.ublessed = 0; /* lose divine protection */
 
     /* changed from tmp = u.ugangr + abs (u.uluck) -- rph */
     /* added test for alignment diff -dlc */
-    if (resp_god != u.ualign.type)
+    if (dalign != u.ualign.type)
         maxanger = u.ualign.record / 2 + (Luck > 0 ? -Luck / 3 : -Luck);
     else
         maxanger = 3 * u.ugangr + ((Luck > 0 || u.ualign.record >= STRIDENT)
@@ -725,14 +727,14 @@ angrygods(aligntyp resp_god)
     switch (rn2(maxanger)) {
     case 0:
     case 1:
-        You_feel("that %s is %s.", align_gname(resp_god),
+        You_feel("that %s is %s.", indexed_gname(dindex),
                  Hallucination ? "bummed" : "displeased");
         break;
     case 2:
     case 3:
-        godvoice(resp_god, (char *) 0);
+        godvoice(dindex, (char *) 0);
         pline("\"Thou %s, %s.\"",
-              (ugod_is_angry() && resp_god == u.ualign.type)
+              (ugod_is_angry() && dalign == u.ualign.type)
                   ? "hast strayed from the path"
                   : "art arrogant",
               gy.youmonst.data->mlet == S_HUMAN ? "mortal" : "creature");
@@ -743,7 +745,7 @@ angrygods(aligntyp resp_god)
         break;
     case 6:
         if (!Punished) {
-            gods_angry(resp_god);
+            gods_angry(dindex);
             punish((struct obj *) 0);
             break;
         }
@@ -751,7 +753,7 @@ angrygods(aligntyp resp_god)
         /* FALLTHRU */
     case 4:
     case 5:
-        gods_angry(resp_god);
+        gods_angry(dindex);
         if (!Blind && !Antimagic)
             pline("%s glow surrounds you.", An(hcolor(NH_BLACK)));
         if (rn2(2) || !attrcurse())
@@ -759,21 +761,21 @@ angrygods(aligntyp resp_god)
         break;
     case 7:
     case 8:
-        godvoice(resp_god, (char *) 0);
+        godvoice(dindex, (char *) 0);
         SetVoice((struct monst *) 0, 0, 80, voice_deity);
         verbalize("Thou durst %s me?",
-                  (on_altar() && (a_align(u.ux, u.uy) != resp_god))
+                  (on_altar() && (a_align(u.ux, u.uy) != dalign))
                       ? "scorn"
                       : "call upon");
         /* [why isn't this using verbalize()?] */
         pline("\"Then die, %s!\"",
               (gy.youmonst.data->mlet == S_HUMAN) ? "mortal" : "creature");
-        summon_minion(resp_god, FALSE);
+        summon_minion(dindex, FALSE);
         break;
 
     default:
-        gods_angry(resp_god);
-        god_zaps_you(resp_god);
+        gods_angry(dindex);
+        god_zaps_you(dindex);
         break;
     }
     /* even though this might not be in response to prayer, set pray timer */
@@ -816,7 +818,7 @@ gcrownu(void)
     HShock_resistance |= FROMOUTSIDE;
     HSleep_resistance |= FROMOUTSIDE;
     HPoison_resistance |= FROMOUTSIDE;
-    godvoice(u.ualign.type, (char *) 0);
+    godvoice(altar_deity_index(u.ux, u.uy), (char *) 0);
 
     class_gift = STRANGE_OBJECT;
     /* 3.3.[01] had this in the A_NEUTRAL case,
@@ -841,7 +843,7 @@ gcrownu(void)
         verbalize("I crown thee...  The Hand of Elbereth!");
         livelog_printf(LL_DIVINEGIFT,
                        "was crowned \"The Hand of Elbereth\" by %s",
-                       u_gname());
+                       i_gname());
         break;
     case A_NEUTRAL:
         u.uevent.uhand_of_elbereth = 2;
@@ -851,7 +853,7 @@ gcrownu(void)
         SetVoice((struct monst *) 0, 0, 80, voice_deity);
         verbalize("Thou shalt be my Envoy of Balance!");
         livelog_printf(LL_DIVINEGIFT, "became %s Envoy of Balance",
-                       s_suffix(u_gname()));
+                       s_suffix(i_gname()));
         break;
     case A_CHAOTIC:
         u.uevent.uhand_of_elbereth = 3;
@@ -864,7 +866,7 @@ gcrownu(void)
         SetVoice((struct monst *) 0, 0, 80, voice_deity);
         verbalize("Thou art chosen to %s for My Glory!", what);
         livelog_printf(LL_DIVINEGIFT, "was chosen to %s for the Glory of %s",
-                       what, u_gname());
+                       what, i_gname());
         break;
     }
 
@@ -1067,13 +1069,13 @@ give_spell(void)
 }
 
 staticfn void
-pleased(aligntyp g_align)
+pleased(int gindex)
 {
     /* don't use p_trouble, worst trouble may get fixed while praying */
     int trouble = in_trouble(); /* what's your worst difficulty? */
     int pat_on_head = 0, kick_on_butt;
 
-    You_feel("that %s is %s.", align_gname(g_align),
+    You_feel("that %s is %s.", indexed_gname(gindex),
              (u.ualign.record >= DEVOUT)
                  ? Hallucination ? "pleased as punch" : "well-pleased"
                  : (u.ualign.record >= STRIDENT)
@@ -1081,7 +1083,7 @@ pleased(aligntyp g_align)
                        : Hallucination ? "full" : "satisfied");
 
     /* not your deity */
-    if (on_altar() && gp.p_aligntyp != u.ualign.type) {
+    if (on_altar() && deities[gp.p_dindex].dalign != u.ualign.type) {
         adjalign(-1);
         return;
     } else if (u.ualign.record < 2 && trouble <= 0)
@@ -1221,7 +1223,7 @@ pleased(aligntyp g_align)
                travelled past the Valley of the Dead (gehennom_entered) */
             if (!u.uevent.uopened_dbridge && !u.uevent.gehennom_entered) {
                 if (u.uevent.uheard_tune < 1) {
-                    godvoice(g_align, (char *) 0);
+                    godvoice(gindex, (char *) 0);
                     SetVoice((struct monst *) 0, 0, 80, voice_deity);
                     verbalize("Hark, %s!", is_human(gy.youmonst.data)
                                                ? "mortal"
@@ -1284,7 +1286,7 @@ pleased(aligntyp g_align)
             int any = 0;
 
             if (Blind)
-                You_feel("the power of %s.", u_gname());
+                You_feel("the power of %s.", indexed_gname(gindex));
             else
                 You("are surrounded by %s aura.", an(hcolor(NH_LIGHT_BLUE)));
             for (otmp = gi.invent; otmp; otmp = nextobj) {
@@ -1411,7 +1413,7 @@ water_prayer(boolean bless_water)
 }
 
 staticfn void
-godvoice(aligntyp g_align, const char *words)
+godvoice(int gindex, const char *words)
 {
     const char *quot = "";
 
@@ -1420,25 +1422,26 @@ godvoice(aligntyp g_align, const char *words)
     else
         words = "";
 
-    pline_The("voice of %s %s: %s%s%s", align_gname(g_align),
-              ROLL_FROM(godvoices), quot, words, quot);
+    pline_The("voice of %s %s: %s%s%s", indexed_gname(gindex),
+              gindex == DN_MOLOCH ? ROLL_FROM(godvoices) : deities[gindex].voice, 
+              quot, words, quot);
 }
 
 staticfn void
-gods_angry(aligntyp g_align)
+gods_angry(int dindex)
 {
-    godvoice(g_align, "Thou hast angered me.");
+    godvoice(dindex, "Thou hast angered me.");
 }
 
 /* The g_align god is upset with you. */
 staticfn void
-gods_upset(aligntyp g_align)
+gods_upset(int dindex)
 {
-    if (g_align == u.ualign.type)
+    if (deities[dindex].dalign == u.ualign.type)
         u.ugangr++;
     else if (u.ugangr)
         u.ugangr--;
-    angrygods(g_align);
+    angrygods(dindex);
 }
 
 staticfn void
@@ -1484,7 +1487,7 @@ offer_too_soon(aligntyp altaralign)
            so is in the process of getting away with the Amulet;
            for any unaligned altar outside of Gehennom, give the
            "you feel ashamed" feedback for wrong alignment below */
-        gods_upset(A_NONE); /* Moloch becomes angry */
+        gods_upset(DN_MOLOCH); /* Moloch becomes angry */
         return;
     }
     You_feel("%s.", Hallucination
@@ -1516,9 +1519,9 @@ desecrate_altar(boolean highaltar, aligntyp altaralign)
           align_gname(altaralign));
     Sprintf(gvbuf, "So, mortal!  You dare desecrate my %s!",
             highaltar ? "High Temple" : "altar");
-    godvoice(altaralign, gvbuf);
+    godvoice(altar_deity_index(u.ux, u.uy), gvbuf);
     /* Throw everything we have at the player */
-    god_zaps_you(altaralign);
+    god_zaps_you(altar_deity_index(u.ux, u.uy));
 }
 
 /* offering the Amulet on a high altar (checked by caller) ends the game;
@@ -1553,7 +1556,7 @@ offer_real_amulet(struct obj *otmp, aligntyp altaralign)
         done(DIED);
         /* life-saved (or declined to die in wizard/explore mode) */
         pline("%s snarls and tries again...", Moloch);
-        fry_by_god(A_NONE, TRUE); /* wrath of Moloch */
+        fry_by_god(DN_MOLOCH, TRUE); /* wrath of Moloch */
         /* declined to die in wizard or explore mode */
         pline(cloud_of_smoke, hcolor(NH_BLACK));
         done(ESCAPED);
@@ -1593,7 +1596,7 @@ offer_negative_valued(boolean highaltar, aligntyp altaralign)
     if (altaralign != u.ualign.type && highaltar) {
         desecrate_altar(highaltar, altaralign);
     } else {
-        gods_upset(altaralign);
+        gods_upset(altar_deity_index(u.ux, u.uy));
     }
 }
 
@@ -1652,7 +1655,7 @@ offer_different_alignment_altar(
             change_luck(-5);
             (void) adjattrib(A_WIS, -2, TRUE);
             if (!Inhell)
-                angrygods(u.ualign.type);
+                angrygods(altar_deity_index(u.ux, u.uy));
         }
     } else {
         consume_offering(otmp);
@@ -1677,7 +1680,7 @@ offer_different_alignment_altar(
 
             if (rnl(u.ulevel) > 6 && u.ualign.record > 0
                 && rnd(u.ualign.record) > (3 * ALIGNLIM) / 4)
-                summon_minion(altaralign, TRUE);
+                summon_minion(altar_deity_index(u.ux, u.uy), TRUE);
             /* anger priest; test handles bones files */
             if ((pri = findpriest(temple_occupied(u.urooms)))
                 && !p_coaligned(pri))
@@ -1688,7 +1691,7 @@ offer_different_alignment_altar(
             exercise(A_WIS, FALSE);
             if (rnl(u.ulevel) > 6 && u.ualign.record > 0
                 && rnd(u.ualign.record) > (7 * ALIGNLIM) / 8)
-                summon_minion(altaralign, TRUE);
+                summon_minion(altar_deity_index(u.ux, u.uy), TRUE);
         }
     }
 }
@@ -1766,7 +1769,7 @@ sacrifice_your_race(
         u.ugangr += 3;
         (void) adjattrib(A_WIS, -1, TRUE);
         if (!Inhell)
-            angrygods(u.ualign.type);
+            angrygods(altar_deity_index(u.ux, u.uy));
         change_luck(-5);
     } else
         adjalign(5);
@@ -1813,14 +1816,14 @@ bestow_artifact(uchar max_giftvalue)
                         bare_artifactname(otmp));
             at_your_feet(upstart(buf));
             dropy(otmp);
-            godvoice(u.ualign.type, "Use my gift wisely!");
+            godvoice(altar_deity_index(u.ux, u.uy), "Use my gift wisely!");
             u.ugifts++;
             u.ublesscnt = rnz(300 + (50 * nartifacts));
             exercise(A_WIS, TRUE);
             livelog_printf (LL_DIVINEGIFT | LL_ARTIFACT,
                             "was bestowed with %s by %s",
                             artiname(otmp->oartifact),
-                            align_gname(u.ualign.type));
+                            indexed_gname(altar_deity_index(u.ux, u.uy)));
             /* make sure we can use this weapon */
             unrestrict_weapon_skill(weapon_type(otmp));
             if (!Hallucination && !Blind) {
@@ -2120,11 +2123,12 @@ offer_corpse(struct obj *otmp, boolean highaltar, aligntyp altaralign)
 
 /* determine prayer results in advance; also used for enlightenment */
 boolean
-can_pray(boolean praying) /* false means no messages should be given */
+can_pray(int gindex, boolean praying) /* false means no messages should be given */
 {
     int alignment;
 
-    gp.p_aligntyp = on_altar() ? a_align(u.ux, u.uy) : u.ualign.type;
+    gp.p_dindex = on_altar() ? altar_deity_index(u.ux, u.uy) : gindex;
+    gp.p_aligntyp = on_altar() ? a_align(u.ux, u.uy) : deities[gindex].dalign;
     gp.p_trouble = in_trouble();
 
     if (is_demon(gy.youmonst.data) /* ok if chaotic or none (Moloch) */
@@ -2136,7 +2140,7 @@ can_pray(boolean praying) /* false means no messages should be given */
     }
 
     if (praying)
-        You("begin praying to %s.", align_gname(gp.p_aligntyp));
+        You("begin praying to %s.", indexed_gname(gindex));
 
     if (u.ualign.type && u.ualign.type == -gp.p_aligntyp)
         alignment = -u.ualign.record; /* Opposite alignment altar */
@@ -2193,6 +2197,11 @@ int
 dopray(void)
 {
     boolean ok;
+    winid win;
+    int n, pass, gindex = 0;
+    menu_item *sel;
+    anything any;
+    char buf[BUFSZ];
 
     /*
      * If ParanoidPray is set, confirm prayer to avoid accidental slips
@@ -2212,16 +2221,44 @@ dopray(void)
             return ECMD_OK;
     }
 
+    /* Choose which got to pray to! */
+    do  {
+        win = create_nhwindow(NHW_MENU);
+        start_menu(win, MENU_BEHAVE_STANDARD);
+        any = cg.zeroany;
+        any.a_char = 'a';
+        for (int i = 0; i < DN_MOLOCH + 1; i++) {
+            Sprintf(buf, "%s, %s (%c)", 
+                    deities[i].name, deities[i].title,
+                    deities[i].dalign == A_LAWFUL ? 'L' : deities[i].dalign == A_CHAOTIC ? 'C' :
+                    deities[i].dalign == A_NEUTRAL ? 'N' : 'U');
+            add_menu(win, &nul_glyphinfo, &any, any.a_char++, 0,
+                        ATR_NONE, NO_COLOR,
+                        buf, MENU_ITEMFLAGS_NONE);
+        };
+
+        add_menu_str(win, "");
+        if (pass++) /* we'll get here after <space> or <return> */
+            add_menu_str(win, "(You must select a deity)");
+
+        end_menu(win, "To which deity do you wish to pray?");
+        n = select_menu(win, PICK_ONE, &sel);
+        destroy_nhwindow(win);
+    } while (n <= 0);
+    gindex = sel[0].item.a_char - 'a' - 1;
+    /* End prayer choice. */
+
     if (!u.uconduct.gnostic++)
         /* breaking conduct should probably occur in can_pray() at
          * "You begin praying to %s", as demons who find praying repugnant
          * should not break conduct.  Also we can add more detail to the
          * livelog message as p_aligntyp will be known.
          */
-        livelog_printf(LL_CONDUCT, "rejected atheism with a prayer");
+        livelog_printf(LL_CONDUCT, "rejected atheism with a prayer to %s, %s", 
+                        indexed_gname(gindex), deities[gindex].title);
 
     /* set up p_type and p_alignment */
-    if (!can_pray(TRUE))
+    if (!can_pray(gindex, TRUE))
         return ECMD_OK;
 
     if (wizard && gp.p_type >= 0) {
@@ -2286,7 +2323,7 @@ prayer_done(void) /* M. Stephenson (1.0.3b) */
         } /* else use regular Inhell result below */
     } else if (gp.p_type == -1) {
         /* praying while poly'd into an undead creature while non-chaotic */
-        godvoice(alignment,
+        godvoice(gp.p_dindex,
                  (alignment == A_LAWFUL)
                     ? "Vile creature, thou durst call upon me?"
                     : "Walk no more, perversion of nature!");
@@ -2299,11 +2336,10 @@ prayer_done(void) /* M. Stephenson (1.0.3b) */
         return 1;
     }
     if (Inhell) {
-        pline("Since you are in Gehennom, %s can't help you.",
-              align_gname(alignment));
+        pline("Since you are in Gehennom, only Moloch can hear you.");
         /* haltingly aligned is least likely to anger */
         if (u.ualign.record <= 0 || rnl(u.ualign.record))
-            angrygods(u.ualign.type);
+            angrygods(gp.p_dindex);
         return 0;
     }
 
@@ -2312,26 +2348,26 @@ prayer_done(void) /* M. Stephenson (1.0.3b) */
             (void) water_prayer(FALSE);
         u.ublesscnt += rnz(250);
         change_luck(-3);
-        gods_upset(u.ualign.type);
+        gods_upset(gp.p_dindex);
     } else if (gp.p_type == 1) {
         if (on_altar() && u.ualign.type != alignment)
             (void) water_prayer(FALSE);
-        angrygods(u.ualign.type); /* naughty */
+        angrygods(gp.p_dindex); /* naughty */
     } else if (gp.p_type == 2) {
         if (water_prayer(FALSE)) {
             /* attempted water prayer on a non-coaligned altar */
             u.ublesscnt += rnz(250);
             change_luck(-3);
-            gods_upset(u.ualign.type);
+            gods_upset(gp.p_dindex); /* TODO: FIXME */
         } else
-            pleased(alignment);
+            pleased(gp.p_dindex);
     } else {
         /* coaligned */
         if (on_altar()) {
             (void) pray_revive();
             (void) water_prayer(TRUE);
         }
-        pleased(alignment); /* nice */
+        pleased(gp.p_dindex); /* nice */
     }
     return 1;
 }
@@ -2503,6 +2539,24 @@ a_gname(void)
     return a_gname_at(u.ux, u.uy);
 }
 
+const char *
+i_gname(void)
+{
+    return i_gname_at(u.ux, u.uy);
+}
+
+
+/* returns the name of an altar's deity */
+const char *
+i_gname_at(coordxy x, coordxy y)
+{
+    if (!IS_ALTAR(levl[x][y].typ))
+        return (char *) 0;
+
+    return indexed_gname(altar_deity_index(x, y));
+}
+
+
 /* returns the name of an altar's deity */
 const char *
 a_gname_at(coordxy x, coordxy y)
@@ -2513,11 +2567,22 @@ a_gname_at(coordxy x, coordxy y)
     return align_gname(a_align(x, y));
 }
 
-/* returns the name of the hero's deity */
+/* returns the name of the deity that loves the hero mosts */
 const char *
 u_gname(void)
 {
-    return align_gname(u.ualign.type);
+    int most_index = 0;
+    for (int i = 0; i < DN_MOLOCH; i++) {
+        if (u.d_record[i] > u.d_record[most_index])
+            most_index = i;
+    }
+    return indexed_gname(most_index);
+}
+
+const char *
+indexed_gname(int gindex)
+{
+    return deities[gindex].name;
 }
 
 const char *
@@ -2646,6 +2711,7 @@ void
 altar_wrath(coordxy x, coordxy y)
 {
     aligntyp altaralign = a_align(x, y);
+    int dindex = altar_deity_index(x, y);
 
     if (u.ualign.type == altaralign && u.ualign.record > -rn2(4)) {
         godvoice(altaralign, "How darest thou desecrate my altar!");
@@ -2655,7 +2721,7 @@ altar_wrath(coordxy x, coordxy y)
         pline("%s %s%s:",
               !Deaf ? "A voice (could it be"
                     : "Despite your deafness, you seem to hear",
-              align_gname(altaralign),
+              indexed_gname(dindex),
               !Deaf ? "?) whispers" : " say");
         SetVoice((struct monst *) 0, 0, 80, voice_deity);
         verbalize("Thou shalt pay, infidel!");

@@ -246,6 +246,7 @@ priestini(
     priest = makemon(prim, px, py, MM_EPRI);
     if (priest) {
         EPRI(priest)->shroom = (schar) ((sroom - svr.rooms) + ROOMOFFSET);
+        EPRI(priest)->shrindex = levl[sx][sy].deity_index;
         EPRI(priest)->shralign = Amask2align(levl[sx][sy].altarmask);
         EPRI(priest)->shrpos.x = sx;
         EPRI(priest)->shrpos.y = sy;
@@ -273,6 +274,12 @@ priestini(
             else
                 curse(otmp);
         }
+        /* favored weapon of deity */
+        otmp = mksobj(deities[EPRI(priest)->shrindex].favored_weapon, FALSE, FALSE);
+        otmp->spe = rnd(3);
+        if (!rn2(2))
+            curse(otmp);
+        (void) mpickobj(priest, otmp);
     }
 }
 
@@ -362,7 +369,11 @@ priestname(
         || !Is_astralevel(&u.uz)
         || m_next2u(mon) || program_state.gameover) {
         Strcat(pname, " of ");
-        Strcat(pname, halu_gname(mon_aligntyp(mon)));
+        /* TODO: switch to halu_gname() once we set it up */
+        if (has_emin(mon))
+            Strcat(pname, indexed_gname(EMIN(mon)->min_dindex));
+        else
+            Strcat(pname, indexed_gname(EPRI(mon)->shrindex));
     }
     return pname;
 }
@@ -385,8 +396,7 @@ has_shrine(struct monst *pri)
     lev = &levl[epri_p->shrpos.x][epri_p->shrpos.y];
     if (!IS_ALTAR(lev->typ) || !(lev->altarmask & AM_SHRINE))
         return FALSE;
-    return (boolean) (epri_p->shralign
-                      == (Amask2align(lev->altarmask & ~AM_SHRINE)));
+    return (boolean) epri_p->shrindex == lev->deity_index;
 }
 
 struct monst *
@@ -858,13 +868,13 @@ angry_priest(void)
          */
         lev = &levl[eprip->shrpos.x][eprip->shrpos.y];
         if (!IS_ALTAR(lev->typ)
-            || ((aligntyp) Amask2align(lev->altarmask & AM_MASK)
-                != eprip->shralign)) {
+            || (lev->deity_index != eprip->shrindex)) {
             if (!EMIN(priest))
                 newemin(priest);
             priest->ispriest = 0; /* now a roaming minion */
             priest->isminion = 1;
             assert(has_emin(priest));
+            EMIN(priest)->min_dindex = eprip->shrindex;
             EMIN(priest)->min_align = eprip->shralign;
             EMIN(priest)->renegade = FALSE;
             /* discard priest's memory of his former shrine;

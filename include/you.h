@@ -167,6 +167,30 @@ struct u_roleplay {
     long numbones;  /* # of bones files loaded  */
 };
 
+/* These names are NOT final */
+#define DEITY_LIST \
+    GOD("Damalon",    "Dwarfmaker",   "thunders", \
+        WAR_HAMMER, PM_DWARF_RULER, A_LAWFUL, DWARFGOD), \
+    GOD("Marduk",     "Allfather",    "intones", \
+        MACE,       PM_MINOTAUR, A_NEUTRAL, MARDUK), \
+    GOD("Hemogloth",  "God of Blood", "burbles", \
+        ATHAME,     PM_BLOOD_GOLEM, A_CHAOTIC, BLOODGOD), \
+    GOD("Arfsnarl",  "Beastwalker",  "roars", \
+        BULLWHIP,   PM_JABBERWOCK, A_NEUTRAL, ANIMALGOD), \
+    GOD("Moloch",     "The Cruel",    "booms out", \
+        TRIDENT,    PM_PIT_FIEND,   A_NONE, MOLOCH) 
+#define GOD(nam, title, voice, wep, min, align, dn) DN_##dn
+enum deity_enum { DEITY_LIST };
+#undef GOD
+struct Deity {
+    const char *name;   /* deity's name */
+    const char *title;  /* deity's title */
+    const char *voice;  /* what voice do they use in god_voice() */
+    int favored_weapon; /* otyp of weapon used */
+    int dminion;        /* mnum of favored minion */
+    aligntyp dalign;    /* deity alignment */
+};
+
 /*** Unified structure containing role information ***/
 struct Role {
     /*** Strings that name various things ***/
@@ -230,6 +254,8 @@ struct Role {
     /* quest text (dat/quest.txt) */
     /* dictionary entries (dat/data.bas) */
 };
+
+extern struct Deity deities[];
 
 extern const struct Role roles[]; /* table of available roles */
 #define Role_if(X) (gu.urole.mnum == (X))
@@ -376,6 +402,8 @@ struct you {
     char ushops0[5];        /* ditto, for previous position */
     char ushops_entered[5]; /* ditto, shops entered this turn */
     char ushops_left[5];    /* ditto, shops exited this turn */
+    int d_ublesscnt[DN_MOLOCH];
+    int d_record[DN_MOLOCH];
 
     int uhunger;  /* refd only in eat.c and shk.c (also insight.c) */
     unsigned uhs; /* hunger state - see eat.c */

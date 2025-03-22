@@ -165,11 +165,13 @@ struct rm {
     Bitfield(horizontal, 1); /* wall/door/etc is horiz. (more typ info) */
     Bitfield(lit, 1);        /* speed hack for lit rooms */
     Bitfield(waslit, 1);     /* remember if a location was lit */
-
-    /* HORRIBLE HACK INCOMING DANGER DANGER */
+    /* Begin coating info */
+    /* We define pindex as deity_index because an index into the gods array won't
+       fit into the altar mask, and altars cannot be coated with substances. */
     Bitfield(pindex, 10);    /* This puts a hard upper limit on monster and potion types of 1024.*/
+#define deity_index pindex
     Bitfield(coat_info, 6);  /* Stores the info about the floor's coating. */
-
+    /* End coating info */
     Bitfield(roomno, 6); /* room # for special rooms */
     Bitfield(edge, 1);   /* marks boundaries for special rooms*/
     Bitfield(candig, 1); /* Exception to Can_dig_down; was a trapdoor */

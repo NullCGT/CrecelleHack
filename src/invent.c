@@ -4625,7 +4625,7 @@ dfeature_at(coordxy x, coordxy y, char *buf)
     else if (IS_ALTAR(ltyp)) {
         Sprintf(altbuf, "%saltar to %s (%s)",
                 (lev->altarmask & AM_SANCTUM) ? "high " : "",
-                a_gname(),
+                i_gname(),
                 align_str(Amask2align(lev->altarmask & ~AM_SHRINE)));
         dfeature = altbuf;
     } else if (stway) {

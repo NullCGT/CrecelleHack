@@ -95,6 +95,7 @@ struct egd {
 struct epri {
     unsigned parentmid;   /* make clobber-detection possible */
     aligntyp shralign; /* alignment of priest's shrine */
+    int shrindex;      /* index of the priest's god */
     schar shroom;      /* index in rooms */
     coord shrpos;      /* position of shrine */
     d_level shrlevel;  /* level (& dungeon) of shrine */
@@ -150,6 +151,7 @@ struct eshk {
 struct emin {
     unsigned parentmid;   /* make clobber-detection possible */
     aligntyp min_align; /* alignment of minion */
+    int min_dindex;     /* index to the deity of this minion */
     boolean renegade;   /* hostile co-aligned priest or Angel */
 };
 

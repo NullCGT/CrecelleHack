@@ -2441,6 +2441,7 @@ create_altar(altar *a, struct mkroom *croom)
     coordxy x = -1, y = -1;
     unsigned int amask;
     boolean croom_is_temple = TRUE;
+    int dindex;
 
     if (croom) {
         get_free_room_loc(&x, &y, croom, a->coord);
@@ -2461,6 +2462,10 @@ create_altar(altar *a, struct mkroom *croom)
     amask = sp_amask_to_amask(a->sp_amask);
 
     levl[x][y].altarmask = amask;
+    do {
+        dindex = rn2(DN_MOLOCH + 1);
+    } while (deities[dindex].dalign != Amask2align(amask));
+    levl[x][y].deity_index = dindex;
 
     if (a->shrine < 0)
         a->shrine = rn2(2); /* handle random case */

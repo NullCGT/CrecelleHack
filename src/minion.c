@@ -195,26 +195,31 @@ msummon(struct monst *mon)
 }
 
 void
-summon_minion(aligntyp alignment, boolean talk)
+summon_minion(int dindex, boolean talk)
 {
     struct monst *mon;
     int mnum;
+    aligntyp alignment = deities[dindex].dalign;
 
-    switch ((int) alignment) {
-    case A_LAWFUL:
-        mnum = lminion();
-        break;
-    case A_NEUTRAL:
-        mnum = ROLL_FROM(elementals);
-        break;
-    case A_CHAOTIC:
-    case A_NONE:
-        mnum = ndemon(alignment);
-        break;
-    default:
-        impossible("unaligned player?");
-        mnum = ndemon(A_NONE);
-        break;
+    if (rn2(3) && deities[dindex].dminion != NON_PM) {
+        mnum = deities[dindex].dminion;
+    } else {
+        switch ((int) alignment) {
+        case A_LAWFUL:
+            mnum = lminion();
+            break;
+        case A_NEUTRAL:
+            mnum = ROLL_FROM(elementals);
+            break;
+        case A_CHAOTIC:
+        case A_NONE:
+            mnum = ndemon(alignment);
+            break;
+        default:
+            impossible("unaligned player?");
+            mnum = ndemon(A_NONE);
+            break;
+    }
     }
     if (mnum == NON_PM) {
         mon = 0;
@@ -222,6 +227,7 @@ summon_minion(aligntyp alignment, boolean talk)
         mon = makemon(&mons[mnum], u.ux, u.uy, MM_EMIN|MM_NOMSG);
         if (mon) {
             mon->isminion = 1;
+            EMIN(mon)->min_dindex = dindex;
             EMIN(mon)->min_align = alignment;
             EMIN(mon)->renegade = FALSE;
         }
@@ -232,6 +238,7 @@ summon_minion(aligntyp alignment, boolean talk)
         mon = makemon(&mons[mnum], u.ux, u.uy, MM_EMIN|MM_NOMSG);
         if (mon) {
             mon->isminion = 1;
+            EMIN(mon)->min_dindex = dindex;
             EMIN(mon)->min_align = alignment;
             EMIN(mon)->renegade = FALSE;
         }
@@ -241,10 +248,10 @@ summon_minion(aligntyp alignment, boolean talk)
     if (mon) {
         if (talk) {
             if (!Deaf)
-                pline_The("voice of %s booms:", align_gname(alignment));
+                pline_The("voice of %s %s:", indexed_gname(dindex), deities[dindex].voice);
             else
                 You_feel("%s booming voice:",
-                         s_suffix(align_gname(alignment)));
+                         s_suffix(indexed_gname(dindex)));
             SetVoice(mon, 0, 80, 0);
             verbalize("Thou shalt pay for thine indiscretion!");
             if (canspotmon(mon))

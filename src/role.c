@@ -710,6 +710,11 @@ const struct Align aligns[] = {
     { "evil", "unaligned", "Una", 0, A_NONE }
 };
 
+#define GOD(nam, title, voice, wep, min, align, dn) \
+    { nam, title, voice, wep, min, align }
+struct Deity deities[] = { DEITY_LIST };
+#undef GOD
+
 staticfn int randrole_filtered(void);
 staticfn char *promptsep(char *, int);
 staticfn int role_gendercount(int);

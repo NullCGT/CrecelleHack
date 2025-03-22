@@ -3543,6 +3543,7 @@ wizterrainwish(struct _readobjnam_data *d)
     unsigned oldtyp, ltyp;
     coordxy x = u.ux, y = u.uy;
     char *bp = d->bp, *p;
+    int dindex;
 
     for (trap = NO_TRAP + 1; trap < TRAPNUM; trap++) {
         struct trap *t;
@@ -3685,6 +3686,10 @@ wizterrainwish(struct _readobjnam_data *d)
         else /* -1 - A_CHAOTIC, 0 - A_NEUTRAL, 1 - A_LAWFUL */
             al = !rn2(6) ? A_NONE : (rn2((int) A_LAWFUL + 2) - 1);
         lev->altarmask = Align2amask(al); /* overlays 'flags' */
+        do {
+            dindex = rn2(DN_MOLOCH + 1);
+        } while (deities[dindex].dalign != al);
+        levl[x][y].deity_index = dindex;
         pline("%s altar.", An(align_str(al)));
         madeterrain = TRUE;
     } else if (!BSTRCMPI(bp, p - 5, "grave")

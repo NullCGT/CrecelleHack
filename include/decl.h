@@ -785,6 +785,7 @@ struct instance_globals_p {
 
     /* pray.c */
     /* values calculated when prayer starts, and used when completed */
+    int p_dindex;
     aligntyp p_aligntyp;
     int p_trouble;
     int p_type; /* (-1)-3: (-1)=really naughty, 3=really good */

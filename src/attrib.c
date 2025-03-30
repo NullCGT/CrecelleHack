@@ -187,6 +187,9 @@ adjattrib(
         return FALSE;
     }
 
+    /* Any successful change also resets abuse / exercise level */
+    AEXE(ndx) = 0;
+
     disp.botl = TRUE;
     if (msgflg <= 0)
         You_feel("%s%s!", (incr > 1 || incr < -1) ? "very " : "", attrstr);

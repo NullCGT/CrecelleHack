@@ -667,6 +667,9 @@ peffect_restore_ability(struct obj *otmp)
                WEAK or worse, but that's handled via ATEMP(A_STR) now */
             if (ABASE(i) < lim) {
                 ABASE(i) = lim;
+                /* reset stat abuse (but not exercise) to 0 as well */
+                AEXE(i) = max(AEXE(i), 0);
+
                 disp.botl = TRUE;
                 /* only first found if not blessed */
                 if (!otmp->blessed)

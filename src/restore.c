@@ -665,6 +665,10 @@ restgamestate(NHFILE *nhfp)
     for (i = 0; i < NUMMONS; ++i) {
         Sfi_mvitals(nhfp, &svm.mvitals[i], "gamestate-mvitals");
     }
+    for (i = 0; i < NUMMONS; ++i) {
+        //Sfi_permonst(nhfp, &mons[i], "gamestate-permonst");
+        Sfi_ulong(nhfp, &mons[i].mboost, "gamestate-mboost");
+    }
 
 #ifndef SFCTOOL
     /*

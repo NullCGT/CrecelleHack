@@ -22,7 +22,7 @@ extern const uchar def_r_oc_syms[MAXOCLASSES];
  *     explain: used in do_look().
  */
 const struct class_sym def_oc_syms[MAXOCLASSES] = {
-    { '\0', "", "" }, /* placeholder for the "random class" */
+    { '\0', "", "", "" }, /* placeholder for the "random class" */
 #define OBJCLASS_DRAWING
 #include "defsym.h"
 #undef OBJCLASS_DRAWING
@@ -30,7 +30,7 @@ const struct class_sym def_oc_syms[MAXOCLASSES] = {
 
 /* Default monster class symbols.  See sym.h and defsym.h. */
 const struct class_sym def_monsyms[MAXMCLASSES] = {
-    { '\0', "", "" },
+    { '\0', "", "", "" },
 #define MONSYMS_DRAWING
 #include "defsym.h"
 #undef MONSYMS_DRAWING

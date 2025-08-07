@@ -169,6 +169,7 @@ SF_C(struct, mapseen_rooms)
 SF_C(struct, mkroom)
 SF_C(struct, monst)
 SF_C(struct, mvitals)
+SF_C(struct, permonst)
 SF_C(struct, obj)
 SF_C(struct, objclass)
 SF_C(struct, q_score)
@@ -1180,6 +1181,7 @@ struct sf_fieldlevel_procs exportascii_sfo_procs = {
         sfo_x_mkroom,
         sfo_x_monst,
         sfo_x_mvitals,
+        sfo_x_permonst,
         sfo_x_obj,
         sfo_x_objclass,
         sfo_x_q_score,
@@ -1256,6 +1258,7 @@ struct sf_fieldlevel_procs exportascii_sfi_procs = {
         sfi_x_mkroom,
         sfi_x_monst,
         sfi_x_mvitals,
+        sfi_x_permonst,
         sfi_x_obj,
         sfi_x_objclass,
         sfi_x_q_score,

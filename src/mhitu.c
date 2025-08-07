@@ -726,13 +726,14 @@ mattacku(struct monst *mtmp)
     }
 
     /* monster might attempt a trip to gain an advantage */
-    if (!ranged && (is_tripper(mtmp->data) 
+    if (!ranged && (is_tripper(mtmp->data)
+          || sym_boosted(mtmp, S_DOG)
           || (MON_WEP(mtmp) && is_tripweapon(MON_WEP(mtmp))))
         && !Prone && !Flying && !Levitation && !u.usteed
         && is_trippable(gy.youmonst.data) && (u.uhp > mtmp->m_lev)
         && !rn2((10 - u.uac > mtmp->m_lev) ? 8 : 100)) {
         trip_monster(mtmp, &gy.youmonst, MON_WEP(mtmp));
-        return 0;
+        return (mtmp->data->mlet == S_DOG && mon_boosted(mtmp, mtmp->data->mboost));
     }
 
     /* monster might grapple you to gain an advantage */
@@ -1211,8 +1212,7 @@ hitmu(struct monst *mtmp, struct attack *mattk)
 
     /*  First determine the base damage done */
     mhm.damage = d((int) mattk->damn, (int) mattk->damd);
-    if (((is_undead(mdat) || is_vampshifter(mtmp)) && midnight())
-        || mon_boosted(mtmp, mtmp->data->mboost))
+    if ((is_undead(mdat) || is_vampshifter(mtmp)) && midnight())
         mhm.damage += d((int) mattk->damn, (int) mattk->damd); /* extra dmg */
 
     mhitm_adtyping(mtmp, mattk, &gy.youmonst, &mhm);
@@ -1232,7 +1232,8 @@ hitmu(struct monst *mtmp, struct attack *mattk)
     /*  Negative armor class reduces damage done instead of fully protecting
      *  against hits.
      */
-    if (mhm.damage && u.uac < 0) {
+    if (mhm.damage && u.uac < 0
+        && !(mdat->mlet == S_ANT && mon_boosted(mtmp, mdat->mboost))) {
         mhm.damage -= rnd(-u.uac);
         if (mhm.damage < 1)
             mhm.damage = 1;
@@ -1685,8 +1686,12 @@ explmu(struct monst *mtmp, struct attack *mattk, boolean ufound)
         You("seem unaffected by it.");
         ugolemeffects((int) mattk->adtyp, tmp);
     }
-    if (kill_agr && !DEADMONSTER(mtmp))
-        mondead(mtmp);
+    if (kill_agr && !DEADMONSTER(mtmp)) {
+        if (sym_boosted(mtmp, S_LIGHT))
+            (void) rloc(mtmp, RLOC_MSG);
+        else
+            mondead(mtmp);
+    }
     wake_nearto(mtmp->mx, mtmp->my, 7 * 7);
     return (!DEADMONSTER(mtmp)) ? M_ATTK_MISS : M_ATTK_AGR_DIED;
 }

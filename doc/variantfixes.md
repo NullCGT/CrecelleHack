@@ -9,6 +9,11 @@
   - Harmonic weapons now work differently depending on the type
     of harmony. Full details about this system can be found
     in doc/variantprops.md.
+  - Some monsters now harmonize with random areas, determined
+    at the start of the game.
+  - Harmonizing monsters now gain special effects dependent on
+    their monster symbol, rather than simply dealing double damage.
+    These effects are briefly described when farlooking a monster.
 - Made harmonic objects rarer.
 - Harmonic objects do not need to be identified to determine
   what they harmonize with.
@@ -41,6 +46,9 @@
 - Reduced nightcrust light emission range.
 - Water elementals soak enemies with water on hit.
 - Greater variance in the weapons that monsters spawn with.
+- Sessile jellies have been given claw attacks so that they
+  can attack the player if they gain speed.
+- All fungi leave behind a fungal coating when slain.
 
 ## New Monsters
 - Salt Golem

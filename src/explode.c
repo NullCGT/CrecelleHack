@@ -47,6 +47,10 @@ explosionmask(
             if (Cold_resistance)
                 res = EXPL_HERO;
             break;
+        case AD_SLEE:
+            if (Sleep_resistance)
+                res = EXPL_HERO;
+            break;
         case AD_DISN:
             if ((olet == WAND_CLASS)
                 ? (nonliving(m->data) || is_demon(m->data))
@@ -85,6 +89,10 @@ explosionmask(
             break;
         case AD_COLD:
             if (resists_cold(m))
+                res = EXPL_MON;
+            break;
+        case AD_SLEE:
+            if (resists_sleep(m))
                 res = EXPL_MON;
             break;
         case AD_DISN:
@@ -325,6 +333,10 @@ explode(
         case 2:
             adstr = "ball of cold";
             adtyp = AD_COLD;
+            break;
+        case 3:
+            adstr = "cloud of dreams";
+            adtyp = AD_SLEE;
             break;
         case 4:
             adstr = (olet == WAND_CLASS) ? "death field"
@@ -992,6 +1004,7 @@ adtyp_to_expltype(const int adtyp)
     case AD_SPEL:
     case AD_DREN:
     case AD_ENCH:
+    case AD_SLEE:
         return EXPL_MAGICAL;
     case AD_FIRE:
         return EXPL_FIERY;

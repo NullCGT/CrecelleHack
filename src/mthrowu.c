@@ -242,6 +242,10 @@ monmulti(
         /* class bonus */
         multishot += multishot_class_bonus(monsndx(mtmp->data), otmp, mwep);
 
+        /* harmony */
+        if (sym_boosted(mtmp, S_CENTAUR))
+            multishot += rn1(2, 2);
+
         /* racial bonus */
         if ((is_elf(mtmp->data) && otmp->otyp == ELVEN_ARROW
              && mwep && mwep->otyp == ELVEN_BOW)

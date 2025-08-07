@@ -799,6 +799,8 @@ baby_name(struct monst *mtmp)
         case S_BAT:
         case S_VAMPIRE:
             return "fledgling ";
+        case S_FUNGUS:
+            return "small ";
         default:
             return "baby ";
     }

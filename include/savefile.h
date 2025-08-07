@@ -66,6 +66,7 @@ extern void sfo_context_info(NHFILE *, struct context_info *,
 extern void sfo_flag(NHFILE *, struct flag *, const char *);
 extern void sfo_you(NHFILE *, struct you *, const char *);
 extern void sfo_mvitals(NHFILE *, struct mvitals *, const char *);
+extern void sfo_permonst(NHFILE *, struct permonst *, const char *);
 extern void sfo_q_score(NHFILE *, struct q_score *, const char *);
 extern void sfo_spell(NHFILE *, struct spell *, const char *);
 extern void sfo_dest_area(NHFILE *, struct dest_area *, const char *);
@@ -154,6 +155,7 @@ extern void sfi_context_info(NHFILE *, struct context_info *,
 extern void sfi_flag(NHFILE *, struct flag *, const char *);
 extern void sfi_you(NHFILE *, struct you *, const char *);
 extern void sfi_mvitals(NHFILE *, struct mvitals *, const char *);
+extern void sfi_permonst(NHFILE *, struct permonst *, const char *);
 extern void sfi_q_score(NHFILE *, struct q_score *, const char *);
 extern void sfi_spell(NHFILE *, struct spell *, const char *);
 extern void sfi_dest_area(NHFILE *, struct dest_area *, const char *);
@@ -223,6 +225,7 @@ extern void sfi_ulong(NHFILE *, ulong *, const char *);
 #define Sfo_flag(a,b,c) sfo_flag(a, b, c)
 #define Sfo_you(a,b,c) sfo_you(a, b, c)
 #define Sfo_mvitals(a,b,c) sfo_mvitals(a, b, c)
+#define Sfo_permonst(a,b,c) sfo_permonst(a, b, c)
 #define Sfo_q_score(a,b,c) sfo_q_score(a, b, c)
 #define Sfo_spell(a,b,c) sfo_spell(a, b, c)
 #define Sfo_dest_area(a,b,c) sfo_dest_area(a, b, c)
@@ -288,6 +291,7 @@ extern void sfi_ulong(NHFILE *, ulong *, const char *);
 #define Sfi_flag(a,b,c) sfi_flag(a, b, c)
 #define Sfi_you(a,b,c) sfi_you(a, b, c)
 #define Sfi_mvitals(a,b,c) sfi_mvitals(a, b, c)
+#define Sfi_permonst(a,b,c) sfi_permonst(a, b, c)
 #define Sfi_q_score(a,b,c) sfi_q_score(a, b, c)
 #define Sfi_spell(a,b,c) sfi_spell(a, b, c)
 #define Sfi_dest_area(a,b,c) sfi_dest_area(a, b, c)
@@ -361,6 +365,7 @@ extern void sfi_ulong(NHFILE *, ulong *, const char *);
     struct mkroom *       : sfo_mkroom,        \
     struct monst *        : sfo_monst,         \
     struct mvitals *      : sfo_mvitals,       \
+    struct permonst *     : sfo_permonst,      \
     struct obj *          : sfo_obj,           \
     struct objclass *     : sfo_objclass,      \
     struct q_score *      : sfo_q_score,       \
@@ -423,6 +428,7 @@ extern void sfi_ulong(NHFILE *, ulong *, const char *);
     struct mkroom *       : sfi_mkroom,        \
     struct monst *        : sfi_monst,         \
     struct mvitals *      : sfi_mvitals,       \
+    struct permonst *     : sfi_permonst,      \
     struct obj *          : sfi_obj,           \
     struct objclass *     : sfi_objclass,      \
     struct q_score *      : sfi_q_score,       \
@@ -482,6 +488,7 @@ extern void sfi_ulong(NHFILE *, ulong *, const char *);
 #define Sfo_flag(a,b,c) sfo(a, b, c)
 #define Sfo_you(a,b,c) sfo(a, b, c)
 #define Sfo_mvitals(a,b,c) sfo(a, b, c)
+#define Sfo_permonst(a,b,c) sfo(a, b, c)
 #define Sfo_q_score(a,b,c) sfo(a, b, c)
 #define Sfo_spell(a,b,c) sfo(a, b, c)
 #define Sfo_dest_area(a,b,c) sfo(a, b, c)
@@ -548,6 +555,7 @@ extern void sfi_ulong(NHFILE *, ulong *, const char *);
 #define Sfi_flag(a,b,c) sfi(a, b, c)
 #define Sfi_you(a,b,c) sfi(a, b, c)
 #define Sfi_mvitals(a,b,c) sfi(a, b, c)
+#define Sfi_permonst(a,b,c) sfi(a, b, c)
 #define Sfi_q_score(a,b,c) sfi(a, b, c)
 #define Sfi_spell(a,b,c) sfi(a, b, c)
 #define Sfi_dest_area(a,b,c) sfi(a, b, c)

@@ -268,103 +268,103 @@
 
 #if defined(MONSYMS_S_ENUM)
 /* sym.h */
-#define MONSYM(idx, ch, basename, sym, desc) sym = idx,
+#define MONSYM(idx, ch, basename, sym, desc, boost) sym = idx,
 
 #elif defined(MONSYMS_DEFCHAR_ENUM)
 /* sym.h */
-#define MONSYM(idx, ch, basename, sym,  desc) DEF_##basename = ch,
+#define MONSYM(idx, ch, basename, sym,  desc, boost) DEF_##basename = ch,
 
 #elif defined(MONSYMS_PARSE)
 /* symbols.c */
-#define MONSYM(idx, ch, basename, sym, desc) \
+#define MONSYM(idx, ch, basename, sym, desc, boost) \
     { SYM_MON, sym + SYM_OFF_M, #sym },
 
 #elif defined(MONSYMS_DRAWING)
 /* drawing.c */
-#define MONSYM(idx, ch, basename, sym, desc) { DEF_##basename, "", desc },
+#define MONSYM(idx, ch, basename, sym, desc, boost) { DEF_##basename, "", desc, boost },
 
 /* allmain.c */
 #elif defined(DUMP_ENUMS_MONSYMS)
-#define MONSYM(idx, ch, basename, sym, desc) { sym, #sym },
+#define MONSYM(idx, ch, basename, sym, desc, boost) { sym, #sym },
 
 #elif defined(DUMP_ENUMS_MONSYMS_DEFCHAR)
-#define MONSYM(idx, ch, basename, sym, desc) \
+#define MONSYM(idx, ch, basename, sym, desc, boost) \
     { DEF_##basename, "DEF_" #basename },
 
 #endif
 
-    MONSYM( 1, 'a', ANT, S_ANT,   "ant or other insect")
-    MONSYM( 2, 'b', BLOB, S_BLOB, "blob")
-    MONSYM( 3, 'c', COCKATRICE, S_COCKATRICE, "cockatrice")
-    MONSYM( 4, 'd', DOG, S_DOG, "dog or other canine")
-    MONSYM( 5, 'e', EYE, S_EYE, "eye or sphere")
-    MONSYM( 6, 'f', FELINE, S_FELINE, "cat or other feline")
-    MONSYM( 7, 'g', GREMLIN, S_GREMLIN, "grotesque")
+    MONSYM( 1, 'a', ANT, S_ANT,   "ant or other insect", "ignores damage reduction")
+    MONSYM( 2, 'b', BLOB, S_BLOB, "blob", "becomes highly mobile")
+    MONSYM( 3, 'c', COCKATRICE, S_COCKATRICE, "cockatrice", "lays an egg upon death")
+    MONSYM( 4, 'd', DOG, S_DOG, "dog or other canine", "can make trips before attacking")
+    MONSYM( 5, 'e', EYE, S_EYE, "eye or sphere", "")
+    MONSYM( 6, 'f', FELINE, S_FELINE, "cat or other feline", "")
+    MONSYM( 7, 'g', GREMLIN, S_GREMLIN, "grotesque", "")
     /* small humanoids: hobbit, dwarf */
-    MONSYM( 8, 'h', HUMANOID, S_HUMANOID, "humanoid")
+    MONSYM( 8, 'h', HUMANOID, S_HUMANOID, "humanoid", "")
     /* minor demons */
-    MONSYM( 9, 'i', IMP, S_IMP, "minor demon")
-    MONSYM(10, 'j', JELLY, S_JELLY, "jelly")
-    MONSYM(11, 'k', KOBOLD, S_KOBOLD, "kobold")
-    MONSYM(12, 'l', LEPRECHAUN, S_LEPRECHAUN, "leprechaun")
-    MONSYM(13, 'm', MIMIC, S_MIMIC, "mimic")
-    MONSYM(14, 'n', NYMPH, S_NYMPH, "nymph")
-    MONSYM(15, 'o', ORC, S_ORC, "orc")
-    MONSYM(16, 'p', PIERCER, S_PIERCER, "piercer")
+    MONSYM( 9, 'i', IMP, S_IMP, "minor demon", "")
+    MONSYM(10, 'j', JELLY, S_JELLY, "jelly", "becomes highly mobile")
+    MONSYM(11, 'k', KOBOLD, S_KOBOLD, "kobold", "")
+    MONSYM(12, 'l', LEPRECHAUN, S_LEPRECHAUN, "leprechaun", "")
+    MONSYM(13, 'm', MIMIC, S_MIMIC, "mimic", "")
+    MONSYM(14, 'n', NYMPH, S_NYMPH, "nymph", "")
+    MONSYM(15, 'o', ORC, S_ORC, "orc", "")
+    MONSYM(16, 'p', PIERCER, S_PIERCER, "piercer", "")
     /* quadruped excludes horses */
-    MONSYM(17, 'q', QUADRUPED, S_QUADRUPED, "quadruped")
-    MONSYM(18, 'r', RODENT, S_RODENT, "rodent")
-    MONSYM(19, 's', SPIDER, S_SPIDER, "arachnid or centipede")
-    MONSYM(20, 't', TRAPPER, S_TRAPPER, "ambusher")
+    MONSYM(17, 'q', QUADRUPED, S_QUADRUPED, "quadruped", "")
+    MONSYM(18, 'r', RODENT, S_RODENT, "rodent", "")
+    MONSYM(19, 's', SPIDER, S_SPIDER, "arachnid or centipede", "")
+    MONSYM(20, 't', TRAPPER, S_TRAPPER, "ambusher", "")
     /* unicorn, horses */
-    MONSYM(21, 'u', UNICORN, S_UNICORN, "ungulate")
-    MONSYM(22, 'v', VORTEX, S_VORTEX, "vortex")
-    MONSYM(23, 'w', WORM, S_WORM, "worm")
-    MONSYM(24, 'x', XAN, S_XAN, "fantastic insect")
+    MONSYM(21, 'u', UNICORN, S_UNICORN, "ungulate", "")
+    MONSYM(22, 'v', VORTEX, S_VORTEX, "vortex", "")
+    MONSYM(23, 'w', WORM, S_WORM, "worm", "")
+    MONSYM(24, 'x', XAN, S_XAN, "fantastic insect", "")
     /* yellow light, black light */
-    MONSYM(25, 'y', LIGHT, S_LIGHT, "light")
-    MONSYM(26, 'z', ZRUTY, S_ZRUTY, "zruty")
-    MONSYM(27, 'A', ANGEL, S_ANGEL, "angelic being")
-    MONSYM(28, 'B', BAT, S_BAT, "winged creature")
-    MONSYM(29, 'C', CENTAUR, S_CENTAUR, "centaur")
-    MONSYM(30, 'D', DRAGON, S_DRAGON, "dragon")
+    MONSYM(25, 'y', LIGHT, S_LIGHT, "light", "relocates upon exploding")
+    MONSYM(26, 'z', ZRUTY, S_ZRUTY, "zruty", "")
+    MONSYM(27, 'A', ANGEL, S_ANGEL, "angelic being", "returns to life when slain")
+    MONSYM(28, 'B', BAT, S_BAT, "winged creature", "gains bonus AC for each nearby winged creature")
+    MONSYM(29, 'C', CENTAUR, S_CENTAUR, "centaur", "gains a multishot bonus")
+    MONSYM(30, 'D', DRAGON, S_DRAGON, "dragon", "breath explodes")
     /* elemental includes invisible stalker */
-    MONSYM(31, 'E', ELEMENTAL, S_ELEMENTAL, "elemental")
-    MONSYM(32, 'F', FUNGUS, S_FUNGUS, "fungus or mold")
-    MONSYM(33, 'G', GNOME, S_GNOME, "gnome")
+    MONSYM(31, 'E', ELEMENTAL, S_ELEMENTAL, "elemental", "")
+    MONSYM(32, 'F', FUNGUS, S_FUNGUS, "fungus or mold", "slowly gains health and multiplies")
+    MONSYM(33, 'G', GNOME, S_GNOME, "gnome", "")
     /* large humanoid: giant, ettin, minotaur */
-    MONSYM(34, 'H', GIANT, S_GIANT, "giant humanoid")
-    MONSYM(35, 'I', INVISIBLE, S_invisible, "invisible monster")
-    MONSYM(36, 'J', JABBERWOCK, S_JABBERWOCK, "jabberwock")
-    MONSYM(37, 'K', KOP, S_KOP, "Keystone Kop")
-    MONSYM(38, 'L', LICH, S_LICH, "lich")
-    MONSYM(39, 'M', MUMMY, S_MUMMY, "mummy")
-    MONSYM(40, 'N', NAGA, S_NAGA, "naga")
-    MONSYM(41, 'O', OGRE, S_OGRE, "ogre")
-    MONSYM(42, 'P', PUDDING, S_PUDDING, "pudding or ooze")
-    MONSYM(43, 'Q', QUANTMECH, S_QUANTMECH, "quantum mechanic")
-    MONSYM(44, 'R', RUSTMONST, S_RUSTMONST, "objevore")
-    MONSYM(45, 'S', SNAKE, S_SNAKE, "snake")
-    MONSYM(46, 'T', TROLL, S_TROLL, "troll")
+    MONSYM(34, 'H', GIANT, S_GIANT, "giant humanoid", "")
+    MONSYM(35, 'I', INVISIBLE, S_invisible, "invisible monster", "")
+    MONSYM(36, 'J', JABBERWOCK, S_JABBERWOCK, "jabberwock", "")
+    MONSYM(37, 'K', KOP, S_KOP, "Keystone Kop", "")
+    MONSYM(38, 'L', LICH, S_LICH, "lich", "")
+    MONSYM(39, 'M', MUMMY, S_MUMMY, "mummy", "")
+    MONSYM(40, 'N', NAGA, S_NAGA, "naga", "")
+    MONSYM(41, 'O', OGRE, S_OGRE, "ogre", "")
+    MONSYM(42, 'P', PUDDING, S_PUDDING, "pudding or ooze", "")
+    MONSYM(43, 'Q', QUANTMECH, S_QUANTMECH, "quantum mechanic", "")
+    MONSYM(44, 'R', RUSTMONST, S_RUSTMONST, "objevore", "")
+    MONSYM(45, 'S', SNAKE, S_SNAKE, "snake", "")
+    MONSYM(46, 'T', TROLL, S_TROLL, "troll", "regenerates health at a terrifying rate")
     /* umber hulk */
-    MONSYM(47, 'U', UMBER, S_UMBER, "umber hulk")
-    MONSYM(48, 'V', VAMPIRE, S_VAMPIRE, "vampire")
-    MONSYM(49, 'W', WRAITH, S_WRAITH, "wraith")
-    MONSYM(50, 'X', XORN, S_XORN, "xorn")
+    MONSYM(47, 'U', UMBER, S_UMBER, "umber hulk", "")
+    MONSYM(48, 'V', VAMPIRE, S_VAMPIRE, "vampire", "")
+    MONSYM(49, 'W', WRAITH, S_WRAITH, "wraith", "")
+    MONSYM(50, 'X', XORN, S_XORN, "xorn", "")
     /* apelike creature includes owlbear, monkey */
-    MONSYM(51, 'Y', YETI, S_YETI, "apelike creature")
-    MONSYM(52, 'Z', ZOMBIE, S_ZOMBIE, "zombie")
-    MONSYM(53, '@', HUMAN, S_HUMAN, "human or elf")
+    MONSYM(51, 'Y', YETI, S_YETI, "apelike creature", "")
+    MONSYM(52, 'Z', ZOMBIE, S_ZOMBIE, "zombie", "")
+    MONSYM(53, '@', HUMAN, S_HUMAN, "human or elf", "")
     /* space symbol*/
-    MONSYM(54, ' ', GHOST, S_GHOST, "ghost")
-    MONSYM(55, '\'', GOLEM, S_GOLEM, "construct")
-    MONSYM(56, '&', DEMON, S_DEMON, "major demon")
+    MONSYM(54, ' ', GHOST, S_GHOST, "ghost", "")
+    MONSYM(55, '\'', GOLEM, S_GOLEM, "construct", "")
+    MONSYM(56, '&', DEMON, S_DEMON, "major demon", "")
     /* fish */
-    MONSYM(57, ';', EEL, S_EEL,  "sea dweller")
+    MONSYM(57, ';', EEL, S_EEL,  "sea dweller", "")
     /* reptiles */
-    MONSYM(58, ':', LIZARD, S_LIZARD, "lizard")
-    MONSYM(59, '~', WORM_TAIL, S_WORM_TAIL, "long worm tail")
-    MONSYM(60, ']', MIMIC_DEF, S_MIMIC_DEF, "mimic")
+    MONSYM(58, ':', LIZARD, S_LIZARD, "lizard", "")
+    MONSYM(59, '~', WORM_TAIL, S_WORM_TAIL, "long worm tail", "")
+    MONSYM(60, ']', MIMIC_DEF, S_MIMIC_DEF, "mimic", "")
 
 #undef MONSYM
 #endif /* MONSYMS_S_ENUM || MONSYMS_DEFCHAR_ENUM || MONSYMS_PARSE
@@ -425,7 +425,7 @@
 #elif defined(OBJCLASS_DRAWING)
 /* drawing.c */
 #define OBJCLASS(idx, ch, basename, sym, name, explain) \
-    { basename##_SYM, name, explain },
+    { basename##_SYM, name, explain, "" },
 
 #elif defined(DUMP_ENUMS_OBJCLASS_DEFCHARS)
 /* allmain.c */
@@ -449,7 +449,7 @@
     sname = ch,
 #elif defined(OBJCLASS_DRAWING)
 #define OBJCLASS2(idx, ch, basename, sname, sym, name, explain) \
-    { sname, name, explain },
+    { sname, name, explain, "" },
 #elif defined(DUMP_ENUMS_OBJCLASS_DEFCHARS)
 #define OBJCLASS2(idx, ch, basename, sname, sym, name, explain) \
     { sname, #sname },

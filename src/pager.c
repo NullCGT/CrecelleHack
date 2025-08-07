@@ -2378,12 +2378,16 @@ do_supplemental_info(
     Sprintf(buf, "Harmonies: ");
     print_mon_harmonies(pm, buf);
     putstr(datawin, 0, buf);
+    if (strlen(def_monsyms[(int) pm->mlet].boost_explain)) {
+        Sprintf(buf, "When harmonized, %s.", def_monsyms[(int) pm->mlet].boost_explain);
+        putstr(datawin, 0, buf);
+    }
     putstr(datawin, 0, "");
     /* Have we seen it? */
     if (!svm.mvitals[pm->pmidx].seen_close) {
         putstr(datawin, 0, "You have never seen this monster up close.");
+        putstr(datawin, 0, "");
     }
-    putstr(datawin, 0, "");
     /* Attacks */
     putstr(datawin, 0, "Attacks:");
     for (int i = 0; i < NATTK; i++) {

@@ -9,6 +9,7 @@
 staticfn void sanity_check_single_mon(struct monst *, boolean, const char *);
 staticfn struct obj *make_corpse(struct monst *, unsigned);
 staticfn int minliquid_core(struct monst *);
+staticfn void mfungus_boost(struct monst *);
 staticfn void m_calcdistress(struct monst *);
 staticfn boolean monlineu(struct monst *, int, int);
 staticfn boolean mon_avoids_chokepoint(struct monst *);
@@ -1156,6 +1157,21 @@ minliquid_core(struct monst *mtmp)
     return 0;
 }
 
+staticfn void
+mfungus_boost(struct monst *mtmp) {
+    if (!mtmp->mbaby && sym_boosted(mtmp, S_FUNGUS)) {
+        struct monst *newmon;
+        healmon(mtmp, rn2(4), rn2(4));
+        if (mtmp->mhpmax > (((int) mtmp->m_lev) + 1) * 8) {
+            if (canseemon(mtmp))
+                pline_mon(mtmp, "%s gorges itself on nutrients in its surroundings!", Monnam(mtmp));
+            newmon = split_mon(mtmp, (struct monst *) NULL);
+            mtmp->mbaby = 1;
+            if (!rn2(4)) newmon->mbaby = 1;
+        }
+    }
+}
+
 /* calculate 'mon's movement for current turn; called from moveloop() */
 int
 mcalcmove(
@@ -1174,6 +1190,14 @@ mcalcmove(
         mmove = (2 * mmove + 1) / 3;
     else if (mon->mspeed == MFAST)
         mmove = (4 * mmove + 2) / 3;
+
+    /* Handle odd boosts here. */
+    if ((mon->data->mlet == S_JELLY ||
+         mon->data->mlet == S_BLOB)
+        && mon_boosted(mon, mon->data->mboost)) {
+        mmove = 12;
+    }
+    mfungus_boost(mon);
 
     if (mon == u.usteed && u.ugallop && svc.context.mv) {
         /* increase movement by a factor of 1.5; also increase variance of
@@ -2929,7 +2953,10 @@ lifesaved_monster(struct monst *mtmp)
 {
     boolean surviver;
     struct obj *lifesave = mlifesaver(mtmp);
+    boolean angel_revival = (mtmp->data->mlet == S_ANGEL
+                            && mon_boosted(mtmp, mtmp->data->mboost));
 
+    /* Handle messages and cleanup for specific forms of lifesaving. */
     if (lifesave) {
         /* not canseemon; amulets are on the head, so you don't want
          * to show this for a long worm with only a tail visible.
@@ -2952,7 +2979,17 @@ lifesaved_monster(struct monst *mtmp)
         m_useup(mtmp, lifesave);
         /* equip replacement amulet, if any, on next move */
         check_gear_next_turn(mtmp);
-
+    } else if (angel_revival) {
+        if (cansee(mtmp->mx, mtmp->my)) {
+            pline("Hold on...");
+            pline_mon(mtmp, "%s is surrounded by shimmering light!", Monnam(mtmp));
+            if (canseemon(mtmp)) {
+                pline("%s survives through divine intervention!", Monnam(mtmp));
+            }
+        }
+    }
+    /* Handle the actual lifesaving */
+    if (lifesave || angel_revival) {
         surviver = !(svm.mvitals[monsndx(mtmp->data)].mvflags & G_GENOD);
         mtmp->mcanmove = 1;
         mtmp->mfrozen = 0;
@@ -3273,6 +3310,7 @@ corpse_chance(
     boolean was_swallowed) /* digestion */
 {
     struct permonst *mdat = mon->data;
+    struct obj *otmp;
     int i, tmp;
 
     /* maybe leave behind some blood */
@@ -3307,9 +3345,15 @@ corpse_chance(
         return FALSE;
     }
 
-    if (mdat == &mons[PM_NIGHTCRUST]) {
+    if (mdat->mlet == S_FUNGUS) {
         add_coating(mon->mx, mon->my, COAT_FUNGUS, 0);
         return FALSE;
+    }
+
+    /* Boosted cockatrices drop eggs. */
+    if (sym_boosted(mon, S_COCKATRICE)) {
+        otmp = mksobj_at(EGG, mon->mx, mon->my, TRUE, FALSE);
+        set_corpsenm(otmp, mdat->pmidx);
     }
 
     /* Gas spores always explode upon death */
@@ -6254,8 +6298,11 @@ flash_mon(struct monst *mtmp)
     newsym(mx, my);
 }
 
+/* Determines if boost applies at a given set of coordinates.
+   TODO: Rewrite this so that players do not have to remember
+   the arbitrary order in here. */
 boolean 
-is_boosted(int x, int y, short boost) {
+is_boosted(int x, int y, long boost) {
     if ((boost & BST_BLOOD)
         && has_coating(x, y, COAT_BLOOD)) {
         return TRUE;
@@ -6295,14 +6342,34 @@ is_boosted(int x, int y, short boost) {
     return FALSE;
 }
 
+/* Return true if player would be boosted by boost. Wrapper
+   for is_boosted(). */
 boolean
-u_boosted(short boost) {
+u_boosted(long boost) {
     return is_boosted(u.ux, u.uy, boost);
 }
 
+/* Return true if mtmp would be boosted by boost. Wrapper for is_boosted(). */
 boolean
-mon_boosted(struct monst *mtmp, short boost) {
+mon_boosted(struct monst *mtmp, long boost) {
     return is_boosted(mtmp->mx, mtmp->my, boost);
+}
+
+/* Return true if mtmp is mlet and would innately boost. */
+boolean
+sym_boosted(struct monst *mtmp, int mlet) {
+    if (mtmp->data->mlet != mlet) return FALSE;
+    return mon_boosted(mtmp, mtmp->data->mboost);
+}
+
+/* Initialize the parts of permonst struct that can vary from game to game. */
+void
+init_permonsts() {
+    struct permonst *pm;
+    for (int i = 0; i < NUMMONS; i++) {
+        pm = &mons[i];
+        boost_permonst(pm);
+    }
 }
 
 /*mon.c*/

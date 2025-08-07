@@ -657,6 +657,16 @@ find_mac(struct monst *mon)
                 base -= mon_boosted(mon, obj->booster);
         }
     }
+    /* Boost AC if harmonized depending on bird flock */
+    if (sym_boosted(mon, S_BAT)) {
+        for (int x = -1; x <= 1; x++) {
+            for (int y = -1; y <= 1; y++) {
+                if (!isok(mon->mx + x, mon->my + y)) continue;
+                struct monst *boid = m_at(mon->mx + x, mon->my + y);
+                if (boid && boid->data->mlet == S_BAT) base -= 4;
+            }
+        }
+    }
     if (mon->mprone)
         base += 3;
     /* same cap as for hero [find_ac(do_wear.c)] */

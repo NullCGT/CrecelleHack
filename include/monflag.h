@@ -195,20 +195,24 @@ enum ms_sounds {
 #define MH_ORC          M2_ORC
 
 /* Boosts */
-#define BST_GRASS 0x0001
-#define BST_DIRT  0x0002
-#define BST_ROCK  0x0004
-#define BST_WATER 0x0008
-#define BST_ICE   0x0010
-#define BST_ASHES 0x0020
-#define BST_FUNGI 0x0040
-#define BST_BLOOD 0x0080
-#define BST_SAND 0x0100
+#define BST_GRASS  0x0001
+#define BST_DIRT   0x0002
+#define BST_ROCK   0x0004
+#define BST_WATER  0x0008
+#define BST_ICE    0x0010
+#define BST_ASHES  0x0020
+#define BST_FUNGI  0x0040
+#define BST_BLOOD  0x0080
+#define BST_SAND   0x0100
 #define BST_POTION 0x0200
 #define BST_HONEY  0x0400
+/* Used for randomizing boost types in permonsts */
+#define BST_RAND1  0x20000000
+#define BST_RAND2  0x40000000
+#define BST_RAND3  0x80000000
 
 struct boostnam {
-   short boost_short;
+   short boost_long;
    const char *nam;
    const char *abbr;
 };

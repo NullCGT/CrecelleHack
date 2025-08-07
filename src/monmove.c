@@ -324,6 +324,9 @@ mon_regen(struct monst *mon, boolean digest_meal)
         || (mon->data == &mons[PM_WATER_ELEMENTAL] 
             && IS_RAINING && !has_no_tod_cycles(&u.uz)))
         healmon(mon, 1, 0);
+    if (sym_boosted(mon, S_TROLL)) {
+        healmon(mon, rnd(15), 0);
+    }
     if (mon->mspec_used)
         mon->mspec_used--;
     if (digest_meal) {

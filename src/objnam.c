@@ -1170,7 +1170,7 @@ print_mon_harmonies(struct permonst *pm, char *buf)
 {
     boolean first = TRUE;
     for (int i = 0; i < SIZE(boostnams); i++) {
-        if (pm->mboost & boostnams[i].boost_short) {
+        if (pm->mboost & boostnams[i].boost_long) {
             Sprintf(eos(buf), "%s%s", first ? "" : ", ", boostnams[i].nam);
             first = FALSE;
         }
@@ -1189,23 +1189,39 @@ add_boost_words(struct obj *obj, char *prefix)
     }
     #endif
     for (int i = 0; i < SIZE(boostnams); i++) {
-        if (obj->booster & boostnams[i].boost_short) {
+        if (obj->booster & boostnams[i].boost_long) {
             Strcat(prefix, boostnams[i].abbr);
         }
     }
 }
 
 void
-boost_object(struct obj *obj, short force)
+boost_object(struct obj *obj, long force)
 {
     if (force) {
         obj->booster = force;
     } else {
         obj->booster = 0;
         while (1) {
-            obj->booster |= (ROLL_FROM(boostnams)).boost_short;
+            obj->booster |= (ROLL_FROM(boostnams)).boost_long;
             if (rn2(10)) break;
         }
+    }
+}
+
+void
+boost_permonst(struct permonst *pm) {
+    if ((pm->mboost) & BST_RAND1) {
+        pm->mboost &= ~BST_RAND1;
+        pm->mboost |= (ROLL_FROM(boostnams)).boost_long;
+    }
+    if ((pm->mboost) & BST_RAND2) {
+        pm->mboost &= ~BST_RAND2;
+        pm->mboost |= (ROLL_FROM(boostnams)).boost_long;
+    }
+    if ((pm->mboost) & BST_RAND3) {
+        pm->mboost &= ~BST_RAND3;
+        pm->mboost |= (ROLL_FROM(boostnams)).boost_long;
     }
 }
 

@@ -57,6 +57,7 @@ SF_PROTO_C(struct, mapseen_rooms);
 SF_PROTO_C(struct, mkroom);
 SF_PROTO_C(struct, monst);
 SF_PROTO_C(struct, mvitals);
+SF_PROTO_C(struct, permonst);
 SF_PROTO_C(struct, obj);
 SF_PROTO_C(struct, objclass);
 SF_PROTO_C(struct, q_score);
@@ -138,6 +139,7 @@ struct sf_procs {
     SF_ENTRY_C(struct, mkroom);
     SF_ENTRY_C(struct, monst);
     SF_ENTRY_C(struct, mvitals);
+    SF_ENTRY_C(struct, permonst);
     SF_ENTRY_C(struct, obj);
     SF_ENTRY_C(struct, objclass);
     SF_ENTRY_C(struct, q_score);

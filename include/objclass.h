@@ -112,6 +112,7 @@ struct class_sym {
     char sym;
     const char *name;
     const char *explain;
+    const char *boost_explain;
 };
 
 struct objdescr {

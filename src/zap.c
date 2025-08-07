@@ -4854,10 +4854,11 @@ dobuzz(
 {
     int range, fltyp = zaptype(type), damgtype = fltyp % 10;
     coordxy lsx, lsy;
-    struct monst *mon;
+    struct monst *mon = m_at(sx, sy);
     coord save_bhitpos;
     boolean shopdamage = FALSE,
             fireball = (type == ZT_SPELL(ZT_FIRE)), /* set once */
+            boost_breath = (abs(type) >= 20 && abs(type) <= 29 && sym_boosted(mon, S_DRAGON)),
             gas_hit = FALSE; /* will be set during each iteration */
     struct obj *otmp;
     int spell_type;
@@ -4930,7 +4931,7 @@ dobuzz(
         }
 
         if (mon) {
-            if (fireball)
+            if (fireball || boost_breath)
                 break;
             if (type >= 0)
                 mon->mstrategy &= ~STRAT_WAITMASK;
@@ -5077,14 +5078,14 @@ dobuzz(
                         : 75;
             bounce = 0;
             if ((--range > 0 && isok(lsx, lsy) && cansee(lsx, lsy))
-                || fireball) {
+                || fireball || boost_breath) {
                 if (Is_airlevel(&u.uz)) { /* nothing to bounce off of */
                     pline_The("%s vanishes into the aether!",
                               flash_str(fltyp, FALSE));
                     if (fireball)
                         type = ZT_WAND(ZT_FIRE); /* skip pending fireball */
                     break;
-                } else if (fireball) {
+                } else if (fireball || boost_breath) {
                     sx = lsx;
                     sy = lsy;
                     break; /* fireballs explode before the obstacle */
@@ -5124,7 +5125,7 @@ dobuzz(
         }
     }
     tmp_at(DISP_END, 0);
-    if (fireball)
+    if (fireball || boost_breath)
         explode(sx, sy, type, d(12, 6), 0, EXPL_FIERY);
     if (shopdamage)
         pay_for_damage(damgtype == ZT_FIRE ? "burn away"

@@ -95,6 +95,53 @@ void historical_sfi_##dtyp(NHFILE *nhfp, xxx *d_##dtyp,                         
                            const char *myname UNUSED, int bflen UNUSED)             \
     SFI_BODY(dtyp)
 
+<<<<<<< Updated upstream
+=======
+SF_C(struct, arti_info)
+SF_C(struct, nhrect)
+SF_C(struct, branch)
+SF_C(struct, bubble)
+SF_C(struct, cemetery)
+SF_C(struct, context_info)
+SF_C(struct, nhcoord)
+SF_C(struct, damage)
+SF_C(struct, dest_area)
+SF_C(struct, dgn_topology)
+SF_C(struct, dungeon)
+SF_C(struct, d_level)
+SF_C(struct, ebones)
+SF_C(struct, edog)
+SF_C(struct, egd)
+SF_C(struct, emin)
+SF_C(struct, engr)
+SF_C(struct, epri)
+SF_C(struct, eshk)
+SF_C(struct, fe)
+SF_C(struct, flag)
+SF_C(struct, fruit)
+SF_C(struct, gamelog_line)
+SF_C(struct, kinfo)
+SF_C(struct, levelflags)
+SF_C(struct, ls_t)
+SF_C(struct, linfo)
+SF_C(struct, mapseen_feat)
+SF_C(struct, mapseen_flags)
+SF_C(struct, mapseen_rooms)
+SF_C(struct, mkroom)
+SF_C(struct, monst)
+SF_C(struct, mvitals)
+SF_C(struct, permonst)
+SF_C(struct, obj)
+SF_C(struct, objclass)
+SF_C(struct, q_score)
+SF_C(struct, rm)
+SF_C(struct, spell)
+SF_C(struct, stairway)
+SF_C(struct, s_level)
+SF_C(struct, trap)
+SF_C(struct, version_info)
+SF_C(struct, you)
+>>>>>>> Stashed changes
 
 #include "sfmacros.h"
 SF_C(struct, version_info)
@@ -183,6 +230,7 @@ struct sf_structlevel_procs historical_sfo_procs = {
         historical_sfo_mkroom,
         historical_sfo_monst,
         historical_sfo_mvitals,
+        historical_sfo_permonst,
         historical_sfo_obj,
         historical_sfo_objclass,
         historical_sfo_q_score,
@@ -259,6 +307,7 @@ struct sf_structlevel_procs historical_sfi_procs = {
         historical_sfi_mkroom,
         historical_sfi_monst,
         historical_sfi_mvitals,
+        historical_sfi_permonst,
         historical_sfi_obj,
         historical_sfi_objclass,
         historical_sfi_q_score,

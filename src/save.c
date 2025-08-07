@@ -304,6 +304,9 @@ savegamestate(NHFILE *nhfp)
     for (i = 0; i < NUMMONS; ++i) {
         Sfo_mvitals(nhfp, &svm.mvitals[i], "gamestate-mvitals");
     }
+    for (i = 0; i < NUMMONS; ++i) {
+        Sfo_ulong(nhfp, &mons[i].mboost, "gamestate-mboost");
+    }
     save_dungeon(nhfp, (boolean) !!update_file(nhfp),
                  (boolean) !!release_data(nhfp));
     savelevchn(nhfp);

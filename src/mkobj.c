@@ -1990,6 +1990,7 @@ static const int matdensities[] = {
     90,  // SILVER
     120, // GOLD
     120, // PLATINUM
+    75,  // NIGHTIRON
     30,  // MITHRIL
     20,  // PLASTIC
     60,  // GLASS
@@ -2153,6 +2154,7 @@ const int matac[] = {
      5,  // SILVER
      3,  // GOLD
      4,  // PLATINUM
+     5,  // NIGHTIRON
      6,  // MITHRIL
      3,  // PLASTIC
      5,  // GLASS
@@ -4178,7 +4180,7 @@ void set_obj_size(struct obj *obj, int size, boolean force_resize) {
 /* for objects which are normally iron or steel */
 static const struct icp metal_materials[] = {
     {600, 0}, /* default to base type, iron or steel */
-    { 75, IRON},
+    { 74, IRON},
     { 75, METAL},
     { 50, BONE},
     { 50, WOOD},
@@ -4189,6 +4191,7 @@ static const struct icp metal_materials[] = {
     { 10, GLASS},
     { 10, MINERAL},
     { 10, PLATINUM},
+    {  1, NIGHTIRON}
 };
 
 /* for objects which are normally wooden */
@@ -4247,7 +4250,8 @@ static const struct icp shiny_materials[] = {
     { 40, COPPER},
     { 30, MITHRIL},
     { 30, METAL},
-    { 20, PLATINUM},
+    { 19, PLATINUM},
+    {  1, NIGHTIRON},
 };
 
 /* for bells and other tools, especially instruments, which are normally copper
@@ -4256,7 +4260,8 @@ static const struct icp resonant_materials[] = {
     {550, 0}, /* use base material */
     {200, COPPER},
     { 60, SILVER},
-    { 50, IRON},
+    { 49, IRON},
+    {  1, NIGHTIRON},
     { 50, METAL},
     { 50, MITHRIL},
     { 30, GOLD},
@@ -4403,7 +4408,8 @@ material_list(struct obj *obj)
     }
     else if (obj->oclass == WEAPON_CLASS || obj->oclass == TOOL_CLASS
              || obj->oclass == ARMOR_CLASS) {
-        if (default_material == IRON || default_material == METAL) {
+        if (default_material == IRON || default_material == METAL
+            || default_material == NIGHTIRON) {
             return metal_materials;
         }
         else if (default_material == WOOD) {

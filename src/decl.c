@@ -91,8 +91,8 @@ const char *materialnm[] = { "mysterious", "liquid",  "wax",        "organic",
                              "flesh",      "paper",   "cloth",      "leather",
                              "wooden",     "bone",    "dragonhide", "iron",
                              "steel",      "copper",  "silver",     "gold",
-                             "platinum",   "mithril", "plastic",    "glass",
-                             "ice",
+                             "platinum",   "nightiron", "mithril", "plastic",
+                             "glass",      "ice",
                              "gemstone",   "stone" };
 const char quitchars[] = " \r\n\033";
 const int shield_static[SHIELD_COUNT] = {

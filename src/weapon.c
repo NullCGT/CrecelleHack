@@ -337,6 +337,11 @@ dmgval(struct obj *otmp, struct monst *mon)
            but is stronger and makes for a finer edge
            on bladed weapons */
         tmp += 1;
+    } else if (otmp->material == NIGHTIRON) {
+        /* nightiron grows more deadly at night, but weaker during the
+           day. */
+        if (night()) tmp += 3;
+        else tmp -= 1;
     }
 
     /* negative modifiers mustn't produce negative damage */

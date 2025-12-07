@@ -258,8 +258,7 @@ ready_weapon(struct obj *wep)
             }
         }
 
-        if (Race_if(PM_ELF) && !wep->oartifact
-            && wep->material == IRON) {
+        if (Race_if(PM_ELF) && !wep->oartifact && is_iron(wep)) {
             /* Elves are averse to wielding cold iron */
             You("have an uneasy feeling about wielding cold iron.");
             change_luck(-1);

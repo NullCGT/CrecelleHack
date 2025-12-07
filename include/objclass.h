@@ -27,12 +27,13 @@ enum obj_material_types {
     SILVER      = 14, /* Ag */
     GOLD        = 15, /* Au */
     PLATINUM    = 16, /* Pt */
-    MITHRIL     = 17,
-    PLASTIC     = 18,
-    GLASS       = 19,
-    ICECRYSTAL  = 20,
-    GEMSTONE    = 21,
-    MINERAL     = 22,
+    NIGHTIRON   = 17,
+    MITHRIL     = 18,
+    PLASTIC     = 19,
+    GLASS       = 20,
+    ICECRYSTAL  = 21,
+    GEMSTONE    = 22,
+    MINERAL     = 23,
     NUM_MATERIAL_TYPES
 };
 
@@ -201,7 +202,7 @@ extern NEARDATA struct objdescr obj_descr[NUM_OBJECTS + 1];
 #define is_organic(otmp) (otmp->material <= WOOD)
 #define is_dragonhide(otmp) (otmp->material == DRAGON_HIDE)
 #define is_mithril(otmp) (otmp->material == MITHRIL)
-#define is_iron(otmp) (otmp->material == IRON)
+#define is_iron(otmp) (otmp->material == IRON || otmp->material == NIGHTIRON)
 #define is_glass(otmp) (otmp->material == GLASS)
 #define is_wood(otmp) (otmp->material == WOOD)
 #define is_bone(otmp) (otmp->material == BONE)
@@ -213,14 +214,15 @@ extern NEARDATA struct objdescr obj_descr[NUM_OBJECTS + 1];
 
 /* primary damage: fire/rust/--- */
 /* is_flammable(otmp), is_rottable(otmp) in mkobj.c */
-#define is_rustprone(otmp) (otmp->material == IRON)
+#define is_rustprone(otmp) (otmp->material == IRON || otmp->material == NIGHTIRON)
 #define is_crackable(otmp) \
     ((otmp->material == GLASS || otmp->material == ICECRYSTAL) \
      && ((otmp)->oclass == ARMOR_CLASS || (otmp)->oclass == TOOL_CLASS)) /* erosion_matters() */
 /* secondary damage: rot/acid/acid */
 #define is_corrodeable(otmp) \
     (otmp->material == COPPER          \
-     || otmp->material == IRON)
+     || otmp->material == IRON          \
+     || otmp->material == NIGHTIRON)
 /* subject to any damage */
 #define is_damageable(otmp) \
     (is_rustprone(otmp) || is_flammable(otmp)           \

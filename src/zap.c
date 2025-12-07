@@ -1606,6 +1606,7 @@ create_polymon(struct obj *obj, int okind)
     case IRON:
     case METAL:
     case MITHRIL:
+    case NIGHTIRON:
         pm_index = PM_IRON_GOLEM;
         material = "metal ";
         break;

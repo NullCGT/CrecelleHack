@@ -554,7 +554,7 @@ hates_material(struct permonst *ptr, int material)
         return (boolean) (is_were(ptr) || ptr->mlet == S_VAMPIRE
                           || is_demon(ptr) || ptr == &mons[PM_SHADE]
                           || (ptr->mlet == S_IMP));
-    } else if (material == IRON) {
+    } else if (material == IRON || material == NIGHTIRON) {
         /* elves hate cold iron */
         return is_elf(ptr);
     }

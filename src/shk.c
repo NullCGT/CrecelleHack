@@ -2843,6 +2843,7 @@ static const int matprices[] = {
     30, /* SILVER */
     60, /* GOLD */
     80, /* PLATINUM */
+    95, /* NIGHTIRON */
     50, /* MITHRIL - mithril-coat to regular chain mail */
     10, /* PLASTIC */
     20, /* GLASS */

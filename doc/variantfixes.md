@@ -22,6 +22,10 @@
       vegetable matter can be eaten.
     - Figurines have randomized material types.
     - New option, implicit_material, to quash default materials.
+- Rare Material: Nightiron.
+  - Generates very rarely.
+  - -1 damage during the day, +3 at night.
+  - Treated as iron for material hatred purposes.
 
 ## Artifacts
 - Lucifer

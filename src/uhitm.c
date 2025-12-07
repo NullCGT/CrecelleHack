@@ -1650,6 +1650,7 @@ hmon_hitmon_splitmon(
            also allow either or both weapons to cause split when twoweap] */
         && obj && (obj == uwep || (u.twoweap && obj == uswapwep))
         && ((hmd->material == IRON
+             || hmd->material == NIGHTIRON
              /* allow scalpel and tsurugi to split puddings */
              || hmd->material == METAL
              || hmd->mdat == &mons[PM_HELLBAT])
@@ -4319,7 +4320,7 @@ mhitm_ad_phys(
 
                 if (u.mh - tmp > 1
                     /* relevant 'metal' objects are scalpel and tsurugi */
-                    && (otmp->material == IRON || otmp->material == METAL)
+                    && (is_iron(otmp) || otmp->material == METAL)
                     && (u.umonnum == PM_BLACK_PUDDING
                         || u.umonnum == PM_BROWN_PUDDING)) {
                     if (tmp > 1)

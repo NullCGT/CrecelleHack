@@ -577,7 +577,7 @@ dog_goal(
             if (enemy->mtame || enemy->mpeaceful)
                 continue;
             /* Skip if pet is ordered to avoid peacefuls but enemy is peaceful */
-            if ((edog->petstrat & PETSTRAT_AVOIDPEACE) && enemy->mpeaceful)
+            if (edog && (edog->petstrat & PETSTRAT_AVOIDPEACE) && enemy->mpeaceful)
                 continue;
             /* Can the pet see this enemy? */
             if (!m_cansee(mtmp, enemy->mx, enemy->my))
@@ -1114,7 +1114,7 @@ dog_move(
                 goto newdogpos; /* eating something */
         }
 
-        whappr = (svm.moves - edog->whistletime < 5);
+        whappr = edog ? (svm.moves - edog->whistletime < 5) : 0;
     } else
         whappr = 0;
 
@@ -1201,7 +1201,7 @@ dog_move(
             int balk = mtmp->m_lev + ((5 * mtmp->mhp) / mtmp->mhpmax) - 2;
 
             /* Skip attacking if pet is ordered to come to player */
-            if (edog->petstrat & PETSTRAT_COME)
+            if (edog && (edog->petstrat & PETSTRAT_COME))
                 continue;
 
             if (edog) {

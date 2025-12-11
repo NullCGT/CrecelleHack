@@ -3359,6 +3359,7 @@ extern boolean m_harmless_trap(struct monst *, struct trap *) NONNULLPTRS;
 extern void dotrap(struct trap *, unsigned) NONNULLARG1;
 extern void seetrap(struct trap *) NONNULLARG1;
 extern void feeltrap(struct trap *) NONNULLARG1;
+extern int o_trigger_trap(struct obj *, int, int) NONNULLARG1;
 extern int mintrap(struct monst *, unsigned) NONNULLARG1;
 extern void instapetrify(const char *) NO_NNARGS;
 extern void minstapetrify(struct monst *, boolean) NONNULLARG1;

@@ -1228,6 +1228,25 @@ trapeffect_arrow_trap(
             stackobj(otmp);
             newsym(u.ux, u.uy);
         }
+    } else if (!mtmp) {
+        coordxy tx = trap->tx, ty = trap->ty;
+        if (trap->once && trap->tseen && !rn2(15)) {
+            deltrap(trap);
+            newsym(tx, ty);
+            if (cansee(tx, ty))
+                pline("An arrow trap triggers, but nothing happens.");
+            return Trap_Is_Gone;
+        }
+        otmp = t_missile(ARROW, trap);
+        place_object(otmp, tx, ty);
+        stackobj(otmp);
+        newsym(tx, ty);
+        trap->once = 1;
+        if (cansee(tx, ty)) {
+            seetrap(trap);
+            pline("An arrow trap triggers!");
+            observe_object(otmp);
+        }
     } else {
         boolean in_sight = canseemon(mtmp) || (mtmp == u.usteed);
         boolean see_it = cansee(mtmp->mx, mtmp->my);
@@ -1297,6 +1316,25 @@ trapeffect_dart_trap(
                 observe_object(otmp);
             stackobj(otmp);
             newsym(u.ux, u.uy);
+        }
+    } else if (!mtmp) {
+        coordxy tx = trap->tx, ty = trap->ty;
+        if (trap->once && trap->tseen && !rn2(15)) {
+            deltrap(trap);
+            newsym(tx, ty);
+            if (cansee(tx, ty))
+                pline("A dart trap triggers, but nothing happens.");
+            return Trap_Is_Gone;
+        }
+        otmp = t_missile(ARROW, trap);
+        place_object(otmp, tx, ty);
+        stackobj(otmp);
+        newsym(tx, ty);
+        trap->once = 1;
+        if (cansee(tx, ty)) {
+            seetrap(trap);
+            pline("A dart trap triggers!");
+            observe_object(otmp);
         }
     } else {
         boolean in_sight = canseemon(mtmp) || (mtmp == u.usteed);
@@ -1380,6 +1418,26 @@ trapeffect_rocktrap(
                 exercise(A_STR, FALSE);
             }
         }
+    } else if (!mtmp) {
+        coordxy tx = trap->tx, ty = trap->ty;
+        if (trap->once && trap->tseen && !rn2(15)) {
+            pline("A trap door in %s opens, but nothing falls out!",
+                  the(ceiling(tx, ty)));
+            deltrap(trap);
+            newsym(tx, ty);
+            return Trap_Is_Gone;
+        } else {
+            trap->once = 1;
+            otmp = t_missile(ROCK, trap);
+            pline("A trap door in %s opens and a rock falls out!",
+                  the(ceiling(tx, ty)));
+            place_object(otmp, tx, ty);
+            stackobj(otmp);
+            if (cansee(tx, ty)) {
+                seetrap(trap);
+                newsym(tx, ty);
+            }
+        }
     } else {
         boolean in_sight = canseemon(mtmp) || (mtmp == u.usteed);
         boolean see_it = cansee(mtmp->mx, mtmp->my);
@@ -1443,6 +1501,15 @@ trapeffect_sqky_board(
                   Deaf ? "" : " loudly");
             wake_nearby(FALSE);
         }
+    } else if (!mtmp) {
+        coordxy tx = trap->tx, ty = trap->ty;
+        if (cansee(tx, ty) && !Deaf)
+            seetrap(trap);
+        if (IndexOk(trap->tnote, tsnds)) {
+            Soundeffect(tsnds[trap->tnote], TRUE);
+        }
+        You_hear("%s squeak.", trapnote(trap, FALSE));
+        wake_nearto(tx, ty, 40);
     } else {
         boolean in_sight = canseemon(mtmp) || (mtmp == u.usteed);
 
@@ -1526,6 +1593,12 @@ trapeffect_bear_trap(
             losehp(Maybe_Half_Phys(dmg), "bear trap", KILLED_BY_AN);
         }
         exercise(A_DEX, FALSE);
+    } else if (!mtmp) {
+        coordxy tx = trap->tx, ty = trap->ty;
+        if (cansee(tx, ty))
+            pline("A bear trap snaps closed!");
+         cnv_trap_obj(BEARTRAP, 1, trap, FALSE);
+        return Trap_Is_Gone;
     } else {
         struct permonst *mptr = mtmp->data;
         boolean in_sight = canseemon(mtmp) || (mtmp == u.usteed);
@@ -1570,9 +1643,11 @@ trapeffect_slp_gas_trap(
     unsigned int trflags UNUSED)
 {
     struct obj fakeobj;
-    if (mtmp == &gy.youmonst) {
-        seetrap(trap);
-        pline("Gas sprays from hidden vents in the %s!", surface(trap->tx, trap->ty));
+    if (mtmp == &gy.youmonst || !mtmp) {
+        coordxy tx = trap->tx, ty = trap->ty;
+        if (cansee(tx, ty))
+            seetrap(trap);
+        pline("Gas sprays from hidden vents in the %s!", surface(tx, ty));
     } else {
         boolean in_sight = canseemon(mtmp) || (mtmp == u.usteed);
         if (in_sight) {
@@ -1648,6 +1723,13 @@ trapeffect_rust_trap(
         } else if (u.umonnum == PM_GREMLIN && rn2(3)) {
             (void) split_mon(&gy.youmonst, (struct monst *) 0);
         }
+    } else if (!mtmp) {
+        coordxy tx = trap->tx, ty = trap->ty;
+        if (cansee(tx, ty)) {
+            pline("Water gushes from a rust trap.");
+            seetrap(trap);
+        }
+        potion_splatter(tx, ty, POT_WATER, NON_PM);
     } else {
         boolean in_sight = canseemon(mtmp) || (mtmp == u.usteed);
         boolean trapkilled = FALSE;
@@ -1732,6 +1814,19 @@ trapeffect_fire_trap(
     if (mtmp == &gy.youmonst) {
         seetrap(trap);
         dofiretrap((struct obj *) 0);
+    } else if (!mtmp) {
+        coordxy tx = trap->tx, ty = trap->ty;
+        if (cansee(tx, ty)) {
+            pline("A %s erupts from the %s!", tower_of_flame, surface(tx, ty));
+        }
+        if (burn_floor_objects(tx, ty, cansee(tx, ty), FALSE)
+            && !cansee(tx, ty) && distu(tx, ty) <= 3 * 3)
+            You("smell smoke.");
+        if (is_ice(tx, ty))
+            melt_ice(tx, ty, (char *) 0);
+        if (cansee(tx, ty) && t_at(tx, ty))
+            seetrap(t_at(tx, ty));
+        evaporate_potion_puddles(tx, ty);
     } else {
         coordxy tx = trap->tx, ty = trap->ty;
         boolean in_sight = canseemon(mtmp) || (mtmp == u.usteed);
@@ -2539,6 +2634,15 @@ trapeffect_landmine(
         if ((trap = t_at(u.ux, u.uy)) != 0)
             dotrap(trap, RECURSIVETRAP);
         fill_pit(u.ux, u.uy);
+    } else if (!mtmp) {
+        coordxy tx = trap->tx, ty = trap->ty;
+        if (cansee(tx, ty))
+            pline("KAABLAM!!!");
+        else if (!Deaf)
+            pline("Kaablamm!  %s an explosion in the distance!",
+                  "You hear");
+        blow_up_landmine(trap);
+        fill_pit(tx, ty);
     } else {
         boolean trapkilled = FALSE;
         boolean in_sight = canseemon(mtmp) || (mtmp == u.usteed);
@@ -2618,6 +2722,15 @@ trapeffect_rolling_boulder_trap(
             deltrap(trap);
             newsym(u.ux, u.uy); /* get rid of trap symbol */
             pline("Fortunately for you, no boulder was released.");
+        }
+    } else if (!mtmp) {
+        int style = ROLL | (trap->tseen ? LAUNCH_KNOWN : 0);
+        if (!Deaf) pline("Click!");
+        if (!launch_obj(BOULDER, trap->launch.x, trap->launch.y,
+                        trap->launch2.x, trap->launch2.y, style)) {
+            deltrap(trap);
+            newsym(u.ux, u.uy);
+            pline("Nothing happens.");
         }
     } else {
         if (!m_in_air(mtmp)) {
@@ -3758,6 +3871,61 @@ mintrap(struct monst *mtmp, unsigned mintrapflags)
         }
     }
     return trap_result;
+}
+
+/* An object triggers a trap. */
+int
+o_trigger_trap(struct obj *obj, int x, int y)
+{
+    struct trap *trap = t_at(x, y);
+    struct monst *mtmp = m_at(x, y);
+    /* Rolling boulder traps should not be triggered by rolling boulders,
+       since it causes the trap to be prematurely destroyed. */
+    if (!trap ||
+        (trap->ttyp == ROLLING_BOULDER_TRAP && obj->otyp == BOULDER))
+        return 0;
+    if (x == u.ux && y == u.uy) {
+        pline("A trap is triggered!");
+        dotrap(trap, FORCETRAP);
+        return 0;
+    } else if (mtmp != NULL) {
+        mintrap(mtmp, FORCETRAP);
+        return 0;
+    }
+    switch(trap->ttyp) {
+        case PIT:
+        case SPIKED_PIT:
+        case HOLE:
+        case TRAPDOOR:
+        case MAGIC_PORTAL:
+        case POLY_TRAP:
+        case WEB:
+        case LEVEL_TELEP:
+            return 0;
+        case TELEP_TRAP:
+            if (cansee(x, y)) {
+                pline("Suddenly, %s vanishes!", an(xname(obj)));
+                seetrap(trap);
+            }
+            (void) rloco(obj);
+            return 1;
+        case ANTI_MAGIC:
+            cancel_item(obj);
+            return 0;
+        case VIBRATING_SQUARE:
+            if (cansee(x, y)) {
+                pline("There is a strange vibration under %s.", the(xname(obj)));
+                seetrap(trap);
+            }
+            return 0;
+        /* Rolling boulder traps are a special case. If we do not prevent boulders
+           from triggering them, boulders will trigger the trap while they roll
+           over it. */
+        default:
+            if (cansee(x, y))
+                pline("The impact of %s triggers a trap!", an(xname(obj)));
+            return trapeffect_selector((struct monst *) 0, trap, 0);
+    }
 }
 
 /* Combine cockatrice checks into single functions to avoid repeating code. */

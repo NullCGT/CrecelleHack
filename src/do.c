@@ -355,6 +355,10 @@ flooreffects(
         }
     }
 
+    if (!res) {
+        res = o_trigger_trap(obj, x, y);
+    }
+
     gb.bhitpos = save_bhitpos;
     return res;
 }
@@ -883,6 +887,7 @@ dropz(struct obj *obj, boolean with_impact)
         if (flooreffects(obj, u.ux, u.uy, "drop"))
             return;
         place_object(obj, u.ux, u.uy);
+        /* TODO: Somehow move this into flooreffects? */
         if (with_impact)
             container_impact_dmg(obj, u.ux, u.uy);
         impact_disturbs_zombies(obj, with_impact);

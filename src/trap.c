@@ -3004,9 +3004,9 @@ staticfn char *
 trapnote(struct trap *trap, boolean noprefix)
 {
     static const char *const tnnames[] = {
-        "C note",  "D flat", "D note",  "E flat",
-        "E note",  "F note", "F sharp", "G note",
-        "G sharp", "A note", "B flat",  "B note",
+        "C note",  "Db", "D note",  "Eb",
+        "E note",  "F note", "F#", "G note",
+        "G#", "A note", "Bb",  "B note",
     };
     static char tnbuf[12]; /* result buffer */
     const char *tn;

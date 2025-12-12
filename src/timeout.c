@@ -2035,6 +2035,7 @@ static const ttable timeout_funcs[NUM_TIME_FUNCS] = {
     TTAB(shrink_glob, (timeout_proc) 0, "shrink_glob"),
     /* level timers */
     TTAB(melt_ice_away, (timeout_proc) 0, "melt_ice_away"),
+    TTAB(spark_delay, (timeout_proc) 0, "spark_delay"),
     /* currently no monster or global timers */
 };
 #undef TTAB

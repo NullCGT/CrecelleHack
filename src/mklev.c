@@ -2245,7 +2245,7 @@ mktrap(
            which case tx,ty==launch.x,y; no boulder => no dead predecessor */
         && !(kind == ROLLING_BOULDER_TRAP
              && t->launch.x == t->tx && t->launch.y == t->ty)
-        && !is_pit(kind) && (kind < HOLE || kind == MAGIC_TRAP)) {
+        && !is_pit(kind) && (kind < HOLE || kind == MAGIC_TRAP || kind == SPARK_TRAP)) {
         if (kind == LANDMINE) {
             /* if victim was killed by a land mine, we won't scatter objects;
                treat it as exploded, converting it into an unconcealed pit */

@@ -3,6 +3,8 @@
 - Dipping amythest in floor booze turns it into floor fruit juice.
 - Restored hazardous waste to its proper explosiveness.
 - Bonfires can now cause hazardous waste to explode.
+- New trap: Spark trap.
+  - Creates a bonfire on a several turn delay.
 
 # 1.4
 ## Object Materials Patch

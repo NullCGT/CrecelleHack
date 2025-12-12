@@ -24,6 +24,7 @@ staticfn int trapeffect_bear_trap(struct monst *, struct trap *, unsigned);
 staticfn int trapeffect_slp_gas_trap(struct monst *, struct trap *, unsigned);
 staticfn int trapeffect_rust_trap(struct monst *, struct trap *, unsigned);
 staticfn int trapeffect_fire_trap(struct monst *, struct trap *, unsigned);
+staticfn int trapeffect_spark_trap(struct monst *, struct trap *, unsigned);
 staticfn int trapeffect_pit(struct monst *, struct trap *, unsigned);
 staticfn int trapeffect_hole(struct monst *, struct trap *, unsigned);
 staticfn int trapeffect_telep_trap(struct monst *, struct trap *, unsigned);
@@ -518,6 +519,11 @@ maketrap(coordxy x, coordxy y, int typ)
         break;
     case ROLLING_BOULDER_TRAP: /* boulder will roll towards trigger */
         (void) mkroll_launch(ttmp, x, y, BOULDER, 1L);
+        break;
+    case SPARK_TRAP:
+        if (!has_coating(x, y, COAT_GRASS)
+            && depth(&u.uz) > 3)
+            potion_splatter(x, y, rn2(6) ? POT_HAZARDOUS_WASTE : POT_OIL, NON_PM);
         break;
     case PIT:
     case SPIKED_PIT:
@@ -1086,6 +1092,7 @@ floor_trigger(int ttyp)
     case SLP_GAS_TRAP:
     case RUST_TRAP:
     case FIRE_TRAP:
+    case SPARK_TRAP:
     case PIT:
     case SPIKED_PIT:
     case HOLE:
@@ -1149,7 +1156,9 @@ m_harmless_trap(struct monst *mtmp, struct trap *ttmp)
             return TRUE;
         break;
     case FIRE_TRAP:
-        if (resists_fire(mtmp) || defended(mtmp, AD_FIRE))
+    case SPARK_TRAP:
+        if ((resists_fire(mtmp) || defended(mtmp, AD_FIRE))
+            && levl[ttmp->tx][ttmp->ty].pindex != POT_HAZARDOUS_WASTE)
             return TRUE;
         break;
     case PIT:
@@ -1910,6 +1919,32 @@ trapeffect_fire_trap(
         return trapkilled ? Trap_Killed_Mon : mtmp->mtrapped
             ? Trap_Caught_Mon : Trap_Effect_Finished;
     }
+    return Trap_Effect_Finished;
+}
+
+staticfn int
+trapeffect_spark_trap(
+    struct monst *mtmp,
+    struct trap *trap,
+    unsigned int trflags UNUSED)
+{
+    coordxy tx = trap->tx, ty = trap->ty;
+    long where = ((long) tx << 16) | (long) ty;
+    if (mtmp == &gy.youmonst) {
+        feeltrap(trap);
+        urgent_pline("%sYou feel a gentle ticking.", Deaf ? "" : "Click!  ");
+    } else if (!mtmp) {
+        if (cansee(tx, ty))
+            seetrap(trap);
+        You_hear("Something begin to tick.");
+    } else {
+        if (cansee(tx, ty))
+            seetrap(trap);
+        pline("%s triggers a pressure plate!", Monnam(mtmp));
+        You_hear("Something begin to tick.");
+    }
+        (void) start_timer((long) rn1(4, 3), TIMER_LEVEL, SPARK_DELAY,
+                           long_to_any(where));
     return Trap_Effect_Finished;
 }
 
@@ -2851,6 +2886,7 @@ immune_to_trap(struct monst *mon, unsigned ttype)
     case ARROW_TRAP:
     case DART_TRAP:
     case ROCKTRAP:
+    case SPARK_TRAP:
         /* can hit anything; even noncorporeal monsters might get a blessed
            projectile */
         return TRAP_NOT_IMMUNE;
@@ -3008,6 +3044,8 @@ trapeffect_selector(
         return trapeffect_rust_trap(mtmp, trap, trflags);
     case FIRE_TRAP:
         return trapeffect_fire_trap(mtmp, trap, trflags);
+    case SPARK_TRAP:
+        return trapeffect_spark_trap(mtmp, trap, trflags);
     case PIT:
     case SPIKED_PIT:
         return trapeffect_pit(mtmp, trap, trflags);
@@ -6771,6 +6809,7 @@ delfloortrap(struct trap *ttmp)
     /* some of these are arbitrary -dlc */
     if (ttmp && ((ttmp->ttyp == SQKY_BOARD) || (ttmp->ttyp == BEAR_TRAP)
                  || (ttmp->ttyp == LANDMINE) || (ttmp->ttyp == FIRE_TRAP)
+                 || (ttmp->ttyp == SPARK_TRAP)
                  || is_pit(ttmp->ttyp)
                  || is_hole(ttmp->ttyp)
                  || (ttmp->ttyp == TELEP_TRAP) || (ttmp->ttyp == LEVEL_TELEP)
@@ -7293,6 +7332,22 @@ trap_ice_effects(coordxy x, coordxy y, boolean ice_is_melting)
                 deltrap(ttmp);
         }
     }
+}
+
+void
+spark_delay(anything *arg, long timeout UNUSED)
+{
+    coordxy x, y;
+    long where = arg->a_long;
+    boolean save_mon_moving = svc.context.mon_moving;
+    svc.context.mon_moving = TRUE;
+    y = (coordxy) (where & 0xFFFF);
+    x = (coordxy) ((where >> 16) & 0xFFFF);
+    /* melt_ice does newsym when appropriate */
+    if (cansee(x, y))
+        pline("A bonfire erupts from the %s.", surface(x, y));
+    create_bonfire(x, y, rnd(7), d(2, 4));
+    svc.context.mon_moving = save_mon_moving;
 }
 
 /* sanity check traps */

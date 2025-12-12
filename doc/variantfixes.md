@@ -3,6 +3,8 @@
 - Dipping amythest in floor booze turns it into floor fruit juice.
 - Restored hazardous waste to its proper explosiveness.
 - Bonfires can now cause hazardous waste to explode.
+- Gas traps emit gas on delay, and the size of the cloud depends
+  on the level of the dungeon.
 - New trap: Spark trap.
   - Creates a bonfire on a several turn delay.
 

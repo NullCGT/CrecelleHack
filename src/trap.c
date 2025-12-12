@@ -1651,22 +1651,22 @@ trapeffect_slp_gas_trap(
     struct trap *trap,
     unsigned int trflags UNUSED)
 {
-    struct obj fakeobj;
+    coordxy tx = trap->tx, ty = trap->ty;
+    long where = ((long) tx << 16) | (long) ty;
     if (mtmp == &gy.youmonst || !mtmp) {
-        coordxy tx = trap->tx, ty = trap->ty;
         if (cansee(tx, ty))
             seetrap(trap);
-        pline("Gas sprays from hidden vents in the %s!", surface(tx, ty));
+        pline("Gas begins to leak from the %s!", surface(tx, ty));
     } else {
         boolean in_sight = canseemon(mtmp) || (mtmp == u.usteed);
         if (in_sight) {
-            pline_mon(mtmp, "%s is enveloped in a cloud of gas!", Monnam(mtmp));
+            pline_mon(mtmp, "Gas swirls around %s's %s!", Monnam(mtmp), mbodypart(mtmp, FOOT));
             seetrap(trap);
         } else
-            You_hear("a whoomph!");
+            You_hear("a soft hiss.");
     }
-    fakeobj.otyp = trap->launch_otyp;
-    create_gas_cloud(trap->tx, trap->ty, 5, &fakeobj, 5);
+    (void) start_timer((long) rn1(3, 3), TIMER_LEVEL, GASTRAP_DELAY,
+                           long_to_any(where));
     return Trap_Effect_Finished;
 }
 
@@ -7343,10 +7343,33 @@ spark_delay(anything *arg, long timeout UNUSED)
     svc.context.mon_moving = TRUE;
     y = (coordxy) (where & 0xFFFF);
     x = (coordxy) ((where >> 16) & 0xFFFF);
-    /* melt_ice does newsym when appropriate */
     if (cansee(x, y))
         pline("A bonfire erupts from the %s.", surface(x, y));
     create_bonfire(x, y, rnd(7), d(2, 4));
+    svc.context.mon_moving = save_mon_moving;
+}
+
+void
+gastrap_delay(anything *arg, long timeout UNUSED)
+{
+    struct obj fakeobj;
+    long where = arg->a_long;
+    coordxy y = (coordxy) (where & 0xFFFF);
+    coordxy x = (coordxy) ((where >> 16) & 0xFFFF);
+    struct trap *trap = t_at(x, y);
+    if (!trap) return;
+    int radius;
+
+    boolean save_mon_moving = svc.context.mon_moving;
+    svc.context.mon_moving = TRUE;
+    if (cansee(x, y))
+        pline("Gas sprays from hidden vents in the %s!", surface(x, y));
+    else if (!Deaf)
+        You_hear("a whoomph!");
+    /* radius is randomized */
+    radius = rn1(5, rn2(depth(&u.uz)));
+    fakeobj.otyp = trap->launch_otyp;
+    create_gas_cloud(x, y, radius, &fakeobj, 5);
     svc.context.mon_moving = save_mon_moving;
 }
 

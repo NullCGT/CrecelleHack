@@ -45,6 +45,7 @@ enum timeout_types {
     SHRINK_GLOB,
     MELT_ICE_AWAY,
     SPARK_DELAY,
+    GASTRAP_DELAY,
 
     NUM_TIME_FUNCS
 };

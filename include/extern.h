@@ -1055,6 +1055,7 @@ extern void splatter_burning_oil(coordxy, coordxy, boolean);
 extern void explode_oil(struct obj *, coordxy, coordxy) NONNULLARG1;
 extern int adtyp_to_expltype(const int);
 extern void mon_explodes(struct monst *, struct attack *) NONNULLPTRS;
+extern void detonate_waste(int, int);
 
 /* ### extralev.c ### */
 

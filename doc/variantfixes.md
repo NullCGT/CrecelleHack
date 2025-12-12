@@ -1,3 +1,9 @@
+# 1.5
+- Dipping items in potions on the floor now has additional feedback.
+- Dipping amythest in floor booze turns it into floor fruit juice.
+- Restored hazardous waste to its proper explosiveness.
+- Bonfires can now cause hazardous waste to explode.
+
 # 1.4
 ## Object Materials Patch
 - This version of the object materials patch is pulled from

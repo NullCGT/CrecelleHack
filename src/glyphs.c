@@ -792,6 +792,7 @@ purge_custom_entries(enum graphics_sets which_set)
         gdc->count = 0;
     }
 }
+
 void
 dump_all_glyphids(FILE *fp)
 {
@@ -817,7 +818,7 @@ wizcustom_glyphids(winid win)
             wizcustom_callback(win, glyphnum, id);
         }
     }
- }
+}
 
 staticfn int
 parse_id(

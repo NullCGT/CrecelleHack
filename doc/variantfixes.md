@@ -5,6 +5,7 @@
 - Bonfires can now cause hazardous waste to explode.
 - Gas traps emit gas on delay, and the size of the cloud depends
   on the level of the dungeon.
+- Demons recognize all traps in Gehennom.
 - New trap: Spark trap.
   - Creates a bonfire on a several turn delay.
 

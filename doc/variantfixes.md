@@ -6,6 +6,7 @@
 - Gas traps emit gas on delay, and the size of the cloud depends
   on the level of the dungeon.
 - Demons recognize all traps in Gehennom.
+- Implemented xNetHack's trap ammo patch. Code pulled from EvilHack.
 - New trap: Spark trap.
   - Creates a bonfire on a several turn delay.
 

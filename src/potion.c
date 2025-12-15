@@ -2934,8 +2934,16 @@ dodip(void)
             Snprintf(qbuf, sizeof(qbuf), "%s%s into the liquid here?", Dip_,
                      flags.verbose ? obuf : shortestname);
             if (y_n(qbuf) == 'y') {
-                /* TODO: Actually handle this, as opposed to just using a junk message */
-                pline("The liquid here is too widely distributed to dip anything into.");
+                if (Is_container(obj) || obj->oclass == POTION_CLASS
+                    || obj->otyp == BOTTLE || obj->otyp == OIL_LAMP
+                    || obj->otyp == MAGIC_LAMP || obj->otyp == LANTERN) {
+                    pline("The liquid here is too thinly distributed to fill a container with.");
+                } else if (obj->otyp == AMETHYST && levl[u.ux][u.uy].pindex == POT_BOOZE) {
+                    levl[u.ux][u.uy].pindex = POT_FRUIT_JUICE;
+                    pline("The liquid changes color.");
+                } else {
+                    pline("Interesting...");
+                }
                 return ECMD_TIME;
             }
             ++drink_ok_extra;

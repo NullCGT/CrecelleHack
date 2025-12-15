@@ -1433,7 +1433,8 @@ passivemm(
             if (canseemon(magr))
                 pline_mon(magr, "%s is suddenly very cold!", Monnam(magr));
             healmon(mdef, tmp/2, tmp/2);
-            if (mdef->mhpmax > ((int) (mdef->m_lev + 1) * 8))
+            if ((mdef->mhpmax > ((int) (mdef->m_lev + 1) * 8))
+                && mdef->data != &mons[PM_FROSTWURM])
                 (void) split_mon(mdef, magr);
             break;
         case AD_STUN:

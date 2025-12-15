@@ -2627,7 +2627,8 @@ passiveum(
             u.mh += (tmp + rn2(2)) / 2;
             if (u.mhmax < u.mh)
                 u.mhmax = u.mh;
-            if (u.mhmax > (((int) gy.youmonst.data->mlevel + 1) * 8))
+            if ((u.mhmax > (((int) gy.youmonst.data->mlevel + 1) * 8))
+                && mtmp->data != &mons[PM_FROSTWURM])
                 (void) split_mon(&gy.youmonst, mtmp);
             break;
         case AD_STUN: /* Yellow mold */

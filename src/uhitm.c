@@ -6318,7 +6318,8 @@ passive(
                 /* monster gets stronger with your heat! */
                 healmon(mon, (tmp + rn2(2)) / 2, (tmp + 1) / 2);
                 /* at a certain point, the monster will reproduce! */
-                if (mon->mhpmax > (((int) mon->m_lev) + 1) * 8)
+                if ((mon->mhpmax > (((int) mon->m_lev) + 1) * 8)
+                    && mon->data != &mons[PM_FROSTWURM])
                     (void) split_mon(mon, &gy.youmonst);
                 learn_it = TRUE;
             }

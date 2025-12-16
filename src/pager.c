@@ -2384,11 +2384,13 @@ do_supplemental_item_info(struct obj *otmp)
         Sprintf(buf, "It would cost ~%d ink to write.", cost(otmp));
         putstr(datawin, 0, buf);
     }
-    if (otmp->oclass == WEAPON_CLASS && is_dualweapon(otmp)) {
-        putstr(datawin, 0, "It can be dual-wielded.");
-    }
-    if (is_tripweapon(otmp)) {
-        putstr(datawin, 0, "It can be used to trip monsters.");
+    if (otmp->oclass == WEAPON_CLASS) {
+        if (is_dualweapon(otmp))
+            putstr(datawin, 0, "It can be dual-wielded.");
+        if (is_tripweapon(otmp))
+            putstr(datawin, 0, "It can be used to trip monsters.");
+        if (is_poisonable(otmp))
+            putstr(datawin, 0, "It can be poisoned.");
     }
     putstr(datawin, 0, "");
     /* Class info */

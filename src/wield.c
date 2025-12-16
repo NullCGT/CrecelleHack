@@ -79,7 +79,8 @@ staticfn void finish_splitting(struct obj *);
 
 static const char
     are_no_longer_twoweap[] = "are no longer using two weapons at once",
-    can_no_longer_twoweap[] = "can no longer wield two weapons at once";
+    can_no_longer_twoweap[] = "can no longer wield two weapons at once",
+    can_no_longer_dualweap[] = "can no longer dual-wield your weapon";
 
 /*** Functions that place a given item in a slot ***/
 /* Proper usage includes:
@@ -469,6 +470,7 @@ dowield(void)
     if (flags.pushweapon && oldwep && uwep != oldwep)
         setuswapwep(oldwep);
     untwoweapon();
+    undualweapon();
 
     return result;
 }
@@ -513,6 +515,8 @@ doswapweapon(void)
 
     if (u.twoweap && !can_twoweapon())
         untwoweapon();
+    if (u.dualweap)
+        undualweapon();
 
     return result;
 }
@@ -624,6 +628,7 @@ doquiver_core(const char *verb) /* "ready" or "fire" */
         /* quivering main weapon, so no longer wielding it */
         setuwep((struct obj *) 0);
         untwoweapon();
+        undualweapon();
         was_uwep = TRUE;
     } else if (newquiver == uswapwep) {
         if (uswapwep->quan > 1L && inv_cnt(FALSE) < invlet_basic
@@ -769,6 +774,8 @@ wield_tool(struct obj *obj,
     /* applying weapon or tool that gets wielded ends two-weapon combat */
     if (u.twoweap)
         untwoweapon();
+    if (u.dualweap)
+        undualweapon();
     if (obj->oclass != WEAPON_CLASS)
         gu.unweapon = TRUE;
     return TRUE;
@@ -781,6 +788,8 @@ can_twoweapon(void)
 
     if (!could_twoweap(gy.youmonst.data) && Upolyd) {
         You_cant("use two weapons in your current form.");
+    } else if (uwep && is_dualweapon(uwep)) {
+        return TRUE;
     } else if (!uwep || !uswapwep) {
         const char *hand_s = body_part(HAND);
 
@@ -846,6 +855,14 @@ void
 set_twoweap(boolean on_off)
 {
     u.twoweap = on_off;
+    u.dualweap = FALSE;
+}
+
+void
+set_dualweap(boolean on_off)
+{
+    u.dualweap = on_off;
+    u.twoweap = FALSE;
 }
 
 /* the #twoweapon command */
@@ -853,13 +870,13 @@ int
 dotwoweapon(void)
 {
     /* Handle dual weapons */
-    if (uwep && is_dualweapon(uwep) && could_twoweap(gy.youmonst.data)) {
+    if (uwep && is_dualweapon(uwep)) {
         if (u.dualweap) {
             You("focus on a single end of your weapon.");
-            u.dualweap = 0;
+            set_dualweap(FALSE);
         } else {
             You("begin using both ends of your weapon.");
-            u.dualweap = 1;
+            set_dualweap(TRUE);
         }
         return ECMD_OK;
     }
@@ -928,6 +945,17 @@ untwoweapon(void)
     if (u.twoweap) {
         You("%s.", can_no_longer_twoweap);
         set_twoweap(FALSE); /* u.twoweap = FALSE */
+        update_inventory();
+    }
+    return;
+}
+
+void
+undualweapon(void)
+{
+    if (u.dualweap) {
+        You("%s.", can_no_longer_dualweap);
+        set_dualweap(FALSE);
         update_inventory();
     }
     return;

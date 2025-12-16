@@ -277,6 +277,7 @@ drop_upon_death(
        welded if it becomes cursed; ensure that that won't happen here
        by ending dual-wield */
     u.twoweap = FALSE; /* bypass set_twoweap() */
+    u.dualweap = FALSE;
 
     /* all inventory is dropped (for the normal case), even non-droppable
        things like worn armor and accessories, welded weapon, or cursed

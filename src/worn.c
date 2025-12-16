@@ -89,6 +89,8 @@ setworn(struct obj *obj, long mask)
                 if (oobj) {
                     if (u.twoweap && (oobj->owornmask & (W_WEP | W_SWAPWEP)))
                         set_twoweap(FALSE); /* u.twoweap = FALSE */
+                    if (u.dualweap && (oobj->owornmask & (W_WEP)))
+                        set_dualweap(FALSE);
                     oobj->owornmask &= ~wp->w_mask;
                     if (wp->w_mask & ~(W_SWAPWEP | W_QUIVER)) {
                         /* leave as "x = x <op> y", here and below, for broken
@@ -153,6 +155,8 @@ setnotworn(struct obj *obj)
         return;
     if (u.twoweap && (obj == uwep || obj == uswapwep))
         set_twoweap(FALSE); /* u.twoweap = FALSE */
+    if (u.dualweap && obj == uwep)
+        set_dualweap(FALSE);
     for (wp = worn; wp->w_mask; wp++)
         if (obj == *(wp->w_obj)) {
             /* in case wearing or removal is in progress or removal
@@ -430,7 +434,7 @@ check_wornmask_slots(void)
     if (u.twoweap) {
         const char *why = NULL;
 
-        if (!uwep || !uswapwep) {
+        if (!uwep || (!uswapwep && !is_dualweapon(uwep))) {
             Sprintf(whybuf, "without %s%s%s",
                     !uwep ? "uwep" : "",
                     (!uwep && !uswapwep) ? " and without " : "",
@@ -442,20 +446,34 @@ check_wornmask_slots(void)
             why = "uwep is not a weapon";
         else if (is_launcher(uwep) || is_ammo(uwep) || is_missile(uwep))
             why = "uwep is not a melee weapon";
-        else if (u_bimanual(uwep))
+        else if (u_bimanual(uwep) && !is_dualweapon(uwep))
             why = "uwep is two-handed";
-        else if (uswapwep->oclass != WEAPON_CLASS && !is_weptool(uswapwep))
+        else if (uswapwep && uswapwep->oclass != WEAPON_CLASS && !is_weptool(uswapwep))
             why = "uswapwep is not a weapon";
-        else if (is_launcher(uswapwep) || is_ammo(uswapwep)
-                 || is_missile(uswapwep))
+        else if (uswapwep && (is_launcher(uswapwep) || is_ammo(uswapwep)
+                 || is_missile(uswapwep)))
             why = "uswapwep is not a melee weapon";
-        else if (u_bimanual(uswapwep))
+        else if (uswapwep && u_bimanual(uswapwep))
             why = "uswapwep is two-handed";
         else if (Upolyd && !could_twoweap(gy.youmonst.data))
             why = "without two weapon attacks";
 
         if (why)
             impossible("Two-weapon insanity: %s.", why);
+    }
+    if (u.dualweap) {
+        const char *why = NULL;
+        if (!uwep) {
+            why = "dualweapon without weapon";
+        } else if (!is_dualweapon(uwep)) {
+            why = "uwep is non-dual weapon";
+        } else if (!is_bimanual(uwep, gy.youmonst.data)) {
+            why = "uwep is not a two-handed weapon";
+        } else if (uwep->oclass != WEAPON_CLASS) {
+            why = "uwep is not a melee weapon";
+        }
+        if (why)
+            impossible("Dual-weapon insanity: %s.", why);
     }
 #endif /* EXTRA_SANITY_CHECKS */
     return;

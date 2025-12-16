@@ -1979,7 +1979,8 @@ poly_obj(struct obj *obj, int id)
          * of sequence messages because current polymorph is finished.
          */
         if (old_wornmask) {
-            boolean was_twohanded = u_bimanual(obj), was_twoweap = u.twoweap;
+            boolean was_twohanded = u_bimanual(obj), was_twoweap = u.twoweap,
+                                    was_dualweap = u.dualweap;
 
             /* wearslot() expects us to deal with wielded/alt-wep/quivered
                items in case they're not weapons; for other slots it might
@@ -1994,6 +1995,8 @@ poly_obj(struct obj *obj, int id)
                     setuwep(otmp);
                 if (was_twoweap && uwep && !u_bimanual(uwep))
                     set_twoweap(TRUE); /* u.twoweap = TRUE */
+                if (was_dualweap && uwep)
+                    set_dualweap(TRUE);
             } else if ((new_wornmask & W_SWAPWEP) != 0L) {
                 if (was_twohanded || !u_bimanual(otmp))
                     setuswapwep(otmp);

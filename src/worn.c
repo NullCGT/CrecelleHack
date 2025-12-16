@@ -467,7 +467,7 @@ check_wornmask_slots(void)
             why = "dualweapon without weapon";
         } else if (!is_dualweapon(uwep)) {
             why = "uwep is non-dual weapon";
-        } else if (!is_bimanual(uwep, gy.youmonst.data)) {
+        } else if (!u_bimanual(uwep)) {
             why = "uwep is not a two-handed weapon";
         } else if (uwep->oclass != WEAPON_CLASS) {
             why = "uwep is not a melee weapon";

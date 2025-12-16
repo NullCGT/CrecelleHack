@@ -798,10 +798,10 @@ hitum(struct monst *mon, struct attack *uattk)
        cleave return value reflects status of primary target ('mon') */
     /* Had to modify this code to account for if cleaver fuzzes into a
        dual axe. */
-    if (u_wield_art(ART_CLEAVER)
+    if (u_wield_art(ART_CLEAVER) && !u.twoweap
         && !u.uswallow && !u.ustuck && !NODIAG(u.umonnum)) {
         ret = hitum_cleave(mon, uattk);
-        if (ret && u.twoweap)
+        if (ret && u.dualweap)
             ret = hitum_cleave(mon, uattk);
         return ret;
     }

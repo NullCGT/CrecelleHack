@@ -1170,7 +1170,7 @@ spell_would_be_useless(struct monst *mtmp, int spellnum)
             return rn2(100) ? TRUE : FALSE;
     }
     /* Cannot disguise if protected */
-    if (Protection_from_shape_changers
+    if ((Protection_from_shape_changers || mtmp->mpeaceful)
         && (spellnum == MCU_DISGUISE || spellnum == MCU_MIRROR_IMAGE))
         return TRUE;
     if (mtmp->mpeaceful

@@ -731,7 +731,8 @@ mattacku(struct monst *mtmp)
         && !Prone && !Flying && !Levitation && !u.usteed
         && is_trippable(gy.youmonst.data) && (u.uhp > mtmp->m_lev)
         && !rn2((10 - u.uac > mtmp->m_lev) ? 8 : 100)) {
-        trip_monster(mtmp, &gy.youmonst, MON_WEP(mtmp));
+        trip_monster(mtmp, &gy.youmonst,
+                    is_tripweapon(MON_WEP(mtmp)) ? MON_WEP(mtmp) : (struct obj *) 0);
         return 0;
     }
 

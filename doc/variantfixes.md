@@ -117,6 +117,7 @@
 - Breaking a wand of force creates a force field.
 - Zapping a wand of growth at a tree will cause it to become
   fruitful again.
+- Allow the player to use #name in order to name a potion cloud.
 
 ## Options
 - implicit_material: quash default material names.

@@ -13,6 +13,7 @@ staticfn void do_oname(struct obj *) NONNULLARG1;
 staticfn char *docall_xname(struct obj *) NONNULLARG1;
 staticfn void namefloorobj(void);
 staticfn void namefloorliquid(void);
+staticfn void namecloud(void);
 staticfn const char *baby_name(struct monst *) NONNULLARG1;
 
 #define NUMMBUF 5
@@ -569,6 +570,10 @@ docallcmd(void)
     add_menu(win, &nul_glyphinfo, &any, abc ? 0 : any.a_char, ',',
              ATR_NONE, clr, "the type of a tonic upon the floor",
              MENU_ITEMFLAGS_NONE);
+    any.a_char = 'c'; /* group accelerator ',' (or ':' instead?) */
+    add_menu(win, &nul_glyphinfo, &any, abc ? 0 : any.a_char, ',',
+             ATR_NONE, clr, "the type of a tonic creating a cloud",
+             MENU_ITEMFLAGS_NONE);
     end_menu(win, "What do you want to name?");
     if (select_menu(win, PICK_ONE, &pick_list) > 0) {
         ch = pick_list[0].item.a_char;
@@ -614,6 +619,9 @@ docallcmd(void)
         break;
     case 't': /* name a visible liquid on the floor */
         namefloorliquid();
+        break;
+    case 'c': /* name a visible region */
+        namecloud();
         break;
     case 'd': /* name a type of object on the discoveries list */
         rename_disco();
@@ -793,7 +801,7 @@ namefloorliquid(void)
     if (getpos(&cc, FALSE, buf) < 0 || cc.x <= 0)
         return;
 
-    if (!has_coating(cc.x, cc.y, COAT_POTION)) {
+    if (!cansee(cc.x, cc.y) | !has_coating(cc.x, cc.y, COAT_POTION)) {
         There("does not seem to be a tonic coating %s.",
                 u_at(cc.x, cc.y) ? "under you" : "there");
         return;
@@ -801,6 +809,36 @@ namefloorliquid(void)
     fakeobj = cg.zeroobj;
     fakeobj.dknown = 1;
     fakeobj.otyp = levl[cc.x][cc.y].pindex;
+    fakeobj.oclass = POTION_CLASS;
+    docall(&fakeobj);
+}
+
+staticfn void
+namecloud(void)
+{
+    coord cc;
+    char buf[BUFSZ];
+    struct obj fakeobj;
+    NhRegion *reg;
+
+    cc.x = u.ux, cc.y = u.uy;
+    Sprintf(buf, "tonic cloud on map");
+    if (getpos(&cc, FALSE, buf) < 0 || cc.x <= 0)
+        return;
+    reg = visible_region_at(cc.x, cc.y);
+
+    if (!reg || !cansee(cc.x, cc.y)) {
+        There("does not seem to be a tonic cloud %s.",
+                u_at(cc.x, cc.y) ? "over you" : "there");
+        return;
+    }
+    if (!(reg->arg.otyp)) {
+        You("cannot name this type of region.");
+        return;
+    }
+    fakeobj = cg.zeroobj;
+    fakeobj.dknown = 1;
+    fakeobj.otyp = reg->arg.otyp;
     fakeobj.oclass = POTION_CLASS;
     docall(&fakeobj);
 }

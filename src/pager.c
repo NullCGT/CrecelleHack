@@ -280,9 +280,9 @@ mhidden_description(
             //int rglyph = reg->glyph;
             //boolean poison_gas = (glyph_is_cmap(rglyph)
              //                     && glyph_to_cmap(rglyph) == S_poisoncloud);
-
-            Snprintf(eos(outbuf), BUFSZ - buflen, ", in a %s",
-                     region_string(reg));
+            char regbuf[64];
+            reg_descr(reg, regbuf);
+            Snprintf(eos(outbuf), BUFSZ - buflen, ", in %s", regbuf);
         }
     }
 }

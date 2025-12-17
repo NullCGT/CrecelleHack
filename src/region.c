@@ -1369,7 +1369,7 @@ make_gas_cloud(
     reg_descr(cloud, description);
 
     if (!gi.in_mklev && !inside_cloud && is_hero_inside_gas_cloud(INSIDE_GAS_CLOUD)) {
-        You("are enveloped in a cloud of %s!",
+        You("are enveloped in %s!",
             /* FIXME: "steam" is wrong if this cloud is just the trail of
                a fog cloud's movement; changing to "vapor" would handle
                that but seems a step backward when it really is steam */
@@ -1380,19 +1380,21 @@ make_gas_cloud(
 
 char *
 reg_descr(NhRegion *reg, char *description) {
-    if (!is_gasregion(reg)) {
-        Sprintf(description, "%s", "bonfire");
+    if (reg->can_enter_f == ENTER_FF) {
+        Sprintf(description, "%s", "a forcefield");
+    } else if (!is_gasregion(reg)) {
+        Sprintf(description, "%s", "a bonfire");
     } else if (REGION_OTYP(reg)) {
          /* Technically many types of vapor could be noticed even if the
            player cannot see them, but that's too complicated to worry about. */
         if (Blind)
-            Sprintf(description, "strange vapor");
+            Sprintf(description, "a cloud of strange vapor");
         else
-            Sprintf(description, "%s vapors", OBJ_DESCR(objects[REGION_OTYP(reg)]));
+            Sprintf(description, "a cloud of %s vapors", OBJ_DESCR(objects[REGION_OTYP(reg)]));
     } else if (REGION_DAMAGE(reg)) {
-        Sprintf(description, "%s", "poison gas");
+        Sprintf(description, "%s", "a cloud of poison gas");
     } else {
-        Sprintf(description, "%s", "vapor");
+        Sprintf(description, "%s", "a cloud of vapor");
     }
     return description;
 }
@@ -1770,19 +1772,6 @@ create_bonfire(coordxy x, coordxy y, int lifetime, int damage)
 boolean
 is_bonfire(NhRegion *reg) {
     return (reg->inside_f == INSIDE_BONFIRE);
-}
-
-const char *
-region_string(NhRegion *reg) {
-    if (reg->can_enter_f == ENTER_FF) {
-        return "a forcefield";
-    } else if (reg->inside_f == INSIDE_BONFIRE) {
-        return "a bonfire";
-    } else if (reg_damg(reg)) {
-        return "a cloud of poison gas";
-    } else {
-        return "a cloud of vapor";
-    }
 }
 
 /*region.c*/

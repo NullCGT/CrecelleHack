@@ -2750,7 +2750,6 @@ extern boolean region_danger(void);
 extern void region_safety(void);
 extern boolean is_gasregion(NhRegion *);
 extern boolean is_bonfire(NhRegion *);
-extern const char *region_string(NhRegion *);
 
 /* ### report.c ### */
 

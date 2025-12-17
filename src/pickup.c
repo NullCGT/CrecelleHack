@@ -73,6 +73,8 @@ void
 debottle_potion(struct obj *cobj) {
     struct obj *bobj;
     useup(cobj);
+    if (cobj->fromsink)
+        return;
     bobj = mksobj(BOTTLE, FALSE, FALSE);
     hold_another_object(bobj, "Oops!", (const char *) 0,
                                 (const char *) 0);

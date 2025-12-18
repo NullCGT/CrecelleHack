@@ -134,7 +134,7 @@ const struct Role roles[NUM_ROLES+1] = {
       S_HUMANOID,
       S_GIANT,
       ART_SCEPTRE_OF_MIGHT,
-      MH_HUMAN | MH_DWARF | MH_ELF | MH_GNOME | MH_ORC,
+      MH_HUMAN | MH_DWARF | MH_ELF | MH_GNOME | MH_ORC | MH_KOBOLD,
       ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL | ROLE_NEUTRAL,
       /* Str Int Wis Dex Con Cha */
       { 10, 7, 7, 7, 8, 6 },
@@ -216,7 +216,7 @@ const struct Role roles[NUM_ROLES+1] = {
       S_RODENT,
       S_YETI,
       ART_STAFF_OF_AESCULAPIUS,
-      MH_HUMAN | MH_DWARF | MH_ELF | MH_GNOME | MH_ORC,
+      MH_HUMAN | MH_DWARF | MH_ELF | MH_GNOME | MH_ORC | MH_KOBOLD,
       ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL,
       /* Str Int Wis Dex Con Cha */
       { 7, 7, 13, 7, 11, 16 },
@@ -519,7 +519,7 @@ const struct Role roles[NUM_ROLES+1] = {
       S_SPIDER,
       S_CENTAUR,
       ART_YENDORIAN_EXPRESS_CARD,
-      MH_HUMAN,
+      MH_HUMAN | MH_KOBOLD,
       ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL,
       /* Str Int Wis Dex Con Cha */
       { 7, 10, 6, 7, 7, 10 },
@@ -740,10 +740,10 @@ const struct Race races[NUM_RACES + 1] = {
         PM_KOBOLD,
         PM_KOBOLD_MUMMY,
         PM_KOBOLD_ZOMBIE,
-        MH_KOBOLD | ROLE_MALE | ROLE_FEMALE | ROLE_CHAOTIC,
+        MH_KOBOLD | ROLE_MALE | ROLE_FEMALE | ROLE_CHAOTIC | ROLE_NEUTRAL,
         MH_KOBOLD,
         MH_KOBOLD,
-        MH_HUMAN | MH_ELF | MH_DWARF | MH_ORC | MH_GNOME,
+        MH_HUMAN | MH_ELF | MH_DWARF | MH_ORC | MH_GNOME | MH_GIANT,
         { 3, 3, 3, 3, 3, 3 },
         { 14, 20, 16, 18, 14, 20 },
         /* Init   Lower  Higher */

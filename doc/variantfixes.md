@@ -1,3 +1,19 @@
+# 1.4.1
+- Kobold Rewrite
+  - Kobolds can now talk to monsters. Several players complained
+    that being unable to talk to NPCs (particularly priests)
+    was not fun. Kobolds are supposed to present a *fun* challenge,
+    not an unfun one.
+  - Giants have been added to the list of creatures hostile to kobolds.
+  - Kobold wizards begin with aqua bolt instead of force bolt.
+  - Many starting items for kobolds are now made of wood or bone.
+  - Kobolds have a very rapid metabolism. Intrinsic properties time out
+    much more quickly for them. This includes both positive intrinsics
+    as well as negative ones, such as terminal illness. They also
+    forget spells twice as quickly.
+## New Items
+- Spellbook of Aqua Bolt
+
 # 1.4
 ## Object Materials Patch
 - This version of the object materials patch is pulled from

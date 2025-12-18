@@ -6141,6 +6141,7 @@ usmellmon(struct permonst *mdat)
                 msg_given = TRUE;
                 break;
             case S_DOG:
+            case S_KOBOLD:
                 You("notice a dog smell.");
                 msg_given = TRUE;
                 break;

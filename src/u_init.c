@@ -280,6 +280,7 @@ static const struct inv_sub {
     { PM_KOBOLD, ARROW, CROSSBOW_BOLT },
     { PM_KOBOLD, CRAM_RATION, TRIPE_RATION },
     { PM_KOBOLD, FOOD_RATION, TRIPE_RATION },
+    { PM_KOBOLD, SPE_FORCE_BOLT, SPE_AQUA_BOLT },
     { NON_PM, STRANGE_OBJECT, STRANGE_OBJECT }
 };
 
@@ -1005,7 +1006,7 @@ pauper_reinit(void)
         preknown = SPE_PROTECTION;
         break;
     case PM_WIZARD:
-        preknown = SPE_FORCE_BOLT;
+        preknown = Race_if(PM_KOBOLD) ? SPE_AQUA_BOLT : SPE_FORCE_BOLT;
         break;
     case PM_ARCHEOLOGIST:
         preknown = TOUCHSTONE;
@@ -1264,7 +1265,8 @@ ini_inv_mkobj_filter(int oclass, boolean got_level1_spellbook)
            /* Monks don't use weapons */
            || (otyp == SCR_ENCHANT_WEAPON && (Role_if(PM_MONK) || Role_if(PM_GRAPPLER)))
            /* wizard patch -- they already have one */
-           || (otyp == SPE_FORCE_BOLT && Role_if(PM_WIZARD))
+           || ((otyp == SPE_FORCE_BOLT || otyp == SPE_AQUA_BOLT)
+                && Role_if(PM_WIZARD))
            /* powerful spells are either useless to
               low level players or unbalancing; also
               spells in restricted skill categories */
@@ -1506,6 +1508,15 @@ fixup_starting_material(struct obj *obj)
         set_material(obj, IRON);
     } else {
         set_material(obj, objects[obj->otyp].oc_material);
+    }
+
+    /* This happens afterward, since many objects cannot be converted to
+       bone or wood. */
+    if (Race_if(PM_KOBOLD) && obj->otyp != DART) {
+        if (valid_obj_material(obj, BONE) && rn2(2))
+            set_material(obj, BONE);
+        else if (valid_obj_material(obj, WOOD))
+            set_material(obj, WOOD);
     }
 }
 /* initialise starting inventory and attributes

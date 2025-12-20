@@ -1126,7 +1126,8 @@ spell_would_be_useless(struct monst *mtmp, int spellnum)
     if (mtmp->mpeaceful
         && (spellnum == MCU_AGGRAVATION || spellnum == MCU_SUMMON_MONS
             || spellnum == MCU_CLONE_WIZ || spellnum == MCU_GRAVITY
-            || spellnum == MCU_RAISE_DEAD || spellnum == MCU_MIRROR_IMAGE))
+            || spellnum == MCU_RAISE_DEAD || spellnum == MCU_MIRROR_IMAGE
+            || spellnum == MCU_INSECTS || spellnum == MCU_CHAOS_RAIN))
         return TRUE;
     /* illusiory armies play absolute hell with fuzzing. */
     if (iflags.debug_fuzzer && spellnum == MCU_MIRROR_IMAGE)
@@ -1170,14 +1171,11 @@ spell_would_be_useless(struct monst *mtmp, int spellnum)
             return rn2(100) ? TRUE : FALSE;
     }
     /* Cannot disguise if protected */
-    if (Protection_from_shape_changers
+    if ((Protection_from_shape_changers || mtmp->mpeaceful)
         && (spellnum == MCU_DISGUISE || spellnum == MCU_MIRROR_IMAGE))
         return TRUE;
-    if (mtmp->mpeaceful
-        && (spellnum == MCU_INSECTS || spellnum == MCU_CHAOS_RAIN))
-        return TRUE;
     if (spellnum == MCU_FORCE_FIELD &&
-        (mtmp->mpeaceful || distu(mtmp->mx, mtmp->my) <= 4
+        (mtmp->mpeaceful || !mcouldseeu || distu(mtmp->mx, mtmp->my) <= 4
         || (((ff = visible_region_at(u.ux, u.uy)) != 0)
             && ff->glyph == S_force_field)))
         return TRUE;

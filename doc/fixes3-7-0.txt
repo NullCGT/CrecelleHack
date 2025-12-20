@@ -1510,6 +1510,7 @@ if a tree and a boulder or statue were at the same location, applying an axe
 	would break the boulder or statue rather than chop the tree
 avoid premapping outside Sokoban map to prevent showing stone glyphs
 Grimtooth is permanently poisoned, protects from poison, and can fling poison
+invoke cost for Grimtooth and Sunsword can be paid with magic power
 cursed magic whistle can teleport you to your pet
 Fire and Frost Brand can be invoked for expert level fireball or cone of cold
 wielding Trollsbane grants hungerless regeneration
@@ -2168,6 +2169,9 @@ livelog/#chronicle for bribing a demon lord reported random monster and
 livelog/#chronicle for saving-grace: if saving-grace prevents hero's death,
 	report it [at present, it uses the livelog classification for breaking
 	a conduct]
+naming a type of item, unnaming it (with name of <space>), naming it again
+	(new name or re-use of old one), then unnaming it again would issue
+	impossible: "named object not in disco"
 
 
 Fixes to 3.7.0-x Platform and/or Interface Problems Exposed Via git Repository

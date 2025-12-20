@@ -721,6 +721,15 @@ use_resizing_kit(struct obj *obj)
     any = cg.zeroany; 
     any.a_int = 1; 
 
+    if (obj->spe < 1) {
+        pline1(nothing_happens);
+        if (!obj->cknown) {
+            obj->cknown = 1;
+            update_inventory();
+        }
+        return ECMD_OK;
+    }
+
     otmp = getobj("resize", resize_ok, GETOBJ_PROMPT);
     if (!otmp) {
         return ECMD_CANCEL;
@@ -795,7 +804,8 @@ use_resizing_kit(struct obj *obj)
     if (otmp->osize == USIZE) pline("It's a perfect fit!");
     if (erosion_matters(otmp))
         otmp->oeroded = otmp->oeroded2 = 0;
-    useup(obj);
+    obj->spe--;
+    update_inventory();
     return ECMD_TIME;
 }
 

@@ -280,9 +280,9 @@ mhidden_description(
             //int rglyph = reg->glyph;
             //boolean poison_gas = (glyph_is_cmap(rglyph)
              //                     && glyph_to_cmap(rglyph) == S_poisoncloud);
-
-            Snprintf(eos(outbuf), BUFSZ - buflen, ", in a %s",
-                     region_string(reg));
+            char regbuf[64];
+            reg_descr(reg, regbuf);
+            Snprintf(eos(outbuf), BUFSZ - buflen, ", in %s", regbuf);
         }
     }
 }
@@ -2371,7 +2371,7 @@ do_supplemental_item_info(struct obj *otmp)
     int dbonus;
     /* Display monster info */
     datawin = create_nhwindow(NHW_MENU);
-    Sprintf(buf, Doname2(otmp));
+    Sprintf(buf, "%s", Doname2(otmp));
     putstr(datawin, iflags.menu_headings.attr, buf);
     if (not_fully_identified(otmp)) {
         putstr(datawin, 0, "There is more you could learn about it.");
@@ -2383,6 +2383,14 @@ do_supplemental_item_info(struct obj *otmp)
         && objects[otmp->otyp].oc_name_known) {
         Sprintf(buf, "It would cost ~%d ink to write.", cost(otmp));
         putstr(datawin, 0, buf);
+    }
+    if (otmp->oclass == WEAPON_CLASS) {
+        if (is_dualweapon(otmp))
+            putstr(datawin, 0, "It can be dual-wielded.");
+        if (is_tripweapon(otmp))
+            putstr(datawin, 0, "It can be used to trip monsters.");
+        if (is_poisonable(otmp))
+            putstr(datawin, 0, "It can be poisoned.");
     }
     putstr(datawin, 0, "");
     /* Class info */

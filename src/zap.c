@@ -215,6 +215,7 @@ bhitm(struct monst *mtmp, struct obj *otmp)
         }
         break;
     case WAN_AQUA_BOLT:
+    case SPE_AQUA_BOLT:
         zap_type_text = "jet of water";
         reveal_invis = TRUE;
         if (disguised_mimic)
@@ -1980,7 +1981,8 @@ poly_obj(struct obj *obj, int id)
          * of sequence messages because current polymorph is finished.
          */
         if (old_wornmask) {
-            boolean was_twohanded = u_bimanual(obj), was_twoweap = u.twoweap;
+            boolean was_twohanded = u_bimanual(obj), was_twoweap = u.twoweap,
+                                    was_dualweap = u.dualweap;
 
             /* wearslot() expects us to deal with wielded/alt-wep/quivered
                items in case they're not weapons; for other slots it might
@@ -1995,6 +1997,8 @@ poly_obj(struct obj *obj, int id)
                     setuwep(otmp);
                 if (was_twoweap && uwep && !u_bimanual(uwep))
                     set_twoweap(TRUE); /* u.twoweap = TRUE */
+                if (was_dualweap && uwep)
+                    set_dualweap(TRUE);
             } else if ((new_wornmask & W_SWAPWEP) != 0L) {
                 if (was_twohanded || !u_bimanual(otmp))
                     setuswapwep(otmp);
@@ -2503,6 +2507,7 @@ bhito(struct obj *obj, struct obj *otmp)
         case SPE_HEALING:
         case SPE_EXTRA_HEALING:
         case WAN_AQUA_BOLT:
+        case SPE_AQUA_BOLT:
             res = 0;
             break;
         case SPE_STONE_TO_FLESH:
@@ -2836,6 +2841,7 @@ zapyourself(struct obj *obj, boolean ordinary)
         break;
 
     case WAN_AQUA_BOLT:
+    case SPE_AQUA_BOLT:
         You("douse yourself in %s!", hliquid("water"));
         learn_it = TRUE;
         make_dripping(rnd(20), POT_WATER, NON_PM);
@@ -3255,6 +3261,7 @@ zap_steed(struct obj *obj) /* wand or spell */
     case WAN_OPENING:
     case SPE_KNOCK:
     case WAN_AQUA_BOLT:
+    case SPE_AQUA_BOLT:
         (void) bhitm(u.usteed, obj);
         steedhit = TRUE;
         break;
@@ -3437,6 +3444,7 @@ zap_updown(struct obj *obj) /* wand or spell, nonnull */
         }
         break;
     case WAN_AQUA_BOLT:
+    case SPE_AQUA_BOLT:
         if (u.dz > 0) {
             pline("Water sprays downward.");
             add_coating(x, y, COAT_POTION, POT_WATER);
@@ -3837,6 +3845,7 @@ zap_map(
             case WAN_STRIKING:
             case SPE_FORCE_BOLT:
             case WAN_AQUA_BOLT:
+            case SPE_AQUA_BOLT:
                 wipe_engr_at(x, y, d(2, 4), TRUE);
                 break;
             default:
@@ -3888,7 +3897,8 @@ zap_map(
                     levl[x][y].flags &= ~T_LOOTED;
                 }
             }
-        } else if (obj->otyp == WAN_AQUA_BOLT) {
+        } else if (obj->otyp == WAN_AQUA_BOLT
+                    || obj->otyp == SPE_AQUA_BOLT) {
             if (cansee(x, y))
                 Norep("The %s gets wet.", surface(x, y));
             floor_alchemy(x, y, POT_WATER, 0);
@@ -4272,10 +4282,11 @@ bhit(
             case WAN_OPENING:
             case WAN_LOCKING:
             case WAN_STRIKING:
-            case SPE_KNOCK:
             case WAN_AQUA_BOLT:
+            case SPE_KNOCK:
             case SPE_WIZARD_LOCK:
             case SPE_FORCE_BOLT:
+            case SPE_AQUA_BOLT:
                 if (doorlock(obj, x, y)) {
                     if (cansee(x, y) || (obj->otyp == WAN_STRIKING && !Deaf))
                         learnwand(obj);

@@ -1471,13 +1471,6 @@ dochat(void)
               xresponse);
         return ECMD_OK;
     }
-    if (Race_if(PM_KOBOLD)) {
-        You("bark at %s.", mon_nam(mtmp));
-        if (is_kobold(mtmp->data)
-            || mtmp->data->mlet == S_DOG)
-            return domonnoise(mtmp);
-        return ECMD_OK;
-    }
     return domonnoise(mtmp);
 }
 

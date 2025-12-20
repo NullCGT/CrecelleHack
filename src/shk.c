@@ -2847,6 +2847,7 @@ static const int matprices[] = {
     50, /* MITHRIL - mithril-coat to regular chain mail */
     10, /* PLASTIC */
     20, /* GLASS */
+     3, /* ICECRYSTAL */
    500, /* GEMSTONE */
     10  /* MINERAL */
 };

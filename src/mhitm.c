@@ -1113,7 +1113,7 @@ mdamagem(
             return (M_ATTK_DEF_DIED | M_ATTK_AGR_DIED);
 
         /* improve pet handling if we see pet kill monsters */
-        if (magr->mtame && canspotmon(magr))
+        if (magr->mtame && canspotmon(magr) && !rn2(3))
             use_skill(P_PET_HANDLING, 1);
 
         if (mattk->adtyp == AD_DGST) {
@@ -1433,7 +1433,8 @@ passivemm(
             if (canseemon(magr))
                 pline_mon(magr, "%s is suddenly very cold!", Monnam(magr));
             healmon(mdef, tmp/2, tmp/2);
-            if (mdef->mhpmax > ((int) (mdef->m_lev + 1) * 8))
+            if ((mdef->mhpmax > ((int) (mdef->m_lev + 1) * 8))
+                && mdef->data != &mons[PM_FROSTWURM])
                 (void) split_mon(mdef, magr);
             break;
         case AD_STUN:

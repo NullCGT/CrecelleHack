@@ -810,7 +810,7 @@ init_sound_disp_gamewindows(void)
     if (iflags.perm_invent_pending)
         check_perm_invent_again();
 #endif
- }
+}
 
 void
 newgame(void)

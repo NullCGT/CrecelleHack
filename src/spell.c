@@ -700,8 +700,11 @@ age_spells(void)
      * does not alter the loss of memory.
      */
     for (i = 0; i < MAXSPELL && spellid(i) != NO_SPELL; i++)
-        if (spellknow(i))
+        if (spellknow(i)) {
             decrnknow(i);
+            if (Race_if(PM_KOBOLD))
+                decrnknow(i);
+        }
     return;
 }
 
@@ -1480,6 +1483,7 @@ spelleffects(int spell_otyp, boolean atme, boolean force)
 
     /* these spells are all duplicates of wand effects */
     case SPE_FORCE_BOLT:
+    case SPE_AQUA_BOLT:
         physical_damage = TRUE;
         FALLTHROUGH;
     /*FALLTHRU*/

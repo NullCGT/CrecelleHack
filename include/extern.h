@@ -2750,7 +2750,6 @@ extern boolean region_danger(void);
 extern void region_safety(void);
 extern boolean is_gasregion(NhRegion *);
 extern boolean is_bonfire(NhRegion *);
-extern const char *region_string(NhRegion *);
 
 /* ### report.c ### */
 
@@ -3840,7 +3839,9 @@ extern void uwepgone(void);
 extern void uswapwepgone(void);
 extern void uqwepgone(void);
 extern void set_twoweap(boolean);
+extern void set_dualweap(boolean);
 extern void untwoweapon(void);
+extern void undualweapon(void);
 extern int chwepon(struct obj *, int) NO_NNARGS;
 extern int welded(struct obj *) NO_NNARGS;
 extern void weldmsg(struct obj *) NONNULLARG1;

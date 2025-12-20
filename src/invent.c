@@ -2630,6 +2630,12 @@ reroll_menu(void)
 
     if (option == 'y') {
         ++u.uroleplay.numrerolls;
+        /* rate-limit rerolls to prevent CPU abuse */
+#if defined(UNIX) || defined(MACOS)
+        sleep(1);
+#elif defined(WIN32)
+        Sleep(1000);
+#endif
         return TRUE;
     }
     return FALSE;
@@ -4950,8 +4956,7 @@ look_here(
 
         regbuf[0] = '\0';
         if ((reg = visible_region_at(u.ux, u.uy)) != 0)
-            Sprintf(regbuf, "a %s",
-                    region_string(reg));
+            reg_descr(reg, regbuf);
         if ((trap = t_at(u.ux, u.uy)) != 0 && !trap->tseen)
             trap = (struct trap *) NULL;
 

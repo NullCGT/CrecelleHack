@@ -3511,6 +3511,7 @@ ustatusline(void)
 {
     NhRegion *reg;
     char info[BUFSZ];
+    char regbuf[64];
     size_t ln;
 
     info[0] = '\0';
@@ -3586,9 +3587,10 @@ ustatusline(void)
     }
     if (!u.uswallow
         && (reg = visible_region_at(u.ux, u.uy)) != 0
-        && (ln = strlen(info)) < sizeof info)
-        Snprintf(eos(info), sizeof info - ln, ", in a %s",
-                 region_string(reg));
+        && (ln = strlen(info)) < sizeof info) {
+        reg_descr(reg, regbuf);
+        Snprintf(eos(info), sizeof info - ln, ", in %s", regbuf );
+    }
 
     pline("Status of %s (%s):  Level %d  HP %d(%d)  AC %d%s.", svp.plname,
           piousness(FALSE, align_str(u.ualign.type)),

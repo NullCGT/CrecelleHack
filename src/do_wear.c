@@ -2634,7 +2634,10 @@ find_ac(void)
             record_achievement(ACH_AC_00);
 #endif
 
-    u.umc = magic_negation(&gy.youmonst);
+    if (u.umc != magic_negation(&gy.youmonst)) {
+        u.umc = magic_negation(&gy.youmonst);
+        disp.botl = TRUE;
+    }
     }
 }
 

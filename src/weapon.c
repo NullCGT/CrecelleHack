@@ -1523,11 +1523,12 @@ add_skills_to_menu(winid win, boolean selectable, boolean speedy)
             } else {
                 if (!iflags.menu_tab_sep)
                     Snprintf(buf, sizeof(buf), " %s %-*s %-15s%s%-14s", prefix, longest,
-                            P_NAME(i), sklnambuf, sklmaxnambuf, maxed ? " MAX" : !percent ? " " : percentbuf);
+                            P_NAME(i), sklnambuf, iflags.in_dumplog ? "" : sklmaxnambuf,
+                            maxed ? " MAX" : !percent ? " " : percentbuf);
                 else
                     Snprintf(buf, sizeof(buf), " %s%s\t%s\t%s\t%s", prefix, P_NAME(i),
                                 sklnambuf,
-                                sklmaxnambuf,
+                                iflags.in_dumplog ? "" : sklmaxnambuf,
                                 maxed ? "   MAX" :
                                 !percent ? "      " : percentbuf);
             }

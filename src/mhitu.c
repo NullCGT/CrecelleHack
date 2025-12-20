@@ -731,7 +731,8 @@ mattacku(struct monst *mtmp)
         && !Prone && !Flying && !Levitation && !u.usteed
         && is_trippable(gy.youmonst.data) && (u.uhp > mtmp->m_lev)
         && !rn2((10 - u.uac > mtmp->m_lev) ? 8 : 100)) {
-        trip_monster(mtmp, &gy.youmonst, MON_WEP(mtmp));
+        trip_monster(mtmp, &gy.youmonst,
+                    is_tripweapon(MON_WEP(mtmp)) ? MON_WEP(mtmp) : (struct obj *) 0);
         return 0;
     }
 
@@ -2627,7 +2628,8 @@ passiveum(
             u.mh += (tmp + rn2(2)) / 2;
             if (u.mhmax < u.mh)
                 u.mhmax = u.mh;
-            if (u.mhmax > (((int) gy.youmonst.data->mlevel + 1) * 8))
+            if ((u.mhmax > (((int) gy.youmonst.data->mlevel + 1) * 8))
+                && mtmp->data != &mons[PM_FROSTWURM])
                 (void) split_mon(&gy.youmonst, mtmp);
             break;
         case AD_STUN: /* Yellow mold */

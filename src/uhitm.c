@@ -791,13 +791,20 @@ hitum(struct monst *mon, struct attack *uattk)
         *secondwep = u.twoweap ? uswapwep : (struct obj *) 0;
     int tmp, dieroll, mhit, armorpenalty, attknum = 0,
         x = u.ux + u.dx, y = u.uy + u.dy, oldumort = u.umortality;
+    int ret;
 
     /* Cleaver attacks three spots, 'mon' and one on either side of 'mon';
        it can't be part of dual-wielding but we guard against that anyway;
        cleave return value reflects status of primary target ('mon') */
+    /* Had to modify this code to account for if cleaver fuzzes into a
+       dual axe. */
     if (u_wield_art(ART_CLEAVER) && !u.twoweap
-        && !u.uswallow && !u.ustuck && !NODIAG(u.umonnum))
-        return hitum_cleave(mon, uattk);
+        && !u.uswallow && !u.ustuck && !NODIAG(u.umonnum)) {
+        ret = hitum_cleave(mon, uattk);
+        if (ret && u.dualweap)
+            ret = hitum_cleave(mon, uattk);
+        return ret;
+    }
 
     /* 0: single hit, 1: first of two hits; affects strength bonus and
        silver rings; known_hitum() -> hmon() -> hmon_hitmon() will copy
@@ -6319,7 +6326,8 @@ passive(
                 /* monster gets stronger with your heat! */
                 healmon(mon, (tmp + rn2(2)) / 2, (tmp + 1) / 2);
                 /* at a certain point, the monster will reproduce! */
-                if (mon->mhpmax > (((int) mon->m_lev) + 1) * 8)
+                if ((mon->mhpmax > (((int) mon->m_lev) + 1) * 8)
+                    && mon->data != &mons[PM_FROSTWURM])
                     (void) split_mon(mon, &gy.youmonst);
                 learn_it = TRUE;
             }

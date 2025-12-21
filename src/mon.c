@@ -702,6 +702,12 @@ make_corpse(struct monst *mtmp, unsigned int corpseflags)
         obj->owt = weight(obj);
         free_mgivenname(mtmp);
         break;
+    case PM_SALT_GOLEM:
+        obj = mksobj_at(SALT_CRYSTAL, x, y, FALSE, FALSE);
+        obj->quan = (long) rnd(6);
+        obj->owt = weight(obj);
+        free_mgivenname(mtmp);
+        break;
     case PM_BLOOD_GOLEM:
         num = rndmonnum();
         if (touch_petrifies(&mons[num]))
@@ -904,7 +910,7 @@ make_corpse(struct monst *mtmp, unsigned int corpseflags)
 
     case PM_GHOUL: case PM_SKELETON:
 
-    case PM_STRAW_GOLEM: case PM_FLESH_GOLEM: case PM_SALT_GOLEM:
+    case PM_STRAW_GOLEM: case PM_FLESH_GOLEM:
     case PM_SAND_GOLEM:
 
     case PM_HUMAN: case PM_HUMAN_WERERAT: case PM_HUMAN_WEREJACKAL:
@@ -1161,7 +1167,7 @@ minliquid_core(struct monst *mtmp)
             if (cansee(mtmp->mx, mtmp->my)) {
                 if (svc.context.mon_moving)
                     pline_mon(mtmp, "%s %s.", Monnam(mtmp),
-                                mtmp->data == &mons[PM_SALT_GOLEM] ? "dissolves" : "drowns");
+                                (monmaterial(mtmp->mnum) == SALT) ? "dissolves" : "drowns");
                 else
                     /* hero used fire to melt ice that monster was on */
                     You("drown %s.", mon_nam(mtmp));
@@ -3636,9 +3642,9 @@ monkilled(
         return; /* life-saved */
     /* extra message if pet golem is completely destroyed;
        if not visible, this will follow "you have a sad feeling" */
-    if (mdef->mtame) {
+    if (mdef->mtame && !(monmaterial(mdef->mnum) == SALT)) {
         const char *rxt = (how == AD_FIRE && completelyburns(mptr)) ? "roast"
-                          : (how == AD_RUST && completelyrusts(mptr)) ? "rust"
+                          : ((how == AD_RUST || how == AD_SOAK) && completelyrusts(mptr)) ? "rust"
                             : (how == AD_DCAY && completelyrots(mptr)) ? "rot"
                               :  0;
         if (rxt)

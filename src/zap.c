@@ -225,6 +225,8 @@ bhitm(struct monst *mtmp, struct obj *otmp)
             dmg = d(2, 12);
             if (dbldam)
                 dmg *= 2;
+            if (monmaterial(mtmp->mnum) == SALT)
+                dmg = mtmp->mhp;
             hit(zap_type_text, mtmp, exclam(dmg));
             (void) resist(mtmp, otmp->oclass, dmg, TELL);
         } else {
@@ -1625,7 +1627,7 @@ create_polymon(struct obj *obj, int okind)
     case 0:
     case FLESH:
         /* there is no flesh type, but all food is type 0, so we use it */
-        pm_index = rn2(2) ? PM_FLESH_GOLEM : PM_SALT_GOLEM;
+        pm_index = PM_FLESH_GOLEM;
         material = "organic ";
         break;
     case WOOD:
@@ -1655,6 +1657,10 @@ create_polymon(struct obj *obj, int okind)
     case PAPER:
         pm_index = (obj->oclass != SPBOOK_CLASS) ? PM_PAPER_GOLEM : PM_SCROLEM;
         material = "paper ";
+        break;
+    case SALT:
+        pm_index = PM_SALT_GOLEM;
+        material ="salty ";
         break;
     default:
         /* if all else fails... */

@@ -4694,6 +4694,13 @@ water_damage(
         }
         water_damage_chain(obj->cobj, FALSE);
         return ER_DAMAGED; /* contents were damaged */
+    } else if (obj->material == SALT && !is_ascension_obj(obj)) {
+        if (in_invent) {
+            pline("The %s dissolves your %s!", hliquid("water"), ostr);
+            gm.mentioned_water = !Hallucination;
+        }
+        useup(obj);
+        return ER_DESTROYED;
     } else if (Waterproof_container(obj)) {
         if (in_invent && !Blind && !Underwater) {
             pline_The("%s cannot get into your %s.", hliquid("water"), ostr);

@@ -1572,6 +1572,7 @@ WAND(NoDes,            "jeweled",  0, 150, 1, 0, IRON, HI_MINERAL, WAN3),
 WAND(NoDes,          "solid ice",  0, 150, 1, 0, ICECRYSTAL, HI_GLASS, WAN4),
 WAND(NoDes,               "meat",  0, 150, 1, 0, FLESH, CLR_BROWN, WAN5),
 WAND(NoDes,               "leek",  0, 150, 1, 0, VEGGY, CLR_GREEN, WAN6),
+WAND(NoDes,               "salt",  0, 150, 1, 0, SALT, CLR_WHITE, WAN7),
 #undef WAND
 
 /* coins ... - so far, gold is all there is */
@@ -1636,6 +1637,8 @@ GEM("obsidian",          "black",  9, 1,  200, 15,  6, GEMSTONE, CLR_BLACK,
                                                         OBSIDIAN),
 GEM("agate",            "orange", 12, 1,  200, 15,  6, GEMSTONE, CLR_ORANGE,
                                                         AGATE),
+GEM("salt crystal",      "white",  8, 1,   30, 15,  1,     SALT, CLR_WHITE,
+                                                        SALT_CRYSTAL),
 GEM("jade",              "green", 10, 1,  300, 15,  6, GEMSTONE, CLR_GREEN,
                                                         JADE),
 MARKER(LAST_REAL_GEM, JADE)

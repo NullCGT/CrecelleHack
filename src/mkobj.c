@@ -1999,7 +1999,8 @@ static const int matdensities[] = {
     60,  // GLASS
     60,  // ICECRYSTAL
     55,  // GEMSTONE
-    70   // MINERAL
+    70,  // MINERAL
+    20,  // SALT
 };
 
 /*
@@ -2163,7 +2164,8 @@ const int matac[] = {
      5,  // GLASS
      5,  // ICECRYSTAL
      7,  // GEMSTONE
-     6   // MINERAL
+     6,  // MINERAL
+     2,  // SALT
 };
 
 /* Compute the bonus or penalty to AC an armor piece should get for being a

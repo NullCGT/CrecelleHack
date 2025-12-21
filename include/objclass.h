@@ -34,6 +34,7 @@ enum obj_material_types {
     ICECRYSTAL  = 21,
     GEMSTONE    = 22,
     MINERAL     = 23,
+    SALT        = 24,
     NUM_MATERIAL_TYPES
 };
 
@@ -222,7 +223,8 @@ extern NEARDATA struct objdescr obj_descr[NUM_OBJECTS + 1];
 #define is_corrodeable(otmp) \
     (otmp->material == COPPER          \
      || otmp->material == IRON          \
-     || otmp->material == NIGHTIRON)
+     || otmp->material == NIGHTIRON     \
+     || otmp->material == SALT)
 /* subject to any damage */
 #define is_damageable(otmp) \
     (is_rustprone(otmp) || is_flammable(otmp)           \

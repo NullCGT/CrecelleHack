@@ -2484,6 +2484,13 @@ eatspecial(void)
         pline("Yabba-dabba delicious!");
         exercise(A_CON, TRUE);
     }
+    if (otmp->material == SALT) {
+        pline(Hallucination ? "Ugh! That was pure salt!"
+                            : "You're back in the salt mines.");
+        if (otmp->otyp == SALT_CRYSTAL)
+            makeknown(otmp->otyp);
+        exercise(A_CON,FALSE);
+    }
 
     if (otmp == uwep && otmp->quan == 1L)
         uwepgone();

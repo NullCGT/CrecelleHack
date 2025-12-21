@@ -248,7 +248,9 @@
      || (ptr) == &mons[PM_SCROLEM])
 #define completelyrots(ptr) \
     ((ptr) == &mons[PM_WOOD_GOLEM] || (ptr) == &mons[PM_LEATHER_GOLEM])
-#define completelyrusts(ptr) ((ptr) == &mons[PM_IRON_GOLEM])
+/* somewhat of a misnomer... */
+#define completelyrusts(ptr) ((ptr) == &mons[PM_IRON_GOLEM] \
+                                || (ptr) == &mons[PM_SALT_GOLEM])
 
 /* Used for conduct with corpses, tins, and digestion attacks */
 /* G_NOCORPSE monsters might still be swallowed as a purple worm */

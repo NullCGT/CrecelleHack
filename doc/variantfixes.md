@@ -11,8 +11,19 @@
     much more quickly for them. This includes both positive intrinsics
     as well as negative ones, such as terminal illness. They also
     forget spells twice as quickly.
+- New Materials
+  - Nightiron.
+    - Generates very rarely.
+    - -1 damage during the day, +3 at night.
+    - Treated as iron for material hatred purposes.
+  - Salt
+    - Instantly destroyed by water.
+    - +3 damage to slashing weapons.
+    - Sears the flesh of mummies.
 ## New Items
 - Spellbook of Aqua Bolt
+- Salt Crystal
+- Salt Wand
 
 # 1.4
 ## Object Materials Patch
@@ -38,10 +49,6 @@
       vegetable matter can be eaten.
     - Figurines have randomized material types.
     - New option, implicit_material, to quash default materials.
-- Rare Material: Nightiron.
-  - Generates very rarely.
-  - -1 damage during the day, +3 at night.
-  - Treated as iron for material hatred purposes.
 
 ## Artifacts
 - Lucifer

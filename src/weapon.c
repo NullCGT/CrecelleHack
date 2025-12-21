@@ -306,9 +306,10 @@ dmgval(struct obj *otmp, struct monst *mon)
     }
 
     /* adjust for various materials */
-    if ((otmp->material == GLASS || otmp->material == GEMSTONE)
-        && (objects[otmp->otyp].oc_dir & (PIERCE | SLASH | WHACK))) {
-        /* glass and gemstone are sharp */
+    if ((otmp->material == GLASS || otmp->material == GEMSTONE
+        || otmp->material == SALT)
+        && (objects[otmp->otyp].oc_dir & (PIERCE | SLASH))) {
+        /* glass, salt, and gemstone are sharp */
         tmp += 3;
     }
     else if (otmp->material == GOLD || otmp->material == PLATINUM) {
@@ -326,8 +327,7 @@ dmgval(struct obj *otmp, struct monst *mon)
     else if (otmp->material == PLASTIC || otmp->material == PAPER) {
         /* just terrible weapons all around */
         tmp -= 2;
-    }
-    else if (otmp->material == WOOD && !is_elven_weapon(otmp)) {
+    } else if (otmp->material == WOOD && !is_elven_weapon(otmp)) {
         /* poor at holding an edge */
         if (is_blade(otmp)) {
             tmp -= 1;

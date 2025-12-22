@@ -3110,6 +3110,7 @@ set_trap(void)
     struct obj *otmp = gt.trapinfo.tobj;
     struct trap *ttmp;
     int ttyp;
+    boolean obj_cursed = otmp->cursed;
 
     if (!otmp || !carried(otmp) || !u_at(gt.trapinfo.tx, gt.trapinfo.ty)) {
         /* trap object might have been stolen or hero teleported */
@@ -3125,12 +3126,21 @@ set_trap(void)
     if (ttmp) {
         ttmp->madeby_u = 1;
         feeltrap(ttmp);
+
+        /* Our object becomes the new ammo of the trap */
+        if (otmp->quan > 1) {
+            otmp = splitobj(otmp, 1);
+        }
+        freeinv(otmp);
+        if (ttyp == LANDMINE || ttyp == BEAR_TRAP)
+            set_trap_ammo(ttmp, otmp);
+
         if (*in_rooms(u.ux, u.uy, SHOPBASE)) {
             add_damage(u.ux, u.uy, 0L); /* schedule removal */
         }
         if (!gt.trapinfo.force_bungle)
             You("finish arming %s.", the(trapname(ttyp, FALSE)));
-        if (((otmp->cursed || Fumbling) && (rnl(10) > 5))
+        if (((obj_cursed || Fumbling) && (rnl(10) > 5))
             || gt.trapinfo.force_bungle)
             dotrap(ttmp,
                    (unsigned) (gt.trapinfo.force_bungle ? FORCEBUNGLE : 0));
@@ -3138,7 +3148,6 @@ set_trap(void)
         /* this shouldn't happen */
         Your("trap setting attempt fails.");
     }
-    useup(otmp);
     reset_trapset();
     return 0;
 }

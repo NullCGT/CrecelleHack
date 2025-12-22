@@ -1056,6 +1056,7 @@ extern void splatter_burning_oil(coordxy, coordxy, boolean);
 extern void explode_oil(struct obj *, coordxy, coordxy) NONNULLARG1;
 extern int adtyp_to_expltype(const int);
 extern void mon_explodes(struct monst *, struct attack *) NONNULLPTRS;
+extern void detonate_waste(int, int);
 
 /* ### extralev.c ### */
 
@@ -3348,6 +3349,7 @@ extern boolean grease_protect(struct obj *, const char *,
                               struct monst *) NONNULLARG1;
 extern struct trap *maketrap(coordxy, coordxy, int);
 extern d_level *clamp_hole_destination(d_level *) NONNULLARG1;
+extern void set_trap_ammo(struct trap *trap, struct obj *obj) NONNULLARG1;
 extern void fall_through(boolean, unsigned);
 extern struct monst *animate_statue(struct obj *, coordxy, coordxy,
                                     int, int *) NONNULLARG1;
@@ -3360,6 +3362,7 @@ extern boolean m_harmless_trap(struct monst *, struct trap *) NONNULLPTRS;
 extern void dotrap(struct trap *, unsigned) NONNULLARG1;
 extern void seetrap(struct trap *) NONNULLARG1;
 extern void feeltrap(struct trap *) NONNULLARG1;
+extern int o_trigger_trap(struct obj *, int, int) NONNULLARG1;
 extern int mintrap(struct monst *, unsigned) NONNULLARG1;
 extern void instapetrify(const char *) NO_NNARGS;
 extern void minstapetrify(struct monst *, boolean) NONNULLARG1;
@@ -3387,7 +3390,6 @@ extern boolean drown(void);
 extern void drain_en(int, boolean);
 extern int dountrap(void);
 extern int could_untrap(boolean, boolean);
-extern void cnv_trap_obj(int, int, struct trap *, boolean) NONNULLARG3;
 extern boolean into_vs_onto(int);
 extern int untrap(boolean, coordxy, coordxy, struct obj *) NO_NNARGS;
 extern boolean openholdingtrap(struct monst *, boolean *) NO_NNARGS;
@@ -3395,6 +3397,7 @@ extern boolean closeholdingtrap(struct monst *, boolean *) NO_NNARGS;
 extern boolean openfallingtrap(struct monst *, boolean, boolean *) NONNULLARG3;
 extern boolean chest_trap(struct obj *, int, boolean) NONNULLARG1;
 extern void deltrap(struct trap *) NONNULLARG1;
+extern struct obj *deltrap_with_ammo(struct trap *, int);
 extern boolean delfloortrap(struct trap *) NO_NNARGS;
 extern struct trap *t_at(coordxy, coordxy);
 extern int count_traps(int);
@@ -3412,6 +3415,8 @@ extern void sokoban_guilt(void);
 extern const char * trapname(int, boolean);
 extern void ignite_items(struct obj *) NO_NNARGS;
 extern void trap_ice_effects(coordxy x, coordxy y, boolean ice_is_melting);
+extern void spark_delay(anything *, long);
+extern void gastrap_delay(anything *, long);
 extern void trap_sanity_check(void);
 
 /* ### u_init.c ### */

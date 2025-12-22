@@ -1918,6 +1918,7 @@ mktrap_victim(struct trap *ttmp)
     int victim_mnum; /* race of the victim */
     unsigned lvl = level_difficulty();
     int kind = ttmp->ttyp;
+    int quan = rnd(4); /* amount of ammo to dump */
     coordxy x = ttmp->tx, y = ttmp->ty;
 
     assert(x > 0 && x < COLNO && y >= 0 && y < ROWNO);
@@ -1925,16 +1926,20 @@ mktrap_victim(struct trap *ttmp)
        that kill in a specific way that's obvious after the fact. */
     switch (kind) {
     case ARROW_TRAP:
-        otmp = mksobj(ARROW, TRUE, FALSE);
-        otmp->opoisoned = 0;
-        /* don't adjust the quantity; maybe the trap shot multiple
-           times, there was an untrapping attempt, etc... */
-        break;
     case DART_TRAP:
-        otmp = mksobj(DART, TRUE, FALSE);
-        break;
     case ROCKTRAP:
-        otmp = mksobj(ROCK, TRUE, FALSE);
+        if (ttmp->ammo) {
+            if (ttmp->ammo->quan <= quan)
+                ttmp->ammo->quan = quan + 1;
+
+            otmp = splitobj(ttmp->ammo, quan); /* this handles weights */
+            if (otmp) {
+                extract_nobj(otmp, &ttmp->ammo);
+                otmp->opoisoned = 0;
+            }
+        } else {
+            impossible("fresh trap %d without ammo?", ttmp->ttyp);
+        }
         break;
     default:
         /* no item dropped by the trap */
@@ -2245,7 +2250,7 @@ mktrap(
            which case tx,ty==launch.x,y; no boulder => no dead predecessor */
         && !(kind == ROLLING_BOULDER_TRAP
              && t->launch.x == t->tx && t->launch.y == t->ty)
-        && !is_pit(kind) && (kind < HOLE || kind == MAGIC_TRAP)) {
+        && !is_pit(kind) && (kind < HOLE || kind == MAGIC_TRAP || kind == SPARK_TRAP)) {
         if (kind == LANDMINE) {
             /* if victim was killed by a land mine, we won't scatter objects;
                treat it as exploded, converting it into an unconcealed pit */
@@ -2648,7 +2653,7 @@ mkinvpos(coordxy x, coordxy y, int dist)
 
     /* clear traps */
     if ((ttmp = t_at(x, y)) != 0)
-        deltrap(ttmp);
+        deltrap_with_ammo(ttmp, DELTRAP_DESTROY_AMMO);
 
     /* clear boulders; leave some rocks for non-{moat|trap} locations */
     make_rocks = (dist != 1 && dist != 4 && dist != 5) ? TRUE : FALSE;

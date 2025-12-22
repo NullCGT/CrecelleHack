@@ -539,6 +539,7 @@ spread_bonfire(NhRegion *reg) {
                 remove_coating(x, y, COAT_POTION);
                 newreg = create_bonfire(x, y, rn1(20, 10), d(4, 4));
             }
+            detonate_waste(x, y);
             if (x == reg->bounding_box.lx && y == reg->bounding_box.ly) {
                 evaporate_potion_puddles(x, y);
             }
@@ -1765,6 +1766,11 @@ create_bonfire(coordxy x, coordxy y, int lifetime, int damage)
     if (!gi.in_mklev && inside_region(flames, u.ux, u.uy)) {
         You("are enveloped in roaring flames!");
         iflags.last_msg = PLNMSG_ENVELOPED_IN_FLAMES;
+    }
+    if (has_coating(x, y, COAT_POTION)
+        && levl[x][y].pindex == POT_HAZARDOUS_WASTE) {
+        remove_coating(x, y, COAT_POTION);
+        explode(x, y, PHYS_EXPL_TYPE, d(1, 10), 0, EXPL_NOXIOUS);
     }
     return flames;
 }

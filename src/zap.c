@@ -4881,6 +4881,7 @@ burn_floor_objects(
     /* This also ignites floor items, but does not change cnt
        because they weren't consumed. */
     ignite_items(svl.level.objects[x][y]);
+    detonate_waste(x, y);
     return cnt;
 }
 
@@ -5371,7 +5372,9 @@ zap_over_floor(
     struct obj fakeobj = cg.zeroobj;
 
     if (type == PHYS_EXPL_TYPE) {
-        /* this won't have any effect on the floor */
+        /* physical explosions agitate waste enough to cause it to
+           go boom */
+        detonate_waste(x, y);
         return -1000; /* not a zap anyway, shouldn't matter */
     }
 
@@ -5463,15 +5466,12 @@ zap_over_floor(
                 remove_coating(x, y, COAT_FUNGUS);
                 add_coating(x, y, COAT_ASHES, 0);
                 create_bonfire(x, y, rnd(IS_RAINING ? 2 : 4), d(4, 4));
-            } 
+            }
+            detonate_waste(x, y);
             if (has_coating(x, y, COAT_POTION)
                         && levl[x][y].pindex == POT_OIL) {
                 remove_coating(x, y, COAT_POTION);
                 create_bonfire(x, y, rn1(10, 10), d(4, 4));
-            } else if (has_coating(x, y, COAT_POTION)
-                        && levl[x][y].pindex == POT_HAZARDOUS_WASTE) {
-                remove_coating(x, y, COAT_POTION);
-                explode(x, y, PHYS_EXPL_TYPE, d(1, 10), 0, EXPL_NOXIOUS);
             } else if (has_coating(x, y, COAT_FROST)) {
                 add_coating(x, y, COAT_POTION, POT_WATER);
             }
@@ -5667,10 +5667,8 @@ zap_over_floor(
                 }
             }
         }
-        if (has_coating(x, y, COAT_POTION)
-                    && levl[x][y].pindex == POT_HAZARDOUS_WASTE) {
-            remove_coating(x, y, COAT_POTION);
-            explode(x, y, PHYS_EXPL_TYPE, d(4, 6), 0, EXPL_NOXIOUS);
+        if (damgtype == ZT_LIGHTNING) {
+            detonate_waste(x, y);
         } else if (damgtype == ZT_ACID) {
             floor_alchemy(x, y, POT_ACID, 0);
         }

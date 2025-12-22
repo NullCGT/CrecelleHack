@@ -2784,6 +2784,7 @@ discard_minvent(struct monst *mtmp, boolean uncreate_artifacts)
  *      OBJ_MIGRATING   migrating chain
  *      OBJ_BURIED      level.buriedobjs chain
  *      OBJ_ONBILL      on gb.billobjs chain
+ *      OBJ_INTRAP      obj is in a trap as ammo (use extract_nobj instead)
  *      OBJ_LUAFREE     obj is dealloc'd from core, but still used by lua
  *      OBJ_DELETED     obj has been deleted from play but not yet deallocated
  */
@@ -2818,6 +2819,14 @@ obj_extract_self(struct obj *obj)
         break;
     case OBJ_ONBILL:
         extract_nobj(obj, &gb.billobjs);
+        break;
+    case OBJ_INTRAP:
+        /* Objects don't store a pointer to their containing trap.
+           The only place that we should be trying to extract an object
+           inside a trap is from within trap code that has a pointer to
+           the trap that contains the object. We should never be trying
+           to extract an object inside a trap without that context */
+        panic("trying to extract object from trap with no trap info");
         break;
     default:
         panic("obj_extract_self, where=%d", obj->where);

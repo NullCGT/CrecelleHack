@@ -1146,6 +1146,9 @@ getlev(NHFILE *nhfp, int pid, xint8 lev)
     for (;;) {
         trap = newtrap();
         Sfi_trap(nhfp, trap, "trap");
+        if (trap->ammo) {
+            trap->ammo = restobjchn(nhfp, FALSE);
+        }
         if (trap->tx != 0) {
             if (program_state.restoring != REST_GSTATE
                 && trap->dst.dnum == u.uz.dnum) {

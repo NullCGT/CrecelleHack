@@ -13,6 +13,17 @@
     forget spells twice as quickly.
 ## New Items
 - Spellbook of Aqua Bolt
+## Traps
+- Dipping items in potions on the floor now has additional feedback.
+- Dipping amythest in floor booze turns it into floor fruit juice.
+- Restored hazardous waste to its proper explosiveness.
+- Bonfires can now cause hazardous waste to explode.
+- Gas traps emit gas on delay, and the size of the cloud depends
+  on the level of the dungeon.
+- Demons recognize all traps in Gehennom.
+- Implemented xNetHack's trap ammo patch. Code pulled from EvilHack.
+- New trap: Spark trap.
+  - Creates a bonfire on a several turn delay.
 
 # 1.4
 ## Object Materials Patch

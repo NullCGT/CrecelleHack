@@ -75,11 +75,16 @@ throne_sit_effect(void)
             (void) adjattrib(rn2(A_MAX), 1, FALSE);
             break;
         case 3:
-            pline("A%s electric shock shoots through your body!",
-                  (Shock_resistance) ? "n" : " massive");
-            losehp(Shock_resistance ? rnd(6) : rnd(30), "electric chair",
-                   KILLED_BY_AN);
-            exercise(A_CON, FALSE);
+            if (Shock_immunity) {
+                pline("You feel a little tingle. How shocking!");
+                exercise(A_CON, TRUE);
+            } else {
+                pline("A%s electric shock shoots through your body!",
+                    (Shock_resistance) ? "n" : " massive");
+                losehp(Shock_resistance ? rnd(6) : rnd(30), "electric chair",
+                    KILLED_BY_AN);
+                exercise(A_CON, FALSE);
+            }
             break;
         case 4:
             You_feel("much, much better!");

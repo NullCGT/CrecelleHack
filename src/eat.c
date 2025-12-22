@@ -1944,7 +1944,7 @@ eatcorpse(struct obj *otmp)
         tp++;
         pline("Ecch - that must have been poisonous!");
         svm.mvitals[mnum].know_pcorpse = 1;
-        if (!Poison_resistance) {
+        if (!Poison_immunity) {
             poison_strdmg(rnd(4), rnd(15),
                           !glob ? "poisonous corpse" : "poisonous glob",
                           KILLED_BY_AN);
@@ -2710,7 +2710,7 @@ edibility_prompts(struct obj *otmp)
         /* Rotten */
         Snprintf(buf, sizeof buf, "%s like %s could be rotten!",
                  foodsmell, it_or_they);
-    } else if (cadaver && poisonous(&mons[mnum]) && !Poison_resistance) {
+    } else if (cadaver && poisonous(&mons[mnum]) && !Poison_immunity) {
         /* poisonous */
         Snprintf(buf, sizeof buf, "%s like %s might be poisonous!",
                  foodsmell, it_or_they);
@@ -2824,7 +2824,7 @@ doeat_nonfood(struct obj *otmp)
 
     if (otmp->oclass == WEAPON_CLASS && otmp->opoisoned) {
         pline("Ecch - that must have been poisonous!");
-        if (!Poison_resistance) {
+        if (!Poison_immunity) {
             poison_strdmg(rnd(4), rnd(15), xname(otmp), KILLED_BY_AN);
         } else
             You("seem unaffected by the poison.");

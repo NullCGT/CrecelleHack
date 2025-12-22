@@ -70,7 +70,7 @@ int mon_chaos_cleric_spells[MAX_MON_SPELLS] = { MCU_OPEN_WOUNDS, MCU_CURE_SELF, 
                                           MCU_GEYSER, -1, -1 };
 
 int mon_undead_spells[MAX_MON_SPELLS] = { MCU_HASTE_SELF, MCU_STUN_YOU, MCU_WEAKEN_YOU,
-                                          MCU_SLEEP_YOU, MCU_VULNERABILITY,
+                                          MCU_SLEEP_YOU, MCU_CURSE_ITEMS,
                                           MCU_CURSE_ITEMS, MCU_AGGRAVATION, MCU_RAISE_DEAD,
                                           MCU_DEATH_TOUCH, MCU_MIRROR_IMAGE, MCU_DISAPPEAR,
                                           MCU_TELEPORT };
@@ -393,7 +393,7 @@ castmu(
     switch (mattk->adtyp) {
     case AD_FIRE:
         pline("You're enveloped in flames.");
-        if (Fire_resistance) {
+        if (Fire_immunity) {
             shieldeff(u.ux, u.uy);
             pline("But you resist the effects.");
             monstseesu(M_SEEN_FIRE);
@@ -401,13 +401,14 @@ castmu(
         } else {
             monstunseesu(M_SEEN_FIRE);
         }
+        dmg = halve_damage(dmg, AD_FIRE);
         burn_away_slime();
         /* burn up flammable items on the floor, melt ice terrain */
         mon_spell_hits_spot(mtmp, AD_FIRE, u.ux, u.uy);
         break;
     case AD_COLD:
         pline("You're covered in frost.");
-        if (Cold_resistance) {
+        if (Cold_immunity) {
             shieldeff(u.ux, u.uy);
             pline("But you resist the effects.");
             monstseesu(M_SEEN_COLD);
@@ -415,6 +416,7 @@ castmu(
         } else {
             monstunseesu(M_SEEN_COLD);
         }
+        dmg = halve_damage(dmg,AD_COLD);
         /* freeze water or lava terrain */
         /* FIXME: mon_spell_hits_spot() uses zap_over_floor(); unlike with
          * fire, it does not target susceptible floor items with cold */
@@ -687,38 +689,7 @@ cast_monster_spell(struct monst *mtmp, int dmg, int spellnum)
         } else
             impossible("no reason for monster to cast disappear spell?");
         break;
-    case MCU_VULNERABILITY: { /* make player vulnerable to something */
-        int vul = (mtmp->data->mlet == S_LICH) ? COLD_VUL : rn1(6, FIRE_VUL);
-        You("feel more vulnerable!");
-        switch (vul) {
-        case COLD_VUL:
-            incr_itimeout(&HCold_vulnerability, (long) dmg);
-            monstunseesu(M_SEEN_COLD);
-            break;
-        case FIRE_VUL:
-            incr_itimeout(&HFire_vulnerability, (long) dmg);
-            monstunseesu(M_SEEN_FIRE);
-            break;
-        case SLEEP_VUL:
-            incr_itimeout(&HSleep_vulnerability, (long) dmg);
-            monstunseesu(M_SEEN_SLEEP);
-            break;
-        case DISINT_VUL:
-            incr_itimeout(&HDisint_vulnerability, (long) dmg);
-            monstunseesu(M_SEEN_DISINT);
-            break;
-        case SHOCK_VUL:
-            incr_itimeout(&HShock_vulnerability, (long) dmg);
-            monstunseesu(M_SEEN_ELEC);
-            break;
-        case POISON_VUL:
-            incr_itimeout(&HPoison_vulnerability, (long) dmg);
-            monstunseesu(M_SEEN_POISON);
-            break;
-        }
-        dmg = 0;
-        break;
-    } case MCU_SLEEP_YOU:
+    case MCU_SLEEP_YOU:
         if (!Free_action && !Sleep_resistance) {
             You_feel("feel exhausted.");
             fall_asleep(-d(5, 5), TRUE);
@@ -817,7 +788,7 @@ cast_monster_spell(struct monst *mtmp, int dmg, int spellnum)
     case MCU_FIRE_PILLAR:
         pline("A pillar of fire strikes all around you!");
         orig_dmg = dmg = d(8, 6);
-        if (Fire_resistance) {
+        if (Fire_immunity) {
             shieldeff(u.ux, u.uy);
             monstseesu(M_SEEN_FIRE);
             dmg = 0;
@@ -826,6 +797,7 @@ cast_monster_spell(struct monst *mtmp, int dmg, int spellnum)
         }
         if (Half_spell_damage)
             dmg = (dmg + 1) / 2;
+        dmg = halve_damage(dmg, AD_FIRE);
         burn_away_slime();
         (void) burnarmor(&gy.youmonst);
         /* item destruction dmg */
@@ -843,7 +815,7 @@ cast_monster_spell(struct monst *mtmp, int dmg, int spellnum)
         pline("A bolt of lightning strikes down at you from above!");
         reflects = ureflects("It bounces off your %s%s.", "");
         orig_dmg = dmg = d(8, 6);
-        if (reflects || Shock_resistance) {
+        if (reflects || Shock_immunity) {
             shieldeff(u.ux, u.uy);
             dmg = 0;
             if (reflects) {
@@ -857,6 +829,7 @@ cast_monster_spell(struct monst *mtmp, int dmg, int spellnum)
         }
         if (Half_spell_damage)
             dmg = (dmg + 1) / 2;
+        dmg = halve_damage(dmg, AD_ELEC);
         (void) destroy_items(&gy.youmonst, AD_ELEC, orig_dmg);
         /* lightning might destroy iron bars if hero is on such a spot;
            reflection protects terrain here [execution won't get here due

@@ -418,7 +418,7 @@ getmattk(
        against cold resistant foes; change the touch damage from cold to
        physical if target will resist */
     } else if (indx == 0 && attk->aatyp == AT_TUCH && attk->adtyp == AD_COLD
-               && (udefend ? Cold_resistance : resists_cold(mdef))
+               && (udefend ? Cold_immunity : resists_cold(mdef))
                /* don't substitute if target is immune to normal damage */
                && mdef->data != &mons[PM_SHADE]) {
         *alt_attk_buf = *attk;
@@ -1525,7 +1525,7 @@ gulpmu(struct monst *mtmp, struct attack *mattk)
     case AD_ELEC:
         if (!mtmp->mcan && rn2(2)) {
             pline_The("air around you crackles with electricity.");
-            if (Shock_resistance) {
+            if (Shock_immunity) {
                 shieldeff(u.ux, u.uy);
                 You("seem unhurt.");
                 monstseesu(M_SEEN_ELEC);
@@ -1534,12 +1534,13 @@ gulpmu(struct monst *mtmp, struct attack *mattk)
             } else {
                 monstunseesu(M_SEEN_ELEC);
             }
+            tmp = halve_damage(tmp, AD_ELEC);
         } else
             tmp = 0;
         break;
     case AD_COLD:
         if (!mtmp->mcan && rn2(2)) {
-            if (Cold_resistance) {
+            if (Cold_immunity) {
                 shieldeff(u.ux, u.uy);
                 You_feel("mildly chilly.");
                 monstseesu(M_SEEN_COLD);
@@ -1549,12 +1550,13 @@ gulpmu(struct monst *mtmp, struct attack *mattk)
                 You("are freezing to death!");
                 monstunseesu(M_SEEN_COLD);
             }
+            tmp = halve_damage(tmp, AD_COLD);
         } else
             tmp = 0;
         break;
     case AD_FIRE:
         if (!mtmp->mcan && rn2(2)) {
-            if (Fire_resistance) {
+            if (Fire_immunity) {
                 shieldeff(u.ux, u.uy);
                 You_feel("mildly hot.");
                 monstseesu(M_SEEN_FIRE);
@@ -1564,6 +1566,7 @@ gulpmu(struct monst *mtmp, struct attack *mattk)
                 You("are burning to a crisp!");
                 monstunseesu(M_SEEN_FIRE);
             }
+            tmp = halve_damage(tmp, AD_FIRE);
             burn_away_slime();
         } else
             tmp = 0;
@@ -1870,7 +1873,7 @@ gazemu(struct monst *mtmp, struct attack *mattk)
                 pline_mon(mtmp, "%s attacks you with a fiery gaze!",
                           Monnam(mtmp));
                 stop_occupation();
-                if (Fire_resistance) {
+                if (Fire_immunity) {
                     shieldeff(u.ux, u.uy);
                     pline_The("fire doesn't feel hot!");
                     monstseesu(M_SEEN_FIRE);
@@ -1878,6 +1881,9 @@ gazemu(struct monst *mtmp, struct attack *mattk)
                     dmg = 0;
                 } else {
                     monstunseesu(M_SEEN_FIRE);
+                }
+                if (Fire_resistance) {
+                    dmg = halve_damage(dmg, AD_FIRE);
                 }
                 burn_away_slime();
                 if (lev > rn2(20))
@@ -2734,6 +2740,44 @@ attack_contact_slots(struct monst *magr, int aatyp)
         return W_ARMH;
     }
     return 0;
+}
+
+/* Reduce via resistance */
+int
+halve_damage(int dmg, int adtyp)
+{
+    boolean resisted;
+    switch (adtyp) {
+    case AD_FIRE:
+        if (Fire_resistance)
+            resisted = TRUE;
+        break;
+    case AD_COLD:
+        if (Cold_resistance)
+            resisted = TRUE;
+        break;
+    case AD_ELEC:
+        if (Shock_resistance)
+            resisted = TRUE;
+        break;
+    case AD_DRST:
+    case AD_DRCO:
+    case AD_DRDX:
+        if (Poison_resistance)
+            resisted = TRUE;
+        break;
+    case AD_DISN:
+        if (Disint_resistance)
+            resisted = TRUE;
+        break;
+    case AD_PHYS:
+        if (Half_physical_damage)
+            resisted = TRUE;
+        break;
+    }
+    if (resisted)
+        dmg = (dmg + 1) / 2;
+    return dmg;
 }
 
 /*mhitu.c*/

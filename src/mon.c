@@ -337,7 +337,7 @@ m_poisongas_ok(struct monst *mtmp)
         return M_POISONGAS_OK;
     if (is_you && (u.uinvulnerable || Breathless || Underwater))
         return M_POISONGAS_OK;
-    if (is_you ? Poison_resistance : resists_poison(mtmp))
+    if (is_you ? Poison_immunity : resists_poison(mtmp))
         return M_POISONGAS_MINOR;
     return M_POISONGAS_BAD;
 }
@@ -349,7 +349,7 @@ m_bonfire_ok(struct monst *mtmp)
     boolean is_you = (mtmp == &gy.youmonst);
     if (likes_fire(mtmp->data))
         return M_BONFIRE_OK;
-    if (is_you ? Fire_resistance : resists_fire(mtmp))
+    if (is_you ? Fire_immunity : resists_fire(mtmp))
         return M_BONFIRE_MINOR;
     return M_BONFIRE_BAD;
 }

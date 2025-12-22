@@ -223,6 +223,7 @@ extern boolean extremeattr(int);
 extern void adjalign(int);
 extern int is_innate(int);
 extern char *from_what(int);
+extern char *from_what_item(int);
 extern void uchangealign(int, int);
 
 /* ### ball.c ### */
@@ -1572,6 +1573,7 @@ extern boolean mon_avoiding_this_attack(struct monst *, int) NONNULLARG1;
 extern boolean ranged_attk_available(struct monst *mtmp) NONNULLARG1;
 extern void learn_mattack(int, int);
 extern long attack_contact_slots(struct monst *, int) NONNULLARG1;
+extern int halve_damage(int, int);
 
 /* ### minion.c ### */
 

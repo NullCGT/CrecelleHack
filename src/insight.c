@@ -1543,31 +1543,33 @@ attributes_enlightenment(
         you_are("magic-protected", from_what(ANTIMAGIC));
     if (Fire_resistance)
         you_are("fire resistant", from_what(FIRE_RES));
-    if (Fire_vulnerability)
-        you_are("vulnerable to fire", from_what(FIRE_VUL));
+    if (Fire_immunity)
+        you_are("immune to fire", from_what_item(FIRE_RES));
     item_resistance_message(AD_FIRE, " protected from fire", final);
     if (Cold_resistance)
         you_are("cold resistant", from_what(COLD_RES));
-    if (Cold_vulnerability)
-        you_are("vulnerable to cold", from_what(FIRE_VUL));
+    if (Cold_immunity)
+        you_are("immune to cold", from_what_item(COLD_RES));
     item_resistance_message(AD_COLD, " protected from cold", final);
     if (Sleep_resistance)
         you_are("sleep resistant", from_what(SLEEP_RES));
-    if (Sleep_vulnerability)
-        you_are("vulnerable to sleep", from_what(SLEEP_VUL));
+    if (Sleep_immunity)
+        you_are("immune to sleep", from_what_item(SLEEP_RES));
     if (Disint_resistance)
         you_are("disintegration resistant", from_what(DISINT_RES));
-    if (Disint_vulnerability)
-        you_are("vulnerable to disintegration", from_what(DISINT_VUL));
+    if (Disint_immunity)
+        you_are("immune to disintegration", from_what_item(DISINT_RES));
     item_resistance_message(AD_DISN, " protected from disintegration", final);
     if (Shock_resistance)
         you_are("shock resistant", from_what(SHOCK_RES));
-    if (HShock_vulnerability)
-        you_are("vulnerable to shock", from_what(SHOCK_VUL));
+    if (Shock_immunity)
+        you_are("immune to shock", from_what_item(SHOCK_RES));
     item_resistance_message(AD_ELEC, " protected from electric shocks",
                             final);
     if (Poison_resistance)
         you_are("poison resistant", from_what(POISON_RES));
+    if (Poison_immunity)
+        you_are("immune to poison", from_what_item(POISON_RES));
     if (Acid_resistance) {
         Sprintf(buf, "%.20s%.30s",
                 temp_resist(ACID_RES) ? "temporarily " : "",

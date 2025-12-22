@@ -1025,6 +1025,8 @@ peffect_sickness(struct obj *otmp)
                   fruitname(TRUE));
         if (Role_if(PM_HEALER)) {
             pline("Fortunately, you have been immunized.");
+        } else if (Poison_immunity) {
+            pline("Fortunately, you have a strong immune system.");
         } else {
             char contaminant[BUFSZ];
             int typ = rn2(A_MAX);

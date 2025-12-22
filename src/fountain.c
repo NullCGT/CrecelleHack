@@ -305,7 +305,7 @@ drinkfountain(void)
             break;
         case 21: /* Poisonous */
             pline_The("water is contaminated!");
-            if (Poison_resistance) {
+            if (Poison_immunity) {
                 pline("Perhaps it is runoff from the nearby %s farm.",
                       fruitname(FALSE));
                 losehp(rnd(4), "unrefrigerated sip of juice", KILLED_BY_AN);

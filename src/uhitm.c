@@ -2663,7 +2663,7 @@ mhitm_ad_fire(
                 /* KMH -- this is okay with unchanging */
                 rehumanize();
                 return;
-            } else if (Fire_resistance) {
+            } else if (Fire_immunity) {
                 pline_The("fire doesn't feel hot!");
                 monstseesu(M_SEEN_FIRE);
                 mhm->damage = 0;
@@ -2674,6 +2674,7 @@ mhitm_ad_fire(
                 (void) destroy_items(&gy.youmonst, AD_FIRE, orig_dmg);
                 ignite_items(gi.invent);
             }
+            mhm->damage = halve_damage(mhm->damage, AD_FIRE);
             burn_away_slime();
         } else {
             mhm->damage = 0;
@@ -2744,13 +2745,14 @@ mhitm_ad_cold(
         hitmsg(magr, mattk);
         if (!mhitm_mgc_atk_negated(magr, mdef, TRUE)) {
             pline("You're covered in frost!");
-            if (Cold_resistance) {
+            if (Cold_immunity) {
                 pline_The("frost doesn't seem cold!");
                 monstseesu(M_SEEN_COLD);
                 mhm->damage = 0;
             } else {
                 monstunseesu(M_SEEN_COLD);
             }
+            mhm->damage = halve_damage(mhm->damage, AD_COLD);
             if ((int) magr->m_lev > rn2(20))
                 (void) destroy_items(&gy.youmonst, AD_COLD, orig_dmg);
         } else
@@ -2802,13 +2804,14 @@ mhitm_ad_elec(
         hitmsg(magr, mattk);
         if (!mhitm_mgc_atk_negated(magr, mdef, TRUE)) {
             You("get zapped!");
-            if (Shock_resistance) {
+            if (Shock_immunity) {
                 pline_The("zap doesn't shock you!");
                 monstseesu(M_SEEN_ELEC);
                 mhm->damage = 0;
             } else {
                 monstunseesu(M_SEEN_ELEC);
             }
+            mhm->damage = halve_damage(mhm->damage, AD_ELEC);
             if ((int) magr->m_lev > rn2(20))
                 (void) destroy_items(&gy.youmonst, AD_ELEC, orig_dmg);
         } else
@@ -6312,13 +6315,14 @@ passive(
             break;
         case AD_COLD: /* brown mold or blue jelly */
             if (monnear(mon, u.ux, u.uy)) {
-                if (Cold_resistance) {
+                if (Cold_immunity) {
                     shieldeff(u.ux, u.uy);
                     You_feel("a mild chill.");
                     monstseesu(M_SEEN_COLD);
                     ugolemeffects(AD_COLD, tmp);
                     break;
                 }
+                tmp = halve_damage(tmp, AD_COLD);
                 monstunseesu(M_SEEN_COLD);
                 You("are suddenly very cold!");
                 mdamageu(mon, tmp);
@@ -6338,13 +6342,14 @@ passive(
             break;
         case AD_FIRE:
             if (monnear(mon, u.ux, u.uy)) {
-                if (Fire_resistance) {
+                if (Fire_immunity) {
                     shieldeff(u.ux, u.uy);
                     You_feel("mildly warm.");
                     monstseesu(M_SEEN_FIRE);
                     ugolemeffects(AD_FIRE, tmp);
                     break;
                 }
+                tmp = halve_damage(tmp, AD_FIRE);
                 monstunseesu(M_SEEN_FIRE);
                 You("are suddenly very hot!");
                 mdamageu(mon, tmp); /* fire damage */
@@ -6353,13 +6358,14 @@ passive(
             break;
         case AD_ELEC:
             learn_it = TRUE;
-            if (Shock_resistance) {
+            if (Shock_immunity) {
                 shieldeff(u.ux, u.uy);
                 You_feel("a mild tingle.");
                 monstseesu(M_SEEN_ELEC);
                 ugolemeffects(AD_ELEC, tmp);
                 break;
             }
+            tmp = halve_damage(tmp, AD_ELEC);
             monstunseesu(M_SEEN_ELEC);
             You("are jolted with electricity!");
             mdamageu(mon, tmp);

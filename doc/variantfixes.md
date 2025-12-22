@@ -13,6 +13,9 @@
     forget spells twice as quickly.
 ## New Items
 - Spellbook of Aqua Bolt
+## Resistance System
+- Intrinsic or Extrinsic resistance = 50% damage.
+- Intrinsic and Extrinsic resistance = Blocked.
 
 # 1.4
 ## Object Materials Patch

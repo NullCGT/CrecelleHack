@@ -78,12 +78,6 @@ static const struct propname {
     { POISON_RES, "poison resistance" },
     { DRAIN_RES, "drain resistance" },
     { SICK_RES, "sickness resistance" },
-    { FIRE_VUL, "fire vulnerability" },
-    { COLD_VUL, "cold vulnerability" },
-    { SLEEP_VUL, "sleep vulnerability" },
-    { DISINT_VUL, "disintegration vulnerability" },
-    { SHOCK_VUL, "shock vulnerability" },
-    { POISON_VUL, "poison vulnerability" },
     { ANTIMAGIC, "magic resistance" },
     { HALLUC_RES, "hallucination resistance" },
     { BLND_RES, "light-induced blindness resistance" },
@@ -859,42 +853,6 @@ nh_timeout(void)
                     if (!Fire_resistance)
                         Your("temporary ability to survive burning has ended.");
                     break;
-                case FIRE_VUL:
-                    if (Fire_resistance)
-                        You("feel cooler.");
-                    else if (!Fire_vulnerability)
-                        You("feel less vulnerable to fire.");
-                    break;
-                case COLD_VUL:
-                    if (Cold_resistance)
-                        You("feel warmer.");
-                    else if (!Cold_vulnerability)
-                        You("feel less vulnerable to cold.");
-                    break;
-                case SLEEP_VUL:
-                    if (Sleep_resistance)
-                        You("feel more wakeful.");
-                    else if (!Sleep_vulnerability)
-                        You("feel less vulnerable to sleep.");
-                    break;
-                case DISINT_VUL:
-                    if (Disint_resistance)
-                        You("feel solidified.");
-                    else if (!Disint_vulnerability)
-                        You("feel less vulnerable to disintegration.");
-                    break;
-                case SHOCK_VUL:
-                    if (Shock_resistance)
-                        You("feel more grounded.");
-                    else if (!Shock_vulnerability)
-                        You("feel less vulnerable to shock.");
-                    break;
-                case POISON_VUL:
-                    if (Poison_resistance)
-                        You("feel healthier.");
-                    else if (!Poison_vulnerability)
-                        You("feel less vulnerable to poison.");
-                    break;
                 case WWALKING:
                     /* [see fire resistance] */
                     if (!Wwalking)
@@ -929,7 +887,7 @@ nh_timeout(void)
                     if (!Breathless) {
                         if (region_danger())
                             You("cough%s",
-                                Poison_resistance ? "." : " and spit blood!");
+                                Poison_immunity ? "." : " and spit blood!");
                     }
                     break;
                 case STRANGLED:

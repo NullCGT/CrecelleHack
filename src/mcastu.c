@@ -806,7 +806,6 @@ cast_monster_spell(struct monst *mtmp, int dmg, int spellnum)
         /* burn up flammable items on the floor, melt ice terrain */
         mon_spell_hits_spot(mtmp, AD_FIRE, u.ux, u.uy);
         evaporate_potion_puddles(u.ux, u.uy);
-        make_dripping(0, 0, NON_PM);
         break;
     case MCU_LIGHTNING: {
         boolean reflects;

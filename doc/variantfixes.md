@@ -16,6 +16,11 @@
 ## Resistance System
 - Intrinsic or Extrinsic resistance = 50% damage.
 - Intrinsic and Extrinsic resistance = Blocked.
+- Being wet causes most sources of fire damage to deal only a single point
+  of damage. The liquid evaporates after protecting you once.
+- Being wet causes most sources of electricity to deal double damage, and
+  prevents you from being immunee to shock. The liquid evaporates after
+  one such instance of doubling damage.
 ## Traps
 - Dipping items in potions on the floor now has additional feedback.
 - Dipping amythest in floor booze turns it into floor fruit juice.

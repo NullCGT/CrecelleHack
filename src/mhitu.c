@@ -2746,37 +2746,56 @@ attack_contact_slots(struct monst *magr, int aatyp)
 int
 halve_damage(int dmg, int adtyp)
 {
-    boolean resisted;
+    boolean halved = FALSE;
+    int mult = 1;
     switch (adtyp) {
     case AD_FIRE:
+        if (Dripping) {
+            pline("The liquid covering you protects you!");
+            make_dripping(0, 0, NON_PM);
+            dmg = 1;
+            break;
+        }
         if (Fire_resistance)
-            resisted = TRUE;
+            halved = TRUE;
         break;
     case AD_COLD:
+        if (Dripping) {
+            pline("The liquid covering you freezes!");
+            make_dripping(0, 0, NON_PM);
+        }
         if (Cold_resistance)
-            resisted = TRUE;
+            halved = TRUE;
         break;
     case AD_ELEC:
+        if (Dripping) {
+            pline("The liquid covering you conducts the shock!");
+            make_dripping(0, 0, NON_PM);
+            if (!Shock_resistance)
+                mult = 2;
+            break;
+        }
         if (Shock_resistance)
-            resisted = TRUE;
+            halved = TRUE;
         break;
     case AD_DRST:
     case AD_DRCO:
     case AD_DRDX:
         if (Poison_resistance)
-            resisted = TRUE;
+            halved = TRUE;
         break;
     case AD_DISN:
         if (Disint_resistance)
-            resisted = TRUE;
+            halved = TRUE;
         break;
     case AD_PHYS:
         if (Half_physical_damage)
-            resisted = TRUE;
+            halved = TRUE;
         break;
     }
-    if (resisted)
+    if (halved)
         dmg = (dmg + 1) / 2;
+    dmg = mult * dmg;
     return dmg;
 }
 

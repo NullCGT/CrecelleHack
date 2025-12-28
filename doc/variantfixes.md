@@ -12,6 +12,9 @@
     much more quickly for them. This includes both positive intrinsics
     as well as negative ones, such as terminal illness. They also
     forget spells twice as quickly.
+## Weather System
+- Weather and daytime visibility now only impacts first five floors of
+  dungeon and outdoor levels.
 ## Miscelaneous
 - Revert cost increase of enchantment scrolls.
 ## New Items

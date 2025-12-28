@@ -333,7 +333,7 @@ mon_regen(struct monst *mon, boolean digest_meal)
 {
     if (svm.moves % 20 == 0 || regenerates(mon->data)
         || (mon->data == &mons[PM_WATER_ELEMENTAL] 
-            && IS_RAINING && !has_no_tod_cycles(&u.uz)))
+            && IS_RAINING && exposed_to_elements(&u.uz)))
         healmon(mon, 1, 0);
     /* special regen */
     if ((mon->data == &mons[PM_DUST_VORTEX])

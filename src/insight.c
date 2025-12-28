@@ -642,7 +642,7 @@ background_enlightenment(int unused_mode UNUSED, int final)
         enl_msg("It ", "is ", "was  ", "daytime", "");
     }
     /* Weather */
-    if (!has_no_tod_cycles(&u.uz) && IS_RAINING) {
+    if (exposed_to_elements(&u.uz) && IS_RAINING) {
         enl_msg("It ", "is ", "was ", "raining", "");
     }
     /* other environmental factors */

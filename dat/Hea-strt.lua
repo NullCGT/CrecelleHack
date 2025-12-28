@@ -39,7 +39,7 @@ PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
 des.replace_terrain({ region={01,01, 74,18}, fromterrain="P", toterrain=".", chance=10 })
 
 -- Dungeon Description
-des.region(selection.area(00,00,75,19), "lit")
+des.region(selection.area(00,00,75,19), "unlit")
 -- Stairs
 des.stair("down", 37,9)
 -- Portal arrival point

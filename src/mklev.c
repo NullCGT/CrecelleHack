@@ -249,16 +249,11 @@ do_room_or_subroom(struct mkroom *croom,
         hiy = ROWNO - 2;
 
     if (lit) {
-        #if 0
-        if (depth(&u.uz) < NIGHTCRUST_SPAWN_DEPTH || 
-            (croom->rtype > THEMEROOM && croom->rtype != SWAMP)) {
-            for (x = lowx - 1; x <= hix + 1; x++) {
-                lev = &levl[x][max(lowy - 1, 0)];
-                for (y = lowy - 1; y <= hiy + 1; y++)
-                    lev++->lit = 1;
-            }
+        for (x = lowx - 1; x <= hix + 1; x++) {
+            lev = &levl[x][max(lowy - 1, 0)];
+            for (y = lowy - 1; y <= hiy + 1; y++)
+                lev++->lit = 1;
         }
-        #endif
         croom->rlit = 1;
     } else
         croom->rlit = 0;

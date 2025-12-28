@@ -899,7 +899,7 @@ extern boolean Is_botlevel(d_level *) NONNULLARG1;
 extern boolean Can_fall_thru(d_level *) NONNULLARG1;
 extern boolean Can_dig_down(d_level *) NONNULLARG1;
 extern boolean Can_rise_up(coordxy, coordxy, d_level *) NONNULLARG3;
-extern boolean has_no_tod_cycles(d_level *) NONNULLARG1;
+extern boolean exposed_to_elements(d_level *) NONNULLARG1;
 extern boolean has_ceiling(d_level *) NONNULLARG1;
 extern boolean avoid_ceiling(d_level *) NONNULLARG1;
 extern const char *surface(coordxy, coordxy);

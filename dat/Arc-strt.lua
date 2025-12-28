@@ -36,7 +36,7 @@ des.map([[
 ............................................................................
 ]]);
 -- Dungeon Description
-des.region(selection.area(00,00,75,19), "lit")
+des.region(selection.area(00,00,75,19), "unlit")
 des.region(selection.area(22,06,23,06), "unlit")
 des.region(selection.area(25,06,30,06), "unlit")
 des.region(selection.area(32,06,48,06), "unlit")

@@ -1917,6 +1917,7 @@ trapeffect_fire_trap(
         struct permonst *mptr = mtmp->data;
         int orig_dmg = d(2, 4);
 
+        adjust_damage(mtmp, &orig_dmg, AD_FIRE);
         if (in_sight)
             pline_mon(mtmp,
                  "A %s erupts from the %s under %s!", tower_of_flame,
@@ -4445,7 +4446,7 @@ dofiretrap(
     }
     pline("A %s %s from %s!", tower_of_flame, box ? "bursts" : "erupts",
           the(box ? xname(box) : surface(u.ux, u.uy)));
-    if (Fire_resistance) {
+    if (Fire_immunity) {
         shieldeff(u.ux, u.uy);
         monstseesu(M_SEEN_FIRE);
         num = rn2(2);
@@ -4489,6 +4490,7 @@ dofiretrap(
         }
         if (u.uhp > u.uhpmax)
             u.uhp = u.uhpmax, disp.botl = TRUE;
+        adjust_damage(&gy.youmonst, &num, AD_FIRE);
         monstunseesu(M_SEEN_FIRE);
     }
     if (!num)
@@ -6631,7 +6633,7 @@ chest_trap(
             } else {
                 monstunseesu(M_SEEN_ELEC);
             }
-            dmg = halve_damage(dmg, AD_ELEC);
+            adjust_damage(&gy.youmonst, &dmg, AD_ELEC);
             (void) destroy_items(&gy.youmonst, AD_ELEC, orig_dmg);
             if (dmg)
                 losehp(dmg, "electric shock", KILLED_BY_AN);

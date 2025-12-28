@@ -2082,7 +2082,6 @@ use_offensive(struct monst *mtmp)
             if (Fire_immunity)
                 You("are not harmed.");
             burn_away_slime();
-            num = halve_damage(num, AD_FIRE);
             if (Half_spell_damage)
                 num = (num + 1) / 2;
             else

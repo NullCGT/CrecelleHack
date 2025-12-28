@@ -476,6 +476,8 @@ look_at_monster(
         Strcat(buf, ", leashed to you");
     if (mtmp->mprone)
         Strcat(buf, ", prone");
+    if (mtmp->mdripping)
+        Strcat(buf, ", wet");
     if (mtmp->mtrapped && cansee(mtmp->mx, mtmp->my)) {
         struct trap *t = t_at(mtmp->mx, mtmp->my);
         int tt = t ? t->ttyp : NO_TRAP;

@@ -1483,6 +1483,7 @@ passivemm(
         tmp = 0;
 
  assess_dmg:
+    adjust_damage(magr, &tmp, mddat->mattk[i].adtyp);
     if ((magr->mhp -= tmp) <= 0) {
         monkilled(magr, "", (int) mddat->mattk[i].adtyp);
         return (mdead | mhit | M_ATTK_AGR_DIED);

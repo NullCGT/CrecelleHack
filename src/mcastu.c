@@ -401,7 +401,6 @@ castmu(
         } else {
             monstunseesu(M_SEEN_FIRE);
         }
-        dmg = halve_damage(dmg, AD_FIRE);
         burn_away_slime();
         /* burn up flammable items on the floor, melt ice terrain */
         mon_spell_hits_spot(mtmp, AD_FIRE, u.ux, u.uy);
@@ -416,7 +415,6 @@ castmu(
         } else {
             monstunseesu(M_SEEN_COLD);
         }
-        dmg = halve_damage(dmg,AD_COLD);
         /* freeze water or lava terrain */
         /* FIXME: mon_spell_hits_spot() uses zap_over_floor(); unlike with
          * fire, it does not target susceptible floor items with cold */
@@ -442,8 +440,10 @@ castmu(
         dmg = 0; /* done by the spell casting functions */
         break;
     } /* switch */
-    if (dmg)
+    if (dmg) {
+        adjust_damage(&gy.youmonst, &dmg, mattk->adtyp);
         mdamageu(mtmp, dmg);
+    }
     return ret;
 }
 
@@ -542,6 +542,7 @@ cast_monster_spell(struct monst *mtmp, int dmg, int spellnum)
 {
     coord mm;
     int orig_dmg = 0;
+    int adtyp = 0;
     if (dmg < 0) {
         impossible("monster cast monster spell (%d) with negative dmg (%d)?",
                    spellnum, dmg);
@@ -788,6 +789,7 @@ cast_monster_spell(struct monst *mtmp, int dmg, int spellnum)
     case MCU_FIRE_PILLAR:
         pline("A pillar of fire strikes all around you!");
         orig_dmg = dmg = d(8, 6);
+        adtyp = AD_FIRE;
         if (Fire_immunity) {
             shieldeff(u.ux, u.uy);
             monstseesu(M_SEEN_FIRE);
@@ -797,7 +799,6 @@ cast_monster_spell(struct monst *mtmp, int dmg, int spellnum)
         }
         if (Half_spell_damage)
             dmg = (dmg + 1) / 2;
-        dmg = halve_damage(dmg, AD_FIRE);
         burn_away_slime();
         (void) burnarmor(&gy.youmonst);
         /* item destruction dmg */
@@ -809,7 +810,7 @@ cast_monster_spell(struct monst *mtmp, int dmg, int spellnum)
         break;
     case MCU_LIGHTNING: {
         boolean reflects;
-
+        adtyp = AD_ELEC;
         Soundeffect(se_bolt_of_lightning, 80);
         pline("A bolt of lightning strikes down at you from above!");
         reflects = ureflects("It bounces off your %s%s.", "");
@@ -828,7 +829,6 @@ cast_monster_spell(struct monst *mtmp, int dmg, int spellnum)
         }
         if (Half_spell_damage)
             dmg = (dmg + 1) / 2;
-        dmg = halve_damage(dmg, AD_ELEC);
         (void) destroy_items(&gy.youmonst, AD_ELEC, orig_dmg);
         /* lightning might destroy iron bars if hero is on such a spot;
            reflection protects terrain here [execution won't get here due
@@ -1049,7 +1049,8 @@ cast_monster_spell(struct monst *mtmp, int dmg, int spellnum)
         dmg = 0;
         break;
     }
-
+    if (adtyp)
+        adjust_damage(&gy.youmonst, &dmg, adtyp);
     if (dmg)
         mdamageu(mtmp, dmg);
 }

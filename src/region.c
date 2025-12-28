@@ -1688,12 +1688,12 @@ inside_bonfire(genericptr_t p1, genericptr_t p2)
         } else {
             monstunseesu(M_SEEN_FIRE);
         }
-        dam = halve_damage(dam, AD_FIRE);
         if (rn2(6)) {
             dam += destroy_items(&gy.youmonst, AD_FIRE, dam);
             ignite_items(gi.invent);
         }
         burn_away_slime();
+        adjust_damage(&gy.youmonst, &dam, AD_FIRE);
         u.uhp -= dam;
         if (u.uhp < 1) {
             Sprintf(svk.killer.name, "was consumed in an inferno");
@@ -1726,7 +1726,8 @@ inside_bonfire(genericptr_t p1, genericptr_t p2)
         /* Damage */
         dam += destroy_items(mtmp, AD_FIRE, dam);
         ignite_items(mtmp->minvent);
-        mtmp->mhp -= rnd(dam);
+        adjust_damage(mtmp, &dam, AD_FIRE);
+        mtmp->mhp -= dam;
         if (DEADMONSTER(mtmp)) {
             if (heros_fault(reg))
                 killed(mtmp);

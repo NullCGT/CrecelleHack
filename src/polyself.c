@@ -1705,6 +1705,7 @@ dogaze(void)
                         dmg += destroy_items(mtmp, AD_FIRE, orig_dmg);
                         ignite_items(mtmp->minvent);
                     }
+                    adjust_damage(mtmp, &dmg, AD_FIRE);
                     if (dmg)
                         mtmp->mhp -= dmg;
                     if (DEADMONSTER(mtmp))

@@ -1,4 +1,5 @@
 # 1.4.1
+## Races
 - Kobold Rewrite
   - Kobolds can now talk to monsters. Several players complained
     that being unable to talk to NPCs (particularly priests)
@@ -11,6 +12,8 @@
     much more quickly for them. This includes both positive intrinsics
     as well as negative ones, such as terminal illness. They also
     forget spells twice as quickly.
+## Miscelaneous
+- Revert cost increase of enchantment scrolls.
 ## New Items
 - Spellbook of Aqua Bolt
 ## Traps

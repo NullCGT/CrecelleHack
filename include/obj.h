@@ -278,8 +278,9 @@ struct obj {
 /* 'missile' aspect is up to the caller and does not imply is_missile();
    rings might be launched as missiles when being scattered by an explosion */
 #define stone_missile(o) \
-    ((objects[(o)->otyp].oc_material == GEMSTONE             \
-             || (objects[(o)->otyp].oc_material == MINERAL))        \
+    ((objects[(o)->otyp].oc_material == GEMSTONE                \
+             || (objects[(o)->otyp].oc_material == MINERAL      \
+                 || objects[(o)->otyp].oc_material == LODEN))   \
          && (o)->oclass != RING_CLASS)
 /* can be used for trip attempts */
 #define is_tripweapon(otmp) \

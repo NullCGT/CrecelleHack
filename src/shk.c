@@ -2851,6 +2851,7 @@ static const int matprices[] = {
    500, /* GEMSTONE */
     10, /* MINERAL */
      1, /* SALT */
+     1, /* LODEN */
 };
 
 /* calculate the value that the shk will charge for [one of] an object */

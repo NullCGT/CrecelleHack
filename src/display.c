@@ -2648,7 +2648,7 @@ map_glyphinfo(
                 HI_METAL, HI_METAL, HI_COPPER, HI_SILVER, HI_GOLD, CLR_WHITE,
                 CLR_BLACK,
                 HI_SILVER, CLR_WHITE, HI_GLASS, HI_GLASS, CLR_RED, CLR_GRAY,
-                CLR_WHITE,
+                CLR_WHITE, CLR_GRAY,
             };
             glyphinfo->gm.sym.color = materialclr[otmp->material];
         } 

@@ -35,6 +35,7 @@ enum obj_material_types {
     GEMSTONE    = 22,
     MINERAL     = 23,
     SALT        = 24,
+    LODEN       = 25,
     NUM_MATERIAL_TYPES
 };
 
@@ -207,7 +208,7 @@ extern NEARDATA struct objdescr obj_descr[NUM_OBJECTS + 1];
 #define is_glass(otmp) (otmp->material == GLASS)
 #define is_wood(otmp) (otmp->material == WOOD)
 #define is_bone(otmp) (otmp->material == BONE)
-#define is_stone(otmp) (otmp->material == MINERAL)
+#define is_stone(otmp) (otmp->material == MINERAL || otmp->material == LODEN)
 #define is_metallic(otmp) \
     (otmp->material >= IRON && otmp->material <= MITHRIL)
 #define is_heavy_metallic(otmp) \

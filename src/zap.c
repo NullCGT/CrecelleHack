@@ -1621,6 +1621,7 @@ create_polymon(struct obj *obj, int okind)
     case PLATINUM:
     case GEMSTONE:
     case MINERAL:
+    case LODEN:
         pm_index = rn2(2) ? PM_STONE_GOLEM : PM_CLAY_GOLEM;
         material = "lithic ";
         break;
@@ -2070,7 +2071,8 @@ stone_to_flesh_obj(struct obj *obj) /* nonnull */
     boolean smell = FALSE, golem_xform = FALSE;
     int res = 1; /* affected object by default */
 
-    if (obj->material != MINERAL && obj->material != GEMSTONE)
+    if (obj->material != MINERAL && obj->material != GEMSTONE
+        && obj->material != LODEN)
         return 0;
     /* Heart of Ahriman usually resists; ordinary items rarely do */
     if (obj_resists(obj, 2, 98))

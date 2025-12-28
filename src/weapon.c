@@ -324,6 +324,12 @@ dmgval(struct obj *otmp, struct monst *mon)
             tmp += 2;
         }
     }
+    else if (otmp->material == LODEN) {
+        /* bludgeoning weapons made of lodenstone deal a massive
+           amount of damage*/
+        if (objects[otmp->otyp].oc_dir & WHACK)
+            tmp += 5;
+    }
     else if (otmp->material == PLASTIC || otmp->material == PAPER) {
         /* just terrible weapons all around */
         tmp -= 2;

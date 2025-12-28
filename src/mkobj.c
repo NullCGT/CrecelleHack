@@ -2001,6 +2001,7 @@ static const int matdensities[] = {
     55,  // GEMSTONE
     70,  // MINERAL
     20,  // SALT
+    3500, // LODEN
 };
 
 /*

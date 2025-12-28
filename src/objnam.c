@@ -966,7 +966,8 @@ xname_flags(
             Sprintf(buf, "%s ring", dn);
         break;
     case GEM_CLASS: {
-        const char *rock = (ocl->oc_material == MINERAL) ? "stone" : "gem";
+        const char *rock = (ocl->oc_material == MINERAL
+                            || ocl->oc_material == LODEN) ? "stone" : "gem";
 
         if (!dknown) {
             Strcpy(buf, rock);

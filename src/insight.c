@@ -1921,7 +1921,7 @@ attributes_enlightenment(
         you_can("not change from your current form", from_what(UNCHANGING));
     for (ltmp = 1; ltmp < NUM_MATERIAL_TYPES; ++ltmp) {
         if (Hate_material(ltmp)) {
-            Sprintf(buf, "harmed by %s", materialnm[ltmp]);
+            Sprintf(buf, "harmed by %s", MAT_NAME(ltmp));
             you_are(buf, "");
         }
     }

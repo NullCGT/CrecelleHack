@@ -525,9 +525,9 @@ sortloot_cmp(const genericptr vptr1, const genericptr vptr2)
 
     /* Sort alphabetically by material. */
     mat1 = (obj1->material != objects[obj1->otyp].oc_material)
-           ? materialnm[obj1->material] : "";
+           ? MAT_NAME(obj1->material) : "";
     mat2 = (obj2->material != objects[obj2->otyp].oc_material)
-           ? materialnm[obj2->material] : "";
+           ? MAT_NAME(obj2->material) : "";
     if ((namcmp = strcmpi(mat1, mat2)) != 0)
         return namcmp;
 

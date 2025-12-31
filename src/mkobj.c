@@ -1973,42 +1973,6 @@ set_bknown(
             update_inventory();
     }
 }
-/* Relative weights of different materials.
- * This used to be an attempt at making them super realistic, with densities in
- * terms of their kg/m^3 and as close to real life as possible, but that just
- * doesn't work because it makes materials infeasible to use. Nobody wants
- * anything gold or platinum if it weighs three times as much as its iron
- * counterpart, and things such as wooden plate mails were incredibly
- * overpowered by weighing about one-tenth as much as the iron counterpart.
- * Instead, use arbitrary units. */
-static const int matdensities[] = {
-    0,   // will cause div/0 errors if anything is this material
-    10,  // LIQUID
-    15,  // WAX
-    10,  // VEGGY
-    10,  // FLESH
-    5,   // PAPER
-    10,  // CLOTH
-    15,  // LEATHER
-    30,  // WOOD
-    25,  // BONE
-    20,  // DRAGONHIDE
-    80,  // IRON
-    75,  // METAL
-    85,  // COPPER
-    90,  // SILVER
-    120, // GOLD
-    120, // PLATINUM
-    75,  // NIGHTIRON
-    30,  // MITHRIL
-    20,  // PLASTIC
-    60,  // GLASS
-    60,  // ICECRYSTAL
-    55,  // GEMSTONE
-    70,  // MINERAL
-    20,  // SALT
-    3500, // LODEN
-};
 
 /*
  *  Calculate the weight of the given object.  This will recursively follow
@@ -2042,8 +2006,8 @@ weight(struct obj *obj)
     /* Modify weight according to the relative densities of the two materials,
      * if they differ. */
     if (obj->material != objects[obj->otyp].oc_material) {
-        wt = (wt * matdensities[obj->material])
-             / matdensities[objects[obj->otyp].oc_material];
+        wt = (wt * MAT_DENS(obj->material))
+             / MAT_DENS(objects[obj->otyp].oc_material);
     }
 
     /* size adjustments */
@@ -2142,45 +2106,13 @@ weight(struct obj *obj)
 static const int treefruits[] = {
     APPLE, ORANGE, PEAR, BANANA, EUCALYPTUS_LEAF
 };
-/* Relative defensiveness of various materials. The only thing that should ever
- * matter is the difference between two of these quantities, so the values are
- * adjusted up so that there are no negatives.
- * The units involved here are AC points (but again, only the difference
- * matters.) */
-const int matac[] = {
-     0,
-     0,  // LIQUID
-     1,  // WAX
-     1,  // VEGGY
-     3,  // FLESH
-     1,  // PAPER
-     2,  // CLOTH
-     3,  // LEATHER
-     4,  // WOOD
-     5,  // BONE
-     10, // DRAGON_HIDE
-     5,  // IRON - de facto baseline for metal armor
-     5,  // METAL
-     4,  // COPPER
-     5,  // SILVER
-     3,  // GOLD
-     4,  // PLATINUM
-     5,  // NIGHTIRON
-     6,  // MITHRIL
-     3,  // PLASTIC
-     5,  // GLASS
-     5,  // ICECRYSTAL
-     7,  // GEMSTONE
-     6,  // MINERAL
-     2,  // SALT
-};
 
 /* Compute the bonus or penalty to AC an armor piece should get for being a
  * non-default material. */
 int
 material_bonus(struct obj *obj)
 {
-    int diff = matac[obj->material] - matac[objects[obj->otyp].oc_material];
+    int diff = materials[obj->material].ac - materials[objects[obj->otyp].oc_material].ac;
 
     /* don't allow the armor's base AC to go below 0...
      * or go below 1, if the armor is metallic */
@@ -4452,27 +4384,27 @@ material_list(struct obj *obj)
 staticfn void
 init_obj_material(struct obj *obj)
 {
-    const struct icp* materials = material_list(obj);
+    const struct icp* init_materials = material_list(obj);
 
     /* always set the material to its base, this is the default for objects
      * which do not have a list */
     set_material(obj, objects[obj->otyp].oc_material);
 
-    if (materials) {
+    if (init_materials) {
         int i = rnd(1000);
         while (i > 0) {
-            if (i <= materials->iprob)
+            if (i <= init_materials->iprob)
                 break;
-            i -= materials->iprob;
-            materials++;
+            i -= init_materials->iprob;
+            init_materials++;
         }
         /* Only set the new material if:
          * 1) it is not marked as invalid for this specific object
          * 2) iclass is non-zero (a zero indicates base material should be used)
          */
-        if (!invalid_obj_material(obj, materials->iclass)
-            && materials->iclass != 0) {
-            set_material(obj, materials->iclass);
+        if (!invalid_obj_material(obj, init_materials->iclass)
+            && init_materials->iclass != 0) {
+            set_material(obj, init_materials->iclass);
         }
     }
 }
@@ -4516,18 +4448,18 @@ valid_obj_material(struct obj *obj, int mat)
     if (objects[obj->otyp].oc_material == mat) {
         return TRUE;
     } else {
-        const struct icp* materials = material_list(obj);
+        const struct icp* valid_materials = material_list(obj);
 
         if (invalid_obj_material(obj, mat))
             return FALSE;
 
-        if (materials) {
+        if (valid_materials) {
             int i = 1000; /* guarantee going through everything */
             while (i > 0) {
-                if (materials->iclass == mat)
+                if (valid_materials->iclass == mat)
                     return TRUE;
-                i -= materials->iprob;
-                materials++;
+                i -= valid_materials->iprob;
+                valid_materials++;
             }
         }
         /* no valid materials in list, or no valid list */

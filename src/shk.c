@@ -2821,39 +2821,6 @@ oid_price_adjustment(struct obj *obj, unsigned int oid)
     return res;
 }
 
-/* Relative prices for the different materials.
- * Units for this are much more poorly defined than for weights; the best
- * approximation would be something like "zorkmids per aum".
- * We only care about the ratio of two of these together. */
-static const int matprices[] = {
-     0,
-     1, /* LIQUID */
-     1, /* WAX */
-     1, /* VEGGY */
-     3, /* FLESH */
-     2, /* PAPER */
-     3, /* CLOTH */
-     5, /* LEATHER */
-     8, /* WOOD */
-    20, /* BONE */
-   200, /* DRAGON_HIDE - DSM to scale mail */
-    10, /* IRON */
-    15, /* METAL */
-    18, /* COPPER */
-    30, /* SILVER */
-    60, /* GOLD */
-    80, /* PLATINUM */
-    95, /* NIGHTIRON */
-    50, /* MITHRIL - mithril-coat to regular chain mail */
-    10, /* PLASTIC */
-    20, /* GLASS */
-     3, /* ICECRYSTAL */
-   500, /* GEMSTONE */
-    10, /* MINERAL */
-     1, /* SALT */
-     1, /* LODEN */
-};
-
 /* calculate the value that the shk will charge for [one of] an object */
 staticfn long
 get_cost(
@@ -2926,8 +2893,8 @@ get_cost(
         }
     }
     /* adjust for different material */
-    multiplier *= matprices[obj->material];
-    divisor *= matprices[objects[obj->otyp].oc_material];
+    multiplier *= MAT_COST(obj->material);
+    divisor *= MAT_COST(objects[obj->otyp].oc_material);
 
     if (uarmh && uarmh->otyp == DUNCE_CAP)
         multiplier *= 4L, divisor *= 3L;
@@ -3141,8 +3108,8 @@ set_cost(struct obj *obj, struct monst *shkp)
     tmp = get_pricing_units(obj) * unit_price;
 
     /* adjust for different material */
-    multiplier *= matprices[obj->material];
-    divisor *= matprices[objects[obj->otyp].oc_material];
+    multiplier *= MAT_COST(obj->material);
+    divisor *= MAT_COST(objects[obj->otyp].oc_material);
 
     if (uarmh && uarmh->otyp == DUNCE_CAP)
         divisor *= 3L;

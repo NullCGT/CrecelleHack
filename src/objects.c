@@ -28,6 +28,13 @@ void objects_globals_init(void); /* in hack.h but we're using config.h */
 struct objdescr obj_descr[SIZE(obj_descr_init)];
 struct objclass objects[SIZE(obj_init)];
 
+#define OMAT(id, nam, ac, dens, cost, clr) {nam, ac, dens, cost, clr}
+struct material materials[NUM_MATERIAL_TYPES] = {
+    OBJ_MATERIAL_LIST
+};
+#undef OMAT
+#undef OBJ_MATERIAL_LIST
+
 void
 objects_globals_init(void)
 {

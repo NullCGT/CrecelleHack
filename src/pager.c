@@ -2445,8 +2445,8 @@ do_supplemental_item_info(struct obj *otmp)
     }
     Sprintf(buf, "Weight: %d aum (average %d aum)", otmp->owt, objects[otmp->otyp].oc_weight);
     putstr(datawin, 0, buf);
-    Sprintf(buf, "Material: %s (usually %s)", materialnm[otmp->material],
-                                                materialnm[objects[otmp->otyp].oc_material]);
+    Sprintf(buf, "Material: %s (usually %s)", MAT_NAME(otmp->material),
+                                                MAT_NAME(objects[otmp->otyp].oc_material));
     putstr(datawin, 0, buf);
     Sprintf(buf, "Rarity: %s, %s", objects[otmp->otyp].oc_unique ? "unique" : "common",
                                     objects[otmp->otyp].oc_nowish ? "unwishable" : "wishable");

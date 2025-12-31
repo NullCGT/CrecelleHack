@@ -220,7 +220,7 @@ l_obj_objects_to_table(lua_State *L)
     nhl_add_table_entry_int(L, "finesse", o->oc_finesse);
     nhl_add_table_entry_int(L, "tough", o->oc_tough);
     nhl_add_table_entry_int(L, "dir", o->oc_dir); /* TODO: convert to text */
-    nhl_add_table_entry_str(L, "material", materialnm[o->oc_material]);
+    nhl_add_table_entry_str(L, "material", MAT_NAME(o->oc_material));
     /* TODO: oc_subtyp, oc_skill, oc_armcat */
     nhl_add_table_entry_int(L, "oprop", o->oc_oprop);
     nhl_add_table_entry_char(L, "class",

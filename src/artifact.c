@@ -553,7 +553,7 @@ find_artifact(struct obj *otmp)
                         figure out how it got here */
                      : "");
         livelog_printf(LL_ARTIFACT, "found %s %s named %s%s",
-                        an(materialnm[otmp->material]), OBJ_NAME(objects[otmp->otyp]),
+                        an(MAT_NAME(otmp->material)), OBJ_NAME(objects[otmp->otyp]),
                         bare_artifactname(otmp), where);
     }
 }
@@ -2795,7 +2795,7 @@ retouch_object(
            "<obj> evades your grasp|control" message; give an alternate one */
 
         if (!bane && !(hatemat && obj->material == SILVER)) {
-            pline("The %s of %s %s!", materialnm[obj->material],
+            pline("The %s of %s %s!", MAT_NAME(obj->material),
                   yname(obj), rn2(2) ? "hurts to touch" : "burns your skin");
         }
         else {
@@ -2819,7 +2819,7 @@ retouch_object(
                 tmp = rnd(sear_damage(obj->material) / 2), dmg += Maybe_Half_Phys(tmp);
             if (bane)
                 dmg += rnd(10);
-            Sprintf(buf, "handling %s (made of %s)", what, materialnm[obj->material]);
+            Sprintf(buf, "handling %s (made of %s)", what, MAT_NAME(obj->material));
             losehp(dmg, buf, KILLED_BY);
             exercise(A_CON, FALSE);
         }

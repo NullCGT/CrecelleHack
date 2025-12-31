@@ -9,35 +9,73 @@
 /* [misnamed] definition of a type of object; many objects are composites
    (liquid potion inside glass bottle, metal arrowhead on wooden shaft)
    and object definitions only specify one type on a best-fit basis */
+
+struct material {
+    const char *name;
+    /* Relative weights of different materials.
+    * This used to be an attempt at making them super realistic, with densities in
+    * terms of their kg/m^3 and as close to real life as possible, but that just
+    * doesn't work because it makes materials infeasible to use. Nobody wants
+    * anything gold or platinum if it weighs three times as much as its iron
+    * counterpart, and things such as wooden plate mails were incredibly
+    * overpowered by weighing about one-tenth as much as the iron counterpart.
+    * Instead, use arbitrary units. */
+    char ac;
+    /* Relative weights of different materials.
+    * This used to be an attempt at making them super realistic, with densities in
+    * terms of their kg/m^3 and as close to real life as possible, but that just
+    * doesn't work because it makes materials infeasible to use. Nobody wants
+    * anything gold or platinum if it weighs three times as much as its iron
+    * counterpart, and things such as wooden plate mails were incredibly
+    * overpowered by weighing about one-tenth as much as the iron counterpart.
+    * Instead, use arbitrary units. */
+    int density;
+    /* Relative prices for the different materials.
+    * Units for this are much more poorly defined than for weights; the best
+    * approximation would be something like "zorkmids per aum".
+    * We only care about the ratio of two of these together. */
+    int cost;
+    uchar clr;
+};
+
+#define OBJ_MATERIAL_LIST OMAT(NO_MATERIAL, "mysterious", 0, 0, 0, CLR_BLACK), \
+    OMAT(LIQUID,        "liquid",   0,  10,   1,   HI_ORGANIC), \
+    OMAT(WAX,           "wax",      1,  15,   1,   CLR_WHITE), \
+    OMAT(VEGGY,         "organic",  1,  10,   1,   HI_ORGANIC), \
+    OMAT(FLESH,         "flesh",    3,  10,   3,   CLR_RED), \
+    OMAT(PAPER,         "paper",    1,  5,    2,   CLR_WHITE), \
+    OMAT(CLOTH,         "cloth",    2,  10,   3,   HI_CLOTH), \
+    OMAT(LEATHER,       "leather",  3,  15,   5,   HI_LEATHER), \
+    OMAT(WOOD,          "wood",     4,  30,   8,   HI_WOOD), \
+    OMAT(BONE,          "bone",     5,  25,   20,  CLR_WHITE), \
+    OMAT(DRAGON_HIDE,   "dragonhide", \
+                                    10, 20,   200, CLR_BLACK), \
+    OMAT(IRON,          "iron",     5,  80,   10,  HI_METAL), \
+    OMAT(METAL,         "steel",    5,  75,   15,  HI_METAL), \
+    OMAT(COPPER,        "copper",   4,  85,   18,  HI_COPPER), \
+    OMAT(SILVER,        "silver",   5,  90,   30,  HI_SILVER), \
+    OMAT(GOLD,          "gold",     3,  120,  60,  HI_GOLD), \
+    OMAT(PLATINUM,      "platinum", 4,  120,  80,  CLR_WHITE), \
+    OMAT(NIGHTIRON,     "nightiron", \
+                                    5,  75,   95,  CLR_BLACK), \
+    OMAT(MITHRIL,       "mithril",  6,  30,   50,  HI_SILVER), \
+    OMAT(PLASTIC,       "plastic",  3,  20,   10,  CLR_WHITE), \
+    OMAT(GLASS,         "glass",    5,  60,   20,  HI_GLASS), \
+    OMAT(ICECRYSTAL,    "ice",      5,  60,   3,   HI_GLASS), \
+    OMAT(GEMSTONE,      "gemstone", 7,  55,   500, CLR_RED), \
+    OMAT(MINERAL,       "stone",    6,  70,   10,  CLR_GRAY), \
+    OMAT(SALT,          "salt",     2,  20,   1,   CLR_WHITE), \
+    OMAT(LODEN,         "lodenstone", \
+                                    8,  3500, 1, CLR_GRAY)
+#define OMAT(id, nam, ac, dens, cost, clr) id
 enum obj_material_types {
-    NO_MATERIAL =  0,
-    LIQUID      =  1, /* currently only for venom */
-    WAX         =  2,
-    VEGGY       =  3, /* foodstuffs */
-    FLESH       =  4, /*   ditto    */
-    PAPER       =  5,
-    CLOTH       =  6,
-    LEATHER     =  7,
-    WOOD        =  8,
-    BONE        =  9,
-    DRAGON_HIDE = 10, /* not leather! */
-    IRON        = 11, /* Fe*/
-    METAL       = 12, /* Stainless steel, Sn, &c. */
-    COPPER      = 13, /* Cu - includes brass */
-    SILVER      = 14, /* Ag */
-    GOLD        = 15, /* Au */
-    PLATINUM    = 16, /* Pt */
-    NIGHTIRON   = 17,
-    MITHRIL     = 18,
-    PLASTIC     = 19,
-    GLASS       = 20,
-    ICECRYSTAL  = 21,
-    GEMSTONE    = 22,
-    MINERAL     = 23,
-    SALT        = 24,
-    LODEN       = 25,
+    OBJ_MATERIAL_LIST,
     NUM_MATERIAL_TYPES
 };
+#undef OMAT
+#define MAT_DENS(mat) materials[mat].density
+#define MAT_COST(mat) materials[mat].cost
+#define MAT_NAME(mat) materials[mat].name
 
 enum obj_armor_types {
     ARM_SUIT   = 0,
@@ -202,6 +240,7 @@ enum misc_object_nums {
 
 extern NEARDATA struct objclass objects[NUM_OBJECTS + 1];
 extern NEARDATA struct objdescr obj_descr[NUM_OBJECTS + 1];
+extern NEARDATA struct material materials[NUM_MATERIAL_TYPES];
 
 #define OBJ_NAME(obj) (obj_descr[(obj).oc_name_idx].oc_name)
 #define OBJ_DESCR(obj) (obj_descr[(obj).oc_descr_idx].oc_descr)

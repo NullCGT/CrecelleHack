@@ -1833,7 +1833,7 @@ bestow_artifact(uchar max_giftvalue)
             exercise(A_WIS, TRUE);
             livelog_printf(LL_DIVINEGIFT | LL_ARTIFACT,
                             "was bestowed with %s %s named %s by %s",
-                            an(materialnm[otmp->material]),
+                            an(MAT_NAME(otmp->material)),
                             OBJ_NAME(objects[otmp->otyp]),
                             artiname(otmp->oartifact),
                             align_gname(u.ualign.type));

@@ -2641,16 +2641,7 @@ map_glyphinfo(
         struct obj* otmp = vobj_at(x, y);
         if (iflags.use_color && otmp
             && otmp->material != objects[otmp->otyp].oc_material) {
-            /* Externify this array if it's ever needed anywhere else. */
-            const int materialclr[] = {
-                CLR_BLACK, HI_ORGANIC, CLR_WHITE, HI_ORGANIC, CLR_RED,
-                CLR_WHITE, HI_CLOTH, HI_LEATHER, HI_WOOD, CLR_WHITE, CLR_BLACK,
-                HI_METAL, HI_METAL, HI_COPPER, HI_SILVER, HI_GOLD, CLR_WHITE,
-                CLR_BLACK,
-                HI_SILVER, CLR_WHITE, HI_GLASS, HI_GLASS, CLR_RED, CLR_GRAY,
-                CLR_WHITE, CLR_GRAY,
-            };
-            glyphinfo->gm.sym.color = materialclr[otmp->material];
+            glyphinfo->gm.sym.color = materials[otmp->material].clr;
         } 
     }
     /* If the floor has extra surface info, we need to track it to swap the color around. */

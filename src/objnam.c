@@ -694,7 +694,7 @@ xname_flags(
     switch (obj->oclass) {
     case AMULET_CLASS:
         if (obj->material != objects[obj->otyp].oc_material) {
-            Strcat(buf, materialnm[obj->material]);
+            Strcat(buf, MAT_NAME(obj->material));
             Strcat(buf, " ");
         }
         if (!dknown)
@@ -730,7 +730,7 @@ xname_flags(
 
         if (dknown && (obj->material != objects[typ].oc_material
                        || force_material_name(typ))) {
-            Strcat(buf, materialnm[obj->material]);
+            Strcat(buf, MAT_NAME(obj->material));
             Strcat(buf, " ");
         }
 
@@ -763,7 +763,7 @@ xname_flags(
             add_oprop_text(obj, pknown, buf);
         if ((obj->material != objects[typ].oc_material
              || force_material_name(typ)) && dknown) {
-            Strcat(buf, materialnm[obj->material]);
+            Strcat(buf, MAT_NAME(obj->material));
             Strcat(buf, " ");
         }
         /* depends on order of the dragon scales objects */
@@ -5080,7 +5080,7 @@ staticfn boolean
 not_spec_material(const char *str, int material)
 {
     int i;
-    const char *matstr = materialnm[material];
+    const char *matstr = MAT_NAME(material);
     int matlen = strlen(matstr);
     /* is this the entire string? e.g. "gold" is actually a wish for zorkmids.
        The effect of this is that you can't just wish for a material and get a
@@ -5670,7 +5670,7 @@ readobjnam(char *bp, struct obj *no_wish)
         if (!valid_obj_material(d.otmp, d.material)) {
             if (wizard) {
                 pline("Note: material %s is not normally valid for this object.",
-                    materialnm[d.material]);
+                    MAT_NAME(d.material));
                 force_material(d.otmp, d.material);
             }
         } else {
@@ -6035,7 +6035,7 @@ lookup_material_by_name(char *buf, int *l)
 {
     /* doesn't currently catch "wood" for wooden */
     for (int i = 1; i < NUM_MATERIAL_TYPES; i++) {
-        if (!strncmpi(buf, materialnm[i], *l = strlen(materialnm[i]))
+        if (!strncmpi(buf, MAT_NAME(i), *l = strlen(MAT_NAME(i)))
             && !not_spec_material(buf, i)){
             return i;
         }

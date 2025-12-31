@@ -608,14 +608,14 @@ searmsg(struct monst *magr UNUSED, struct monst *mdef,
             Strcat(whose, " ");
         }
         mat = monmaterial(monsndx(magr->data));
-        Sprintf(onamebuf, "%s touch", materialnm[mat]);
+        Sprintf(onamebuf, "%s touch", MAT_NAME(mat));
     } else {
         char *cxnameobj = cxname(obj);
         const char *matname;
         boolean alreadyin;
 
         mat = obj->material;
-        matname = materialnm[mat];
+        matname = MAT_NAME(mat);
         alreadyin = (strstri(cxnameobj, matname) != NULL);
 
         /* Make it explicit to the player that this effect is from the material,
@@ -638,7 +638,7 @@ searmsg(struct monst *magr UNUSED, struct monst *mdef,
         if (mat == SILVER) { /* different formatting */
             Strcpy(onamebuf, "silver");
         } else {
-            Sprintf(onamebuf, "touch of %s", materialnm[mat]);
+            Sprintf(onamebuf, "touch of %s", MAT_NAME(mat));
         }
     }
 

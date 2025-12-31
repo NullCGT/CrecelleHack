@@ -333,7 +333,8 @@ dmgval(struct obj *otmp, struct monst *mon)
     else if (otmp->material == PLASTIC || otmp->material == PAPER) {
         /* just terrible weapons all around */
         tmp -= 2;
-    } else if (otmp->material == WOOD && !is_elven_weapon(otmp)) {
+    } else if ((otmp->material == WOOD || otmp->material == BLEAKWOOD)
+                && !is_elven_weapon(otmp)) {
         /* poor at holding an edge */
         if (is_blade(otmp)) {
             tmp -= 1;

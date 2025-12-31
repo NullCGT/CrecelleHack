@@ -4254,6 +4254,9 @@ maybe_wail(void)
         Soundeffect(se_wailing_of_the_banshee, 75);
         You_hear(u.uhp == 1 ? "the wailing of the Banshee..."
                             : "the howling of the CwnAnnwn...");
+        if (uwep && uwep->material == BLEAKWOOD) {
+            pline("%s...", Yobjnam2(uwep, "creak"));
+        }
     }
 }
 

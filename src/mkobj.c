@@ -4150,13 +4150,20 @@ static const struct icp metal_materials[] = {
 /* for objects which are normally wooden */
 static const struct icp wood_materials[] = {
     {800, WOOD},
-    { 80, MINERAL},
+    { 70, MINERAL},
     { 30, IRON},
     { 20, METAL},
     { 20, MITHRIL},
     { 20, BONE},
     { 30, COPPER},
+    { 10, BLEAKWOOD},
     { 10, SILVER},
+};
+
+/* on graveyard levels */
+static const struct icp grave_wood_materials[] = {
+    {700, WOOD},
+    {300, BLEAKWOOD}
 };
 
 /* for most objects which are normally cloth */
@@ -4190,8 +4197,9 @@ static const struct icp elven_materials[] = {
     {200, WOOD},
     {100, COPPER},
     { 50, MITHRIL},
-    { 30, SILVER},
-    { 20, GOLD}
+    { 20, GOLD},
+    { 15, BLEAKWOOD},
+    { 15, SILVER}
 };
 
 /* Reflectable items - for the shield of reflection; anything
@@ -4227,7 +4235,8 @@ static const struct icp horn_materials[] = {
     {100, COPPER},
     { 80, MITHRIL},
     { 50, WOOD},
-    { 50, SILVER},
+    { 25, SILVER},
+    { 25, BLEAKWOOD},
     { 20, GOLD}
 };
 
@@ -4248,7 +4257,8 @@ static const struct icp dwarvish_weapon_materials[] = {
 
 static const struct icp bow_materials[] = {
     /* assumes all bows will be wood by default, fairly safe assumption */
-    {750, WOOD},
+    {700, WOOD},
+    { 50, BLEAKWOOD},
     { 70, IRON},
     { 90, BONE},
     { 40, MITHRIL},
@@ -4268,7 +4278,8 @@ static const struct icp orcish_materials[] = {
 static const struct icp figurine_materials[] = {
     {500, MINERAL},
     {300, BONE},
-    {100, WOOD},
+    { 99, WOOD},
+    {  1, BLEAKWOOD},
     {100, GLASS}
 };
 
@@ -4313,6 +4324,8 @@ material_list(struct obj *obj)
             return elven_helm_boots_materials;
         case CHEST:
         case LARGE_BOX:
+            if (svl.level.flags.graveyard)
+                return grave_wood_materials;
             return wood_materials;
         case STETHOSCOPE:
         case LOCK_PICK:
@@ -4366,6 +4379,8 @@ material_list(struct obj *obj)
             return metal_materials;
         }
         else if (default_material == WOOD) {
+            if (svl.level.flags.graveyard)
+                return grave_wood_materials;
             return wood_materials;
         }
         else if (default_material == CLOTH) {

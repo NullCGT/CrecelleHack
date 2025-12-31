@@ -47,6 +47,8 @@ struct material {
     OMAT(CLOTH,         "cloth",    2,  10,   3,   HI_CLOTH), \
     OMAT(LEATHER,       "leather",  3,  15,   5,   HI_LEATHER), \
     OMAT(WOOD,          "wood",     4,  30,   8,   HI_WOOD), \
+    OMAT(BLEAKWOOD,     "bleakwood", \
+                                    5,  15,   15,  HI_WOOD), \
     OMAT(BONE,          "bone",     5,  25,   20,  CLR_WHITE), \
     OMAT(DRAGON_HIDE,   "dragonhide", \
                                     10, 20,   200, CLR_BLACK), \

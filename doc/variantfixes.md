@@ -28,6 +28,11 @@
     - Instantly destroyed by water.
     - +3 damage to slashing weapons.
     - Sears the flesh of mummies.
+  - Bleakwood
+    - Does not rot.
+    - Very light and provides better AC than wood.
+    - Appears frequently in graveyard levels.
+    - Wooden items in bones files have a chance of becoming bleakwood.
 ## Monsters
 - The open wounds spell can now cause bleeding.
 - Many unique monsters have unique spell lists.

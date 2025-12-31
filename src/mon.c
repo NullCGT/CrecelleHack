@@ -722,11 +722,12 @@ make_corpse(struct monst *mtmp, unsigned int corpseflags)
         num = d(2, 4);
         while (num--) {
             obj = mkobj_at(RANDOM_CLASS, x, y, FALSE);
-            if (!valid_obj_material(obj, WOOD)) {
+            if (!valid_obj_material(obj, WOOD)
+                || !valid_obj_material(obj, BLEAKWOOD)) {
                 delobj(obj);
                 obj = mksobj_at(QUARTERSTAFF, x, y, TRUE, FALSE);
             }
-            set_material(obj, WOOD);
+            set_material(obj, rn2(7) ? WOOD : BLEAKWOOD);
         }
         free_mgivenname(mtmp);
         break;

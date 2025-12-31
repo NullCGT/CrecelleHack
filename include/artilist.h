@@ -304,7 +304,7 @@ static NEARDATA struct artifact artilist[] = {
     A("The Longbow of Diana", BOW,
       (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL | SPFX_REFLECT), SPFX_ESP, 0,
       PHYS(5, 0), NO_DFNS, NO_CARY, CREATE_AMMO, A_CHAOTIC, PM_RANGER, NON_PM,
-      0, 12, 4000L, NO_COLOR, DEFAULT_MAT, FIXED_OTYP, LONGBOW_OF_DIANA),
+      0, 12, 4000L, NO_COLOR, BLEAKWOOD, FIXED_OTYP, LONGBOW_OF_DIANA),
 
     /* MKoT has an additional carry property if the Key is not cursed (for
        rogues) or blessed (for non-rogues):  #untrap of doors and chests

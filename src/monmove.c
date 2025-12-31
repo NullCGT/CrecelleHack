@@ -719,15 +719,33 @@ m_everyturn_effect(struct monst *mtmp)
         switch(uarmf->oprop) {
             case OPROP_BOREAL:
                 add_coating(x, y, COAT_FROST, 0);
+                uarmf->pknown = 1;
                 break;
-            case OPROP_THERMAL:
+            case OPROP_BLAZING:
                 if (has_coating(x, y, COAT_GRASS)) {
                     remove_coating(x,y, COAT_GRASS);
                     add_coating(x, y, COAT_ASHES, 0);
+                    uarmf->pknown = 1;
                 }
                 break;
             case OPROP_SANGUINE:
                 floor_alchemy(x, y, POT_BLOOD, PM_HUMAN);
+                uarmf->pknown = 1;
+                break;
+            case OPROP_ACIDIC:
+                floor_alchemy(x, y, POT_ACID, 0);
+                uarmf->pknown = 1;
+                break;
+            case OPROP_HUNGRY:
+                if (has_coating(x, y, COAT_BLOOD)) {
+                    remove_coating(x, y, COAT_BLOOD);
+                    pline("%s some blood.", Yobjnam2(uarmf, "slurp"));
+                    uarmf->pknown = 1;
+                }
+                break;
+            case OPROP_BRINY:
+                floor_alchemy(x, y, POT_WATER, 0);
+                uarmf->pknown = 1;
                 break;
             default:
                 break;

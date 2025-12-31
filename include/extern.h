@@ -167,6 +167,7 @@ extern void set_artifact_intrinsic(struct obj *, boolean, long);
 extern int touch_artifact(struct obj *, struct monst *) NONNULLARG2;
 extern int spec_abon(struct obj *, struct monst *) NONNULLARG2;
 extern int spec_dbon(struct obj *, struct monst *, int) NONNULLARG2;
+extern int oprop_dbon(struct obj *, struct monst *, int) NONNULLARG2;
 extern void discover_artifact(xint16);
 extern boolean undiscovered_artifact(xint16);
 extern int disp_artifact_discoveries(winid);
@@ -2325,6 +2326,8 @@ extern const char *boots_simple_name(struct obj *) NONNULL NO_NNARGS;
 extern const char *shield_simple_name(struct obj *) NONNULL NO_NNARGS;
 /* shirt_simple_name always just returns hardcoded "shirt" */
 extern const char *shirt_simple_name(struct obj *) NONNULL NO_NNARGS;
+/* weapon_simple_name is only used for artifact hit messages - K */
+extern const char *weapon_simple_name(struct obj *);
 extern const char *mimic_obj_name(struct monst *) NONNULL NONNULLARG1;
 /* safe_qbuf() contains tests for NULL arg2 and arg3, qprefix and qsuffix,
    preventing use of NONNULLPTRS. */

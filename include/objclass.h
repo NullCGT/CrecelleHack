@@ -46,15 +46,20 @@ enum obj_armor_types {
     ARM_SHIRT  = 6
 };
 
-enum obj_oprops {
-    OPROP_SANGUINE = 1,
-    OPROP_BOREAL = 2,
-    OPROP_THERMAL = 3,
-    OPROP_CRACKLING = 4,
-    OPROP_SUBTLE = 5,
-    OPROP_HEXED = 6,
-    NUM_OPROPS
-};
+#define OPROP_LIST OPROP(NONE, "buggy", 0, 0), \
+OPROP(SANGUINE,  "sanguine",    50,     1), \
+OPROP(BOREAL,    "boreal",      150,    2), \
+OPROP(BLAZING,   "blazing",     150,    3), \
+OPROP(CRACKLING, "crackling",   150,    4), \
+OPROP(SUBTLE,    "subtle",      100,    5), \
+OPROP(HEXED,     "hexed",       100,    6), \
+OPROP(ACIDIC,    "acidic",      100,    7), \
+OPROP(HUNGRY,    "hungry",      100,    8), \
+OPROP(ANTIMAGIC, "nulling",      50,    9), \
+OPROP(BRINY,     "briny",       100,    10)
+#define OPROP(id, nam, prob, val) OPROP_##id = val
+enum oprops_enum {OPROP_LIST, NUM_OPROPS};
+#undef OPROP
 
 struct objclass {
     short oc_name_idx;              /* index of actual name */

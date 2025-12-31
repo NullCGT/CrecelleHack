@@ -6776,7 +6776,7 @@ oprop_effects_pre(struct monst *magr, struct monst *mdef)
             gb.buzzer = 0;
         }
     }
-    if (weapon->oprop == OPROP_THERMAL && !rn2(5)) {
+    if (weapon->oprop == OPROP_BLAZING && !rn2(5)) {
         if (cansee(dx, dy)) {
             pline_The("%s ignites!", simpleonames(weapon));
             weapon->pknown = 1;

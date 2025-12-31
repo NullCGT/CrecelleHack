@@ -67,6 +67,10 @@ struct Jitem {
     const char *name;
 };
 
+#define OPROP(id, nam, prob, val) nam
+static const char *oprop_nams[] = { OPROP_LIST };
+#undef OPROP
+
 #define BSTRCMPI(base, ptr, str) ((ptr) < base || strcmpi((ptr), str))
 #define BSTRNCMPI(base, ptr, str, num) \
     ((ptr) < base || strncmpi((ptr), str, num))
@@ -1205,18 +1209,6 @@ the_unique_pm(struct permonst *ptr)
         uniq = TRUE;
     return uniq;
 }
-
-
-/* Names for oprops. Must be updated every time a new oprop is added. */
-static const char *oprop_nams[] = {
-    "glorkumized",
-    "sanguine",
-    "boreal",
-    "thermal",
-    "crackling",
-    "subtle",
-    "hexed",
-};
 
 /* Add text for oprop weaons to the existing prefix. */
 void
@@ -4325,6 +4317,7 @@ readobjnam_preparse(struct _readobjnam_data *d)
             prop = lookup_oprop_by_name(d->bp, &l);
             if (prop) {
                 d->oprop = prop;
+                l += 1;
                 goto inc_bp;
             }
             /* check for materials */
@@ -4337,6 +4330,7 @@ readobjnam_preparse(struct _readobjnam_data *d)
             mat = lookup_material_by_name(d->bp, &l);
             if (mat) {
                 d->material = mat;
+                l += 1;
                 goto inc_bp;
             }
             /* break out */
@@ -5656,22 +5650,31 @@ readobjnam(char *bp, struct obj *no_wish)
             consume_oeaten(d.otmp, 1);
         }
     }
-    if (wizard && d.oprop && (d.otmp->oclass == WEAPON_CLASS
-                                || d.otmp->oclass == ARMOR_CLASS)) {
-        if (d.oprop < 0)
-            add_oprop_to_object(d.otmp, 0);
-        else
-            add_oprop_to_object(d.otmp, d.oprop);
+    if (d.oprop && (d.otmp->oclass == WEAPON_CLASS
+                    || d.otmp->oclass == ARMOR_CLASS)) {
+        if (wizard
+            || (!objects[d.otmp->otyp].oc_magic || d.otmp->oartifact)) {
+            if (objects[d.otmp->otyp].oc_magic)
+                pline("Note: wishes for magical items with object properites are not normally valid.");
+            if (d.oprop < 0)
+                add_oprop_to_object(d.otmp, 0);
+            else
+                add_oprop_to_object(d.otmp, d.oprop);
+        }
     }
     /* material handling */
     if (d.material > 0 && !d.otmp->oartifact
         && ((wizard && !iflags.debug_fuzzer)
             || valid_obj_material(d.otmp, d.material))) {
         if (!valid_obj_material(d.otmp, d.material)) {
-            pline("Note: material %s is not normally valid for this object.",
-                  materialnm[d.material]);
+            if (wizard) {
+                pline("Note: material %s is not normally valid for this object.",
+                    materialnm[d.material]);
+                force_material(d.otmp, d.material);
+            }
+        } else {
+            set_material(d.otmp, d.material);
         }
-        set_material(d.otmp, d.material);
     } else if (d.otmp->oartifact) {
         /* oname() handles the assignment of a specific material for any
          * possible artifact. Do nothing here. */
@@ -5893,6 +5896,27 @@ const char *
 shirt_simple_name(struct obj *shirt UNUSED)
 {
     return "shirt";
+}
+
+/* only used for oprops and fuzzed artifacts */
+const char *
+weapon_simple_name(struct obj *obj)
+{
+    if (is_blade(obj))
+        return "blade";
+    if (is_axe(obj))
+        return "axe";
+    if (is_pick(obj))
+        return "pick";
+    if (is_pole(obj))
+        return "polearm";
+    if (is_spear(obj))
+        return "spear";
+    if (is_flail(obj))
+        return "flail";
+    if (is_art(obj, ART_MJOLLNIR))
+        return "massive hammer";
+    return "weapon";
 }
 
 const char *

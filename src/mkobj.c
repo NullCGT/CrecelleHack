@@ -37,6 +37,12 @@ struct icp {
     char iclass; /* item class */
 };
 
+#define OPROP(id, nam, prob, val) {prob, OPROP_##id}
+static const struct icp oprop_probs[] = {
+    OPROP_LIST
+};
+#undef OPROP
+
 static const struct icp mkobjprobs[] = { { 10, WEAPON_CLASS },
                                          { 10, ARMOR_CLASS },
                                          { 20, FOOD_CLASS },
@@ -4572,17 +4578,6 @@ transmute_obj(struct obj *otmp, int newmat)
     }
 }
 
-/* Oprop probabilities. More powerful or fantastical ones are less likely
-   to appear. */
-static const struct icp oprop_probs[] = {
-    { 200, OPROP_SANGUINE },
-    { 200, OPROP_BOREAL },
-    { 250, OPROP_CRACKLING },
-    { 250, OPROP_THERMAL },
-    {  50, OPROP_SUBTLE },
-    {  50, OPROP_HEXED },
-};
-
 /* Add an oprop to an object. If zero is passed in, then get a random
    one. */
 void
@@ -4615,7 +4610,7 @@ oprop_from_permonst(struct permonst *pm)
     if (pm->mflags4 & M4_BST_ICE)
         return OPROP_BOREAL;
     if (pm->mflags4 & M4_BST_ASHES)
-        return OPROP_THERMAL;
+        return OPROP_BLAZING;
     if (is_roguish(pm))
         return OPROP_SUBTLE;
     return 0;

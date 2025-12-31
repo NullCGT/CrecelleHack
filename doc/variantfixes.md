@@ -12,6 +12,13 @@
     much more quickly for them. This includes both positive intrinsics
     as well as negative ones, such as terminal illness. They also
     forget spells twice as quickly.
+## Objects
+- New Oprops
+  - Acidic
+  - Hungry
+  - Nulling
+  - Briny
+- Many adjustments to existing oprops.
 ## Monsters
 - The open wounds spell can now cause bleeding.
 - Many unique monsters have unique spell lists.

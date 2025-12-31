@@ -685,6 +685,7 @@ static const struct instance_globals_s g_init_s = {
     FALSE, /* saving_grace_turn */
     /* artifact.c */
     0,  /* spec_dbon_applies */
+    0,  /* spec_oprop applies */
     /* decl.c */
     UNDEFINED_PTR, /* stairs */
     DUMMY, /* smeq */

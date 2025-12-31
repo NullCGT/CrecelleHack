@@ -238,6 +238,8 @@ struct obj {
          || is_art(otmp, ART_SNICKERSNEE)))
 #define is_spear(otmp) \
     (otmp->oclass == WEAPON_CLASS && objects[otmp->otyp].oc_skill == P_SPEAR)
+#define is_flail(otmp) \
+    (otmp->oclass == WEAPON_CLASS && objects[otmp->otyp].oc_skill == P_FLAIL)
 #define is_launcher(otmp)                                                  \
     (otmp->oclass == WEAPON_CLASS && objects[otmp->otyp].oc_skill >= P_BOW \
      && objects[otmp->otyp].oc_skill <= P_CROSSBOW)

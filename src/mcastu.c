@@ -6,37 +6,37 @@
 #include "hack.h"
 
 #define MAX_MON_SPELLS 12
-#define MSPEL_LIST MSPEL("psi bolt", 0, PSI_BOLT), \
-    MSPEL("open wounds", 0, OPEN_WOUNDS), \
+#define MSPEL_LIST MSPEL("psi bolt", 1, PSI_BOLT), \
+    MSPEL("open wounds", 1, OPEN_WOUNDS), \
     MSPEL("disguise self", 1, DISGUISE), \
-    MSPEL("cure self", 1, CURE_SELF), \
-    MSPEL("grease", 1, GREASE), \
-    MSPEL("confusion", 2, CONFUSE_YOU), \
-    MSPEL("mirror image", 2, MIRROR_IMAGE), \
-    MSPEL("haste self", 2, HASTE_SELF), \
-    MSPEL("stunning force", 3, STUN_YOU), \
-    MSPEL("sleepel", 3, SLEEP_YOU), \
-    MSPEL("hold", 3, PARALYZE), \
-    MSPEL("invisibility", 4, DISAPPEAR), \
-    MSPEL("levitation", 4, LEVITATE_YOU), \
-    MSPEL("vulnerability", 4, VULNERABILITY), \
-    MSPEL("blind", 4, BLIND_YOU), \
-    MSPEL("strength of newt", 5, WEAKEN_YOU), \
-    MSPEL("summon vermin", 5, INSECTS), \
-    MSPEL("force field", 5, FORCE_FIELD), \
-    MSPEL("chaos rain", 5, CHAOS_RAIN), \
-    MSPEL("destroy armor", 6, DESTRY_ARMR), \
-    MSPEL("curse", 7, CURSE_ITEMS), \
-    MSPEL("lightning bolt", 7, LIGHTNING), \
-    MSPEL("aggravate monsters", 8, AGGRAVATION), \
-    MSPEL("teleport", 8, TELEPORT), \
-    MSPEL("divine wrath", 8, FIRE_PILLAR), \
-    MSPEL("summon nasties", 9, SUMMON_MONS), \
-    MSPEL("raise dead", 9, RAISE_DEAD), \
-    MSPEL("gravity wave", 9, GRAVITY), \
-    MSPEL("geyser", 9, GEYSER), \
-    MSPEL("simulacrum", 10, CLONE_WIZ), \
-    MSPEL("a forbidden spell", 11, DEATH_TOUCH), 
+    MSPEL("cure self", 2, CURE_SELF), \
+    MSPEL("grease", 2, GREASE), \
+    MSPEL("confusion", 3, CONFUSE_YOU), \
+    MSPEL("mirror image", 3, MIRROR_IMAGE), \
+    MSPEL("haste self", 3, HASTE_SELF), \
+    MSPEL("stunning force", 4, STUN_YOU), \
+    MSPEL("sleepel", 4, SLEEP_YOU), \
+    MSPEL("hold", 5, PARALYZE), \
+    MSPEL("invisibility", 5, DISAPPEAR), \
+    MSPEL("blind", 6, BLIND_YOU), \
+    MSPEL("strength of newt", 7, WEAKEN_YOU), \
+    MSPEL("vulnerability", 8, VULNERABILITY), \
+    MSPEL("summon vermin", 9, INSECTS), \
+    MSPEL("destroy armor", 9, DESTRY_ARMR), \
+    MSPEL("raise dead", 10, RAISE_DEAD), \
+    MSPEL("levitation", 10, LEVITATE_YOU), \
+    MSPEL("curse", 10, CURSE_ITEMS), \
+    MSPEL("force field", 10, FORCE_FIELD), \
+    MSPEL("chaos rain", 10, CHAOS_RAIN), \
+    MSPEL("lightning bolt", 12, LIGHTNING), \
+    MSPEL("divine wrath", 13, FIRE_PILLAR), \
+    MSPEL("aggravate monsters", 14, AGGRAVATION), \
+    MSPEL("teleport", 16, TELEPORT), \
+    MSPEL("summon nasties", 16, SUMMON_MONS), \
+    MSPEL("geyser", 14, GEYSER), \
+    MSPEL("gravity wave", 15, GRAVITY), \
+    MSPEL("simulacrum", 19, CLONE_WIZ), \
+    MSPEL("a forbidden spell", 21, DEATH_TOUCH), 
 #define MSPEL(nam, lev, id) MCU_##id
 enum mcastu_spells { MSPEL_LIST };
 #undef MSPEL

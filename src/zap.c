@@ -1632,6 +1632,7 @@ create_polymon(struct obj *obj, int okind)
         material = "organic ";
         break;
     case WOOD:
+    case BLEAKWOOD:
         pm_index = PM_WOOD_GOLEM;
         material = "wood ";
         break;
@@ -5957,7 +5958,7 @@ destroyable(struct obj *obj, int adtyp)
         }
         if (obj->otyp == GLOB_OF_GREEN_SLIME || obj->oclass == POTION_CLASS
             || obj->oclass == SCROLL_CLASS || obj->oclass == SPBOOK_CLASS
-            || objects[obj->otyp].oc_material == ICECRYSTAL) {
+            || (obj->material == ICECRYSTAL && !obj->oartifact)) {
             return TRUE;
         }
     } else if (adtyp == AD_COLD) {
@@ -6187,7 +6188,7 @@ maybe_destroy_item(
             break;
         }
         /* Handle ice separately */
-        if (objects[obj->otyp].oc_material == ICECRYSTAL) {
+        if (obj->material == ICECRYSTAL) {
             dindx = 7;
             dmg = 0;
             break;

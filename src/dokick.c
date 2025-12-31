@@ -449,7 +449,7 @@ container_impact_dmg(
         if (otmp->material == GLASS
             && otmp->oclass != GEM_CLASS && !obj_resists(otmp, 33, 100)) {
             result = "shatter";
-        } else if (objects[otmp->otyp].oc_material == ICECRYSTAL) {
+        } else if (otmp->material == ICECRYSTAL) {
             result = "tinkling";
         } else if (otmp->otyp == EGG && !rn2(3)) {
             result = "cracking";

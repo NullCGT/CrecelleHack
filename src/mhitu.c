@@ -2666,6 +2666,15 @@ passiveum(
             add_coating(u.ux, u.uy, COAT_HONEY, 0);
             tmp = 0;
             break;
+        case AD_DISE:
+            if (canseemon(mtmp)) {
+                pline("%s is covered with tiny spores!", Monnam(mtmp));
+            }
+            if (resists_sick(mtmp)) {
+                pline("%s doesn't seem to notice the spores.", Monnam(mtmp));
+                tmp = 0;
+            }
+            break;
         default:
             tmp = 0;
             break;

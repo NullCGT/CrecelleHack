@@ -21,6 +21,9 @@
 - Revert cost increase of enchantment scrolls.
 ## New Items
 - Spellbook of Aqua Bolt
+## New Monsters
+- Gray Fungus
+  - Originally from SporkHack, but ported from EvilHack.
 ## Traps
 - Dipping items in potions on the floor now has additional feedback.
 - Dipping amythest in floor booze turns it into floor fruit juice.

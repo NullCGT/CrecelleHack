@@ -162,6 +162,8 @@ Resists_Elem(struct monst *mon, int propindx)
         return resists_drli(mon);
     case BLND_RES:
         return resists_blnd(mon);
+    case SICK_RES:
+        return resists_sick(mon);
 
     default:
         impossible("Resists_Elem(%d), unexpected property type", propindx);
@@ -209,6 +211,15 @@ resists_drli(struct monst *mon)
         || ptr == &mons[PM_TORNADO])
         return TRUE;
     return defended(mon, AD_DRLI);
+}
+
+boolean
+resists_sick(struct monst *mon)
+{
+    if (mon->data->mlet == S_FUNGUS
+            || mon->data == &mons[PM_GHOUL])
+        return TRUE;
+    return defended(mon, AD_DISE);
 }
 
 /* True if monster is magic-missile (actually, general magic) resistant */

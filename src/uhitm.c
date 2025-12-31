@@ -6256,6 +6256,9 @@ passive(
             learn_it = TRUE;
         }
         break;
+    case AD_DISE:
+        diseasemu(ptr);
+        break;
     default:
         break;
     }

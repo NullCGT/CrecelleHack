@@ -1066,4 +1066,14 @@ mon_explodes(
     svk.killer.name[0] = '\0';
 }
 
+/* detonate hazardous waste at a location*/
+extern void
+detonate_waste(int x, int y) {
+    if (has_coating(x, y, COAT_POTION)
+        && levl[x][y].pindex == POT_HAZARDOUS_WASTE) {
+        remove_coating(x, y, COAT_POTION);
+        explode(x, y, PHYS_EXPL_TYPE, d(1, 10), 0, EXPL_NOXIOUS);
+    }
+}
+
 /*explode.c*/

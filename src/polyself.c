@@ -2240,6 +2240,7 @@ polysense(void)
         break;
     case PM_VAMPIRE:
     case PM_VAMPIRE_LEADER:
+    case PM_VAMPIRE_MAGE:
         svc.context.warntype.polyd = MH_HUMAN | MH_ELF;
         HWarn_of_mon |= FROMRACE;
         return;

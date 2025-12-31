@@ -333,7 +333,7 @@ mon_regen(struct monst *mon, boolean digest_meal)
 {
     if (svm.moves % 20 == 0 || regenerates(mon->data)
         || (mon->data == &mons[PM_WATER_ELEMENTAL] 
-            && IS_RAINING && !has_no_tod_cycles(&u.uz)))
+            && IS_RAINING && exposed_to_elements(&u.uz)))
         healmon(mon, 1, 0);
     /* special regen */
     if ((mon->data == &mons[PM_DUST_VORTEX])
@@ -719,15 +719,33 @@ m_everyturn_effect(struct monst *mtmp)
         switch(uarmf->oprop) {
             case OPROP_BOREAL:
                 add_coating(x, y, COAT_FROST, 0);
+                uarmf->pknown = 1;
                 break;
-            case OPROP_THERMAL:
+            case OPROP_BLAZING:
                 if (has_coating(x, y, COAT_GRASS)) {
                     remove_coating(x,y, COAT_GRASS);
                     add_coating(x, y, COAT_ASHES, 0);
+                    uarmf->pknown = 1;
                 }
                 break;
             case OPROP_SANGUINE:
                 floor_alchemy(x, y, POT_BLOOD, PM_HUMAN);
+                uarmf->pknown = 1;
+                break;
+            case OPROP_ACIDIC:
+                floor_alchemy(x, y, POT_ACID, 0);
+                uarmf->pknown = 1;
+                break;
+            case OPROP_HUNGRY:
+                if (has_coating(x, y, COAT_BLOOD)) {
+                    remove_coating(x, y, COAT_BLOOD);
+                    pline("%s some blood.", Yobjnam2(uarmf, "slurp"));
+                    uarmf->pknown = 1;
+                }
+                break;
+            case OPROP_BRINY:
+                floor_alchemy(x, y, POT_WATER, 0);
+                uarmf->pknown = 1;
                 break;
             default:
                 break;
@@ -1819,6 +1837,9 @@ postmov(
     } /* mmoved==MMOVE_MOVED */
 
     if (mmoved == MMOVE_MOVED || mmoved == MMOVE_DONE) {
+        if (coateffects(mtmp->mx, mtmp->my, mtmp))
+            return MMOVE_DIED;
+        
         if (OBJ_AT(mtmp->mx, mtmp->my) && mtmp->mcanmove) {
 
             /* Maybe a rock mole just ate some metal object */
@@ -2261,8 +2282,6 @@ m_move(struct monst *mtmp, int after)
             worm_move(mtmp);
 
         maybe_unhide_at(mtmp->mx, mtmp->my);
-
-        coateffects(mtmp->mx, mtmp->my, mtmp);
 
         /* Reset prone */
         if (mtmp->mprone) {

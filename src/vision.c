@@ -671,15 +671,15 @@ vision_recalc(int control)
             }
         }
 
-        visrange = (!night() && !has_no_tod_cycles(&u.uz)) ? u.uenvirons.dt_vis : u.nv_range;
+        visrange = (!night() && exposed_to_elements(&u.uz)) ? u.uenvirons.dt_vis : u.nv_range;
 
-        if ((has_night_vision && u.xray_range < visrange) || (!night() && !has_no_tod_cycles(&u.uz))) {
+        if ((has_night_vision && u.xray_range < visrange) || (!night() && exposed_to_elements(&u.uz))) {
             if (!visrange) { /* range is 0 */
                 next_array[u.uy][u.ux] |= IN_SIGHT;
                 levl[u.ux][u.uy].seenv = SVALL;
                 next_rmin[u.uy] = min(u.ux, next_rmin[u.uy]);
                 next_rmax[u.uy] = max(u.ux, next_rmax[u.uy]);
-            } else if (visrange > 0 || (!night() && !has_no_tod_cycles(&u.uz))) {
+            } else if (visrange > 0 || (!night() && exposed_to_elements(&u.uz))) {
                 ranges = circle_ptr(visrange);
 
                 for (row = u.uy - visrange; row <= u.uy + visrange;

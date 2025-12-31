@@ -1,4 +1,5 @@
 # 1.4.1
+## Races
 - Kobold Rewrite
   - Kobolds can now talk to monsters. Several players complained
     that being unable to talk to NPCs (particularly priests)
@@ -11,6 +12,13 @@
     much more quickly for them. This includes both positive intrinsics
     as well as negative ones, such as terminal illness. They also
     forget spells twice as quickly.
+## Objects
+- New Oprops
+  - Acidic
+  - Hungry
+  - Nulling
+  - Briny
+- Many adjustments to existing oprops.
 - New Materials
   - Nightiron.
     - Generates very rarely.
@@ -20,10 +28,43 @@
     - Instantly destroyed by water.
     - +3 damage to slashing weapons.
     - Sears the flesh of mummies.
+## Monsters
+- The open wounds spell can now cause bleeding.
+- Many unique monsters have unique spell lists.
+  - Vlad casts spells as a vampire mage and also has access to a unique
+    spell: blood bind.
+  - Demogorgon summons monsters from a unique list, and also has his
+    own list containing some of the nastiest spells in the game.
+  - The Chromatic Dragon and Ixoth summon monsters from a unique list
+    containing dragons and reptiles.
+## Weather System
+- Weather and daytime visibility now only impacts first five floors of
+  dungeon and outdoor levels.
+## Coating System
+- Added different types of fungal coatings.
+## Miscelaneous
+- Revert cost increase of enchantment scrolls.
 ## New Items
 - Spellbook of Aqua Bolt
 - Salt Crystal
 - Salt Wand
+## New Monsters
+- Gray Fungus
+  - Originally from SporkHack, but ported from EvilHack.
+- Vampire Mage
+  - Un-deferred.
+  - Have access to a special spell list with many unique spells.
+## Traps
+- Dipping items in potions on the floor now has additional feedback.
+- Dipping amythest in floor booze turns it into floor fruit juice.
+- Restored hazardous waste to its proper explosiveness.
+- Bonfires can now cause hazardous waste to explode.
+- Gas traps emit gas on delay, and the size of the cloud depends
+  on the level of the dungeon.
+- Demons recognize all traps in Gehennom.
+- Implemented xNetHack's trap ammo patch. Code pulled from EvilHack.
+- New trap: Spark trap.
+  - Creates a bonfire on a several turn delay.
 
 # 1.4
 ## Object Materials Patch

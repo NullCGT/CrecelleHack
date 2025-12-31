@@ -6,37 +6,42 @@
 #include "hack.h"
 
 #define MAX_MON_SPELLS 12
-#define MSPEL_LIST MSPEL("psi bolt", 0, PSI_BOLT), \
-    MSPEL("open wounds", 0, OPEN_WOUNDS), \
+#define MSPEL_LIST MSPEL("psi bolt", 1, PSI_BOLT), \
+    MSPEL("open wounds", 1, OPEN_WOUNDS), \
     MSPEL("disguise self", 1, DISGUISE), \
-    MSPEL("cure self", 1, CURE_SELF), \
-    MSPEL("grease", 1, GREASE), \
-    MSPEL("confusion", 2, CONFUSE_YOU), \
-    MSPEL("mirror image", 2, MIRROR_IMAGE), \
-    MSPEL("haste self", 2, HASTE_SELF), \
-    MSPEL("stunning force", 3, STUN_YOU), \
-    MSPEL("sleepel", 3, SLEEP_YOU), \
-    MSPEL("hold", 3, PARALYZE), \
-    MSPEL("invisibility", 4, DISAPPEAR), \
-    MSPEL("levitation", 4, LEVITATE_YOU), \
-    MSPEL("vulnerability", 4, VULNERABILITY), \
-    MSPEL("blind", 4, BLIND_YOU), \
-    MSPEL("strength of newt", 5, WEAKEN_YOU), \
-    MSPEL("summon vermin", 5, INSECTS), \
-    MSPEL("force field", 5, FORCE_FIELD), \
-    MSPEL("chaos rain", 5, CHAOS_RAIN), \
-    MSPEL("destroy armor", 6, DESTRY_ARMR), \
-    MSPEL("curse", 7, CURSE_ITEMS), \
-    MSPEL("lightning bolt", 7, LIGHTNING), \
-    MSPEL("aggravate monsters", 8, AGGRAVATION), \
-    MSPEL("teleport", 8, TELEPORT), \
-    MSPEL("divine wrath", 8, FIRE_PILLAR), \
-    MSPEL("summon nasties", 9, SUMMON_MONS), \
-    MSPEL("raise dead", 9, RAISE_DEAD), \
-    MSPEL("gravity wave", 9, GRAVITY), \
-    MSPEL("geyser", 9, GEYSER), \
-    MSPEL("simulacrum", 10, CLONE_WIZ), \
-    MSPEL("a forbidden spell", 11, DEATH_TOUCH), 
+    MSPEL("cure self", 2, CURE_SELF), \
+    MSPEL("darkness", 2, DARKNESS), \
+    MSPEL("grease", 2, GREASE), \
+    MSPEL("blood rain", 2, BLOOD_RAIN), \
+    MSPEL("confusion", 3, CONFUSE_YOU), \
+    MSPEL("mirror image", 3, MIRROR_IMAGE), \
+    MSPEL("haste self", 3, HASTE_SELF), \
+    MSPEL("bloodrush", 4, BLOODRUSH), \
+    MSPEL("stunning force", 4, STUN_YOU), \
+    MSPEL("sleepel", 4, SLEEP_YOU), \
+    MSPEL("hold", 5, PARALYZE), \
+    MSPEL("invisibility", 5, DISAPPEAR), \
+    MSPEL("blind", 6, BLIND_YOU), \
+    MSPEL("strength of newt", 7, WEAKEN_YOU), \
+    MSPEL("vulnerability", 8, VULNERABILITY), \
+    MSPEL("summon vermin", 9, INSECTS), \
+    MSPEL("destroy armor", 9, DESTRY_ARMR), \
+    MSPEL("bloody pierce", 9, BLOOD_SPEAR), \
+    MSPEL("raise dead", 10, RAISE_DEAD), \
+    MSPEL("levitation", 10, LEVITATE_YOU), \
+    MSPEL("curse", 10, CURSE_ITEMS), \
+    MSPEL("force field", 10, FORCE_FIELD), \
+    MSPEL("chaos rain", 10, CHAOS_RAIN), \
+    MSPEL("lightning bolt", 12, LIGHTNING), \
+    MSPEL("divine wrath", 13, FIRE_PILLAR), \
+    MSPEL("aggravate monsters", 14, AGGRAVATION), \
+    MSPEL("teleport", 16, TELEPORT), \
+    MSPEL("summon nasties", 16, SUMMON_MONS), \
+    MSPEL("geyser", 14, GEYSER), \
+    MSPEL("gravity wave", 15, GRAVITY), \
+    MSPEL("simulacrum", 19, CLONE_WIZ), \
+    MSPEL("blood bind", 27, BLOOD_BIND), \
+    MSPEL("a forbidden spell", 21, DEATH_TOUCH), 
 #define MSPEL(nam, lev, id) MCU_##id
 enum mcastu_spells { MSPEL_LIST };
 #undef MSPEL
@@ -55,7 +60,13 @@ int mon_mage_spells[MAX_MON_SPELLS] = { MCU_PSI_BOLT, MCU_CURE_SELF, MCU_HASTE_S
                                         MCU_STUN_YOU, MCU_DISAPPEAR, MCU_WEAKEN_YOU,
                                         MCU_DESTRY_ARMR, MCU_CURSE_ITEMS, MCU_AGGRAVATION,
                                         MCU_SUMMON_MONS, MCU_CLONE_WIZ, MCU_DEATH_TOUCH};
-
+int mon_shadow_mage_spells[MAX_MON_SPELLS] = { MCU_PSI_BOLT, MCU_DARKNESS, MCU_HASTE_SELF,
+                                        MCU_STUN_YOU, MCU_DISAPPEAR, MCU_WEAKEN_YOU,
+                                        MCU_DESTRY_ARMR, MCU_CURSE_ITEMS, MCU_SLEEP_YOU,
+                                        MCU_SUMMON_MONS, MCU_MIRROR_IMAGE, MCU_DEATH_TOUCH};
+int mon_vamp_spells[MAX_MON_SPELLS] = { MCU_OPEN_WOUNDS, MCU_CURE_SELF, MCU_BLOODRUSH,
+                                        MCU_DISAPPEAR, MCU_CURSE_ITEMS, MCU_BLOOD_SPEAR,
+                                        MCU_BLOOD_RAIN, MCU_BLOOD_BIND, -1, -1, -1, -1};
 int mon_cleric_spells[MAX_MON_SPELLS] = { MCU_OPEN_WOUNDS, MCU_CURE_SELF, MCU_CONFUSE_YOU,
                                           MCU_PARALYZE, MCU_BLIND_YOU, MCU_INSECTS,
                                           MCU_CURSE_ITEMS, MCU_LIGHTNING, MCU_FIRE_PILLAR,
@@ -68,12 +79,15 @@ int mon_chaos_cleric_spells[MAX_MON_SPELLS] = { MCU_OPEN_WOUNDS, MCU_CURE_SELF, 
                                           MCU_PARALYZE, MCU_BLIND_YOU, MCU_CHAOS_RAIN,
                                           MCU_CURSE_ITEMS, MCU_LIGHTNING, MCU_FIRE_PILLAR,
                                           MCU_GEYSER, -1, -1 };
-
 int mon_undead_spells[MAX_MON_SPELLS] = { MCU_HASTE_SELF, MCU_STUN_YOU, MCU_WEAKEN_YOU,
                                           MCU_SLEEP_YOU, MCU_VULNERABILITY,
                                           MCU_CURSE_ITEMS, MCU_AGGRAVATION, MCU_RAISE_DEAD,
                                           MCU_DEATH_TOUCH, MCU_MIRROR_IMAGE, MCU_DISAPPEAR,
                                           MCU_TELEPORT };
+int mon_demo_spells[MAX_MON_SPELLS] = { MCU_PSI_BOLT, MCU_OPEN_WOUNDS, MCU_CURE_SELF, 
+                                        MCU_HASTE_SELF, MCU_STUN_YOU, MCU_WEAKEN_YOU,
+                                        MCU_DESTRY_ARMR, MCU_CURSE_ITEMS, MCU_AGGRAVATION,
+                                        MCU_SUMMON_MONS, MCU_CHAOS_RAIN, MCU_DEATH_TOUCH};
 int mon_trickster_spells[MAX_MON_SPELLS] = { MCU_PSI_BOLT, MCU_HASTE_SELF, MCU_DISAPPEAR,
                                              MCU_LEVITATE_YOU,
                                              MCU_AGGRAVATION, MCU_MIRROR_IMAGE, MCU_CONFUSE_YOU,
@@ -140,7 +154,13 @@ choose_monster_spell(struct monst *mtmp, int adtyp) {
         a = aligns[(mtmp->m_id % 3)].value;
     do {
         n = rn2(MAX_MON_SPELLS);
-        if (is_undead(mtmp->data) || mtmp->data == &mons[PM_ORCUS])
+        if (mtmp->data->mlet == S_VAMPIRE)
+            spell = mon_vamp_spells[n];
+        else if (mtmp->data == &mons[PM_DEMOGORGON])
+            spell = mon_demo_spells[n];
+        else if (mtmp->data == &mons[PM_DARK_ONE])
+            spell = mon_shadow_mage_spells[n];
+        else if (is_undead(mtmp->data) || mtmp->data == &mons[PM_ORCUS])
             spell = mon_undead_spells[n];
         else if (mtmp->data->mlet == S_GNOME || mtmp->data->mlet == S_KOBOLD
                  || mtmp->data == &mons[PM_DISPATER])
@@ -746,6 +766,33 @@ cast_monster_spell(struct monst *mtmp, int dmg, int spellnum)
         }
         dmg = 0;
         break;
+    case MCU_BLOOD_BIND:
+        if (canseemon(mtmp))
+            urgent_pline("%s claps %s hands together:", Monnam(mtmp), mhis(mtmp));
+        verbalize("Blood bind!");
+        /* Goodbye. */
+        for (int x = 0; x < COLNO; x++) {
+            for (int y = 0; y < ROWNO; y++) {
+                if (has_coating(x, y, COAT_BLOOD)) {
+                    remove_coating(x, y, COAT_BLOOD);
+                    explode(x, y, PHYS_EXPL_TYPE, d(4, 4), 0, EXPL_MAGICAL);
+                }
+            }
+        }
+        break;
+    case MCU_BLOOD_SPEAR:
+        dmg = d(10, 10);
+        pline("The blood on the %s springs to life and %s you!",
+                surface(u.ux, u.uy),
+                (mtmp->data == &mons[PM_VLAD_THE_IMPALER]) ? "impales" : "stabs");
+        remove_coating(u.ux, u.uy, COAT_BLOOD);
+        break;
+    case MCU_BLOODRUSH:
+        if (canseemon(mtmp))
+            pline_mon(mtmp, "%s is covered in blood.", Monnam(mtmp));
+        make_mdripping(mtmp, -1 * mtmp->mnum);
+        FALLTHROUGH;
+        /*FALLTHRU*/
     case MCU_HASTE_SELF:
         mon_adjust_speed(mtmp, 1, (struct obj *) 0);
         dmg = 0;
@@ -877,16 +924,19 @@ cast_monster_spell(struct monst *mtmp, int dmg, int spellnum)
         create_force_field(u.ux, u.uy, 2, (long) rn1(5, 5));
         dmg = 0;
         break;
+    case MCU_BLOOD_RAIN:
     case MCU_CHAOS_RAIN: {
         int startx = max(u.ux - 1, 0);
         int starty = max(u.uy - 1, 0);
         int stopx = min(u.ux + 1, COLNO - 1);
         int stopy = min(u.uy + 1, ROWNO - 1);
         int otyp;
-        pline("Raw chaos rains down around you!");
+        pline("%s rains down around you!",
+                (spellnum == MCU_BLOOD_RAIN) ? "Blood" : "Raw chaos");
         for (int i = startx; i <= stopx; i++) {
             for (int j = starty; j <= stopy; j++) {
-                otyp = POT_GAIN_ABILITY + rn2(POT_OIL - POT_GAIN_ABILITY);
+                otyp = (spellnum == MCU_BLOOD_RAIN) ? POT_BLOOD : 
+                    (POT_GAIN_ABILITY + rn2(POT_OIL - POT_GAIN_ABILITY));
                 floor_alchemy(i, j, otyp, PM_HUMAN);
             }
         }
@@ -1052,6 +1102,10 @@ cast_monster_spell(struct monst *mtmp, int dmg, int spellnum)
         newsym(mtmp->mx, mtmp->my);
         dmg = 0;
         break;
+    case MCU_DARKNESS:
+        litroom(FALSE, (struct obj *) 0);
+        dmg = 0;
+        break;
     case MCU_CURE_SELF:
         dmg = m_cure_self(mtmp, dmg);
         break;
@@ -1071,6 +1125,8 @@ cast_monster_spell(struct monst *mtmp, int dmg, int spellnum)
             pline("Severe wounds appear on your body!");
         else
             Your("body is covered with painful wounds!");
+        /* Start to bleed if it's bad enough */
+        make_dripping(rn1(10, 10), POT_BLOOD, gy.youmonst.mnum);
         break;
     default:
         impossible("mcastu: invalid monster spell (%d)", spellnum);
@@ -1093,6 +1149,7 @@ is_undirected_spell(int spellnum)
     case MCU_AGGRAVATION:
     case MCU_DISAPPEAR:
     case MCU_HASTE_SELF:
+    case MCU_BLOODRUSH:
     case MCU_RAISE_DEAD:
     case MCU_GRAVITY:
     case MCU_INSECTS:
@@ -1102,6 +1159,10 @@ is_undirected_spell(int spellnum)
     case MCU_MIRROR_IMAGE:
     case MCU_DISGUISE:
     case MCU_TELEPORT:
+    case MCU_BLOOD_SPEAR:
+    case MCU_BLOOD_RAIN:
+    case MCU_BLOOD_BIND:
+    case MCU_DARKNESS:
         return TRUE;
     default:
         break;
@@ -1127,13 +1188,17 @@ spell_would_be_useless(struct monst *mtmp, int spellnum)
         && (spellnum == MCU_AGGRAVATION || spellnum == MCU_SUMMON_MONS
             || spellnum == MCU_CLONE_WIZ || spellnum == MCU_GRAVITY
             || spellnum == MCU_RAISE_DEAD || spellnum == MCU_MIRROR_IMAGE
-            || spellnum == MCU_INSECTS || spellnum == MCU_CHAOS_RAIN))
+            || spellnum == MCU_INSECTS || spellnum == MCU_CHAOS_RAIN
+            || spellnum == MCU_BLOOD_SPEAR || spellnum == MCU_BLOODRUSH
+            || spellnum == MCU_BLOOD_RAIN || spellnum == MCU_BLOOD_BIND
+            || spellnum == MCU_DARKNESS))
         return TRUE;
     /* illusiory armies play absolute hell with fuzzing. */
     if (iflags.debug_fuzzer && spellnum == MCU_MIRROR_IMAGE)
         return TRUE;
     /* haste self when already fast */
-    if (mtmp->permspeed == MFAST && spellnum == MCU_HASTE_SELF)
+    if (mtmp->permspeed == MFAST
+        && (spellnum == MCU_HASTE_SELF || spellnum == MCU_BLOODRUSH))
         return TRUE;
     /* teleport and already close to the player */
     if (spellnum == MCU_TELEPORT && distu(mtmp->mx, mtmp->my) <= 4
@@ -1184,10 +1249,20 @@ spell_would_be_useless(struct monst *mtmp, int spellnum)
         return TRUE;
     /* don't summon insects if it doesn't think you're around */
     if (!mcouldseeu &&
-        (spellnum == MCU_INSECTS || spellnum == MCU_CHAOS_RAIN))
+        (spellnum == MCU_INSECTS || spellnum == MCU_CHAOS_RAIN
+         || spellnum == MCU_BLOOD_RAIN || spellnum == MCU_BLOOD_SPEAR
+         || spellnum == MCU_BLOOD_BIND))
         return TRUE;
     /* blindness spell on blinded player */
     if (Blinded && spellnum == MCU_BLIND_YOU)
+        return TRUE;
+    /* blood spear when player not on blood */
+    if ((spellnum == MCU_BLOOD_SPEAR || spellnum == MCU_BLOOD_BIND)
+        && (!has_coating(u.ux, u.uy, COAT_BLOOD)))
+        return TRUE;
+    /* blood rain if already bloody */
+    if (spellnum == MCU_BLOOD_RAIN
+        && has_coating(u.ux, u.uy, COAT_BLOOD))
         return TRUE;
     return FALSE;
 }

@@ -20,6 +20,7 @@ staticfn NHFILE *currentlevel_rewrite(void);
 staticfn void familiar_level_msg(void);
 staticfn void final_level(void);
 staticfn void temperature_change_msg(schar);
+staticfn void exposure_change_msg(schar);
 staticfn boolean better_not_try_to_drop_that(struct obj *);
 
     /* static boolean badspot(coordxy,coordxy); */
@@ -353,6 +354,10 @@ flooreffects(
             breakobj(obj, x, y, FALSE, FALSE);
             res = TRUE;
         }
+    }
+
+    if (!res) {
+        res = o_trigger_trap(obj, x, y);
     }
 
     gb.bhitpos = save_bhitpos;
@@ -883,6 +888,7 @@ dropz(struct obj *obj, boolean with_impact)
         if (flooreffects(obj, u.ux, u.uy, "drop"))
             return;
         place_object(obj, u.ux, u.uy);
+        /* TODO: Somehow move this into flooreffects? */
         if (with_impact)
             container_impact_dmg(obj, u.ux, u.uy);
         impact_disturbs_zombies(obj, with_impact);
@@ -1554,6 +1560,7 @@ goto_level(
     int dist = depth(newlevel) - depth(&u.uz);
     boolean do_fall_dmg = FALSE;
     schar prev_temperature = svl.level.flags.temperature;
+    boolean prev_exposure = exposed_to_elements(&u.uz);
 
     if (dunlev(newlevel) > dunlevs_in_dungeon(newlevel))
         newlevel->dlevel = dunlevs_in_dungeon(newlevel);
@@ -1996,6 +2003,7 @@ goto_level(
     }
 
     temperature_change_msg(prev_temperature);
+    exposure_change_msg(prev_exposure);
 
     /* this was originally done earlier; moved here to be logged after
        any achievement related to entering a dungeon branch
@@ -2060,6 +2068,7 @@ hellish_smoke_mesg(void)
     if (svl.level.flags.temperature)
         pline("It is %s here.",
               svl.level.flags.temperature > 0 ? "hot" : "cold");
+              
 
     if (In_hell(&u.uz) && svl.level.flags.temperature > 0)
         You("%s smoke...",
@@ -2079,6 +2088,18 @@ temperature_change_msg(schar prev_temperature)
                       ? "and smoke are" : "is");
         else if (prev_temperature < 0)
             You("are out of the cold.");
+    }
+}
+
+/* give a message when exposed to elements */
+staticfn void
+exposure_change_msg(boolean prev_exposure)
+{
+    if (prev_exposure != exposed_to_elements(&u.uz)) {
+        if (prev_exposure)
+            You("are no longer exposed to the sky.");
+        else if (!Blind)
+            You("can see the sky above you.");
     }
 }
 

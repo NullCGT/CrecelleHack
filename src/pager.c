@@ -654,7 +654,8 @@ coat_descr(coordxy x, coordxy y, short symidx, char *outbuf) {
     pindex = levl[x][y].pindex;
     for (int i = 0; i < NUM_COATINGS; i++) {
         if (all_coatings[i].val == COAT_POTION
-            || all_coatings[i].val == COAT_BLOOD)
+            || all_coatings[i].val == COAT_BLOOD
+            || all_coatings[i].val == COAT_FUNGUS)
                 continue;
         if (levl[x][y].coat_info & all_coatings[i].val)
             Strcat(outbuf, all_coatings[i].adj);
@@ -672,6 +673,11 @@ coat_descr(coordxy x, coordxy y, short symidx, char *outbuf) {
             Sprintf(buf, "%s covered in %s blood", floor_descr(x, y, symidx), mons[levl[x][y].pindex].pmnames[NEUTRAL]);
         else
             Sprintf(buf, "%s covered in blood", floor_descr(x, y, symidx));
+    } else if ((levl[x][y].coat_info & COAT_FUNGUS) != 0) {
+        if (ismnum(levl[x][y].pindex))
+            Sprintf(buf, "%s covered in %s", floor_descr(x, y, symidx), mons[levl[x][y].pindex].pmnames[NEUTRAL]);
+        else
+            Sprintf(buf, "%s covered in funky fungus", floor_descr(x, y, symidx));
     } else
         Sprintf(buf, "%s", floor_descr(x, y, symidx));
     Strcat(outbuf, buf);

@@ -20,8 +20,6 @@ staticfn int explmm(struct monst *, struct monst *, struct attack *);
 staticfn int mdamagem(struct monst *, struct monst *, struct attack *,
                     struct obj *, int);
 staticfn void mswingsm(struct monst *, struct monst *, struct obj *);
-staticfn int passivemm(struct monst *, struct monst *, boolean, int,
-                     struct obj *);
 
 staticfn void
 noises(struct monst *magr, struct attack *mattk)
@@ -1323,7 +1321,7 @@ mswingsm(
  * Passive responses by defenders.  Does not replicate responses already
  * handled above.  Returns same values as mattackm.
  */
-staticfn int
+int
 passivemm(
     struct monst *magr,
     struct monst *mdef,
@@ -1382,6 +1380,15 @@ passivemm(
             /* No message */
         }
         break;
+    case AD_DISE:
+	    if (canseemon(magr)) {
+		    pline("%s is covered with tiny spores!", Monnam(magr));
+	    }
+	    if (resists_sick(magr)) {
+		    pline("%s doesn't seem to notice the spores.", Monnam(magr));
+		    tmp = 0;
+	    }
+	    break;
     default:
         break;
     }

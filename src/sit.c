@@ -552,6 +552,7 @@ dosit(void)
         pline("The grass feels nice.");
     } else if (has_coating(u.ux, u.uy, COAT_FUNGUS)) {
         pline("The fungus is soft.");
+        moldeffects(u.ux, u.uy, &gy.youmonst);
     } else {
         pline("Having fun sitting on the %s?", surface(u.ux, u.uy));
     }

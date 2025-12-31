@@ -283,6 +283,11 @@ cause_known(
         if ((int) objects[o->otyp].oc_oprop == propindx
             && objects[o->otyp].oc_name_known && o->dknown)
             return TRUE;
+        if (o->oprop && o->pknown) {
+            if (propindx == HUNGER && o->oprop == OPROP_HUNGRY) {
+                return TRUE;
+            }
+        }
     }
     return FALSE;
 }
@@ -642,7 +647,7 @@ background_enlightenment(int unused_mode UNUSED, int final)
         enl_msg("It ", "is ", "was  ", "daytime", "");
     }
     /* Weather */
-    if (!has_no_tod_cycles(&u.uz) && IS_RAINING) {
+    if (exposed_to_elements(&u.uz) && IS_RAINING) {
         enl_msg("It ", "is ", "was ", "raining", "");
     }
     /* other environmental factors */

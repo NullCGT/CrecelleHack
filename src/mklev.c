@@ -249,16 +249,11 @@ do_room_or_subroom(struct mkroom *croom,
         hiy = ROWNO - 2;
 
     if (lit) {
-        #if 0
-        if (depth(&u.uz) < NIGHTCRUST_SPAWN_DEPTH || 
-            (croom->rtype > THEMEROOM && croom->rtype != SWAMP)) {
-            for (x = lowx - 1; x <= hix + 1; x++) {
-                lev = &levl[x][max(lowy - 1, 0)];
-                for (y = lowy - 1; y <= hiy + 1; y++)
-                    lev++->lit = 1;
-            }
+        for (x = lowx - 1; x <= hix + 1; x++) {
+            lev = &levl[x][max(lowy - 1, 0)];
+            for (y = lowy - 1; y <= hiy + 1; y++)
+                lev++->lit = 1;
         }
-        #endif
         croom->rlit = 1;
     } else
         croom->rlit = 0;
@@ -1217,7 +1212,8 @@ coat_room(struct mkroom *croom, unsigned char coat_type) {
                 }
             }
             if ((coat_type & COAT_FUNGUS) != 0)
-                if (!rn2(max(2, abs(13 - u.uz.dlevel)))) add_coating(x, y, COAT_FUNGUS, 0);
+                if (!rn2(max(2, abs(13 - u.uz.dlevel))))
+                    add_coating(x, y, COAT_FUNGUS, PM_NIGHTCRUST);
             if ((coat_type & COAT_MUD) != 0)
                 if (!rn2(3)) add_coating(x, y, COAT_MUD, 0);
         }
@@ -1918,6 +1914,7 @@ mktrap_victim(struct trap *ttmp)
     int victim_mnum; /* race of the victim */
     unsigned lvl = level_difficulty();
     int kind = ttmp->ttyp;
+    int quan = rnd(4); /* amount of ammo to dump */
     coordxy x = ttmp->tx, y = ttmp->ty;
 
     assert(x > 0 && x < COLNO && y >= 0 && y < ROWNO);
@@ -1925,16 +1922,20 @@ mktrap_victim(struct trap *ttmp)
        that kill in a specific way that's obvious after the fact. */
     switch (kind) {
     case ARROW_TRAP:
-        otmp = mksobj(ARROW, TRUE, FALSE);
-        otmp->opoisoned = 0;
-        /* don't adjust the quantity; maybe the trap shot multiple
-           times, there was an untrapping attempt, etc... */
-        break;
     case DART_TRAP:
-        otmp = mksobj(DART, TRUE, FALSE);
-        break;
     case ROCKTRAP:
-        otmp = mksobj(ROCK, TRUE, FALSE);
+        if (ttmp->ammo) {
+            if (ttmp->ammo->quan <= quan)
+                ttmp->ammo->quan = quan + 1;
+
+            otmp = splitobj(ttmp->ammo, quan); /* this handles weights */
+            if (otmp) {
+                extract_nobj(otmp, &ttmp->ammo);
+                otmp->opoisoned = 0;
+            }
+        } else {
+            impossible("fresh trap %d without ammo?", ttmp->ttyp);
+        }
         break;
     default:
         /* no item dropped by the trap */
@@ -2245,7 +2246,7 @@ mktrap(
            which case tx,ty==launch.x,y; no boulder => no dead predecessor */
         && !(kind == ROLLING_BOULDER_TRAP
              && t->launch.x == t->tx && t->launch.y == t->ty)
-        && !is_pit(kind) && (kind < HOLE || kind == MAGIC_TRAP)) {
+        && !is_pit(kind) && (kind < HOLE || kind == MAGIC_TRAP || kind == SPARK_TRAP)) {
         if (kind == LANDMINE) {
             /* if victim was killed by a land mine, we won't scatter objects;
                treat it as exploded, converting it into an unconcealed pit */
@@ -2648,7 +2649,7 @@ mkinvpos(coordxy x, coordxy y, int dist)
 
     /* clear traps */
     if ((ttmp = t_at(x, y)) != 0)
-        deltrap(ttmp);
+        deltrap_with_ammo(ttmp, DELTRAP_DESTROY_AMMO);
 
     /* clear boulders; leave some rocks for non-{moat|trap} locations */
     make_rocks = (dist != 1 && dist != 4 && dist != 5) ? TRUE : FALSE;

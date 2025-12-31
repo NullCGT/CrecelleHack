@@ -1609,6 +1609,10 @@ makemon(
         if (Inhell && is_bat(ptr))
             mon_adjust_speed(mtmp, 2, (struct obj *) 0);
         break;
+    case S_DEMON:
+        if (Inhell)
+            mon_learns_traps(mtmp, ALL_TRAPS);
+        break;
     }
     if ((ct = emits_light(mtmp->data)) > 0)
         new_light_source(mtmp->mx, mtmp->my, ct, LS_MONSTER,

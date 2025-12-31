@@ -49,6 +49,21 @@ static NEARDATA const int nasties[] = {
        they're summoners so would aggravate excessive summoning) */
 };
 
+/* Nasties list by Demogorgon is different. */
+static NEARDATA const int demo_nasties[] = {
+    PM_YELLOW_DRAGON, PM_GREEN_DRAGON, PM_ARCH_LICH, PM_VAMPIRE_LEADER,
+    PM_MASTER_MIND_FLAYER, PM_TRANSMUTER, PM_WINGED_GARGOYLE,
+    PM_PHANTOM_FUNGUS, PM_OLOG_HAI, PM_IMP, PM_GRAY_FUNGUS,
+    PM_CARNIVOROUS_APE, PM_BLACK_HOLE, PM_GREMLIN,
+};
+
+/* Nasties list for spellcasting dragons pulls draconic monsters */
+static NEARDATA const int dragon_nasties[] = {
+    PM_BABY_RED_DRAGON, PM_BABY_GREEN_DRAGON, PM_BABY_WHITE_DRAGON,
+    PM_BABY_YELLOW_DRAGON, PM_BABY_BLACK_DRAGON, PM_BABY_BLUE_DRAGON,
+    PM_SALAMANDER, PM_CROCODILE
+};
+
 static NEARDATA const unsigned wizapp[] = {
     PM_HUMAN,      PM_WATER_DEMON,  PM_VAMPIRE,       PM_RED_DRAGON,
     PM_TROLL,      PM_UMBER_HULK,   PM_XORN,          PM_XAN,
@@ -584,10 +599,18 @@ clonewiz(void)
 
 /* also used by newcham() */
 int
-pick_nasty(
+pick_nasty(struct monst *summoner,
     int difcap) /* if non-zero, try to make difficulty be lower than this */
 {
-    int alt, res = ROLL_FROM(nasties);
+    int alt, res;
+
+    /* The list we roll from depends on the summoner. */
+    if (summoner->data == &mons[PM_DEMOGORGON])
+        res = ROLL_FROM(demo_nasties);
+    else if (summoner->data->mlet == S_DRAGON)
+        res = ROLL_FROM(dragon_nasties);
+    else
+        res = ROLL_FROM(nasties);
 
     /* To do?  Possibly should filter for appropriate forms when
      * in the elemental planes or surrounded by water or lava.
@@ -694,7 +717,7 @@ nasty(struct monst *summoner)
                 do {
                     if (!--trylimit)
                         goto nextj; /* break this loop, continue outer one */
-                    makeindex = pick_nasty(difcap);
+                    makeindex = pick_nasty(summoner, difcap);
                     m_cls = mons[makeindex].mlet;
                 } while ((difcap > 0 && mons[makeindex].difficulty >= difcap
                           && attacktype(&mons[makeindex], AT_MAGC))
@@ -839,7 +862,7 @@ intervene(void)
     /* cases 0 and 5 don't apply on the Astral level */
     switch (which) {
     case 0:
-        if (has_no_tod_cycles(&u.uz)) {
+        if (!exposed_to_elements(&u.uz)) {
             You_feel("a strange pressure in the atmosphere.");
         }
         harassment_weather();

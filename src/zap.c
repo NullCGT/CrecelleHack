@@ -3905,6 +3905,12 @@ zap_map(
                     levl[x][y].flags &= ~T_LOOTED;
                 }
             }
+            if (has_coating(x, y, COAT_FUNGUS)){
+                if (rn2(3))
+                    makemon(&mons[levl[x][y].pindex],
+                            x, y, MM_NOCOUNTBIRTH);
+                spread_mold(x, y, &mons[levl[x][y].pindex]);
+            }
         } else if (obj->otyp == WAN_AQUA_BOLT
                     || obj->otyp == SPE_AQUA_BOLT) {
             if (cansee(x, y))
@@ -4122,10 +4128,12 @@ bhit(
                 levl[x][y].pindex = POT_GAIN_ABILITY + rn2(POT_WATER - POT_GAIN_ABILITY);
                 newsym(x, y);
             }
-            if (has_coating(x, y, COAT_BLOOD)) {
+            if (has_coating(x, y, COAT_BLOOD)
+                || has_coating(x, y, COAT_FUNGUS)) {
                 do {
                     levl[x][y].pindex = rndmonnum();
                 } while (!has_blood(&mons[levl[x][y].pindex]));
+                newsym(x, y);
             }
         }
 
@@ -4890,6 +4898,7 @@ burn_floor_objects(
     /* This also ignites floor items, but does not change cnt
        because they weren't consumed. */
     ignite_items(svl.level.objects[x][y]);
+    detonate_waste(x, y);
     return cnt;
 }
 
@@ -5380,7 +5389,9 @@ zap_over_floor(
     struct obj fakeobj = cg.zeroobj;
 
     if (type == PHYS_EXPL_TYPE) {
-        /* this won't have any effect on the floor */
+        /* physical explosions agitate waste enough to cause it to
+           go boom */
+        detonate_waste(x, y);
         return -1000; /* not a zap anyway, shouldn't matter */
     }
 
@@ -5469,18 +5480,19 @@ zap_over_floor(
                 add_coating(x, y, COAT_ASHES, 0);
                 create_bonfire(x, y, rnd(IS_RAINING ? 2 : 10), d(2, 4));
             } else if (has_coating(x, y, COAT_FUNGUS)) {
-                remove_coating(x, y, COAT_FUNGUS);
-                add_coating(x, y, COAT_ASHES, 0);
-                create_bonfire(x, y, rnd(IS_RAINING ? 2 : 4), d(4, 4));
-            } 
+                if (levl[x][y].pindex == PM_BROWN_MOLD) {
+                    spread_mold(x, y, &mons[PM_BROWN_MOLD]);
+                } else {
+                    remove_coating(x, y, COAT_FUNGUS);
+                    add_coating(x, y, COAT_ASHES, 0);
+                    create_bonfire(x, y, rnd(IS_RAINING ? 2 : 4), d(4, 4));
+                }
+            }
+            detonate_waste(x, y);
             if (has_coating(x, y, COAT_POTION)
                         && levl[x][y].pindex == POT_OIL) {
                 remove_coating(x, y, COAT_POTION);
                 create_bonfire(x, y, rn1(10, 10), d(4, 4));
-            } else if (has_coating(x, y, COAT_POTION)
-                        && levl[x][y].pindex == POT_HAZARDOUS_WASTE) {
-                remove_coating(x, y, COAT_POTION);
-                explode(x, y, PHYS_EXPL_TYPE, d(1, 10), 0, EXPL_NOXIOUS);
             } else if (has_coating(x, y, COAT_FROST)) {
                 add_coating(x, y, COAT_POTION, POT_WATER);
             }
@@ -5591,6 +5603,10 @@ zap_over_floor(
                 start_melt_ice_timeout(x, y, melt_time);
             }
         } else {
+            if (has_coating(x, y, COAT_FUNGUS)
+                && levl[x][y].pindex == PM_RED_MOLD) {
+                spread_mold(x, y, &mons[PM_RED_MOLD]);
+            }
             add_coating(x, y, COAT_FROST, 0);
         }
         if (IS_FOUNTAIN(lev->typ) && !FOUNTAIN_IS_FROZEN(x, y)) {
@@ -5676,10 +5692,8 @@ zap_over_floor(
                 }
             }
         }
-        if (has_coating(x, y, COAT_POTION)
-                    && levl[x][y].pindex == POT_HAZARDOUS_WASTE) {
-            remove_coating(x, y, COAT_POTION);
-            explode(x, y, PHYS_EXPL_TYPE, d(4, 6), 0, EXPL_NOXIOUS);
+        if (damgtype == ZT_LIGHTNING) {
+            detonate_waste(x, y);
         } else if (damgtype == ZT_ACID) {
             floor_alchemy(x, y, POT_ACID, 0);
         }

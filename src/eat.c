@@ -3649,8 +3649,7 @@ floorfood(
                     u_in_beartrap ? "holding you" : "armed");
             if ((c = yn_function(qbuf, ynqchars, 'n', TRUE)) == 'y') {
                 struct obj *beartrap;
-
-                deltrap(ttmp);
+                deltrap_with_ammo(ttmp, DELTRAP_DESTROY_AMMO);
                 if (u_in_beartrap)
                     reset_utrap(TRUE);
                 beartrap = mksobj(BEARTRAP, TRUE, FALSE);

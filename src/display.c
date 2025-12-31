@@ -2664,6 +2664,8 @@ map_glyphinfo(
                 glyphinfo->gm.sym.color = CLR_BLUE;
             else
                 glyphinfo->gm.sym.color = objects[levl[x][y].pindex].oc_color;
+        } else if ((levl[x][y].coat_info & COAT_FUNGUS) != 0) {
+            glyphinfo->gm.sym.color = mons[levl[x][y].pindex].mcolor;
         } else if ((levl[x][y].coat_info & COAT_SHARDS) != 0)
             glyphinfo->gm.sym.color = CLR_BRIGHT_CYAN;
         else if ((levl[x][y].coat_info & COAT_FROST) != 0)
@@ -2672,8 +2674,6 @@ map_glyphinfo(
             glyphinfo->gm.sym.color = CLR_BROWN;
         else if ((levl[x][y].coat_info & COAT_HONEY) != 0)
             glyphinfo->gm.sym.color = CLR_YELLOW;
-        else if ((levl[x][y].coat_info & COAT_FUNGUS) != 0)
-            glyphinfo->gm.sym.color = CLR_CYAN;
         else if ((levl[x][y].coat_info & COAT_BLOOD) != 0)
             glyphinfo->gm.sym.color = CLR_RED;
         else if ((levl[x][y].coat_info & COAT_ASHES) != 0)

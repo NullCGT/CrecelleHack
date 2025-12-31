@@ -851,6 +851,7 @@ struct instance_globals_s {
     /* artifact.c */
     int spec_dbon_applies; /* coordinate effects from spec_dbon() with
                               messages in artifact_hit() */
+    int spec_oprop_applies; /* coordinate effects from spec_oprop() */
 
     /* decl.c */
     stairway *stairs;

@@ -157,7 +157,6 @@ struct conditionals_t {
     { MON_GLYPH, PM_BABY_SILVER_DRAGON, "baby shimmering dragon" },
     { MON_GLYPH, PM_SILVER_DRAGON, "shimmering dragon" },
     { MON_GLYPH, PM_JABBERWOCK, "vorpal jabberwock" },
-    { MON_GLYPH, PM_VAMPIRE_LEADER, "vampire mage" },
 #ifndef CHARON /* not supported yet */
     { MON_GLYPH, PM_CROESUS, "Charon" },
 #endif

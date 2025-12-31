@@ -448,9 +448,7 @@ undead_to_corpse(int mndx)
         break;
     case PM_VAMPIRE:
     case PM_VAMPIRE_LEADER:
-#if 0 /* DEFERRED */
     case PM_VAMPIRE_MAGE:
-#endif
     case PM_HUMAN_ZOMBIE:
     case PM_HUMAN_MUMMY:
     case PM_SODDEN_ONE:
@@ -634,6 +632,7 @@ make_corpse(struct monst *mtmp, unsigned int corpseflags)
         goto default_1;
     case PM_VAMPIRE:
     case PM_VAMPIRE_LEADER:
+    case PM_VAMPIRE_MAGE:
         /* include mtmp in the mkcorpstat() call */
         num = undead_to_corpse(mndx);
         corpstatflags |= CORPSTAT_INIT;
@@ -871,7 +870,7 @@ make_corpse(struct monst *mtmp, unsigned int corpseflags)
 
     case PM_NIGHTCRUST: case PM_LICHEN: case PM_BROWN_MOLD: case PM_YELLOW_MOLD:
     case PM_GREEN_MOLD: case PM_RED_MOLD: case PM_SHRIEKER:
-    case PM_VIOLET_FUNGUS: case PM_PHANTOM_FUNGUS:
+    case PM_VIOLET_FUNGUS: case PM_GRAY_FUNGUS: case PM_PHANTOM_FUNGUS:
 
     case PM_GNOME: case PM_GNOME_LEADER: case PM_GNOMISH_WIZARD:
     case PM_GNOME_RULER: case PM_GWTWOD:
@@ -3427,9 +3426,9 @@ corpse_chance(
         return FALSE;
     }
 
-    if (mdat == &mons[PM_NIGHTCRUST]) {
-        add_coating(mon->mx, mon->my, COAT_FUNGUS, 0);
-        return FALSE;
+    /* Fungus spreads upon death. */
+    if (mdat->mlet == S_FUNGUS) {
+        spread_mold(mon->mx, mon->my, mdat);
     }
 
     /* Gas spores always explode upon death */
@@ -5217,6 +5216,7 @@ pickvampshape(struct monst *mon)
         wolfchance = 3;
         FALLTHROUGH;
     /*FALLTHRU*/
+    case PM_VAMPIRE_MAGE:
     case PM_VAMPIRE_LEADER: /* vampire lord or Vlad can become wolf */
         if (!rn2(wolfchance) && !uppercase_only
             /* don't pick a walking form if that would lead to immediate
@@ -5425,11 +5425,11 @@ select_newcham_form(struct monst *mon)
     switch (mon->cham) {
     case PM_SANDESTIN:
         if (rn2(7))
-            mndx = pick_nasty(mons[PM_ARCHON].difficulty - 1);
+            mndx = pick_nasty(mon, mons[PM_ARCHON].difficulty - 1);
         break;
     case PM_DOPPELGANGER:
         if (!rn2(7)) {
-            mndx = pick_nasty(mons[PM_JABBERWOCK].difficulty - 1);
+            mndx = pick_nasty(mon, mons[PM_JABBERWOCK].difficulty - 1);
         } else if (rn2(3)) { /* role monsters */
             mndx = tt_doppel(mon);
         } else if (!rn2(3)) { /* quest guardians */
@@ -5455,6 +5455,7 @@ select_newcham_form(struct monst *mon)
         break;
     case PM_VLAD_THE_IMPALER:
     case PM_VAMPIRE_LEADER:
+    case PM_VAMPIRE_MAGE:
     case PM_VAMPIRE:
         mndx = pickvampshape(mon);
         break;

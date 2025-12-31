@@ -6257,6 +6257,9 @@ passive(
             learn_it = TRUE;
         }
         break;
+    case AD_DISE:
+        diseasemu(ptr);
+        break;
     default:
         break;
     }
@@ -6329,6 +6332,7 @@ passive(
                 if ((mon->mhpmax > (((int) mon->m_lev) + 1) * 8)
                     && mon->data != &mons[PM_FROSTWURM])
                     (void) split_mon(mon, &gy.youmonst);
+                spread_mold(mon->mx, mon->my, mon->data);
                 learn_it = TRUE;
             }
             break;
@@ -6336,6 +6340,7 @@ passive(
             if (!Stunned)
                 make_stunned((long) tmp, TRUE);
             learn_it = TRUE;
+            spread_mold(mon->mx, mon->my, mon->data);
             break;
         case AD_FIRE:
             if (monnear(mon, u.ux, u.uy)) {
@@ -6349,6 +6354,7 @@ passive(
                 monstunseesu(M_SEEN_FIRE);
                 You("are suddenly very hot!");
                 mdamageu(mon, tmp); /* fire damage */
+                spread_mold(mon->mx, mon->my, mon->data);
                 learn_it = TRUE;
             }
             break;
@@ -6771,7 +6777,7 @@ oprop_effects_pre(struct monst *magr, struct monst *mdef)
             gb.buzzer = 0;
         }
     }
-    if (weapon->oprop == OPROP_THERMAL && !rn2(5)) {
+    if (weapon->oprop == OPROP_BLAZING && !rn2(5)) {
         if (cansee(dx, dy)) {
             pline_The("%s ignites!", simpleonames(weapon));
             weapon->pknown = 1;
@@ -6779,6 +6785,23 @@ oprop_effects_pre(struct monst *magr, struct monst *mdef)
         create_bonfire(dx, dy, rnd(7), d(2, 4));
     }
     return DEADMONSTER(mdef);
+}
+
+/* spread mold to nearby squares */
+void
+spread_mold(coordxy x, coordxy y, struct permonst *mold)
+{
+    coord cc;
+
+    if (mold->mlet != S_FUNGUS)
+        return;
+    if (!has_coating(x, y, COAT_FUNGUS) || levl[x][y].pindex != mold->pmidx) {
+        add_coating(x, y, COAT_FUNGUS, mold->pmidx);
+        return;
+    } else {
+        enexto(&cc, x, y, &mons[PM_EARTH_ELEMENTAL]);
+        add_coating(cc.x, cc.y, COAT_FUNGUS, mold->pmidx);
+    }
 }
 
 /*uhitm.c*/

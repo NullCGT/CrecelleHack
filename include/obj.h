@@ -81,11 +81,12 @@ struct obj {
 #define OBJ_MIGRATING 5 /* object sent off to another level */
 #define OBJ_BURIED 6    /* object buried */
 #define OBJ_ONBILL 7    /* object on shk bill */
-#define OBJ_LUAFREE 8   /* object has been dealloc'd, but is ref'd by lua */
-#define OBJ_DELETED 9   /* object is marked for deletion by dobjsfree() */
+#define OBJ_INTRAP 8    /* object is trap ammo */
+#define OBJ_LUAFREE 9   /* object has been dealloc'd, but is ref'd by lua */
+#define OBJ_DELETED 10   /* object is marked for deletion by dobjsfree() */
     /* note: OBJ_xxx values are used in obj_state_names[] in mkobj.c
        so adding, removing, or renumbering these needs to change that too */
-#define NOBJ_STATES 10
+#define NOBJ_STATES 11
     xint16 timed; /* # of fuses (timers) attached to this obj */
 
     /* Bitfields currently require 5 bytes minimum */
@@ -237,6 +238,8 @@ struct obj {
          || is_art(otmp, ART_SNICKERSNEE)))
 #define is_spear(otmp) \
     (otmp->oclass == WEAPON_CLASS && objects[otmp->otyp].oc_skill == P_SPEAR)
+#define is_flail(otmp) \
+    (otmp->oclass == WEAPON_CLASS && objects[otmp->otyp].oc_skill == P_FLAIL)
 #define is_launcher(otmp)                                                  \
     (otmp->oclass == WEAPON_CLASS && objects[otmp->otyp].oc_skill >= P_BOW \
      && objects[otmp->otyp].oc_skill <= P_CROSSBOW)

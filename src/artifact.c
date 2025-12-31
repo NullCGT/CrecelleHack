@@ -27,6 +27,7 @@ staticfn boolean bane_applies(const struct artifact *, struct monst *)
                                                                  NONNULLARG12;
 staticfn int spec_applies(const struct artifact *, struct monst *)
                                                                  NONNULLARG12;
+staticfn int oprop_applies(struct obj *, struct monst *) NONNULLARG12;
 staticfn int invoke_ok(struct obj *);
 staticfn void nothing_special(struct obj *) NONNULLARG1;
 staticfn int invoke_taming(struct obj *) NONNULLARG1;
@@ -374,6 +375,7 @@ mk_artifact(
         assert(otmp != 0);
         /* prevent erosion from generating */
         otmp->oeroded = otmp->oeroded2 = 0;
+        otmp->oprop = 0;
         otmp = oname(otmp, a->name, ONAME_NO_FLAGS);
         otmp->oartifact = m;  /* probably already set by this point, but */
         /* set existence and reason for creation bits */
@@ -1162,6 +1164,25 @@ spec_applies(const struct artifact *weap, struct monst *mtmp)
     return 0;
 }
 
+staticfn int
+oprop_applies(struct obj *otmp, struct monst *mtmp)
+{
+    boolean yours = (mtmp == &gy.youmonst);
+    if (!otmp->oprop)
+        return 0;
+
+    switch(otmp->oprop) {
+    case OPROP_ACIDIC:
+        return !(yours ? Acid_resistance : resists_acid(mtmp));
+    case OPROP_BOREAL:
+        return !(yours ? Cold_resistance : resists_cold(mtmp));
+    case OPROP_HUNGRY:
+        return !(yours ? Drain_resistance : resists_drli(mtmp));
+    }
+
+    return 0;
+}
+
 /* return the M2 flags of monster that an artifact's special attacks apply
  * against */
 long
@@ -1209,6 +1230,32 @@ spec_dbon(struct obj *otmp, struct monst *mon, int tmp)
     if (gs.spec_dbon_applies)
         return weap->attk.damd ? rnd((int) weap->attk.damd) : max(tmp, 1);
     return 0;
+}
+
+/* oprop damage bonus */
+int
+oprop_dbon(struct obj *otmp, struct monst *mon, int tmp UNUSED)
+{
+    int ret = 0;
+    if (!otmp->oprop)
+        gs.spec_oprop_applies = FALSE;
+    else
+        gs.spec_oprop_applies = oprop_applies(otmp, mon);
+
+    if (gs.spec_oprop_applies) {
+        switch (otmp->oprop) {
+            case OPROP_ACIDIC:
+                ret = d(1, 8);
+                break;
+            case OPROP_BOREAL:
+                ret = d(1, 4);
+                break;
+            default:
+                break;
+        }
+    }
+
+    return ret;
 }
 
 /* add identified artifact to discoveries list */
@@ -1572,37 +1619,56 @@ artifact_hit(
      * handled.  Messages are done in this function, however.
      */
     *dmgptr += spec_dbon(otmp, mdef, *dmgptr);
+    *dmgptr += oprop_dbon(otmp, mdef, *dmgptr);
 
     if (youattack && youdefend) {
         impossible("attacking yourself with weapon?");
         return FALSE;
     }
 
+    /* Set up the x and y */
+    if (youattack || !magr)
+        x = u.ux, y = u.uy;
+    else
+        x = magr->mx, y = magr->my;
+
     realizes_damage = (youdefend || vis
                        /* feel the effect even if not seen */
                        || (youattack && mdef == u.ustuck));
 
-    /* oprop attacks */
-    if (otmp->oprop && magr) {
-        if (youattack)
-            x = u.ux, y = u.uy;
-        else
-            x = magr->mx, y = magr->my;
-        if (otmp->oprop == OPROP_SANGUINE && has_coating(x, y, COAT_BLOOD)) {
-            if (realizes_damage)
-                pline_The("%s absorbs nearby blood!", simpleonames(otmp));
-            *dmgptr *= 2;
-            remove_coating(x, y, COAT_BLOOD);
-            otmp->pknown = 1;
-        }
-        if (!otmp->oartifact)
-            return FALSE;
+    /* identify the oprop if it is not yet known*/
+    if (realizes_damage && gs.spec_oprop_applies && !(otmp->pknown)) {
+        otmp->pknown = 1;
+        update_inventory();
     }
 
+    /* Oprop attacks */
+    if (otmp->oprop == OPROP_SANGUINE && has_coating(x, y, COAT_BLOOD)) {
+        if (realizes_damage)
+            pline_The("%s absorbs nearby blood!", weapon_simple_name(otmp));
+        *dmgptr *= 2;
+        remove_coating(x, y, COAT_BLOOD);
+        if (!otmp->pknown) {
+            otmp->pknown = 1;
+            update_inventory();
+        }
+    } else if (otmp->oprop == OPROP_ANTIMAGIC && !rn2(3)) {
+        cancel_monst(mdef, otmp, youattack, FALSE, FALSE);
+    } else if (otmp->oprop == OPROP_BRINY) {
+        if (realizes_damage)
+            pline_The("%s soaks %s!", weapon_simple_name(otmp), hittee);
+        if (youdefend)
+            make_dripping(rnd(20), POT_WATER, NON_PM);
+        else
+            make_mdripping(mdef, POT_WATER);
+        if (completelyrusts(mdef->data))
+            *dmgptr = 1000;
+    }
     /* the four basic attacks: fire, cold, shock and missiles */
     if (attacks(AD_FIRE, otmp)) {
         if (realizes_damage)
-            pline_The("fiery blade %s %s%c",
+            pline_The("fiery %s %s %s%c",
+                      weapon_simple_name(otmp),
                       !gs.spec_dbon_applies
                           ? "hits"
                           : (mdef->data == &mons[PM_WATER_ELEMENTAL])
@@ -1619,11 +1685,12 @@ artifact_hit(
             burn_away_slime();
         return realizes_damage;
     }
-    if (attacks(AD_COLD, otmp)) {
+    if (attacks(AD_COLD, otmp) || otmp->oprop == OPROP_BOREAL) {
         if (realizes_damage)
-            pline_The("ice-cold blade %s %s%c",
-                      !gs.spec_dbon_applies ? "hits" : "freezes", hittee,
-                      !gs.spec_dbon_applies ? '.' : '!');
+            pline_The("ice-cold %s %s %s%c",
+                      weapon_simple_name(otmp),
+                      !(gs.spec_dbon_applies || gs.spec_oprop_applies) ? "hits" : "freezes", hittee,
+                      !(gs.spec_dbon_applies || gs.spec_oprop_applies) ? '.' : '!');
         if (!rn2(4)) {
             int itemdmg = destroy_items(mdef, AD_COLD, *dmgptr);
             if (!youdefend)
@@ -1631,11 +1698,12 @@ artifact_hit(
         }
         return realizes_damage;
     }
-    if (attacks(AD_ACID, otmp)) {
+    if (attacks(AD_ACID, otmp) || otmp->oprop == OPROP_ACIDIC) {
         if (realizes_damage)
-            pline_The("sizzling blade %s %s%c",
-                      !gs.spec_dbon_applies ? "hits" : "melts", hittee,
-                      !gs.spec_dbon_applies ? '.' : '!');
+            pline_The("sizzling %s %s %s%c",
+                      weapon_simple_name(otmp),
+                      !(gs.spec_dbon_applies || gs.spec_oprop_applies) ? "hits" : "melts", hittee,
+                      !(gs.spec_dbon_applies || gs.spec_oprop_applies) ? '.' : '!');
         if (!rn2(4)) {
             int itemdmg = destroy_items(mdef, AD_ACID, *dmgptr);
             if (!youdefend)
@@ -1645,7 +1713,8 @@ artifact_hit(
     }
     if (attacks(AD_ELEC, otmp)) {
         if (realizes_damage)
-            pline_The("massive hammer hits%s %s%c",
+            pline_The("%s hits%s %s%c",
+                      weapon_simple_name(otmp),
                       !gs.spec_dbon_applies ? "" : "!  Lightning strikes",
                       hittee, !gs.spec_dbon_applies ? '.' : '!');
         if (gs.spec_dbon_applies)
@@ -1672,7 +1741,7 @@ artifact_hit(
         return Mb_hit(magr, mdef, otmp, dmgptr, dieroll, vis, hittee);
     }
 
-    if (!gs.spec_dbon_applies) {
+    if (!gs.spec_dbon_applies && !gs.spec_oprop_applies) {
         /* since damage bonus didn't apply, nothing more to do;
            no further attacks have side-effects on inventory */
         return FALSE;
@@ -1780,7 +1849,7 @@ artifact_hit(
             }
         }
     }
-    if (spec_ability(otmp, SPFX_DRLI)) {
+    if (spec_ability(otmp, SPFX_DRLI) || otmp->oprop == OPROP_HUNGRY) {
         /* some non-living creatures (golems, vortices) are vulnerable to
            life drain effects so can get "<Arti> draws the <life>" feedback */
         const char *life = nonliving(mdef->data) ? "animating force" : "life";
@@ -1893,7 +1962,7 @@ artifact_hit(
     }
     /* Sunsword deals double damage at midday */
     if (is_art(otmp, ART_SUNSWORD) && midday()) {
-        pline("The blazing blade blasts %s!", hittee);
+        pline("The sunkissed %s blasts %s!", hittee, weapon_simple_name(otmp));
         *dmgptr *= 2;
     }
     return FALSE;

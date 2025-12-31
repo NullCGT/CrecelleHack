@@ -217,7 +217,7 @@ struct monst {
 #define is_starting_pet(mon) ((mon)->m_id == svc.context.startingpet_mid)
 #define is_vampshifter(mon) \
     ((mon)->cham == PM_VAMPIRE || (mon)->cham == PM_VAMPIRE_LEADER \
-     || (mon)->cham == PM_VLAD_THE_IMPALER)
+     || (mon)->cham == PM_VLAD_THE_IMPALER || (mon)->cham == PM_VAMPIRE_MAGE)
 #define vampshifted(mon) (is_vampshifter((mon)) && !is_vampire((mon)->data))
 /* Vlad might be vampshifted so just checking monst->data is insufficient */
 #define is_Vlad(m) ((m)->data == &mons[PM_VLAD_THE_IMPALER]  \

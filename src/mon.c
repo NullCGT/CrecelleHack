@@ -5419,11 +5419,11 @@ select_newcham_form(struct monst *mon)
     switch (mon->cham) {
     case PM_SANDESTIN:
         if (rn2(7))
-            mndx = pick_nasty(mons[PM_ARCHON].difficulty - 1);
+            mndx = pick_nasty(mon, mons[PM_ARCHON].difficulty - 1);
         break;
     case PM_DOPPELGANGER:
         if (!rn2(7)) {
-            mndx = pick_nasty(mons[PM_JABBERWOCK].difficulty - 1);
+            mndx = pick_nasty(mon, mons[PM_JABBERWOCK].difficulty - 1);
         } else if (rn2(3)) { /* role monsters */
             mndx = tt_doppel(mon);
         } else if (!rn2(3)) { /* quest guardians */

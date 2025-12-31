@@ -2,6 +2,13 @@
 ## Vampires
 - open wounds, cure self, bloodrush, disappear, curse items, blood spear, blood rain, blood bind.
 
+## Demogorgon
+- Demogorgon's version of summon monsters pulls from an extra-special list.
+- Psi bolt, cure self, haste self, stun, open wounds, weaken you, destroy armor, curse items, aggravation, summon monsters, chaos rain, death touch.
+
+## Dark One
+- Psi bolt, darkness, haste self, stun, disappear, weaken you, destroy armor, curse items, sleep, summon monsters, mirror image, death touch.
+
 ## Mages
 - Psi bolt, cure self, haste self, stun, disappear, weaken you, destroy armor, curse items, aggravation, summon monsters, clone wizard, death touch.
 
@@ -51,3 +58,5 @@
 - **Blood bind**
   - Detonates all blood on the map.
   - Only cast by Vlad the Impaler.
+- **Darkness**
+  - Surrounds the target with darkness.

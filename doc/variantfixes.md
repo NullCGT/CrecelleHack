@@ -14,6 +14,13 @@
     forget spells twice as quickly.
 ## Monsters
 - The open wounds spell can now cause bleeding.
+- Many unique monsters have unique spell lists.
+  - Vlad casts spells as a vampire mage and also has access to a unique
+    spell: blood bind.
+  - Demogorgon summons monsters from a unique list, and also has his
+    own list containing some of the nastiest spells in the game.
+  - The Chromatic Dragon and Ixoth summon monsters from a unique list
+    containing dragons and reptiles.
 ## Weather System
 - Weather and daytime visibility now only impacts first five floors of
   dungeon and outdoor levels.

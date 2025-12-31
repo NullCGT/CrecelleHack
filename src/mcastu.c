@@ -10,6 +10,7 @@
     MSPEL("open wounds", 1, OPEN_WOUNDS), \
     MSPEL("disguise self", 1, DISGUISE), \
     MSPEL("cure self", 2, CURE_SELF), \
+    MSPEL("darkness", 2, DARKNESS), \
     MSPEL("grease", 2, GREASE), \
     MSPEL("blood rain", 2, BLOOD_RAIN), \
     MSPEL("confusion", 3, CONFUSE_YOU), \
@@ -59,6 +60,10 @@ int mon_mage_spells[MAX_MON_SPELLS] = { MCU_PSI_BOLT, MCU_CURE_SELF, MCU_HASTE_S
                                         MCU_STUN_YOU, MCU_DISAPPEAR, MCU_WEAKEN_YOU,
                                         MCU_DESTRY_ARMR, MCU_CURSE_ITEMS, MCU_AGGRAVATION,
                                         MCU_SUMMON_MONS, MCU_CLONE_WIZ, MCU_DEATH_TOUCH};
+int mon_shadow_mage_spells[MAX_MON_SPELLS] = { MCU_PSI_BOLT, MCU_DARKNESS, MCU_HASTE_SELF,
+                                        MCU_STUN_YOU, MCU_DISAPPEAR, MCU_WEAKEN_YOU,
+                                        MCU_DESTRY_ARMR, MCU_CURSE_ITEMS, MCU_SLEEP_YOU,
+                                        MCU_SUMMON_MONS, MCU_MIRROR_IMAGE, MCU_DEATH_TOUCH};
 int mon_vamp_spells[MAX_MON_SPELLS] = { MCU_OPEN_WOUNDS, MCU_CURE_SELF, MCU_BLOODRUSH,
                                         MCU_DISAPPEAR, MCU_CURSE_ITEMS, MCU_BLOOD_SPEAR,
                                         MCU_BLOOD_RAIN, MCU_BLOOD_BIND, -1, -1, -1, -1};
@@ -74,12 +79,15 @@ int mon_chaos_cleric_spells[MAX_MON_SPELLS] = { MCU_OPEN_WOUNDS, MCU_CURE_SELF, 
                                           MCU_PARALYZE, MCU_BLIND_YOU, MCU_CHAOS_RAIN,
                                           MCU_CURSE_ITEMS, MCU_LIGHTNING, MCU_FIRE_PILLAR,
                                           MCU_GEYSER, -1, -1 };
-
 int mon_undead_spells[MAX_MON_SPELLS] = { MCU_HASTE_SELF, MCU_STUN_YOU, MCU_WEAKEN_YOU,
                                           MCU_SLEEP_YOU, MCU_VULNERABILITY,
                                           MCU_CURSE_ITEMS, MCU_AGGRAVATION, MCU_RAISE_DEAD,
                                           MCU_DEATH_TOUCH, MCU_MIRROR_IMAGE, MCU_DISAPPEAR,
                                           MCU_TELEPORT };
+int mon_demo_spells[MAX_MON_SPELLS] = { MCU_PSI_BOLT, MCU_OPEN_WOUNDS, MCU_CURE_SELF, 
+                                        MCU_HASTE_SELF, MCU_STUN_YOU, MCU_WEAKEN_YOU,
+                                        MCU_DESTRY_ARMR, MCU_CURSE_ITEMS, MCU_AGGRAVATION,
+                                        MCU_SUMMON_MONS, MCU_CHAOS_RAIN, MCU_DEATH_TOUCH};
 int mon_trickster_spells[MAX_MON_SPELLS] = { MCU_PSI_BOLT, MCU_HASTE_SELF, MCU_DISAPPEAR,
                                              MCU_LEVITATE_YOU,
                                              MCU_AGGRAVATION, MCU_MIRROR_IMAGE, MCU_CONFUSE_YOU,
@@ -148,6 +156,10 @@ choose_monster_spell(struct monst *mtmp, int adtyp) {
         n = rn2(MAX_MON_SPELLS);
         if (mtmp->data->mlet == S_VAMPIRE)
             spell = mon_vamp_spells[n];
+        else if (mtmp->data == &mons[PM_DEMOGORGON])
+            spell = mon_demo_spells[n];
+        else if (mtmp->data == &mons[PM_DARK_ONE])
+            spell = mon_shadow_mage_spells[n];
         else if (is_undead(mtmp->data) || mtmp->data == &mons[PM_ORCUS])
             spell = mon_undead_spells[n];
         else if (mtmp->data->mlet == S_GNOME || mtmp->data->mlet == S_KOBOLD
@@ -1090,6 +1102,10 @@ cast_monster_spell(struct monst *mtmp, int dmg, int spellnum)
         newsym(mtmp->mx, mtmp->my);
         dmg = 0;
         break;
+    case MCU_DARKNESS:
+        litroom(FALSE, (struct obj *) 0);
+        dmg = 0;
+        break;
     case MCU_CURE_SELF:
         dmg = m_cure_self(mtmp, dmg);
         break;
@@ -1146,6 +1162,7 @@ is_undirected_spell(int spellnum)
     case MCU_BLOOD_SPEAR:
     case MCU_BLOOD_RAIN:
     case MCU_BLOOD_BIND:
+    case MCU_DARKNESS:
         return TRUE;
     default:
         break;
@@ -1173,7 +1190,8 @@ spell_would_be_useless(struct monst *mtmp, int spellnum)
             || spellnum == MCU_RAISE_DEAD || spellnum == MCU_MIRROR_IMAGE
             || spellnum == MCU_INSECTS || spellnum == MCU_CHAOS_RAIN
             || spellnum == MCU_BLOOD_SPEAR || spellnum == MCU_BLOODRUSH
-            || spellnum == MCU_BLOOD_RAIN || spellnum == MCU_BLOOD_BIND))
+            || spellnum == MCU_BLOOD_RAIN || spellnum == MCU_BLOOD_BIND
+            || spellnum == MCU_DARKNESS))
         return TRUE;
     /* illusiory armies play absolute hell with fuzzing. */
     if (iflags.debug_fuzzer && spellnum == MCU_MIRROR_IMAGE)

@@ -3936,7 +3936,7 @@ extern int tactics(struct monst *) NONNULLARG1;
 extern boolean has_aggravatables(struct monst *) NONNULLARG1;
 extern void aggravate(void);
 extern void clonewiz(void);
-extern int pick_nasty(int);
+extern int pick_nasty(struct monst *, int);
 extern int nasty(struct monst *) NO_NNARGS;
 extern void resurrect(void);
 extern void intervene(void);

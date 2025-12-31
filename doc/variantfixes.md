@@ -15,6 +15,8 @@
 ## Weather System
 - Weather and daytime visibility now only impacts first five floors of
   dungeon and outdoor levels.
+## Coating System
+- Added different types of fungal coatings.
 ## Miscelaneous
 - Revert cost increase of enchantment scrolls.
 ## New Items

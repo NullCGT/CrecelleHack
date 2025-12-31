@@ -3421,9 +3421,9 @@ corpse_chance(
         return FALSE;
     }
 
-    if (mdat == &mons[PM_NIGHTCRUST]) {
-        add_coating(mon->mx, mon->my, COAT_FUNGUS, 0);
-        return FALSE;
+    /* Fungus spreads upon death. */
+    if (mdat->mlet == S_FUNGUS) {
+        spread_mold(mon->mx, mon->my, mdat);
     }
 
     /* Gas spores always explode upon death */

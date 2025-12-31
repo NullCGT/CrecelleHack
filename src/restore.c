@@ -1342,8 +1342,8 @@ grow_dungeon(void) {
     }
     if (has_coating(x, y, COAT_FUNGUS) 
         && !has_coating(cc.x, cc.y, COAT_FUNGUS)
-        && add_coating(cc.x, cc.y, COAT_FUNGUS, 0)) {
-        if (cansee(cc.x, cc.y)) pline_xy(cc.x, cc.y, "You see some fungus grow.");
+        && add_coating(cc.x, cc.y, COAT_FUNGUS, levl[x][y].pindex)) {
+        if (cansee(cc.x, cc.y)) pline_xy(cc.x, cc.y, "You see some fungus spread.");
     }
     /* evaporate potions */
     if (!IS_RAINING && has_coating(x, y, COAT_POTION)) {

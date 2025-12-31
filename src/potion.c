@@ -1713,46 +1713,52 @@ boolean
 add_coating(coordxy x, coordxy y, short coatflags, int pindex) {
     if (!IS_COATABLE(levl[x][y].typ))
         return FALSE;
-    else {
-        /* If in mklev we need to clear the coat info first. */
-        if (gi.in_mklev)
-            levl[x][y].coat_info = 0;
-        /* Mud is special*/
-        if ((coatflags & COAT_POTION) && pindex == POT_WATER
-            && levl[x][y].submask == SM_DIRT) {
-            coatflags &= ~COAT_POTION;
-            coatflags |= COAT_MUD;
-            pindex = 0;
-        }
-        levl[x][y].coat_info |= coatflags;
-        if ((coatflags & COAT_FUNGUS) != 0) {
-            levl[x][y].lit = 1;
-        }
-        if ((coatflags & COAT_FROST) != 0) {
-            remove_coating(x, y, COAT_POTION | COAT_BLOOD | COAT_ASHES | COAT_FUNGUS | COAT_GRASS);
-        }
-        if ((coatflags & COAT_MUD) != 0) {
-            remove_coating(x, y, COAT_FUNGUS | COAT_GRASS);
-        }
-        if ((coatflags & COAT_POTION) != 0) {
-            remove_coating(x, y, COAT_BLOOD | COAT_FROST);
-            levl[x][y].pindex = pindex;
-            if (pindex == POT_ACID) {
-                remove_coating(x, y, COAT_GRASS | COAT_ASHES | COAT_HONEY);
-            } else if (pindex < POT_GAIN_ABILITY || pindex > POT_WATER) {
-                impossible("coating floor at <%d,%d> with invalid tonic %d?", x, y, pindex);
-            }
-        } else if ((coatflags & COAT_BLOOD) != 0) {
-            remove_coating(x, y, COAT_POTION | COAT_FROST);
-            levl[x][y].pindex = pindex;
-            if (!ismnum(pindex)) impossible("coating floor at <%d,%d> with invalid blood %d?", x, y, pindex);
-        } else if (pindex) {
-            impossible("non-tonic pindex coating at <%d,%d>?", x, y);
-        }
-        /* Don't expose squares during mapgen*/
-        if (!gi.in_mklev)
-            newsym(x, y);
+
+    /* If in mklev we need to clear the coat info first. */
+    if (gi.in_mklev)
+        levl[x][y].coat_info = 0;
+    /* Mud is special*/
+    if ((coatflags & COAT_POTION) && pindex == POT_WATER
+        && levl[x][y].submask == SM_DIRT) {
+        coatflags &= ~COAT_POTION;
+        coatflags |= COAT_MUD;
+        pindex = 0;
     }
+    levl[x][y].coat_info |= coatflags;
+    if ((coatflags & COAT_FROST) != 0) {
+        remove_coating(x, y, COAT_POTION | COAT_BLOOD | COAT_GRASS);
+    }
+    if ((coatflags & COAT_MUD) != 0) {
+        remove_coating(x, y, COAT_FUNGUS | COAT_GRASS);
+    }
+    if ((coatflags & COAT_POTION) != 0) {
+        remove_coating(x, y, COAT_BLOOD | COAT_FROST | COAT_FUNGUS);
+        levl[x][y].pindex = pindex;
+        if (pindex == POT_ACID) {
+            remove_coating(x, y, COAT_GRASS | COAT_ASHES | COAT_HONEY);
+        } else if (pindex < POT_GAIN_ABILITY || pindex > POT_WATER) {
+            impossible("coating at <%d,%d> with invalid tonic %d?", x, y, pindex);
+        }
+    } else if ((coatflags & COAT_BLOOD) != 0) {
+        remove_coating(x, y, COAT_POTION | COAT_FROST | COAT_FUNGUS);
+        levl[x][y].pindex = pindex;
+        if (!ismnum(pindex))
+            impossible("coating at <%d,%d> with invalid blood %d?", x, y, pindex);
+    } else if ((coatflags & COAT_FUNGUS) != 0) {
+        remove_coating(x, y, COAT_BLOOD | COAT_POTION);
+        levl[x][y].pindex = pindex;
+        if (!ismnum(pindex))
+            impossible("coating at <%d,%d> with invalid fungi %d?", x, y, pindex);
+        if (mons[pindex].mlet != S_FUNGUS)
+            impossible("fungal coating at <%d, %d> with non-fungal monster %d?", x, y, pindex);
+        if (pindex == PM_NIGHTCRUST)
+            levl[x][y].lit = 1;
+    } else if (pindex) {
+        impossible("abnormal coating-pindex combo at <%d,%d>?", x, y);
+    }
+    /* Don't expose squares during mapgen*/
+    if (!gi.in_mklev)
+        newsym(x, y);
     return TRUE;
 }
 
@@ -1761,13 +1767,12 @@ boolean
 remove_coating(coordxy x, coordxy y, short coatflags) {
     if (!IS_COATABLE(levl[x][y].typ))
         return FALSE;
-    if ((coatflags & COAT_FUNGUS) != 0) {
+    if ((coatflags & COAT_FUNGUS) != 0
+        && levl[x][y].pindex == PM_NIGHTCRUST) {
         levl[x][y].lit = 0;
         newsym(x, y);
     }
     levl[x][y].coat_info &= ~coatflags;
-    if ((coatflags & COAT_POTION) != 0 || (coatflags & COAT_BLOOD) != 0)
-        levl[x][y].pindex = 0;
     if ((coatflags & COAT_MUD) != 0)
         maybe_unhide_at(x, y);
     if (!gi.in_mklev)
@@ -1780,41 +1785,12 @@ boolean
 coateffects(coordxy x, coordxy y, struct monst *mon) {
     boolean isyou = (mon == &gy.youmonst);
     boolean banana_peel = svl.level.objects[x][y] && svl.level.objects[x][y]->otyp == BANANA_PEEL;
-    boolean ret = FALSE;
     char buf[BUFSZ];
-    if (is_flyer(mon->data) || is_floater(mon->data)
-        || amorphous(mon->data) || noncorporeal(mon->data))
-        return FALSE;
-    if (isyou && (Levitation || Flying))
-        return FALSE;
+    boolean stepper = !((is_flyer(mon->data) || is_floater(mon->data)
+                            || amorphous(mon->data) || noncorporeal(mon->data))
+                        || (isyou && (Levitation || Flying)));
     /* Now the actual coat effects */
-    if ((has_coating(x, y, COAT_POTION) && levl[x][y].pindex == POT_OIL) || banana_peel) {
-        if (banana_peel) {
-            if (Blind) Sprintf(buf, "an object");
-            else Sprintf(buf, "%s", an(xname(svl.level.objects[x][y])));
-        } else {
-            potion_coating_text(buf, POT_OIL);
-        }
-        if (isyou) {
-            You("slip on %s%s!", banana_peel ? "" : "a patch of ", buf);
-            nomul(-1);
-            gm.multi_reason = "slipping on something";
-            gn.nomovemsg = "You regain your footing.";
-            if (!banana_peel) makeknown(POT_OIL);
-            make_prone();
-        } else {
-            if (canseemon(mon)) {
-                if (!banana_peel) makeknown(POT_OIL);
-                pline_mon(mon, "%s slips on %s%s!",
-                            Monnam(mon), banana_peel ? "" : "a patch of ", buf);
-            }
-            mon->mfrozen = 1;
-            mon->mcanmove = 0;
-            make_mon_prone(mon);
-        }
-        ret = TRUE;
-    }
-    if (has_coating(x, y, COAT_SHARDS)) {
+    if (stepper && has_coating(x, y, COAT_SHARDS)) {
         if (isyou) {
             if (uarmf) {
                 pline("Shards of glass crunch under your %s.",
@@ -1844,7 +1820,7 @@ coateffects(coordxy x, coordxy y, struct monst *mon) {
         if (!rn2(3))
             remove_coating(x, y, COAT_SHARDS);
     }
-    if (isyou && has_coating(x, y, COAT_HONEY)) {
+    if (stepper && isyou && has_coating(x, y, COAT_HONEY)) {
         if ((!Levitation && !Flying) && !rn2(3)) {
             if (uarmf) {
                 struct obj *otmp;
@@ -1859,7 +1835,7 @@ coateffects(coordxy x, coordxy y, struct monst *mon) {
             }
         }
     }
-    if (has_coating(x, y, COAT_MUD)) {
+    if (stepper && has_coating(x, y, COAT_MUD)) {
         if (isyou && !(uarmf && objdescr_is(uarmf, "mud boots"))) {
             You("slog through the mud.");
             u.umovement -= 3;
@@ -1867,7 +1843,35 @@ coateffects(coordxy x, coordxy y, struct monst *mon) {
             mon->movement -= 3;
         } 
     }
-    if (has_coating(x, y, COAT_BLOOD) && touch_petrifies(&mons[levl[x][y].pindex])) {
+    /* From this point onward, coating effects are mutually exclusive. */
+    if (stepper && 
+        ((has_coating(x, y, COAT_POTION)
+            && levl[x][y].pindex == POT_OIL) || banana_peel)) {
+        if (banana_peel) {
+            if (Blind) Sprintf(buf, "an object");
+            else Sprintf(buf, "%s", an(xname(svl.level.objects[x][y])));
+        } else {
+            potion_coating_text(buf, POT_OIL);
+        }
+        if (isyou) {
+            You("slip on %s%s!", banana_peel ? "" : "a patch of ", buf);
+            nomul(-1);
+            gm.multi_reason = "slipping on something";
+            gn.nomovemsg = "You regain your footing.";
+            if (!banana_peel) makeknown(POT_OIL);
+            make_prone();
+        } else {
+            if (canseemon(mon)) {
+                if (!banana_peel) makeknown(POT_OIL);
+                pline_mon(mon, "%s slips on %s%s!",
+                            Monnam(mon), banana_peel ? "" : "a patch of ", buf);
+            }
+            mon->mfrozen = 1;
+            mon->mcanmove = 0;
+            make_mon_prone(mon);
+        }
+    } else if (stepper && has_coating(x, y, COAT_BLOOD)
+                && touch_petrifies(&mons[levl[x][y].pindex])) {
         if (isyou && !uarmf && !Stone_resistance) {
             You("touch %s blood with your %s.",
                 pmname(&mons[levl[x][y].pindex], MALE), body_part(FOOT));
@@ -1877,8 +1881,31 @@ coateffects(coordxy x, coordxy y, struct monst *mon) {
             minstapetrify(mon, FALSE);
         }
         remove_coating(x, y, COAT_BLOOD);
+    } else if (has_coating(x, y, COAT_FUNGUS)) {
+        return moldeffects(x, y, mon);
     }
-    return ret;
+    return DEADMONSTER(mon);
+}
+
+boolean
+moldeffects(coordxy x, coordxy y, struct monst *mon)
+{
+    boolean isyou = (mon == &gy.youmonst);
+    boolean flier = (!grounded(mon->data) || (isyou && (Levitation || Flying)));
+    struct monst fakemon = cg.zeromonst;
+
+    fakemon.mx = u.ux;
+    fakemon.my = u.uy;
+    fakemon.cham = levl[x][y].pindex;
+    set_mon_data(&fakemon, &mons[levl[x][y].pindex]);
+    if (isyou) {
+        passive(&fakemon, flier ? NULL : uarmf,
+            TRUE, TRUE, AT_KICK, FALSE);
+    } else {
+        passivemm(mon, &fakemon, TRUE, FALSE,
+                    flier ? NULL : which_armor(mon, W_ARMF));
+    }
+    return DEADMONSTER(mon);
 }
 
 /* evaporate potion puddles due to heat */
@@ -2800,8 +2827,10 @@ dodip(void)
             at_mud = has_coating(u.ux, u.uy, COAT_MUD),
             at_puddle = (has_coating(u.ux, u.uy, COAT_POTION)
                             || has_coating(u.ux, u.uy, COAT_BLOOD)),
+            at_mold = (has_coating(u.ux, u.uy, COAT_FUNGUS)),
             at_here = (!iflags.menu_requested
-                       && (at_pool || at_fountain || at_sink || at_mud || at_puddle));
+                       && (at_pool || at_fountain || at_sink
+                            || at_mud || at_puddle || at_mold));
 
     obj = getobj("dip", at_here ? dip_hands_ok : dip_ok, GETOBJ_PROMPT);
     if (!obj)
@@ -2944,6 +2973,19 @@ dodip(void)
                 } else {
                     pline("Interesting...");
                 }
+                return ECMD_TIME;
+            }
+            ++drink_ok_extra;
+        } else if (at_mold) {
+            struct monst fakemon = cg.zeromonst;
+            Snprintf(qbuf, sizeof(qbuf), "%s%s into the fungus here?", Dip_,
+                     flags.verbose ? obuf : shortestname);
+            if (y_n(qbuf) == 'y') {
+                You("dip %s in the %s.",
+                    flags.verbose ? obuf : shortestname,
+                    pmname(&mons[levl[u.ux][u.uy].pindex], MALE));
+                set_mon_data(&fakemon, &mons[levl[u.ux][u.uy].pindex]); 
+                passive_obj(&fakemon, obj, (struct attack *) 0);
                 return ECMD_TIME;
             }
             ++drink_ok_extra;

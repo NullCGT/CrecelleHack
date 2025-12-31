@@ -1413,8 +1413,6 @@ dog_move(
                   what);
         }
         mon_track_add(mtmp, omx, omy);
-        if (coateffects(nix, niy, mtmp))
-            return MMOVE_MOVED;
         /* We have to know if the pet's going to do a combined eat and
          * move before moving it, but it can't eat until after being
          * moved.  Thus the do_eat flag.
@@ -1456,6 +1454,8 @@ dog_move(
         place_monster(mtmp, cc.x, cc.y);
         newsym(cc.x, cc.y);
         set_apparxy(mtmp);
+        if (coateffects(nix, niy, mtmp)) 
+            return MMOVE_DIED;
     }
     return MMOVE_MOVED;
 #undef GDIST

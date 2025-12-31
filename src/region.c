@@ -529,10 +529,14 @@ spread_bonfire(NhRegion *reg) {
                 add_coating(x, y, COAT_ASHES, 0);
                 newreg = create_bonfire(x, y, rnd(IS_RAINING ? 2 : 10), d(2, 4));
             }
-            if (has_coating(x, y, COAT_FUNGUS) && !rn2(4)) {
-                remove_coating(x, y, COAT_FUNGUS);
-                add_coating(x, y, COAT_ASHES, 0);
-                newreg = create_bonfire(x, y, rnd(IS_RAINING ? 2 : 4), d(4, 4));
+            if (has_coating(x, y, COAT_FUNGUS)) {
+                if (levl[x][y].pindex == PM_BROWN_MOLD) {
+                    spread_mold(x, y, &mons[PM_BROWN_MOLD]);
+                } else if (has_coating(x, y, COAT_FUNGUS) && !rn2(4)) {
+                    remove_coating(x, y, COAT_FUNGUS);
+                    add_coating(x, y, COAT_ASHES, 0);
+                    newreg = create_bonfire(x, y, rnd(IS_RAINING ? 2 : 4), d(4, 4));
+                }
             }
             if (has_coating(x, y, COAT_POTION)
                         && levl[x][y].pindex == POT_OIL) {

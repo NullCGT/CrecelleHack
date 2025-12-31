@@ -56,8 +56,11 @@ place:set(04,15);
 place:set(46,15);
 
 -- Fungus
-des.replace_terrain({ region={00,00, 79,20}, fromterrain=".", toterrain=".", coat="fungus", chance=30 })
 des.replace_terrain({ region={00,00, 79,20}, fromterrain=".", toterrain=".", coat="mud", chance=70 })
+des.replace_terrain({ region={00,00, 79,20}, fromterrain=".", toterrain=".", coat="fungus", montype="red mold", chance=10 })
+des.replace_terrain({ region={00,00, 79,20}, fromterrain=".", toterrain=".", coat="fungus", montype="green mold", chance=10 })
+des.replace_terrain({ region={00,00, 79,20}, fromterrain=".", toterrain=".", coat="fungus", montype="brown mold", chance=10 })
+des.replace_terrain({ region={00,00, 79,20}, fromterrain=".", toterrain=".", coat="fungus", montype="nightcrust", chance=20 })
 
 -- Dungeon description
 des.region({ region={00,00,50,17}, lit=0, type="swamp", filled=2 })

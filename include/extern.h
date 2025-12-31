@@ -1535,6 +1535,8 @@ extern char *mdlib_version_string(char *, const char *) NONNULL NONNULLPTRS;
 extern int fightm(struct monst *) NONNULLARG1;
 extern int mdisplacem(struct monst *, struct monst *, boolean);
 extern int mattackm(struct monst *, struct monst *);
+extern int passivemm(struct monst *, struct monst *, boolean, int,
+                     struct obj *);
 extern boolean failed_grab(struct monst *, struct monst *,
                            struct attack *) NONNULLPTRS;
 extern boolean engulf_target(struct monst *, struct monst *) NONNULLARG12;
@@ -2586,6 +2588,7 @@ extern boolean has_coating(coordxy, coordxy, short);
 extern boolean add_coating(coordxy, coordxy, short, int);
 extern boolean remove_coating(coordxy, coordxy, short);
 extern boolean coateffects(coordxy, coordxy, struct monst *);
+extern boolean moldeffects(coordxy, coordxy, struct monst *);
 extern void evaporate_potion_puddles(coordxy, coordxy);
 extern void floor_alchemy(int, int, int, int);
 extern void potion_splatter(coordxy, coordxy, int, int);
@@ -3546,6 +3549,7 @@ extern boolean disguised_as_mon(struct monst *) NONNULLARG1;
 extern int flash_hits_mon(struct monst *, struct obj *) NONNULLARG12;
 extern void light_hits_gremlin(struct monst *, int) NONNULLARG1;
 extern boolean oprop_effects_pre(struct monst *, struct monst *);
+extern void spread_mold(coordxy x, coordxy y, struct permonst *);
 
 
 /* ### unixmain.c ### */

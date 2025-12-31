@@ -1212,7 +1212,8 @@ coat_room(struct mkroom *croom, unsigned char coat_type) {
                 }
             }
             if ((coat_type & COAT_FUNGUS) != 0)
-                if (!rn2(max(2, abs(13 - u.uz.dlevel)))) add_coating(x, y, COAT_FUNGUS, 0);
+                if (!rn2(max(2, abs(13 - u.uz.dlevel))))
+                    add_coating(x, y, COAT_FUNGUS, PM_NIGHTCRUST);
             if ((coat_type & COAT_MUD) != 0)
                 if (!rn2(3)) add_coating(x, y, COAT_MUD, 0);
         }

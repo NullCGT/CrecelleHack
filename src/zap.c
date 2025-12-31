@@ -3896,6 +3896,12 @@ zap_map(
                     levl[x][y].flags &= ~T_LOOTED;
                 }
             }
+            if (has_coating(x, y, COAT_FUNGUS)){
+                if (rn2(3))
+                    makemon(&mons[levl[x][y].pindex],
+                            x, y, MM_NOCOUNTBIRTH);
+                spread_mold(x, y, &mons[levl[x][y].pindex]);
+            }
         } else if (obj->otyp == WAN_AQUA_BOLT
                     || obj->otyp == SPE_AQUA_BOLT) {
             if (cansee(x, y))
@@ -4113,10 +4119,12 @@ bhit(
                 levl[x][y].pindex = POT_GAIN_ABILITY + rn2(POT_WATER - POT_GAIN_ABILITY);
                 newsym(x, y);
             }
-            if (has_coating(x, y, COAT_BLOOD)) {
+            if (has_coating(x, y, COAT_BLOOD)
+                || has_coating(x, y, COAT_FUNGUS)) {
                 do {
                     levl[x][y].pindex = rndmonnum();
                 } while (!has_blood(&mons[levl[x][y].pindex]));
+                newsym(x, y);
             }
         }
 
@@ -5463,9 +5471,13 @@ zap_over_floor(
                 add_coating(x, y, COAT_ASHES, 0);
                 create_bonfire(x, y, rnd(IS_RAINING ? 2 : 10), d(2, 4));
             } else if (has_coating(x, y, COAT_FUNGUS)) {
-                remove_coating(x, y, COAT_FUNGUS);
-                add_coating(x, y, COAT_ASHES, 0);
-                create_bonfire(x, y, rnd(IS_RAINING ? 2 : 4), d(4, 4));
+                if (levl[x][y].pindex == PM_BROWN_MOLD) {
+                    spread_mold(x, y, &mons[PM_BROWN_MOLD]);
+                } else {
+                    remove_coating(x, y, COAT_FUNGUS);
+                    add_coating(x, y, COAT_ASHES, 0);
+                    create_bonfire(x, y, rnd(IS_RAINING ? 2 : 4), d(4, 4));
+                }
             }
             detonate_waste(x, y);
             if (has_coating(x, y, COAT_POTION)
@@ -5582,6 +5594,10 @@ zap_over_floor(
                 start_melt_ice_timeout(x, y, melt_time);
             }
         } else {
+            if (has_coating(x, y, COAT_FUNGUS)
+                && levl[x][y].pindex == PM_RED_MOLD) {
+                spread_mold(x, y, &mons[PM_RED_MOLD]);
+            }
             add_coating(x, y, COAT_FROST, 0);
         }
         if (IS_FOUNTAIN(lev->typ) && !FOUNTAIN_IS_FROZEN(x, y)) {

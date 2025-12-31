@@ -1819,6 +1819,9 @@ postmov(
     } /* mmoved==MMOVE_MOVED */
 
     if (mmoved == MMOVE_MOVED || mmoved == MMOVE_DONE) {
+        if (coateffects(mtmp->mx, mtmp->my, mtmp))
+            return MMOVE_DIED;
+        
         if (OBJ_AT(mtmp->mx, mtmp->my) && mtmp->mcanmove) {
 
             /* Maybe a rock mole just ate some metal object */
@@ -2261,8 +2264,6 @@ m_move(struct monst *mtmp, int after)
             worm_move(mtmp);
 
         maybe_unhide_at(mtmp->mx, mtmp->my);
-
-        coateffects(mtmp->mx, mtmp->my, mtmp);
 
         /* Reset prone */
         if (mtmp->mprone) {

@@ -4853,6 +4853,11 @@ dfeature_at(coordxy x, coordxy y, char *buf)
                 Sprintf(eos(altbuf), "%sblood", listing ? " and " : "");
             listing = TRUE;
         }
+        if ((lev->coat_info & COAT_FUNGUS) != 0) {
+            Sprintf(eos(altbuf), "%s%s", listing ? " and " : "",
+                    mons[levl[x][y].pindex].pmnames[NEUTRAL]);
+            listing = TRUE;
+        }
         if ((lev->coat_info & COAT_GRASS) != 0) {
             Sprintf(eos(altbuf), "%sgrass", listing ? " and " : "");
             listing = TRUE;

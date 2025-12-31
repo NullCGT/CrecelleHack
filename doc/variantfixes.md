@@ -12,6 +12,8 @@
     much more quickly for them. This includes both positive intrinsics
     as well as negative ones, such as terminal illness. They also
     forget spells twice as quickly.
+## Monsters
+- The open wounds spell can now cause bleeding.
 ## Weather System
 - Weather and daytime visibility now only impacts first five floors of
   dungeon and outdoor levels.
@@ -24,6 +26,9 @@
 ## New Monsters
 - Gray Fungus
   - Originally from SporkHack, but ported from EvilHack.
+- Vampire Mage
+  - Un-deferred.
+  - Have access to a special spell list with many unique spells.
 ## Traps
 - Dipping items in potions on the floor now has additional feedback.
 - Dipping amythest in floor booze turns it into floor fruit juice.

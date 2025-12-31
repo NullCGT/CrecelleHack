@@ -1,4 +1,7 @@
 # Spell Lists
+## Vampires
+- open wounds, cure self, bloodrush, disappear, curse items, blood spear, blood rain, blood bind.
+
 ## Mages
 - Psi bolt, cure self, haste self, stun, disappear, weaken you, destroy armor, curse items, aggravation, summon monsters, clone wizard, death touch.
 
@@ -35,3 +38,16 @@
   - Temporarily quashes an intrinsic resistance.
 - **Levitation**:
   - Levitates the player.
+- **Chaos Rain**:
+  - Rains random potions on the player.
+- **Forcefield**
+  - Creates a forcefield around the player.
+- **Bloodrush**
+  - Hastes and causes self to drip blood.
+- **Blood spear**
+  - Does damage to the player if standing on blood.
+- **Blood rain**
+  - Rains blood to rain down around the player.
+- **Blood bind**
+  - Detonates all blood on the map.
+  - Only cast by Vlad the Impaler.

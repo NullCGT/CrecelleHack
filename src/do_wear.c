@@ -2609,6 +2609,7 @@ void
 find_ac(void)
 {
     int uac = mons[u.umonnum].ac; /* base armor class for current form */
+    int umc = magic_negation(&gy.youmonst);
     int shield_bonus;
 
     /* armor class from worn gear */
@@ -2674,11 +2675,11 @@ find_ac(void)
         else if (u.uac <= 0)
             record_achievement(ACH_AC_00);
 #endif
-
-    if (u.umc != magic_negation(&gy.youmonst)) {
-        u.umc = magic_negation(&gy.youmonst);
-        disp.botl = TRUE;
     }
+
+    if (u.umc != umc) {
+        u.umc = umc;
+        disp.botl = TRUE;
     }
 }
 

@@ -933,7 +933,8 @@ domonability(void)
             pline("Unfortunately sound does not carry well through rock.");
         else
             aggravate();
-    } else if ((is_vampire(uptr) && uptr != &mons[PM_CRIMSON_DEATH])
+    } else if ((is_vampire(uptr) && uptr != &mons[PM_CRIMSON_DEATH]
+                && uptr != &mons[PM_BLOOD_IMP])
                 || is_vampshifter(&gy.youmonst)) {
         return dopoly();
     } else if (u.usteed && can_breathe(u.usteed->data)) {

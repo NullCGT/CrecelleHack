@@ -819,6 +819,7 @@ make_corpse(struct monst *mtmp, unsigned int corpseflags)
     case PM_DWARF_RULER:
     case PM_MIND_FLAYER: case PM_MASTER_MIND_FLAYER: case PM_MANES:
     case PM_HOMUNCULUS: case PM_IMP: case PM_LEMURE: case PM_QUASIT:
+    case PM_BLOOD_IMP:
     case PM_TENGU: case PM_BLUE_JELLY: case PM_SPOTTED_JELLY:
     case PM_OCHRE_JELLY: case PM_KOBOLD: case PM_LARGE_KOBOLD:
     case PM_KOBOLD_LEADER: case PM_KOBOLD_SHAMAN: case PM_LEPRECHAUN:
@@ -6083,6 +6084,12 @@ usmellmon(struct permonst *mdat)
         case PM_BARBARIAN:
         case PM_NEANDERTHAL:
             You("smell body odor.");
+            msg_given = TRUE;
+            break;
+        case PM_BLOOD_IMP:
+        case PM_BLOOD_GOLEM:
+        case PM_CRIMSON_DEATH:
+            You("smell blood.");
             msg_given = TRUE;
             break;
         /*

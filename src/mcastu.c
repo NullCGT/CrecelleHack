@@ -154,7 +154,8 @@ choose_monster_spell(struct monst *mtmp, int adtyp) {
         a = aligns[(mtmp->m_id % 3)].value;
     do {
         n = rn2(MAX_MON_SPELLS);
-        if (mtmp->data->mlet == S_VAMPIRE)
+        if (mtmp->data->mlet == S_VAMPIRE
+            || mtmp->data == &mons[PM_BLOOD_IMP])
             spell = mon_vamp_spells[n];
         else if (mtmp->data == &mons[PM_DEMOGORGON])
             spell = mon_demo_spells[n];

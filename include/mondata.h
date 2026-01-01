@@ -232,7 +232,8 @@
 #define is_mind_flayer(ptr) \
     ((ptr) == &mons[PM_MIND_FLAYER] || (ptr) == &mons[PM_MASTER_MIND_FLAYER])
 
-#define is_vampire(ptr) ((ptr)->mlet == S_VAMPIRE || (ptr) == &mons[PM_CRIMSON_DEATH])
+#define is_vampire(ptr) ((ptr)->mlet == S_VAMPIRE || (ptr) == &mons[PM_CRIMSON_DEATH] \
+                         || (ptr) == &mons[PM_BLOOD_IMP])
 
 #define hates_light(ptr) ((ptr) == &mons[PM_GREMLIN] || (ptr) == &mons[PM_SHADOW_FIEND])
 

@@ -740,6 +740,7 @@ num_horns(struct permonst *ptr)
     case PM_MINOTAUR:
     case PM_ASMODEUS:
     case PM_BALROG:
+    case PM_BLOOD_IMP:
         return 2;
     case PM_WHITE_UNICORN:
     case PM_GRAY_UNICORN:

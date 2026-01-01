@@ -59,6 +59,9 @@
 - Vampire Mage
   - Un-deferred.
   - Have access to a special spell list with many unique spells.
+- Blood Imp
+  - Distinct from appearances in other variants.
+  - Necessitated changing imps and manes to gray.
 ## Traps
 - Dipping items in potions on the floor now has additional feedback.
 - Dipping amythest in floor booze turns it into floor fruit juice.

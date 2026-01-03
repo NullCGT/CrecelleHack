@@ -210,6 +210,7 @@ struct u_conduct {     /* number of times... */
     long pets;         /* obtained a pet */
     long conflicting;  /* generated conflict */
     long holy_water;   /* blessed an object with holy water */
+    long dyed;         /* player has explicitly dyed an item */
     /* genocides already listed at end of game */
 };
 

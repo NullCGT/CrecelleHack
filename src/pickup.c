@@ -1141,6 +1141,7 @@ query_objlist(const char *qstr,        /* query string */
                 any.a_obj = curr;
                 tmpglyph = obj_to_glyph(curr, rn2_on_display_rng);
                 map_glyphinfo(0, 0, tmpglyph, 0U, &tmpglyphinfo);
+                tmpglyphinfo.gm.sym.color = compute_obj_glyph_color(curr);
                 add_menu(win, &tmpglyphinfo, &any,
                          (qflags & USE_INVLET) ? curr->invlet
                            : (first && curr->oclass == COIN_CLASS) ? '$' : 0,

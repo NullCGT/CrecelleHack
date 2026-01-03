@@ -699,6 +699,7 @@ potion_coating_text(char *outbuf, int pindex) {
                         ((pindex == POT_BOOZE
                             || pindex == POT_OIL
                             || pindex == POT_WATER
+                            || pindex == POT_DYE
                             || pindex == POT_BLOOD) ? "" : " tonic") : " liquid");
     }
     return outbuf;
@@ -2384,6 +2385,14 @@ do_supplemental_item_info(struct obj *otmp)
     } else {
         putstr(datawin, 0, "It is fully identified.");
     }
+    /* Dyes */
+    if (has_odye(otmp) && !(otmp->otyp == POT_DYE && !otmp->dknown)) {
+        if (otmp->otyp == POT_DYE)
+            Sprintf(buf, "It will dye items %s.", dye_to_name(otmp));
+        else
+            Sprintf(buf, "It is dyed %s.", dye_to_name(otmp));
+        putstr(datawin, 0, buf);
+    }
     /* Scroll Writing */
     if ((otmp->oclass == SCROLL_CLASS || otmp->oclass == SPBOOK_CLASS)
         && objects[otmp->otyp].oc_name_known) {
@@ -2395,7 +2404,7 @@ do_supplemental_item_info(struct obj *otmp)
             putstr(datawin, 0, "It can be dual-wielded.");
         if (is_tripweapon(otmp))
             putstr(datawin, 0, "It can be used to trip monsters.");
-        if (is_poisonable(otmp))
+        if (is_poisonable(otmp) && !otmp->opoisoned)
             putstr(datawin, 0, "It can be poisoned.");
     }
     putstr(datawin, 0, "");

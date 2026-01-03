@@ -184,6 +184,7 @@ restobj(NHFILE *nhfp, struct obj *otmp)
 {
     int buflen = 0;
     unsigned omid = 0;
+    uchar odye = 0;
 
     Sfi_obj(nhfp, otmp, "obj");
     otmp->lua_ref_cnt = 0;
@@ -224,6 +225,8 @@ restobj(NHFILE *nhfp, struct obj *otmp)
         newomid(otmp); /* superfluous; we're already allocated otmp->oextra */
         Sfi_unsigned(nhfp, &omid, "obj-omid");
         OMID(otmp) = omid;
+        Sfi_unsigned(nhfp, &odye, "obj-odye");
+        ODYE(otmp) = odye;
     }
 }
 

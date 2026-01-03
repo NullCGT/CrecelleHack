@@ -900,6 +900,11 @@ xname_flags(
                     Strcat(buf, mons[omndx].pmnames[NEUTRAL]);
                     Strcat(buf, " ");
                 }
+                if (typ == POT_DYE && (obj->dknown || iflags.override_ID)
+                    && has_odye(obj)) {
+                    Strcat(buf, dye_to_name(obj));
+                    Strcat(buf, " ");
+                }
                 Strcat(buf, actualn);
             } else {
                 xcalled(buf, BUFSZ - PREFIX, "", un);
@@ -1051,6 +1056,11 @@ xname_flags(
             break;
         default:
             break;
+        }
+        
+        /* Display dye colors */
+        if (has_odye(obj) && obj->otyp != POT_DYE) {
+            ConcatF1(buf, 0, " dyed %s", dye_to_name(obj));
         }
     }
 

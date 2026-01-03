@@ -53,6 +53,10 @@
 - Spellbook of Aqua Bolt
 - Salt Crystal
 - Salt Wand
+- Dye
+  - Dye is a rare type of tonic that can change the color of items.
+  - Items will very rarely generate dyed.
+  - Visual display of dye can be turned off via a config option.
 ## New Monsters
 - Gray Fungus
   - Originally from SporkHack, but ported from EvilHack.

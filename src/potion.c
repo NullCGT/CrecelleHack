@@ -12,6 +12,7 @@ staticfn int drink_ok(struct obj *);
 staticfn void peffect_restore_ability(struct obj *);
 staticfn void peffect_hallucination(struct obj *);
 staticfn void peffect_blood(struct obj *);
+staticfn void peffect_dye(struct obj *);
 staticfn void peffect_water(struct obj *);
 staticfn void peffect_booze(struct obj *);
 staticfn void peffect_enlightenment(struct obj *);
@@ -766,6 +767,18 @@ peffect_blood(struct obj *otmp) {
 }
 
 staticfn void
+peffect_dye(struct obj *otmp) {
+    if (otmp->cursed)
+        urgent_pline("You dye...");
+    else
+        pline("What a colorful taste!");
+    if (has_odye(otmp))
+        pline("Your lips turn %s.", dye_to_name(otmp));
+    exercise(A_CHA, FALSE);
+    gp.potion_unkn++;
+}
+
+staticfn void
 peffect_water(struct obj *otmp)
 {
     if (!otmp->blessed && !otmp->cursed) {
@@ -1414,6 +1427,9 @@ peffects(struct obj *otmp)
     case POT_BLOOD:
         peffect_blood(otmp);
         break;
+    case POT_DYE:
+        peffect_dye(otmp);
+        break;
     case POT_WATER:
         peffect_water(otmp);
         break;
@@ -2060,6 +2076,19 @@ do_illness:
         if (!resist(mon, POTION_CLASS, 0, NOTELL))
             mon->mconf = TRUE;
         break;
+    case POT_DYE:
+        if (has_odye(obj)) {
+            for (struct obj *otmp = mon->minvent; otmp; otmp = otmp->nobj) {
+                if (ODYE(obj))
+                    dye_obj(otmp, ODYE(obj), your_fault);
+            }
+            if (canseemon(mon)) {
+                pline("%s turns %s!", Monnam(mon), dye_to_name(obj));
+                newsym(mon->mx, mon->my);
+            }
+            mon->minvis = mon->perminvis = 0;
+        }
+        break;
     case POT_INVISIBILITY: {
         boolean sawit = canspotmon(mon);
 
@@ -2251,6 +2280,17 @@ potionhit(struct monst *mon, struct obj *obj, int how)
 
     if (isyou) {
         switch (obj->otyp) {
+        case POT_DYE:
+            if (has_odye(obj)) {
+                for (struct obj *otmp = gi.invent; otmp; otmp = otmp->nobj) {
+                    dye_obj(otmp, ODYE(obj), your_fault);
+                }
+            }
+            if (!Blind && HInvis) {
+                You("are no longer invisible.");
+            }
+            set_itimeout(&HInvis, 0);
+            break;
         case POT_OIL:
             if (obj->lamplit)
                 explode_oil(obj, u.ux, u.uy);
@@ -2431,6 +2471,9 @@ potionbreathe(struct obj *obj)
     case POT_HALLUCINATION:
         Norep("You have a momentary vision.");
         break;
+    case POT_DYE:
+        Norep("The air is cloying.");
+        break;
     case POT_CONFUSION:
     case POT_BOOZE:
         if (!Confusion)
@@ -2590,6 +2633,9 @@ mpotionbreathe(struct obj *obj, struct monst *mtmp, boolean heros_fault)
     case POT_SPEED:
     case POT_TELEPORTITIS:
         potionhit_effects(mtmp, obj, heros_fault);
+        break;
+    case POT_DYE:
+        harmless = TRUE;
         break;
     case POT_HAZARDOUS_WASTE:
         harmless = FALSE; /* monsters know what this means... */
@@ -3137,6 +3183,17 @@ potion_dip(struct obj *obj, struct obj *potion)
         }
         potion->in_use = FALSE; /* didn't go poof */
         return ECMD_TIME;
+    } else if (potion->otyp == POT_DYE) {
+        if (!objects[potion->otyp].oc_name_known) {
+            pline("Suddenly, the %s turns %s.",
+                    simpleonames(obj), dye_to_name(potion));
+        } else {
+            You("dye the %s %s.", simpleonames(obj), dye_to_name(potion));
+        }
+        dye_obj(obj, ODYE(potion), TRUE);
+        poof(potion);
+        update_inventory();
+        return ECMD_TIME;
     } else if (obj->oclass == POTION_CLASS && obj->otyp != potion->otyp) {
         int amt = (int) obj->quan;
         boolean magic;
@@ -3562,6 +3619,24 @@ speed_up(long duration)
 
    exercise(A_DEX, TRUE);
    incr_itimeout(&HFast, duration);
+}
+
+/* dye an object a color, and track the dyed conduct. */
+void
+dye_obj(struct obj *obj, int color, boolean your_fault) {
+    if (!has_odye(obj))
+        newodye(obj);
+    ODYE(obj) = color;
+    if (your_fault)
+        u.uconduct.dyed++;
+}
+
+/* convert an object's dye index to a string */
+const char *
+dye_to_name(struct obj *obj) {
+    if (!has_odye(obj))
+        return "blurple";
+    return clr2colorname(ODYE(obj));
 }
 
 /*potion.c*/

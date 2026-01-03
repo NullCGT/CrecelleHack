@@ -30,6 +30,7 @@ struct oextra {
     char *omailcmd;       /* response_cmd for mail delivery */
     unsigned omid;        /* for corpse: m_id of corpse's ghost; overloaded
                            * for glob: owt at time added to shop's bill */
+    uchar odye;           /* dye color */
 };
 
 struct obj {
@@ -198,11 +199,13 @@ struct obj {
 #define OMONST(o) ((o)->oextra->omonst)
 #define OMAILCMD(o) ((o)->oextra->omailcmd)
 #define OMID(o) ((o)->oextra->omid) /* non-zero => set, zero => not set */
+#define ODYE(o) ((o)->oextra->odye)
 
 #define has_oname(o) ((o)->oextra && ONAME(o))
 #define has_omonst(o) ((o)->oextra && OMONST(o))
 #define has_omailcmd(o) ((o)->oextra && OMAILCMD(o))
 #define has_omid(o) ((o)->oextra && OMID(o))
+#define has_odye(o) ((o)->oextra && ODYE(o))
 
 /* Weapons and weapon-tools */
 /* KMH -- now based on skill categories.  Formerly:

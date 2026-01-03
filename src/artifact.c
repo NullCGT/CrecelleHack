@@ -401,6 +401,8 @@ mk_artifact(
             otmp = 0;
         } /* otherwise, otmp has not changed; just fallthrough to return it */
     }
+    if (is_art(otmp, ART_LONGBOW_OF_DIANA))
+        dye_obj(otmp, CLR_WHITE, FALSE);
     if (otmp && permapoisoned(otmp))
         otmp->opoisoned = 1;
     return otmp;

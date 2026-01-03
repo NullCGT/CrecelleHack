@@ -2253,6 +2253,14 @@ show_conduct(int final)
         you_have_X(buf);
     }
 
+    if (!u.uconduct.dyed) {
+        you_have_never("dyed an item");
+    } else if (wizard) {
+        Sprintf(buf, "dyed items %ld time%s",
+                u.uconduct.dyed, plur(u.uconduct.dyed));
+        you_have_X(buf);
+    }
+
     if (!u.uconduct.polyselfs) {
         you_have_never("changed form");
     } else if (wizard) {

@@ -1196,6 +1196,7 @@ size_obj(struct obj *otmp)
         if (OMAILCMD(otmp))
             sz += (int) strlen(OMAILCMD(otmp)) + 1;
         /* sz += (int) sizeof (unsigned); -- now part of oextra itself */
+        /* dye is part of oextra - K*/
     }
     return sz;
 }

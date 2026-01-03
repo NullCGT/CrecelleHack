@@ -49,6 +49,7 @@ struct flag {
     boolean implicit_medium; /* maybe omit "medium" from weapon sizes */
     boolean implicit_material; /* maybe omit default material from items*/
     boolean ins_chkpt;       /* checkpoint as appropriate; INSURANCE */
+    boolean invisible_dye;   /* disable glyph changes for dyed items */
     boolean invlet_constant; /* let objects keep their inventory symbol */
     boolean legacy;          /* print game entry "story" */
     boolean lit_corridor;    /* show a dark corr as lit if it is in sight */

@@ -2896,6 +2896,13 @@ get_cost(
     multiplier *= MAT_COST(obj->material);
     divisor *= MAT_COST(objects[obj->otyp].oc_material);
 
+    /* adjust for dyed items. disabled since it could cause some
+       issues for colorblind players. */
+    #if 0
+    if (has_odye(obj))
+        multiplier *= 4L, divisor *= 3L;
+    #endif
+
     if (uarmh && uarmh->otyp == DUNCE_CAP)
         multiplier *= 4L, divisor *= 3L;
     else if ((Role_if(PM_TOURIST) && u.ulevel < (MAXULEV / 2))

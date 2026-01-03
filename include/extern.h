@@ -643,6 +643,7 @@ extern int warning_of(struct monst *) NONNULLARG1;
 extern void map_glyphinfo(coordxy, coordxy, int, unsigned, glyph_info *) NONNULLPTRS;
 extern void reset_glyphmap(enum glyphmap_change_triggers trigger);
 extern int fn_cmap_to_glyph(int);
+extern int compute_obj_glyph_color(struct obj *);
 
 /* ### do.c ### */
 
@@ -1669,6 +1670,8 @@ extern void newomonst(struct obj *) NONNULLARG1;
 extern void free_omonst(struct obj *) NONNULLARG1;
 extern void newomid(struct obj *) NONNULLARG1;
 extern void free_omid(struct obj *) NONNULLARG1;
+extern void newodye(struct obj*) NONNULLARG1;
+extern void free_odye(struct obj *) NONNULLARG1;
 /*
 extern void newolong(struct obj *);
 extern void free_olong(struct obj *);
@@ -2608,6 +2611,8 @@ extern void djinni_from_bottle(struct obj *) NONNULLARG1;
 extern struct monst *split_mon(struct monst *, struct monst *) NONNULLARG1;
 extern const char *bottlename(void);
 extern void speed_up(long);
+extern void dye_obj(struct obj *, int, boolean) NONNULLARG1;
+extern const char *dye_to_name(struct obj *) NONNULLARG1;
 
 /* ### pray.c ### */
 

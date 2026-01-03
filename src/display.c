@@ -2636,13 +2636,12 @@ map_glyphinfo(
         }
         glyphinfo->gm.glyphflags |= MG_HERO;
     }
-    /* If it has a material, color it */
+    /* If it has a material and is on the map, color it. Colors for items in menus are
+       handled elsewhere. */
     if (glyph_is_object(glyph)) {
         struct obj* otmp = vobj_at(x, y);
-        if (iflags.use_color && otmp
-            && otmp->material != objects[otmp->otyp].oc_material) {
-            glyphinfo->gm.sym.color = materials[otmp->material].clr;
-        } 
+        if (otmp)
+            glyphinfo->gm.sym.color = compute_obj_glyph_color(otmp);
     }
     /* If the floor has extra surface info, we need to track it to swap the color around. */
     if (IS_COATABLE(levl[x][y].typ)
@@ -3842,6 +3841,24 @@ int
 fn_cmap_to_glyph(int cmap)
 {
     return cmap_to_glyph(cmap);
+}
+
+/* Computes the color of an object's glyph, taking into account both
+   the material of the object and whether or not the object has been
+   dyed. */
+int compute_obj_glyph_color(struct obj *otmp)
+{
+    if (iflags.use_color && otmp) {
+        if (!flags.invisible_dye
+            && has_odye(otmp) && otmp->otyp != POT_DYE) {
+            return ODYE(otmp);
+        } else if (otmp->material != objects[otmp->otyp].oc_material) {
+            return materials[otmp->material].clr;
+        } else {
+            return objects[otmp->otyp].oc_color;
+        }
+    }
+    return NO_COLOR;
 }
 
 /* for 'onefile' processing where end of this file isn't necessarily the

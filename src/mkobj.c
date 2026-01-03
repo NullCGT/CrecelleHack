@@ -164,6 +164,20 @@ free_omid(struct obj *otmp)
 }
 
 void
+newodye(struct obj *otmp)
+{
+    if (!otmp->oextra)
+        otmp->oextra = newoextra();
+    ODYE(otmp) = 0;
+}
+
+void
+free_odye(struct obj *otmp)
+{
+    ODYE(otmp) = 0;
+}
+
+void
 new_omailcmd(struct obj *otmp, const char *response_cmd)
 {
     if (!otmp->oextra)
@@ -228,6 +242,10 @@ mkobj_erosions(struct obj *otmp)
          * will generate greased */
         if (!rn2(1000))
             otmp->greased = 1;
+        /* and an extremely small fraction of the time, erodable items
+           will generate dyed */
+        if (!rn2(3000))
+            dye_obj(otmp, (otmp->o_id % CLR_BRIGHT_CYAN) + 1, FALSE);
     }
 }
 
@@ -481,6 +499,11 @@ copy_oextra(struct obj *obj2, struct obj *obj1)
         if (!OMID(obj2))
             newomid(obj2);
         OMID(obj2) = OMID(obj1);
+    }
+    if (has_odye(obj1)) {
+        if (!ODYE(obj2))
+            newodye(obj2);
+        ODYE(obj2) = ODYE(obj1);
     }
 }
 
@@ -1271,10 +1294,13 @@ mksobj(int otyp, boolean init, boolean artif)
 
     /* some things must get done (corpsenm, timers) even if init = 0 */
     switch ((otmp->oclass == POTION_CLASS && otmp->otyp != POT_OIL
-             && otmp->otyp != POT_BLOOD)
+             && otmp->otyp != POT_BLOOD && otmp->otyp != POT_DYE)
                 ? POT_WATER
                 : otmp->otyp) {
-    
+    case POT_DYE:
+        /* Randomize the dye color */
+        dye_obj(otmp, (otmp->o_id % CLR_BRIGHT_CYAN) + 1, FALSE);
+        break;
     case POT_BLOOD:
         otmp->fromsink = 0;
         do {

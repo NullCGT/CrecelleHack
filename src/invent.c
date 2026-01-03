@@ -2601,6 +2601,7 @@ reroll_menu(void)
     for (otmp = gi.invent; otmp; otmp = otmp->nobj) {
         tmpglyph = obj_to_glyph(otmp, rn2_on_display_rng);
         map_glyphinfo(0, 0, tmpglyph, 0U, &tmpglyphinfo);
+        tmpglyphinfo.gm.sym.color = compute_obj_glyph_color(otmp);
         add_menu(win, &tmpglyphinfo, &any, 0, 0,
                  ATR_NONE, NO_COLOR, doname(otmp), MENU_ITEMFLAGS_NONE);
     }
@@ -4054,6 +4055,7 @@ display_pickinv(
                 /* normal inventory item */
                 tmpglyph = obj_to_glyph(otmp, rn2_on_display_rng);
                 map_glyphinfo(0, 0, tmpglyph, 0U, &tmpglyphinfo);
+                tmpglyphinfo.gm.sym.color = compute_obj_glyph_color(otmp);
                 formattedobj = doname(otmp);
                 add_menu(win, &tmpglyphinfo, &any, ilet,
                          wizid ? def_oc_syms[(int) otmp->oclass].sym : 0,
@@ -4231,6 +4233,7 @@ display_used_invlets(char avoidlet)
                     any.a_char = ilet;
                     tmpglyph = obj_to_glyph(otmp, rn2_on_display_rng);
                     map_glyphinfo(0, 0, tmpglyph, 0U, &tmpglyphinfo);
+                    tmpglyphinfo.gm.sym.color = compute_obj_glyph_color(otmp);
                     add_menu(win, &tmpglyphinfo, &any, ilet, 0,
                              ATR_NONE, clr, doname(otmp),
                              MENU_ITEMFLAGS_NONE);
@@ -5260,7 +5263,8 @@ mergable(
 
     /* some additional information is always incompatible */
     if (has_omonst(obj) || has_omid(obj)
-        || has_omonst(otmp) || has_omid(otmp))
+        || has_omonst(otmp) || has_omid(otmp)
+        || has_odye(otmp))
         return FALSE;
 
     /* if they have names, make sure they're the same */

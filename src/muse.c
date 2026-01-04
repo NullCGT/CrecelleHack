@@ -1008,7 +1008,8 @@ use_defensive(struct monst *mtmp)
             pline_mon(mtmp, "%s has made a hole in the %s.", Monnam(mtmp),
                   surface(mtmp->mx, mtmp->my));
             pline_mon(mtmp, "%s %s through...", Monnam(mtmp),
-                  is_flyer(mtmp->data) ? "dives" : "falls");
+                  is_climber(mtmp->data) ? "swings" :
+                    is_flyer(mtmp->data) ? "dives" : "falls");
         } else if (!Deaf) {
             Soundeffect(se_crash_through_floor, 100);
             You_hear("%s crash through the %s.", something,
@@ -1155,7 +1156,8 @@ use_defensive(struct monst *mtmp)
         if (!stway)
             return 0;
         if (vismon)
-            pline_mon(mtmp, "%s escapes up the ladder!", Monnam(mtmp));
+            pline_mon(mtmp, "%s %s up the ladder!", Monnam(mtmp),
+                      is_climber(mtmp->data) ? "climbs" : "escapes");
         migrate_to_level(mtmp, ledger_no(&(stway->tolev)), MIGR_LADDER_DOWN,
                          (coord *) 0);
         return 2;
@@ -1165,7 +1167,8 @@ use_defensive(struct monst *mtmp)
         if (!stway)
             return 0;
         if (vismon)
-            pline_mon(mtmp, "%s escapes down the ladder!", Monnam(mtmp));
+            pline_mon(mtmp, "%s %s down the ladder!", Monnam(mtmp),
+                        is_climber(mtmp->data) ? "climbs" : "escapes");
         migrate_to_level(mtmp, ledger_no(&(stway->tolev)), MIGR_LADDER_UP,
                          (coord *) 0);
         return 2;

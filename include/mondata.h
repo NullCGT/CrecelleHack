@@ -297,6 +297,7 @@
 #define mud_hider(ptr) \
     ((!is_hider(ptr) && ptr->msize <= MZ_MEDIUM) \
         && !mindless(ptr))
+#define is_climber(ptr) (((ptr)->mflags2 & M2_CLIMBER) != 0L)
 
 /* monkeys are tamable via bananas but not pacifiable via food,
    otherwise their theft attack could be nullified too easily;

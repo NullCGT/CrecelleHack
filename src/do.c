@@ -1384,7 +1384,8 @@ doup(void)
     if (u_stuck_cannot_go("up"))
         return ECMD_TIME;
 
-    if (near_capacity() > SLT_ENCUMBER) {
+    if ((near_capacity() > SLT_ENCUMBER)
+        && !is_climber(gy.youmonst.data)) {
         /* No levitation check; inv_weight() already allows for it */
         Your("load is too heavy to climb the %s.",
              levl[u.ux][u.uy].typ == STAIRS ? "stairs" : "ladder");

@@ -37,6 +37,8 @@
     - Appears frequently in graveyard levels.
     - Wooden items in bones files have a chance of becoming bleakwood.
 ## Monsters
+- Some monsters are coded as climbers (YANI Archive #1700 by aosdict)
+  and can climb out of pits easily.
 - The open wounds spell can now cause bleeding.
 - Many unique monsters have unique spell lists.
   - Vlad casts spells as a vampire mage and also has access to a unique

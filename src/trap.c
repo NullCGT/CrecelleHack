@@ -3864,7 +3864,8 @@ staticfn boolean
 m_easy_escape_pit(struct monst *mtmp)
 {
     return (mtmp->data == &mons[PM_PIT_FIEND]
-            || mtmp->data->msize >= MZ_HUGE);
+            || mtmp->data->msize >= MZ_HUGE
+            || is_climber(mtmp->data));
 }
 
 int

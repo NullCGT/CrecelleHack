@@ -1056,8 +1056,8 @@ dog_move(
     coordxy nx, ny; /* temporary coordinates */
     xint16 cnt, uncursedcnt, chcnt;
     int chi = -1, nidist, ndist;
-    coord poss[9];
-    long info[9], allowflags;
+    long allowflags;
+    struct mfndposdata mfp;
 #define GDIST(x, y) (dist2(x, y, gg.gx, gg.gy))
 
     /*
@@ -1103,7 +1103,6 @@ dog_move(
     nix = omx; /* set before newdogpos */
     niy = omy;
     cursemsg[0] = FALSE; /* lint suppression */
-    info[0] = 0;         /* ditto */
 
     if (edog) {
         j = dog_invent(mtmp, edog, udist);
@@ -1139,7 +1138,7 @@ dog_move(
     }
 #endif
     allowflags = mon_allowflags(mtmp);
-    cnt = mfndpos(mtmp, poss, info, allowflags);
+    cnt = mfndpos(mtmp, &mfp, allowflags);
 
     /* Normally dogs don't step on cursed items, but if they have no
      * other choice they will.  This requires checking ahead of time
@@ -1147,9 +1146,9 @@ dog_move(
      */
     uncursedcnt = 0;
     for (i = 0; i < cnt; i++) {
-        nx = poss[i].x;
-        ny = poss[i].y;
-        if (MON_AT(nx, ny) && !((info[i] & ALLOW_M) || info[i] & ALLOW_MDISP)
+        nx = mfp.poss[i].x;
+        ny = mfp.poss[i].y;
+        if (MON_AT(nx, ny) && !((mfp.info[i] & ALLOW_M) || mfp.info[i] & ALLOW_MDISP)
             && !(edog && (edog->petstrat & PETSTRAT_COME)))
             continue;
         if (!MON_AT(nx, ny) && edog && (edog->petstrat & PETSTRAT_STATIONARY))
@@ -1159,7 +1158,7 @@ dog_move(
         uncursedcnt++;
     }
 
-    better_with_displacing = should_displace(mtmp, poss, info, cnt,
+    better_with_displacing = should_displace(mtmp, mfp,
                                              gg.gx, gg.gy);
 
     chcnt = 0;
@@ -1167,8 +1166,8 @@ dog_move(
     nidist = GDIST(nix, niy);
 
     for (i = 0; i < cnt; i++) {
-        nx = poss[i].x;
-        ny = poss[i].y;
+        nx = mfp.poss[i].x;
+        ny = mfp.poss[i].y;
         cursemsg[i] = FALSE;
 
         /* if leashed, we drag him along. */
@@ -1181,7 +1180,7 @@ dog_move(
 
         ranged_only = FALSE;
 
-        if ((info[i] & ALLOW_M) && MON_AT(nx, ny)) {
+        if ((mfp.info[i] & ALLOW_M) && MON_AT(nx, ny)) {
             int mstatus;
             struct monst *mtmp2 = m_at(nx, ny);
             /* weight the audacity of the pet to attack a differently-leveled
@@ -1265,7 +1264,7 @@ dog_move(
             }
             return MMOVE_DONE;
         }
-        if ((info[i] & ALLOW_MDISP) && MON_AT(nx, ny)
+        if ((mfp.info[i] & ALLOW_MDISP) && MON_AT(nx, ny)
             && better_with_displacing && !undesirable_disp(mtmp, nx, ny)) {
             int mstatus;
             struct monst *mtmp2 = m_at(nx, ny);
@@ -1292,7 +1291,7 @@ dog_move(
              */
             struct trap *trap;
 
-            if ((info[i] & ALLOW_TRAPS) && (trap = t_at(nx, ny))) {
+            if ((mfp.info[i] & ALLOW_TRAPS) && (trap = t_at(nx, ny))) {
                 if (mtmp->mleashed) {
                     if (!Deaf)
                         whimper(mtmp);
@@ -1374,7 +1373,7 @@ dog_move(
     if (nix != omx || niy != omy) {
         boolean wasseen;
 
-        if (info[chi] & ALLOW_U) {
+        if (mfp.info[chi] & ALLOW_U) {
             if (mtmp->mleashed) { /* play it safe */
                 pline_mon(mtmp, "%s breaks loose of %s leash!",
                          Monnam(mtmp), mhis(mtmp));

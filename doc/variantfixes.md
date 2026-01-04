@@ -49,6 +49,7 @@
 - Added different types of fungal coatings.
 ## Miscelaneous
 - Revert cost increase of enchantment scrolls.
+- To-hit bonus of Luck changed to match 3.7.
 ## New Items
 - Spellbook of Aqua Bolt
 - Salt Crystal

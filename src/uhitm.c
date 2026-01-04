@@ -373,16 +373,11 @@ find_roll_to_hit(
     int *role_roll_penalty)
 {
     int tmp, tmp2;
-    int luck = 0;
 
     *role_roll_penalty = 0; /* default is `none' */
 
-    if (Luck > 0) {
-        luck = d(1, Luck);
-    } else if (Luck < 0) {
-        luck = d(1, -1 * Luck);
-    }
-    tmp = 1 + luck + abon(weapon) + find_mac(mtmp) + u.uhitinc
+    tmp = 1 + abon(uwep) + find_mac(mtmp) + u.uhitinc
+          + (sgn(Luck) * ((abs(Luck) + 2) / 3))
           + maybe_polyd(gy.youmonst.data->mlevel, u.ulevel);
 
     /* some actions should occur only once during multiple attacks */

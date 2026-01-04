@@ -1552,6 +1552,14 @@ you cannot sacrifice objects/corpses while stunned or confused
 	that they work; /y and /n for them now only work when lootabc is off
 writing on an unidentified scroll of blank paper identifies blank paper
 dumplogs include spells and skills
+praying will not restore monster-form HP while polymorphed, unless you
+        have unchanging
+winter wolf cub was missing for monster to lycanthrope conversion
+monster elves shooting arrows weren't getting intended small to-hit and damage
+	bonuses
+safe armor enchantment limit is lowered by one for magical armor
+luck has a reduced effect on to-hit chance
+monsters use wand of teleportation to move hero away from item pile
 
 
 Fixes to 3.7.0-x General Problems Exposed Via git Repository
@@ -2172,6 +2180,8 @@ livelog/#chronicle for saving-grace: if saving-grace prevents hero's death,
 naming a type of item, unnaming it (with name of <space>), naming it again
 	(new name or re-use of old one), then unnaming it again would issue
 	impossible: "named object not in disco"
+throwing entire quiver and then picking the stack back up was not putting it
+	back into quiver
 
 
 Fixes to 3.7.0-x Platform and/or Interface Problems Exposed Via git Repository
@@ -2329,7 +2339,7 @@ curses: if user's terminal was set to 'application keypad mode' (DEC VTxxx
 	"ESC SPC G"), nethack wasn't recognizing number pad keys
 curses: change petattr attributes, dropping support for curses-only ones
 curses: swap the grey and no-color color initialization
-curses+Qt: allow changing default colors with the 'palette' config option
+curses+tty+Qt: allow changing default colors with the 'palette' config option
 	(only if compiled with CHANGE_COLOR)
 curses: if messages have been issued during start-up (for instance, warnings
 	about issues in run-time config file), prompt user to press <return>

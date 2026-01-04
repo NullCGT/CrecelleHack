@@ -1078,8 +1078,9 @@ addinv_core2(struct obj *obj)
  * Adjust hero attributes as necessary.
  */
 staticfn struct obj *
-addinv_core0(struct obj *obj, struct obj *other_obj,
-             boolean update_perm_invent)
+addinv_core0(
+    struct obj *obj, struct obj *other_obj,
+    boolean update_perm_invent)
 {
     struct obj *otmp, *prev;
     int saved_otyp = (int) obj->otyp; /* for panic */
@@ -1087,6 +1088,9 @@ addinv_core0(struct obj *obj, struct obj *other_obj,
 
     if (obj->where != OBJ_FREE)
         panic("addinv: obj not free");
+    if (obj->how_lost == LOST_EXPLODING)
+        return (struct obj *) NULL;
+
     /* normally addtobill() clears no_charge when items in a shop are
        picked up, but won't do so if the shop has become untended */
     obj->no_charge = 0; /* should not be set in hero's invent */
@@ -1178,7 +1182,8 @@ addinv(struct obj *obj)
 /* add obj to the hero's inventory by inserting in front of a specific item;
    used for throw-and-return in case '!fixinv' is in effect */
 struct obj *
-addinv_before(struct obj *obj, struct obj *other_obj)
+addinv_before(
+    struct obj *obj, struct obj *other_obj)
 {
     /* if 'other_obj' is present this will implicitly be 'nomerge' */
     return addinv_core0(obj, other_obj, TRUE);
@@ -5198,7 +5203,11 @@ mergable(
 
     if (obj->cursed != otmp->cursed || obj->blessed != otmp->blessed)
         return FALSE;
-    if ((obj->how_lost & ~LOSTOVERRIDEMASK) != 0)
+
+    if (obj->how_lost == LOST_EXPLODING
+        || otmp->how_lost == LOST_EXPLODING)
+        return FALSE;
+    if (otmp->how_lost != LOST_NONE && (obj->how_lost != otmp->how_lost))
         return FALSE;
 #if 0   /* don't require 'bypass' to match; that results in items dropped
          * via 'D' not stacking with compatible items already on the floor;
@@ -5215,8 +5224,7 @@ mergable(
 
     if (obj->unpaid != otmp->unpaid || obj->spe != otmp->spe
         || obj->no_charge != otmp->no_charge || obj->obroken != otmp->obroken
-        || obj->otrapped != otmp->otrapped || obj->lamplit != otmp->lamplit
-        || obj->how_lost != otmp->how_lost)
+        || obj->otrapped != otmp->otrapped || obj->lamplit != otmp->lamplit)
         return FALSE;
 
     if (obj->oclass == FOOD_CLASS

@@ -3852,7 +3852,8 @@ int compute_obj_glyph_color(struct obj *otmp)
         if (!flags.invisible_dye
             && has_odye(otmp) && otmp->otyp != POT_DYE) {
             return ODYE(otmp);
-        } else if (otmp->material != objects[otmp->otyp].oc_material) {
+        } else if (!flags.invisible_material
+                    && (otmp->material != objects[otmp->otyp].oc_material)) {
             return materials[otmp->material].clr;
         } else {
             return objects[otmp->otyp].oc_color;

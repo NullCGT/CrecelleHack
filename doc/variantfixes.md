@@ -19,6 +19,7 @@
   - Nulling
   - Briny
 - Many adjustments to existing oprops.
+- Invisible_material option to disable material color glyphs.
 - New Materials
   - Nightiron.
     - Generates very rarely.

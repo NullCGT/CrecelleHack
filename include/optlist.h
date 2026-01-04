@@ -420,6 +420,9 @@ static int optfn_##a(int, int, boolean, char *, char *);
     NHOPTB(invisible_dye, Variant, 0, opt_in, set_in_game,
            Off, Yes, No, No, NoAlias, &flags.invisible_dye, Term_False,
            "display dyed items with usual item colors")
+    NHOPTB(invisible_material, Variant, 0, opt_in, set_in_game,
+           Off, Yes, No, No, NoAlias, &flags.invisible_material, Term_False,
+           "display items without material colors")
     NHOPTB(invweight, Variant, 0, opt_out, set_in_game,
            On, Yes, No, No, "wizweight", &iflags.invweight, Term_False,
            "display weight of items" )

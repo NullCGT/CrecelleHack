@@ -5454,6 +5454,7 @@ optfn_boolean(
             go.opt_need_glyph_reset = TRUE;
             break;
         case opt_invisible_dye:
+        case opt_invisible_material:
             go.opt_need_redraw = TRUE;
             go.opt_need_glyph_reset = TRUE;
             update_inventory();

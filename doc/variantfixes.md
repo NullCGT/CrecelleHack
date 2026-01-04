@@ -12,6 +12,8 @@
     much more quickly for them. This includes both positive intrinsics
     as well as negative ones, such as terminal illness. They also
     forget spells twice as quickly.
+## Dungeon
+- Mild rewrite of Vlad's Tower.
 ## Objects
 - New Oprops
   - Acidic

@@ -1244,7 +1244,7 @@ itsstuck(struct monst *mtmp)
 boolean
 should_displace(
     struct monst *mtmp,
-    struct mfndposdata *data,
+    const struct mfndposdata *data,
     coordxy ggx,
     coordxy ggy)
 {

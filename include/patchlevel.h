@@ -36,10 +36,10 @@
 #define DEBUG
 #endif
 
-#define VARIANT_BANNER_A "CrecelleHack, Copyright 2025 by Antigulp"
+#define VARIANT_BANNER_A "CrecelleHack, Copyright 2026 by Antigulp"
 #define VARIANT_BANNER_B "         Crecelle (n) - A rattle or ratchet. A child's toy."
 
-#define COPYRIGHT_BANNER_A "NetHack, Copyright 1985-2025"
+#define COPYRIGHT_BANNER_A "NetHack, Copyright 1985-2026"
 #define COPYRIGHT_BANNER_B \
     "         By Stichting Mathematisch Centrum and M. Stephenson."
 /* nomakedefs.copyright_banner_c is generated at runtime */

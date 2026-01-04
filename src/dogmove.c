@@ -1158,7 +1158,7 @@ dog_move(
         uncursedcnt++;
     }
 
-    better_with_displacing = should_displace(mtmp, mfp,
+    better_with_displacing = should_displace(mtmp, &mfp,
                                              gg.gx, gg.gy);
 
     chcnt = 0;

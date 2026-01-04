@@ -3409,6 +3409,7 @@ destroy_arm(struct obj *atmp)
     /* glove loss means wielded weapon will be touched */
     if (losing_gloves)
         selftouch("You");
+    add_coating(u.ux, u.uy, COAT_ASHES, 0);
 
     stop_occupation();
     return 1;

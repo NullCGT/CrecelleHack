@@ -634,8 +634,10 @@ study_book(struct obj *spellbook)
             gn.nomovemsg = 0;
             svc.context.spbook.delay = 0;
             if (gone || !rn2(3)) {
-                if (!gone)
+                if (!gone) {
                     pline_The("spellbook crumbles to dust!");
+                    add_coating(u.ux, u.uy, COAT_ASHES, 0);
+                }
                 trycall(spellbook);
                 useup(spellbook);
             } else

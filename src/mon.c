@@ -621,6 +621,7 @@ make_corpse(struct monst *mtmp, unsigned int corpseflags)
                 pline_mon(mtmp,
                       "%s recently regrown horn crumbles to dust.",
                       s_suffix(Monnam(mtmp)));
+            add_coating(mtmp->mx, mtmp->my, COAT_ASHES, 0);
         } else {
             obj = mksobj_at(UNICORN_HORN, x, y, TRUE, FALSE);
             if (obj && mtmp->mrevived)
@@ -3037,6 +3038,7 @@ lifesaved_monster(struct monst *mtmp)
                     pline("%s looks much better!", Monnam(mtmp));
             }
             pline_The("medallion crumbles to dust!");
+            add_coating(mtmp->mx, mtmp->my, COAT_ASHES, 0);
         }
         m_useup(mtmp, lifesave);
         /* equip replacement amulet, if any, on next move */
@@ -3377,6 +3379,7 @@ corpse_chance(
         if (cansee(mon->mx, mon->my) && !was_swallowed)
             pline_mon(mon, "%s body crumbles into dust.",
                       s_suffix(Monnam(mon)));
+        add_coating(mon->mx, mon->my, COAT_ASHES, 0);
         return FALSE;
     }
 

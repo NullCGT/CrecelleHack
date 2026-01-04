@@ -1092,6 +1092,7 @@ done(int how)
             You("vomit ...");
         You_feel("much better!");
         pline_The("medallion crumbles to dust!");
+        add_coating(u.ux, u.uy, COAT_ASHES, 0);
         if (uamul)
             useup(uamul);
 

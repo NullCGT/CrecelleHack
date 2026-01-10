@@ -40,6 +40,9 @@
 - Some monsters are coded as climbers (YANI Archive #1700 by aosdict)
   and can climb out of pits easily.
 - The open wounds spell can now cause bleeding.
+- Change straw golems to scarecrows.
+  - Scarecrows scare birds.
+  - Players polymorphed into scarecrows cannot have their brains eaten.
 - Many unique monsters have unique spell lists.
   - Vlad casts spells as a vampire mage and also has access to a unique
     spell: blood bind.

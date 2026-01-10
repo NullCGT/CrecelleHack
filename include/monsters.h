@@ -2831,7 +2831,7 @@
     /*
      * golems
      */
-    MON(NAM("straw golem"), S_GOLEM,
+    MON(NAM("scarecrow"), S_GOLEM,
         LVL(3, 12, 10, 0, 0), (G_NOCORPSE | 1),
         A(ATTK(AT_CLAW, AD_PHYS, 1, 2), ATTK(AT_CLAW, AD_PHYS, 1, 2),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),

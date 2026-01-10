@@ -705,6 +705,11 @@ eat_brains(
          * monster mind flayer is eating hero's brain
          */
         /* no such thing as mindless players */
+        if (gy.youmonst.data == &mons[PM_STRAW_GOLEM]) {
+            pline("If you only had a brain...");
+            return M_ATTK_MISS;
+        }
+
         if (ABASE(A_INT) <= ATTRMIN(A_INT)) {
             static NEARDATA const char brainlessness[] = "brainlessness";
 

@@ -2252,6 +2252,11 @@ mon_allowflags(struct monst *mtmp)
     if (mon_avoids_chokepoint(mtmp)) {
         allowflags |= NOTONL;
     }
+    if (gy.youmonst.data == &mons[PM_STRAW_GOLEM]
+        && is_bird(mtmp->data)) {
+        /* birds don't want to get near scarecrows. */
+        allowflags |= NOTONL;
+    }
     if (is_human(mtmp->data) || mtmp->data == &mons[PM_MINOTAUR])
         allowflags |= ALLOW_SSM;
     if ((is_undead(mtmp->data) && mtmp->data->mlet != S_GHOST)
@@ -2602,6 +2607,9 @@ mm_aggression(
        like to eat shriekers, so attack the latter when feasible */
     if ((mndx == PM_PURPLE_WORM || mndx == PM_BABY_PURPLE_WORM)
         && mdef->data == &mons[PM_SHRIEKER])
+        return ALLOW_M | ALLOW_TM;
+    /* scarecrows hate birds */
+    if (mndx == PM_STRAW_GOLEM && is_bird(mdef->data))
         return ALLOW_M | ALLOW_TM;
     if (mndx == PM_TORNADO)
         return ALLOW_M | ALLOW_TM;

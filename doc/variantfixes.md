@@ -40,6 +40,8 @@
 - Some monsters are coded as climbers (YANI Archive #1700 by aosdict)
   and can climb out of pits easily.
 - The open wounds spell can now cause bleeding.
+- Monsters throw potions of hallucination, which can cause short-term
+  hallucination.
 - Change straw golems to scarecrows.
   - Scarecrows scare birds.
   - Players polymorphed into scarecrows cannot have their brains eaten.

@@ -2531,7 +2531,9 @@ potionbreathe(struct obj *obj)
         }
         break;
     case POT_HALLUCINATION:
-        Norep("You have a momentary vision.");
+        (void) make_hallucinated(itimeout_incr(HHallucination,
+                                           rn1(5, 5)),
+                             TRUE, 0L);
         break;
     case POT_HONEY:
         Norep("Something smells sweet.");

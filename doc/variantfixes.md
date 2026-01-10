@@ -92,6 +92,7 @@
 # Misc
 - Added the Gem Alchemy patch from SLASH'EM. You can also dip gems
   into potions on the floor to do floor alchemy with them.
+- Monsters are more interested in picking up all types of potions.
 
 # 1.4
 ## Object Materials Patch

@@ -49,6 +49,7 @@ staticfn void hold_potion(struct obj *, const char *, const char *,
 staticfn void poof(struct obj *);
 staticfn boolean dip_potion_explosion(struct obj *, int);
 staticfn int potion_dip(struct obj *obj, struct obj *potion);
+staticfn short mix_gem(struct obj *o1);
 
 
 #define COAT(id, nam, adj, val) { nam, adj, val }
@@ -1964,13 +1965,14 @@ evaporate_potion_puddles(coordxy x, coordxy y) {
     }
 }
 
-/* potion mixes with existing potions upon the ground */
+/* object mixes with existing potions upon the ground, and a new potion
+   coating is added. */
 void
 floor_alchemy(int x, int y, int otyp, int corpsenm) {
     struct obj fakeobj1, fakeobj2 = cg.zeroobj;
     struct obj *otmp, *objchain;
     fakeobj1.otyp = otyp;
-    fakeobj1.oclass = POTION_CLASS;
+    fakeobj1.oclass = objects[otyp].oc_class;
     boolean bomb = FALSE;
     
     if (otyp == POT_WATER) {
@@ -1979,6 +1981,7 @@ floor_alchemy(int x, int y, int otyp, int corpsenm) {
         }
     }
     if (has_coating(x, y, COAT_POTION)) {
+        /* Make the mix */
         if (otyp == levl[x][y].pindex)
             return;
         if (otyp == POT_WATER || levl[x][y].pindex == POT_WATER) {
@@ -1989,13 +1992,28 @@ floor_alchemy(int x, int y, int otyp, int corpsenm) {
             bomb = TRUE;
         fakeobj2.otyp = levl[x][y].pindex;
         otyp = mixtype(&fakeobj1, &fakeobj2);
-        if (otyp == STRANGE_OBJECT) {
-            otmp = mkobj(POTION_CLASS, FALSE);
-            otyp = otmp->otyp;
-            obfree(otmp, (struct obj *) 0);
+        /* Handle odd mixes */
+        if (fakeobj1.oclass == POTION_CLASS) {
+            if (otyp == STRANGE_OBJECT) {
+                otmp = mkobj(POTION_CLASS, FALSE);
+                otyp = otmp->otyp;
+                obfree(otmp, (struct obj *) 0);
+            }
+        } else if (fakeobj1.oclass == GEM_CLASS) {
+            if (!otyp || otyp == STRANGE_OBJECT) {
+                Norep("Nothing interesting happens...");
+                return;
+            } else if (otyp == POT_WATER) {
+                bomb = TRUE;
+            }
         }
+        /* Get the results */
         if (cansee(x, y)) {
-            Norep("The liquids on the ground begin to mix."); /* todo: location pline for accessability? */
+            /* todo: location pline for accessability? */
+            if (fakeobj1.oclass == POTION_CLASS)
+                Norep("The liquids on the ground begin to mix.");
+            else
+                Norep("The liquid on the ground changes color.");
         }
         if (bomb || !rn2(10)) {
             remove_coating(x, y, COAT_POTION);
@@ -2003,9 +2021,10 @@ floor_alchemy(int x, int y, int otyp, int corpsenm) {
             return;
         }
     }
+    /* Add the new coating if necessary */
     if (otyp == POT_BLOOD) {
         add_coating(x, y, COAT_BLOOD, corpsenm);
-    } else {
+    } else if (objects[otyp].oc_class == POTION_CLASS) {
         add_coating(x, y, COAT_POTION, otyp);
     }
 }
@@ -2826,6 +2845,10 @@ mixtype(struct obj *o1, struct obj *o2)
         break;
     }
 
+    /* MRKR: Extra alchemical effects. */
+
+	if (o2->otyp == POT_ACID && o1->oclass == GEM_CLASS)
+	    return mix_gem(o1);
     return STRANGE_OBJECT;
 }
 
@@ -3040,8 +3063,11 @@ dodip(void)
                 } else if (obj->otyp == AMETHYST && levl[u.ux][u.uy].pindex == POT_BOOZE) {
                     levl[u.ux][u.uy].pindex = POT_FRUIT_JUICE;
                     pline("The liquid changes color.");
+                } else if (obj->oclass == GEM_CLASS
+                        && levl[u.ux][u.uy].pindex == POT_ACID) {
+                    floor_alchemy(u.ux, u.uy, obj->otyp, obj->corpsenm);
                 } else {
-                    pline("Interesting...");
+                    pline("The liquid here is spread to thin for things to get interesting...");
                 }
                 return ECMD_TIME;
             }
@@ -3442,7 +3468,7 @@ potion_dip(struct obj *obj, struct obj *potion)
     }
 
     potion->in_use = FALSE; /* didn't go poof */
-    if ((obj->otyp == UNICORN_HORN || obj->otyp == AMETHYST)
+    if ((obj->otyp == UNICORN_HORN || obj->oclass == GEM_CLASS)
         && (mixture = mixtype(obj, potion)) != STRANGE_OBJECT) {
         char oldbuf[BUFSZ], newbuf[BUFSZ];
         short old_otyp = potion->otyp;
@@ -3460,6 +3486,28 @@ potion_dip(struct obj *obj, struct obj *potion)
             singlepotion = splitobj(potion, 1L);
         } else
             singlepotion = potion;
+
+        /* MRKR: Gems dissolve in acid to produce new potions */
+		if (obj->oclass == GEM_CLASS && potion->otyp == POT_ACID) {
+		    struct obj *singlegem = (obj->quan > 1L ? 
+					     splitobj(obj, 1L) : obj);
+		    singlegem->in_use = TRUE;
+		    if (potion->otyp == POT_ACID && 
+                (obj->otyp == POT_WATER
+                  || potion->cursed || !rn2(10))) {
+                    if (Hallucination && obj->otyp == DILITHIUM_CRYSTAL) {
+                        /* Thanks to Robin Johnson */
+                        pline("Warning, Captain!  The warp core has been breached!");
+                    }
+                    dip_potion_explosion(potion, rnd(10));
+                    useup(singlegem);
+                    return 1;	  
+		        }
+		    pline("%s dissolves in %s.", The(xname(singlegem)), 
+			        the(xname(singlepotion)));
+		    makeknown(POT_ACID);
+		    useup(singlegem);
+		}
 
         costly_alteration(singlepotion, COST_NUTRLZ);
         singlepotion->otyp = mixture;
@@ -3661,6 +3709,109 @@ dye_to_name(struct obj *obj) {
     if (!has_odye(obj))
         return "blurple";
     return clr2colorname(ODYE(obj));
+}
+
+/* gem alchemy patch */
+staticfn short
+mix_gem(struct obj *o1)
+{
+    const char *potion_descr;
+    /* Note: you can't create smoky, milky or clear potions */
+    switch (o1->otyp) {
+        /* white */
+    case DILITHIUM_CRYSTAL:
+    case SALT_CRYSTAL:
+        /* explodes - special treatment in dodip */
+        /* here we just want to return something non-zero */
+        return POT_WATER;
+        break;
+    case DIAMOND:
+        /* won't dissolve */
+        potion_descr = NULL;
+        break;
+    case OPAL:
+        potion_descr = "cloudy";
+        break;
+        /* red */
+    case RUBY:
+        potion_descr = "ruby";
+        break;
+    case GARNET:
+        potion_descr = "pink";
+        break;
+    case JASPER:
+        potion_descr = "purple-red";
+        break;
+        /* orange */
+    case JACINTH:
+        potion_descr = "orange";
+        break;
+    case AGATE:
+        potion_descr = "swirly";
+        break;
+        /* yellow */
+    case CITRINE:
+        potion_descr = "yellow";
+        break;
+    case CHRYSOBERYL:
+        potion_descr = "golden";
+        break;
+        /* yellowish brown */
+    case AMBER:
+        potion_descr = "brown";
+        break;
+    case TOPAZ:
+        potion_descr = "murky";
+        break;
+        /* green */
+    case EMERALD:
+        potion_descr = "emerald";
+        break;
+    case TURQUOISE:
+        potion_descr = "sky blue";
+        break;
+    case AQUAMARINE:
+        potion_descr = "cyan";
+        break;
+    case JADE:
+        potion_descr = "dark green";
+        break;
+        /* blue */
+    case SAPPHIRE:
+        potion_descr = "brilliant blue";
+        break;
+        /* violet */
+    case AMETHYST:
+        potion_descr = "magenta";
+        break;
+    case FLUORITE:
+        potion_descr = "white";
+        break;
+        /* black */
+    case BLACK_OPAL:
+        potion_descr = "black";
+        break;
+    case JET:
+        potion_descr = "dark";
+        break;
+    case OBSIDIAN:
+        potion_descr = "effervescent";
+        break;
+    default:
+        potion_descr = NULL;
+    }
+    if (potion_descr) {
+        int typ;
+        /* find a potion that matches the description */
+        for (typ = POT_GAIN_ABILITY;
+            objects[typ].oc_class == POTION_CLASS;
+            typ++) {
+            if (strcmp(potion_descr, OBJ_DESCR(objects[typ])) == 0) {
+                return typ;
+            }
+        }
+    }
+    return STRANGE_OBJECT;
 }
 
 /*potion.c*/

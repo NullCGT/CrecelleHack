@@ -813,8 +813,7 @@ m_postmove_effect(struct monst *mtmp)
             pm = PM_ELF;
         add_coating(x, y, COAT_BLOOD, has_blood(&mons[pm]) ? pm : PM_HUMAN);
     } else if (mtmp->data == &mons[PM_SALT_GOLEM]) {
-        remove_coating(x, y, COAT_BLOOD);
-        remove_coating(x, y, COAT_POTION);
+        floor_alchemy(x, y, SALT_CRYSTAL, NON_PM);
     } else if (mtmp->data == &mons[PM_TORNADO]) {
         /* tornados suck up everything */
         remove_coating(x, y, COAT_ALL);

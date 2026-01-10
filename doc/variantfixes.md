@@ -89,6 +89,9 @@
 - Implemented xNetHack's trap ammo patch. Code pulled from EvilHack.
 - New trap: Spark trap.
   - Creates a bonfire on a several turn delay.
+# Misc
+- Added the Gem Alchemy patch from SLASH'EM. You can also dip gems
+  into potions on the floor to do floor alchemy with them.
 
 # 1.4
 ## Object Materials Patch

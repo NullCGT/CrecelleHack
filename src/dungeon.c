@@ -1683,7 +1683,7 @@ Can_rise_up(coordxy x, coordxy y, d_level *lev)
 }
 
 boolean
-exposed_to_elements(d_level *lev)
+exposed_to_elements(d_level *lev UNUSED)
 {
     return (svl.level.flags.outdoors || depth(&u.uz) < 5);
 }

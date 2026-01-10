@@ -2188,6 +2188,11 @@ use_offensive(struct monst *mtmp)
     return 0;
 }
 
+static int offensive_muse_wands[] = {
+    WAN_FIRE, WAN_COLD, WAN_SLEEP, WAN_LIGHTNING,
+    WAN_MAGIC_MISSILE
+};
+
 int
 rnd_offensive_item(struct monst *mtmp)
 {
@@ -2214,27 +2219,25 @@ rnd_offensive_item(struct monst *mtmp)
     case 1:
         return ((difficulty < 8 || rn2(difficulty) < 6)) ? WAN_STRIKING : WAN_AQUA_BOLT;
     case 2:
-        return POT_ACID;
     case 3:
-        return POT_CONFUSION;
+        return POT_ACID;
     case 4:
-        return POT_BLINDNESS;
     case 5:
-        return POT_SLEEPING;
+        return POT_CONFUSION;
     case 6:
-        return POT_PARALYSIS;
+        return POT_BLINDNESS;
     case 7:
-        return WAN_MAGIC_MISSILE;
+        return POT_SLEEPING;
     case 8:
-        return POT_HAZARDOUS_WASTE;
+        return POT_HALLUCINATION;
     case 9:
-        return WAN_SLEEP;
+        return POT_HONEY;
     case 10:
-        return WAN_FIRE;
+        return POT_PARALYSIS;
     case 11:
-        return WAN_COLD;
+        return POT_HAZARDOUS_WASTE;
     case 12:
-        return WAN_LIGHTNING;
+        return ROLL_FROM(offensive_muse_wands);
     }
     /*NOTREACHED*/
     return 0;

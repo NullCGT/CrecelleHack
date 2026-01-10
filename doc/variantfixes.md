@@ -22,6 +22,7 @@
   - Briny
 - Many adjustments to existing oprops.
 - Potions weigh half as much.
+- Monsters tend to spawn with potions instead of wands as offensive items.
 - Invisible_material option to disable material color glyphs.
 - New Materials
   - Nightiron.

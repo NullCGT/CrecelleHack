@@ -154,7 +154,7 @@ COAT(FROST,     "snow",     "snowy ",               0x040), \
 COAT(MUD,       "mud",      "muddy ",               0x080), \
 COAT(ALL,       "all",      "all",                  0xfff)
 
-#define NUM_COATINGS 9 /* IMPORTANT: must be incremented when coatings are addeed */
+#define NUM_COATINGS 8 /* IMPORTANT: must be incremented when coatings are addeed */
 #define COAT(id, nam, adj, val) COAT_##id = val
 enum coatings_enum { COAT_LIST };
 #undef COAT

@@ -1835,7 +1835,7 @@ coateffects(coordxy x, coordxy y, struct monst *mon) {
                 pline("Shards of glass crunch under your %s.", makeplural(body_part(FOOT)));
             } else {
                 Your("%s are cut by shards of glass!", makeplural(body_part(FOOT)));
-                if (u.uhp > 1) losehp(1, "stepping on broken glass", KILLED_BY);
+                losehp(1, "stepping on broken glass", KILLED_BY);
                 make_dripping(rnd(20), POT_BLOOD, gy.youmonst.mnum);
                 disp.botl = TRUE;
             }
@@ -1853,8 +1853,7 @@ coateffects(coordxy x, coordxy y, struct monst *mon) {
                 You_hear("a soft tinkling.");
             }
         }
-        if (!rn2(3))
-            remove_coating(x, y, COAT_SHARDS);
+        remove_coating(x, y, COAT_SHARDS);
     }
     if (stepper && has_coating(x, y, COAT_MUD)) {
         if (isyou && !(uarmf && objdescr_is(uarmf, "mud boots"))) {

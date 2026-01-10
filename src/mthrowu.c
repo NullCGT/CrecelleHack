@@ -171,12 +171,15 @@ drop_throw(
         || (ohit && (obj->otyp == EGG || obj->otyp == BOTTLE))) {
         broken = TRUE;
     } else if (obj->otyp == BOTTLE) {
-        broken =TRUE;
+        broken = TRUE;
+    } else if (breaks(obj, x, y)) {
+        gt.thrownobj = 0;
+        return TRUE;
     } else {
         broken = (ohit && should_mulch_missile(obj));
     }
 
-    if (broken) {
+    if (broken && obj) {
         delobj(obj);
     } else {
         if (down_gate(x, y) != -1)

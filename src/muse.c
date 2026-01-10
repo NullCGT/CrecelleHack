@@ -1381,6 +1381,7 @@ rnd_defensive_item(struct monst *mtmp)
 #define MUSE_FLOOR_ALCHEMY 21
 #define MUSE_SCR_MAZE_OFFENSIVE 22
 #define MUSE_WAN_AQUA_BOLT 23
+#define MUSE_POT_HONEY 24
 
 staticfn boolean
 linedup_chk_corpse(coordxy x, coordxy y)
@@ -1655,6 +1656,12 @@ find_offensive(struct monst *mtmp)
             && !m_seenres(mtmp, M_SEEN_ACID)) {
             gm.m.offensive = obj;
             gm.m.has_offense = MUSE_POT_ACID;
+        }
+        nomore(MUSE_POT_HONEY);
+        if (obj->otyp == POT_HONEY && uarmf
+                    && !(Levitation || Flying)) {
+            gm.m.offensive = obj;
+            gm.m.has_offense = MUSE_POT_HONEY;
         }
         /* we can safely put this scroll here since the locations that
          * are in a 1 square radius are a subset of the locations that
@@ -2146,6 +2153,7 @@ use_offensive(struct monst *mtmp)
     case MUSE_POT_SLEEPING:
     case MUSE_POT_ACID:
     case MUSE_POT_HAZARDOUS_WASTE:
+    case MUSE_POT_HONEY:
         /* Note: this setting of dknown doesn't suffice.  A monster
          * which is out of sight might throw and it hits something _in_
          * sight, a problem not existing with wands because wand rays
@@ -2941,7 +2949,7 @@ searches_for_item(struct monst *mon, struct obj *obj)
             || typ == POT_FULL_HEALING || typ == POT_POLYMORPH
             || typ == POT_GAIN_LEVEL || typ == POT_PARALYSIS
             || typ == POT_SLEEPING || typ == POT_ACID || typ == POT_CONFUSION
-            || typ == POT_SICKNESS
+            || typ == POT_SICKNESS || typ == POT_HONEY
             || typ == POT_HAZARDOUS_WASTE)
             return TRUE;
         if (typ == POT_BLINDNESS && !attacktype(mon->data, AT_GAZE))

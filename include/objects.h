@@ -1223,6 +1223,8 @@ POTION("oil",                   "murky",  0, 0, 30, 250, CLR_BROWN,
  */
 POTION("blood",             "blood red", 0, 0,   0,  50, CLR_RED,
                                                         POT_BLOOD),
+POTION("honey",                 "amber",  0, 0, 10,  50, CLR_YELLOW,
+                                                        POT_HONEY),
 POTION("water",                 "clear",  0, 0, 80, 100, CLR_CYAN,
                                                         POT_WATER),
 #undef POTION

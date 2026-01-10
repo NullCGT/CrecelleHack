@@ -150,9 +150,8 @@ COAT(POTION,    "potion",   "potion-spattered ",    0x004), \
 COAT(BLOOD,     "blood",    "bloody ",              0x008), \
 COAT(FUNGUS,    "fungus",   "fungus-encrusted ",    0x010), \
 COAT(SHARDS,    "shards",   "glass-strewn ",        0x020), \
-COAT(HONEY,     "honey",    "sticky ",              0x040), \
-COAT(FROST,     "snow",     "snowy ",               0x080), \
-COAT(MUD,       "mud",      "muddy ",               0x100), \
+COAT(FROST,     "snow",     "snowy ",               0x040), \
+COAT(MUD,       "mud",      "muddy ",               0x080), \
 COAT(ALL,       "all",      "all",                  0xfff)
 
 #define NUM_COATINGS 9 /* IMPORTANT: must be incremented when coatings are addeed */

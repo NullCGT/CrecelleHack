@@ -2664,7 +2664,7 @@ passiveum(
             break;
         case AD_HONY:
             You("release some honey.");
-            add_coating(u.ux, u.uy, COAT_HONEY, 0);
+            floor_alchemy(u.ux, u.uy, POT_HONEY, NON_PM);
             tmp = 0;
             break;
         case AD_DISE:

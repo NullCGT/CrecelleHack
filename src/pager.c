@@ -697,9 +697,8 @@ potion_coating_text(char *outbuf, int pindex) {
                                                 : OBJ_DESCR(objects[pindex]),
                     objects[pindex].oc_name_known ?
                         ((pindex == POT_BOOZE
-                            || pindex == POT_OIL
-                            || pindex == POT_WATER
-                            || pindex == POT_DYE
+                            || pindex == POT_OIL || pindex == POT_WATER
+                            || pindex == POT_DYE || pindex == POT_HONEY
                             || pindex == POT_BLOOD) ? "" : " tonic") : " liquid");
     }
     return outbuf;

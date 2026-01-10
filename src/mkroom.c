@@ -418,7 +418,7 @@ fill_zoo(struct mkroom *sroom)
                 if (!rn2(3))
                     (void) mksobj_at(LUMP_OF_ROYAL_JELLY, sx, sy, TRUE,
                                      FALSE);
-                add_coating(sx, sy, COAT_HONEY, 0);
+                add_coating(sx, sy, COAT_POTION, POT_HONEY);
                 break;
             case BARRACKS:
                 if (!rn2(20)) /* the payroll and some loot */

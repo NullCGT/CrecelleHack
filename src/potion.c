@@ -12,6 +12,7 @@ staticfn int drink_ok(struct obj *);
 staticfn void peffect_restore_ability(struct obj *);
 staticfn void peffect_hallucination(struct obj *);
 staticfn void peffect_blood(struct obj *);
+staticfn void peffect_honey(struct obj *);
 staticfn void peffect_dye(struct obj *);
 staticfn void peffect_water(struct obj *);
 staticfn void peffect_booze(struct obj *);
@@ -767,6 +768,21 @@ peffect_blood(struct obj *otmp) {
 }
 
 staticfn void
+peffect_honey(struct obj *otmp) {
+    if (Hallucination) {
+        pline("Sweet %s, %s, that's not honey! That's ascii text!",
+                align_gname(u.ualign.type), svp.plname);
+    } else {
+        pline(otmp->cursed ? "Ugh, it's spoiled." : "Delicious!");
+        gp.potion_unkn++;
+    }
+    if (otmp->blessed && !otmp->odiluted)
+        incr_itimeout(&HRegeneration, d(3, 3));
+    u.uhunger += 20 * (2 + bcsign(otmp));
+    newuhs(FALSE);
+}
+
+staticfn void
 peffect_dye(struct obj *otmp) {
     if (otmp->cursed)
         urgent_pline("You dye...");
@@ -1427,6 +1443,9 @@ peffects(struct obj *otmp)
     case POT_BLOOD:
         peffect_blood(otmp);
         break;
+    case POT_HONEY:
+        peffect_honey(otmp);
+        break;
     case POT_DYE:
         peffect_dye(otmp);
         break;
@@ -1751,7 +1770,7 @@ add_coating(coordxy x, coordxy y, short coatflags, int pindex) {
         remove_coating(x, y, COAT_BLOOD | COAT_FROST | COAT_FUNGUS);
         levl[x][y].pindex = pindex;
         if (pindex == POT_ACID) {
-            remove_coating(x, y, COAT_GRASS | COAT_ASHES | COAT_HONEY);
+            remove_coating(x, y, COAT_GRASS | COAT_ASHES);
         } else if (pindex < POT_GAIN_ABILITY || pindex > POT_WATER) {
             impossible("coating at <%d,%d> with invalid tonic %d?", x, y, pindex);
         }
@@ -1836,21 +1855,6 @@ coateffects(coordxy x, coordxy y, struct monst *mon) {
         if (!rn2(3))
             remove_coating(x, y, COAT_SHARDS);
     }
-    if (stepper && isyou && has_coating(x, y, COAT_HONEY)) {
-        if ((!Levitation && !Flying) && !rn2(3)) {
-            if (uarmf) {
-                struct obj *otmp;
-                pline("%s in some honey and are yanked from your %s!",
-                        Yobjnam2(uarmf, "stick"),
-                        makeplural(body_part(FOOT)));
-                otmp = uarmf;
-                remove_worn_item(otmp, TRUE);
-                dropx(otmp);
-            } else {
-                pline("Some honey sticks to your %s.", body_part(FOOT));
-            }
-        }
-    }
     if (stepper && has_coating(x, y, COAT_MUD)) {
         if (isyou && !(uarmf && objdescr_is(uarmf, "mud boots"))) {
             You("slog through the mud.");
@@ -1885,6 +1889,23 @@ coateffects(coordxy x, coordxy y, struct monst *mon) {
             mon->mfrozen = 1;
             mon->mcanmove = 0;
             make_mon_prone(mon);
+        }
+    } else if (stepper && isyou && has_coating(x, y, COAT_POTION)
+        && levl[x][y].pindex == POT_HONEY) {
+        if ((!Levitation && !Flying) && !rn2(3)) {
+            potion_coating_text(buf, POT_HONEY);
+            if (uarmf) {
+                struct obj *otmp;
+                pline("%s in some %s and are yanked from your %s!",
+                        Yobjnam2(uarmf, "stick"), buf,
+                        makeplural(body_part(FOOT)));
+                otmp = uarmf;
+                remove_worn_item(otmp, TRUE);
+                dropx(otmp);
+            } else {
+                pline("Some %s sticks to your %s.", buf, body_part(FOOT));
+            }
+            makeknown(POT_HONEY);
         }
     } else if (stepper && has_coating(x, y, COAT_BLOOD)
                 && touch_petrifies(&mons[levl[x][y].pindex])) {
@@ -2010,7 +2031,7 @@ potion_fumigate(coordxy x, coordxy y, struct obj *otmp) {
     int otyp = otmp->otyp;
     /* Some potions do not produce clouds. */
     if (otyp == POT_WATER || otyp == POT_BLOOD
-        || otyp == POT_OIL)
+        || otyp == POT_OIL || otyp == POT_HONEY)
         return;
     /* Produce a cloud of potion */
     create_gas_cloud(x, y, 4, otmp, 8);
@@ -2470,6 +2491,9 @@ potionbreathe(struct obj *obj)
         break;
     case POT_HALLUCINATION:
         Norep("You have a momentary vision.");
+        break;
+    case POT_HONEY:
+        Norep("Something smells sweet.");
         break;
     case POT_DYE:
         Norep("The air is cloying.");

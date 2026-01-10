@@ -4874,10 +4874,6 @@ dfeature_at(coordxy x, coordxy y, char *buf)
             Sprintf(eos(altbuf), "%sash", listing ? " and " : "");
             listing = TRUE;
         }
-        if ((lev->coat_info & COAT_HONEY) != 0) {
-            Sprintf(eos(altbuf), "%shoney", listing ? " and " : "");
-            listing = TRUE;
-        }
         if ((lev->coat_info & COAT_FROST) != 0) {
             Sprintf(eos(altbuf), "%ssnow", listing ? " and " : "");
             listing = TRUE;

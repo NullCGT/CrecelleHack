@@ -288,7 +288,7 @@ obj_shuffle_range(
     case POTION_CLASS:
         /* potion of water has the only fixed description */
         *lo_p = svb.bases[POTION_CLASS];
-        *hi_p = POT_WATER - 2;
+        *hi_p = POT_WATER - 3;
         break;
     case AMULET_CLASS:
     case SCROLL_CLASS:

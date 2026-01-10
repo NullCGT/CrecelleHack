@@ -66,6 +66,9 @@
   - Dye is a rare type of tonic that can change the color of items.
   - Items will very rarely generate dyed.
   - Visual display of dye can be turned off via a config option.
+- Tonic of Honey
+  - Instead of being handled as a distinct coating, honey is now a
+    bespoke potion.
 ## New Monsters
 - Gray Fungus
   - Originally from SporkHack, but ported from EvilHack.

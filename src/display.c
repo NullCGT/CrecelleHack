@@ -2662,8 +2662,6 @@ map_glyphinfo(
             glyphinfo->gm.sym.color = CLR_WHITE;
         else if ((levl[x][y].coat_info & COAT_MUD) != 0)
             glyphinfo->gm.sym.color = CLR_BROWN;
-        else if ((levl[x][y].coat_info & COAT_HONEY) != 0)
-            glyphinfo->gm.sym.color = CLR_YELLOW;
         else if ((levl[x][y].coat_info & COAT_BLOOD) != 0)
             glyphinfo->gm.sym.color = CLR_RED;
         else if ((levl[x][y].coat_info & COAT_ASHES) != 0)

@@ -1479,7 +1479,7 @@ passivemm(
                           Monnam(magr));
             break;
         case AD_HONY:
-            add_coating(mdef->mx, mdef->my, COAT_HONEY, 0);
+            floor_alchemy(mdef->mx, mdef->my, POT_HONEY, NON_PM);
             tmp = 0;
             break;
         default:

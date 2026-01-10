@@ -1162,7 +1162,7 @@ FOOD("tin",                  75,  0, 10, 1, METAL,   0, HI_METAL, TIN),
 #define POTION(name,desc,mgc,power,prob,cost,color,sn) \
     OBJECT(OBJ(name, desc),                                             \
            BITS(0, 1, 0, 0, mgc, 0, 0, 0, 0, 0, 0, 0, P_NONE, GLASS),      \
-           power, POTION_CLASS, prob, 0, 20, cost, 0, 0, 0, 0, 10, color, sn)
+           power, POTION_CLASS, prob, 0, 10, cost, 0, 0, 0, 0, 10, color, sn)
 POTION("gain ability",           "ruby",  1, 0, 40, 300, CLR_RED,
                                                         POT_GAIN_ABILITY),
 POTION("restore ability",        "pink",  1, 0, 40, 100, CLR_BRIGHT_MAGENTA,

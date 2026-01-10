@@ -21,6 +21,7 @@
   - Nulling
   - Briny
 - Many adjustments to existing oprops.
+- Potions weigh half as much.
 - Invisible_material option to disable material color glyphs.
 - New Materials
   - Nightiron.

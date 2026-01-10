@@ -2010,12 +2010,12 @@ trapeffect_spark_trap(
     } else if (!mtmp) {
         if (cansee(tx, ty))
             seetrap(trap);
-        You_hear("Something begin to tick.");
+        You_hear("something begin to tick.");
     } else {
         if (cansee(tx, ty))
             seetrap(trap);
         pline("%s triggers a pressure plate!", Monnam(mtmp));
-        You_hear("Something begin to tick.");
+        You_hear("something begin to tick.");
     }
         (void) start_timer((long) rn1(4, 3), TIMER_LEVEL, SPARK_DELAY,
                            long_to_any(where));

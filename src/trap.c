@@ -4827,12 +4827,10 @@ acid_damage(struct obj *obj)
 
     if (obj->greased) {
         grease_protect(obj, (char *) 0, victim);
-    } else if (obj->otyp == BOTTLE) {
-        if (carried(obj))
-            pline_The("%s fills up your %s.", hliquid("acid"), cxname(obj));
+    } else if (obj->otyp == BOTTLE && carried(obj)) {
+        pline_The("%s fills up your %s.", hliquid("acid"), cxname(obj));
         poly_obj(obj, POT_ACID);
-        if (carried(obj))
-            update_inventory();
+        update_inventory();
         return;
     } else if (obj->oclass == SCROLL_CLASS && obj->otyp != SCR_BLANK_PAPER) {
         if (obj->otyp != SCR_BLANK_PAPER
@@ -4936,8 +4934,8 @@ water_damage(
         wet_a_towel(obj, -rnd(7 - obj->spe), TRUE);
         return ER_NOTHING;
     } else if (obj->otyp == BOTTLE) {
-        poly_obj(obj, POT_WATER);
         if (in_invent) {
+            poly_obj(obj, POT_WATER);
             pline_The("%s fills up your %s.", hliquid("water"), ostr);
             described = TRUE;
             update_inventory();

@@ -713,6 +713,9 @@ m_everyturn_effect(struct monst *mtmp)
             (uarm->otyp == YELLOW_DRAGON_SCALES || 
                 uarm->otyp == YELLOW_DRAGON_SCALE_MAIL))) {
         floor_spillage(x, y, POT_ACID, NON_PM);
+    } else if (mtmp->data == &mons[PM_WATER_ELEMENTAL] || 
+                mtmp->data == &mons[PM_SQUONK]) {
+        floor_spillage(x, y, POT_WATER, NON_PM);
     }
     /* oprop boots do odd things */
     if (is_u && uarmf && uarmf->oprop) {
@@ -803,10 +806,6 @@ m_postmove_effect(struct monst *mtmp)
             create_gas_cloud(x, y, 1, 0, 0);
         else
             create_bonfire(x, y, 1, rnd(4));
-    } else if (mtmp->data == &mons[PM_WATER_ELEMENTAL] || 
-                mtmp->data == &mons[PM_SQUONK]) {
-        /* enough water is produced that we just add a coating instead of alchemizing */
-        add_coating(x, y, COAT_POTION, POT_WATER);
     } else if (mtmp->data == &mons[PM_BLOOD_GOLEM]) {
         int pm = rndmonnum();
         if (touch_petrifies(&mons[pm]))

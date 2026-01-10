@@ -1972,9 +1972,16 @@ floor_spillage(int x, int y, short otyp, int corpsenm) {
     struct obj *objchain;
     if (objects[otyp].oc_class != POTION_CLASS)
         impossible("Trying to spill non-tonic %d on floor?", otyp);
-    if (otyp == POT_WATER) {
+    if (otyp == POT_WATER || otyp == POT_ACID) {
         if ((objchain = svl.level.objects[x][y]) != 0) {
-            water_damage_chain(objchain, TRUE);
+            if (otyp == POT_WATER)
+                water_damage_chain(objchain, TRUE);
+            else if (otyp == POT_ACID) {
+                while (objchain) {
+                    acid_damage(objchain);
+                    objchain = objchain->nexthere;
+                }
+            }
         }
     }
     if (has_coating(x, y, COAT_POTION)) {

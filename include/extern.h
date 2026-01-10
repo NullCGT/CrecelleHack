@@ -3364,7 +3364,7 @@ extern boolean grease_protect(struct obj *, const char *,
                               struct monst *) NONNULLARG1;
 extern struct trap *maketrap(coordxy, coordxy, int);
 extern d_level *clamp_hole_destination(d_level *) NONNULLARG1;
-extern void set_trap_ammo(struct trap *trap, struct obj *obj) NONNULLARG1;
+extern void set_trap_ammo(struct trap *trap, struct obj *obj);
 extern void fall_through(boolean, unsigned);
 extern struct monst *animate_statue(struct obj *, coordxy, coordxy,
                                     int, int *) NONNULLARG1;

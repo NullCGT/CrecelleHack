@@ -938,7 +938,7 @@ cast_monster_spell(struct monst *mtmp, int dmg, int spellnum)
             for (int j = starty; j <= stopy; j++) {
                 otyp = (spellnum == MCU_BLOOD_RAIN) ? POT_BLOOD : 
                     (POT_GAIN_ABILITY + rn2(POT_OIL - POT_GAIN_ABILITY));
-                floor_alchemy(i, j, otyp, PM_HUMAN);
+                floor_spillage(i, j, otyp, PM_HUMAN);
             }
         }
         dmg = d(1, 6);

@@ -6371,7 +6371,7 @@ passive(
                 learn_it = TRUE;
                 pline_mon(mon, "Some honey drips from %s.", mon_nam(mon));
             }
-            floor_alchemy(mon->mx, mon->my, POT_HONEY, NON_PM);
+            floor_spillage(mon->mx, mon->my, POT_HONEY, NON_PM);
             break;
         default:
             break;

@@ -3872,7 +3872,7 @@ dotip(void)
                || (cobj->otyp == LANTERN && cobj->age > 1L)
                || (cobj->otyp == MAGIC_LAMP && cobj->spe != 0)) {
         spillage = "oil";
-        floor_alchemy(u.ux, u.uy, POT_OIL, NON_PM);
+        floor_spillage(u.ux, u.uy, POT_OIL, NON_PM);
         cobj->age -= 1L;
         check_unpaid_usage(cobj, FALSE);
     } else if (cobj->otyp == CAN_OF_GREASE && cobj->spe > 0) {
@@ -3910,7 +3910,7 @@ dotip(void)
         if (Levitation)
             potion_splatter(u.ux, u.uy, cobj->otyp, cobj->corpsenm);
         else
-            floor_alchemy(u.ux, u.uy, cobj->otyp, cobj->corpsenm);
+            floor_spillage(u.ux, u.uy, cobj->otyp, cobj->corpsenm);
         debottle_potion(cobj);
     } else if (cobj->oclass == POTION_CLASS) {
         You("waste the %s.", xname(cobj));

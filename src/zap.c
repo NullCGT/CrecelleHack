@@ -3916,7 +3916,7 @@ zap_map(
                     || obj->otyp == SPE_AQUA_BOLT) {
             if (cansee(x, y))
                 Norep("The %s gets wet.", surface(x, y));
-            floor_alchemy(x, y, POT_WATER, 0);
+            floor_spillage(x, y, POT_WATER, 0);
             learn_it = TRUE;
         }
     } /* !u.uz */
@@ -5696,7 +5696,7 @@ zap_over_floor(
         if (damgtype == ZT_LIGHTNING) {
             detonate_waste(x, y);
         } else if (damgtype == ZT_ACID) {
-            floor_alchemy(x, y, POT_ACID, 0);
+            floor_spillage(x, y, POT_ACID, 0);
         }
         break; /* ZT_ACID */
 

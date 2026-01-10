@@ -712,7 +712,7 @@ m_everyturn_effect(struct monst *mtmp)
         (is_u && uarm && 
             (uarm->otyp == YELLOW_DRAGON_SCALES || 
                 uarm->otyp == YELLOW_DRAGON_SCALE_MAIL))) {
-        floor_alchemy(x, y, POT_ACID, NON_PM);
+        floor_spillage(x, y, POT_ACID, NON_PM);
     }
     /* oprop boots do odd things */
     if (is_u && uarmf && uarmf->oprop) {
@@ -729,11 +729,11 @@ m_everyturn_effect(struct monst *mtmp)
                 }
                 break;
             case OPROP_SANGUINE:
-                floor_alchemy(x, y, POT_BLOOD, PM_HUMAN);
+                floor_spillage(x, y, POT_BLOOD, PM_HUMAN);
                 uarmf->pknown = 1;
                 break;
             case OPROP_ACIDIC:
-                floor_alchemy(x, y, POT_ACID, 0);
+                floor_spillage(x, y, POT_ACID, 0);
                 uarmf->pknown = 1;
                 break;
             case OPROP_HUNGRY:
@@ -744,7 +744,7 @@ m_everyturn_effect(struct monst *mtmp)
                 }
                 break;
             case OPROP_BRINY:
-                floor_alchemy(x, y, POT_WATER, 0);
+                floor_spillage(x, y, POT_WATER, 0);
                 uarmf->pknown = 1;
                 break;
             default:
@@ -759,7 +759,7 @@ m_everyturn_effect(struct monst *mtmp)
             You("drip %s onto the %s.", dripbuf, surface(u.ux, u.uy));
         }
         if (u.udriptype > 0)
-            floor_alchemy(x, y, u.udriptype, NON_PM);
+            floor_spillage(x, y, u.udriptype, NON_PM);
         else add_coating(x, y, COAT_BLOOD, -1 * u.udriptype);
     } else if (is_u && uwep && is_art(uwep, ART_WRATH_OF_SANKIS) && !rn2(3)) {
         add_coating(x, y, COAT_BLOOD, PM_DWARF);
@@ -767,11 +767,11 @@ m_everyturn_effect(struct monst *mtmp)
                 && is_art(MON_WEP(mtmp), ART_WRATH_OF_SANKIS)  && !rn2(3)) {
         add_coating(x, y, COAT_BLOOD, PM_DWARF);
     } else if (!is_u && mtmp->mdripping) {
-        if (mtmp->mdriptype > 0) floor_alchemy(x, y, mtmp->mdriptype, NON_PM);
+        if (mtmp->mdriptype > 0) floor_spillage(x, y, mtmp->mdriptype, NON_PM);
         else add_coating(x, y, COAT_BLOOD, -1 * mtmp->mdriptype);
     } else if (mtmp->data == &mons[PM_ACID_BLOB] 
             || mtmp->data == &mons[PM_GELATINOUS_CUBE]) {
-        floor_alchemy(x, y, POT_ACID, NON_PM);
+        floor_spillage(x, y, POT_ACID, NON_PM);
     }
 }
 
@@ -813,7 +813,7 @@ m_postmove_effect(struct monst *mtmp)
             pm = PM_ELF;
         add_coating(x, y, COAT_BLOOD, has_blood(&mons[pm]) ? pm : PM_HUMAN);
     } else if (mtmp->data == &mons[PM_SALT_GOLEM]) {
-        floor_alchemy(x, y, SALT_CRYSTAL, NON_PM);
+        floor_alchemy(x, y, SALT_CRYSTAL);
     } else if (mtmp->data == &mons[PM_TORNADO]) {
         /* tornados suck up everything */
         remove_coating(x, y, COAT_ALL);

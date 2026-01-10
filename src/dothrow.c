@@ -2482,7 +2482,7 @@ breakobj(
 
     switch (obj->oclass == POTION_CLASS ? POT_WATER : obj->otyp) {
     case LUMP_OF_ROYAL_JELLY:
-        floor_alchemy(x, y, POT_HONEY, NON_PM);
+        floor_spillage(x, y, POT_HONEY, NON_PM);
         break;
     case MIRROR:
         if (hero_caused)

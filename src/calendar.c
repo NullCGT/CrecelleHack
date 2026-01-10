@@ -387,7 +387,7 @@ weather_effects(void)
                 : CURR_WEATHER(WTH_DOWNBURST) ? 8 : 4)) {
             x = rn2(COLNO);
             y = rn2(ROWNO);
-            floor_alchemy(x, y, CURR_WEATHER(WTH_ACIDRAIN) ? POT_ACID 
+            floor_spillage(x, y, CURR_WEATHER(WTH_ACIDRAIN) ? POT_ACID 
                                                           : POT_WATER, 0);
         }
     }

@@ -1479,7 +1479,7 @@ passivemm(
                           Monnam(magr));
             break;
         case AD_HONY:
-            floor_alchemy(mdef->mx, mdef->my, POT_HONEY, NON_PM);
+            floor_spillage(mdef->mx, mdef->my, POT_HONEY, NON_PM);
             tmp = 0;
             break;
         default:

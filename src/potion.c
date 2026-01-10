@@ -1965,68 +1965,84 @@ evaporate_potion_puddles(coordxy x, coordxy y) {
     }
 }
 
-/* object mixes with existing potions upon the ground, and a new potion
-   coating is added. */
+/* Liquid spills onto the floor, creating a new coating
+   that depends on what is already there. Calls floor_alchemy()
+   in order to accomplish this. */
 void
-floor_alchemy(int x, int y, int otyp, int corpsenm) {
-    struct obj fakeobj1, fakeobj2 = cg.zeroobj;
-    struct obj *otmp, *objchain;
-    fakeobj1.otyp = otyp;
-    fakeobj1.oclass = objects[otyp].oc_class;
-    boolean bomb = FALSE;
-    
+floor_spillage(int x, int y, short otyp, int corpsenm) {
+    struct obj *objchain;
+    if (objects[otyp].oc_class != POTION_CLASS)
+        impossible("Trying to spill non-tonic %d on floor?", otyp);
     if (otyp == POT_WATER) {
         if ((objchain = svl.level.objects[x][y]) != 0) {
             water_damage_chain(objchain, TRUE);
         }
     }
     if (has_coating(x, y, COAT_POTION)) {
-        /* Make the mix */
         if (otyp == levl[x][y].pindex)
             return;
         if (otyp == POT_WATER || levl[x][y].pindex == POT_WATER) {
             if (rn2(2)) add_coating(x, y, COAT_POTION, otyp);
             return;
         }
-        if (otyp == POT_HAZARDOUS_WASTE || levl[x][y].pindex == POT_HAZARDOUS_WASTE)
-            bomb = TRUE;
-        fakeobj2.otyp = levl[x][y].pindex;
-        otyp = mixtype(&fakeobj1, &fakeobj2);
-        /* Handle odd mixes */
-        if (fakeobj1.oclass == POTION_CLASS) {
-            if (otyp == STRANGE_OBJECT) {
-                otmp = mkobj(POTION_CLASS, FALSE);
-                otyp = otmp->otyp;
-                obfree(otmp, (struct obj *) 0);
-            }
-        } else if (fakeobj1.oclass == GEM_CLASS) {
-            if (!otyp || otyp == STRANGE_OBJECT) {
-                Norep("Nothing interesting happens...");
-                return;
-            } else if (otyp == POT_WATER) {
-                bomb = TRUE;
-            }
-        }
-        /* Get the results */
-        if (cansee(x, y)) {
-            /* todo: location pline for accessability? */
-            if (fakeobj1.oclass == POTION_CLASS)
-                Norep("The liquids on the ground begin to mix.");
-            else
-                Norep("The liquid on the ground changes color.");
-        }
-        if (bomb || !rn2(10)) {
-            remove_coating(x, y, COAT_POTION);
-            explode(x, y, PHYS_EXPL_TYPE, d(1, 10), 0, EXPL_NOXIOUS);
-            return;
-        }
-    }
-    /* Add the new coating if necessary */
-    if (otyp == POT_BLOOD) {
+        floor_alchemy(x, y, otyp);
+    } else if (otyp == POT_BLOOD) {
         add_coating(x, y, COAT_BLOOD, corpsenm);
-    } else if (objects[otyp].oc_class == POTION_CLASS) {
+    } else {
         add_coating(x, y, COAT_POTION, otyp);
     }
+}
+
+/* mix an otyp with the liquid on the floor. must not be called 
+   on bottled potions. */
+int
+floor_alchemy(int x, int y, short otyp) {
+    struct obj fakeobj1, fakeobj2 = cg.zeroobj;
+    struct obj *otmp;
+    fakeobj1.otyp = otyp;
+    fakeobj1.oclass = objects[otyp].oc_class;
+    boolean pot = (objects[otyp].oc_class == POTION_CLASS);
+    boolean bomb = FALSE;
+
+    /* nothing to do, bail out */
+    if (!has_coating(x, y, COAT_POTION))
+        return otyp;
+    /* Make the mix */
+    if (otyp == POT_HAZARDOUS_WASTE
+            || levl[x][y].pindex == POT_HAZARDOUS_WASTE)
+        bomb = TRUE;
+    fakeobj2.otyp = levl[x][y].pindex;
+    otyp = mixtype(&fakeobj1, &fakeobj2);
+    /* Handle odd mixes */
+    if (fakeobj1.oclass == GEM_CLASS) {
+        if (!otyp || otyp == STRANGE_OBJECT) {
+            return otyp;
+        } else if (otyp == POT_WATER) {
+            bomb = TRUE;
+        }
+    } else if (otyp == STRANGE_OBJECT) {
+        otmp = mkobj(POTION_CLASS, FALSE);
+        otyp = otmp->otyp;
+        obfree(otmp, (struct obj *) 0);
+    }
+    /* Get the results */
+    if ((fakeobj1.otyp != otyp) && cansee(x, y)) {
+        /* todo: location pline for accessability? */
+        if (pot)
+            Norep("The liquids on the ground begin to mix.");
+        else {
+            pline("The liquid on the ground changes color.");
+        }
+    }
+    if (bomb || !rn2(10)) {
+        remove_coating(x, y, COAT_POTION);
+        explode(x, y, PHYS_EXPL_TYPE, d(1, 10), 0, EXPL_NOXIOUS);
+        return 0;
+    } else {
+        /* potion coatings are handled by floor_spillage() */
+        add_coating(x, y, COAT_POTION, otyp);
+    }
+    return otyp;
 }
 
 /* potion splashes across floor, potentially mixing with extant potions */
@@ -2039,7 +2055,7 @@ potion_splatter(coordxy x, coordxy y, int otyp, int corpsenm) {
 
     for (int i = startx; i <= stopx; i++) {
         for (int j = starty; j <= stopy; j++) {
-            floor_alchemy(i, j, otyp, corpsenm);
+            floor_spillage(i, j, otyp, corpsenm);
         }
     }
 }
@@ -3060,12 +3076,8 @@ dodip(void)
                     || obj->otyp == BOTTLE || obj->otyp == OIL_LAMP
                     || obj->otyp == MAGIC_LAMP || obj->otyp == LANTERN) {
                     pline("The liquid here is too thinly distributed to fill a container with.");
-                } else if (obj->otyp == AMETHYST && levl[u.ux][u.uy].pindex == POT_BOOZE) {
-                    levl[u.ux][u.uy].pindex = POT_FRUIT_JUICE;
-                    pline("The liquid changes color.");
-                } else if (obj->oclass == GEM_CLASS
-                        && levl[u.ux][u.uy].pindex == POT_ACID) {
-                    floor_alchemy(u.ux, u.uy, obj->otyp, obj->corpsenm);
+                } else if (obj->oclass == GEM_CLASS) {
+                    floor_alchemy(u.ux, u.uy, obj->otyp);
                 } else {
                     pline("The liquid here is spread to thin for things to get interesting...");
                 }

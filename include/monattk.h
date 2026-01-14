@@ -112,7 +112,7 @@ struct mhitm_data {
 };
 
 /*
- *  Monster to monster attacks.  When a monster attacks another (mattackm),
+ *  Monster-to-monster attacks.  When a monster attacks another (mattackm),
  *  any or all of the following can be returned.  See mattackm() for more
  *  details.
  */

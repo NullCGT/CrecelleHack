@@ -1284,6 +1284,10 @@ extern boolean pmatchi(const char *, const char *) NONNULLPTRS;
 extern boolean pmatchz(const char *, const char *) NONNULLPTRS;
 */
 
+/* ### iactions.c ### */
+
+extern int itemactions(struct obj *otmp) NONNULLARG1;
+
 /* ### insight.c ### */
 
 extern int doattributes(void);

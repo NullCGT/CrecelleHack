@@ -63,7 +63,7 @@ typedef struct {
 
     /* Should probably do the same thing about objects */
 
-    boolean visible;       /* Is the region visible ? */
+    boolean visible;       /* Is the region visible? */
     boolean blocking;      /* Does the region block sight? */
     int glyph;             /* Which glyph to use if visible */
     struct region_arg arg; /* user arguments (force field strength, fire zone damage, etc.)*/

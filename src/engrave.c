@@ -370,18 +370,31 @@ read_engr_at(coordxy x, coordxy y)
 
         if (sensed) {
             char *et, buf[BUFSZ];
+            const char *endpunct;
             int maxelen = (int) (sizeof buf
                                  /* sizeof "literal" counts terminating \0 */
-                                 - sizeof "You feel the words: \"\".");
+                                 - sizeof "You feel the words: \"\"."),
+                elen = (int) strlen(ep->engr_txt[actual_text]),
+                off = (int) (ep->engr_txt[actual_text] - engr_text_space(ep));
 
-            if ((int) strlen(ep->engr_txt[actual_text]) > maxelen) {
+            if (elen > maxelen) {
                 (void) strncpy(buf, ep->engr_txt[actual_text], maxelen);
                 buf[maxelen] = '\0';
                 et = buf;
+                elen = maxelen;
             } else {
                 et = ep->engr_txt[actual_text];
             }
-            You("%s: \"%s\".", (Blind) ? "feel the words" : "read", et);
+            endpunct = "";
+            if (elen < 2
+                /* only skip if punctuation is original, not degraded char */
+                || !((ep->engr_txt[pristine_text][off + elen - 1]
+                      == et[elen - 1])
+                     && strchr(".!?", et[elen - 1]))) {
+                endpunct = ".";
+            }
+            You("%s: \"%s\"%s", (Blind) ? "feel the words" : "read", et,
+                endpunct);
             Strcpy(ep->engr_txt[remembered_text], ep->engr_txt[actual_text]);
             ep->eread = 1;
             ep->erevealed = 1;
@@ -419,7 +432,7 @@ make_engr_at(
     head_engr = ep;
     ep->engr_x = x;
     ep->engr_y = y;
-    ep->engr_txt[actual_text] = (char *) (ep + 1);
+    ep->engr_txt[actual_text] = engr_text_space(ep);
     ep->engr_txt[remembered_text] = ep->engr_txt[actual_text] + smem;
     ep->engr_txt[pristine_text] = ep->engr_txt[remembered_text] + smem;
     for(i = 0; i < text_states; ++i)
@@ -1581,7 +1594,7 @@ save_engravings(NHFILE *nhfp)
             szeach = ep->engr_szeach;
             Sfo_unsigned(nhfp, &engr_alloc, "engraving-engr_alloc");
             Sfo_engr(nhfp, ep, "engraving");
-            ep->engr_txt[actual_text] = (char *)(ep + 1);
+            ep->engr_txt[actual_text] = engr_text_space(ep);
             ep->engr_txt[remembered_text] = ep->engr_txt[actual_text] + szeach;
             ep->engr_txt[pristine_text] = ep->engr_txt[remembered_text] + szeach;
             Sfo_char(nhfp, ep->engr_txt[actual_text], "engraving-actual_text", szeach);
@@ -1616,7 +1629,7 @@ rest_engravings(NHFILE *nhfp)
         szeach = ep->engr_szeach;
         ep->nxt_engr = head_engr;
         head_engr = ep;
-        ep->engr_txt[actual_text] = (char *) (ep + 1); /* Andreas Bormann */
+        ep->engr_txt[actual_text] = engr_text_space(ep); /* Andreas Bormann */
         ep->engr_txt[remembered_text] = ep->engr_txt[actual_text] + szeach;
         ep->engr_txt[pristine_text] = ep->engr_txt[remembered_text] + szeach;
         Sfi_char(nhfp, ep->engr_txt[actual_text],

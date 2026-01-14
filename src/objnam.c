@@ -1290,6 +1290,8 @@ add_erosion_words(struct obj *obj, char *prefix)
             Strcat(prefix, "fireproof ");
         else if (is_crackable(obj))
             Strcat(prefix, "tempered ");
+        else if (is_rottable(obj))
+            Strcat(prefix, "rotproof ");
     }
 }
 

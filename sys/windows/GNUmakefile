@@ -475,7 +475,7 @@ CLEAN_FILE += $(NHLUAH)
 LUALIST = air Arc-fila Arc-filb Arc-goal Arc-loca Arc-strt \
 	asmodeus astral baalz Bar-fila Bar-filb Bar-goal \
 	Bar-loca Bar-strt bigrm-1 bigrm-10 bigrm-11 bigrm-2 \
-	bigrm-12 \
+	bigrm-12 bigrm-13 \
 	bigrm-3 bigrm-4 bigrm-5 bigrm-6 bigrm-7 bigrm-8 \
 	bigrm-9 castle Cav-fila Cav-filb Cav-goal Cav-loca \
 	Cav-strt dungeon earth fakewiz1 fakewiz2 fire \
@@ -1232,7 +1232,7 @@ COREOBJS = $(addsuffix .o, allmain alloc apply artifact attrib ball bones botl \
 	   dbridge decl detect dig display dlb do do_name do_wear \
 	   dog dogmove dokick dothrow drawing dungeon \
 	   eat end engrave exper explode extralev files fountain \
-	   getpos glyphs hack insight invent isaac64 light lock \
+	   getpos glyphs hack iactions insight invent isaac64 light lock \
 	   mail makemon mcastu mdlib mhitm mhitu minion mklev mkmap mkmaze mkobj mkroom \
 	   mon mondata monmove monst mplayer mthrowu muse music \
 	   nhlobj nhlsel nhlua windsound o_init objects objnam options \

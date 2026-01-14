@@ -1557,9 +1557,17 @@ praying will not restore monster-form HP while polymorphed, unless you
 winter wolf cub was missing for monster to lycanthrope conversion
 monster elves shooting arrows weren't getting intended small to-hit and damage
 	bonuses
-safe armor enchantment limit is lowered by one for magical armor
 luck has a reduced effect on to-hit chance
 monsters use wand of teleportation to move hero away from item pile
+lycanthrope instincts keep hero from changing shape while next to hostiles
+scroll of enchant armor formula has changed (in particular, magical armor now
+        gains less enchantment when enchanted than nonmagical armor and
+        uncursed scrolls can sometimes enchant by more than one point)
+dragonhide can rot
+throwing ammo without a launcher produces a message
+polymorphing into a large polyform unequips rather than destroying cloaks
+clarify in the #quit message that it doesn't save the game
+cursed potion of invisibility removes intrinsic invisibility
 
 
 Fixes to 3.7.0-x General Problems Exposed Via git Repository
@@ -2182,6 +2190,10 @@ naming a type of item, unnaming it (with name of <space>), naming it again
 	impossible: "named object not in disco"
 throwing entire quiver and then picking the stack back up was not putting it
 	back into quiver
+when reading a T-shirt or apron, add trailing period to the slogan unless
+	 already present in the quoted text
+when reading an engraving, suppress the addition of a trailing period if the
+	text already has one
 
 
 Fixes to 3.7.0-x Platform and/or Interface Problems Exposed Via git Repository
@@ -2712,7 +2724,7 @@ menu for what-is command supports /^ and /" to view a list of nearby or whole
 	level visible and remembered traps
 spiders will occasionally spin webs when moving around
 drinking a burning potion of oil will cure being turned into slime
-new bigroom variants, a boulder maze and hexagons
+new bigroom variants, a boulder maze, hexagons, pillars
 vomiting on an altar provokes the deities wrath
 branch stairs have a different glyph, show up in yellow color in tty
 duration of confusion when drinking booze depends upon hunger state
@@ -2926,7 +2938,7 @@ Unix: support --nethackrc=filename on the command line; same effect as
 	NETHACKOPTIONS='@filename' but leaves NETHACKOPTIONS available for
 	specifying options; --no-nethackrc is same as --nethackrc=/dev/null
 Windows: implement MSGHANDLER (pr #749 by argrath)
-Windows: Add configuration to support Curses on WinGUI (pr #1028 by chasonr) 
+Windows: Add configuration to support Curses on WinGUI (pr #1028 by chasonr)
 X11: implement 'selectsaved', restore via menu of saved games
 X11: echo getline prompt and response (wishes, applying names) to message
 	window and dumplog message history
@@ -3066,6 +3078,9 @@ split making pits on do_earthquake() into a separate function and
 update the WASM cross-compile to work with the current
 	code (pr #1331 by guillaumebrunerie)
 add silver maces (pr #1405 by disperse)
+applied several source comment spelling or grammar fixes that were linked
+	to an old rec.games.roguelike.nethack post from May 2006
+	by Arthur J. O'Dwyer
 
 
 Code Cleanup and Reorganization
@@ -3199,4 +3214,3 @@ relocate general-purpose function choose_classes_menu(), from
 	options.c to windows.c
 remove register from variable declarations
 make glyph_to_cmap() a function instead of a macro
-

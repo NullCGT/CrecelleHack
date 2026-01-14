@@ -2495,7 +2495,8 @@ is_flammable(struct obj *otmp)
 boolean
 is_rottable(struct obj *otmp)
 {
-    return (boolean) (otmp->material <= WOOD && otmp->material != LIQUID);
+    return (boolean) ((otmp->material <= WOOD && otmp->material != LIQUID)
+                        || otmp->material == DRAGON_HIDE);
 }
 
 /*

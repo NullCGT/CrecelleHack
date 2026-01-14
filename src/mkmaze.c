@@ -96,8 +96,13 @@ set_levltyp(coordxy x, coordxy y, schar newtyp)
              *  the way newtyp will use them, clear them.
              */
 
-            if (IS_LAVA(newtyp)) /* [what about IS_LAVA(oldtyp)=>.lit = 0?] */
+            if (IS_LAVA(newtyp)) { /* [what about IS_LAVA(oldtyp)=>.lit = 0?] */
                 levl[x][y].lit = 1;
+                svl.level.flags.has_lava = 1;
+            }
+            if (IS_POOL(newtyp)) {
+                svl.level.flags.has_pools = 1;
+            }
             if (was_ice && newtyp != ICE) {
                 /* frozen corpses resume rotting, no more ice to melt away */
                 obj_ice_effects(x, y, TRUE);

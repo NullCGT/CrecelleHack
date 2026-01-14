@@ -1655,6 +1655,9 @@ goto_level(
         lua_settop(gl.luacore, 0);
     }
 
+    /* When we go to a new level we need to recreate all heatmaps */
+    svc.context.heatmap.hmflags = HM_NEED_ALL;
+
     /* tethered movement makes level change while trapped feasible */
     if (u.utrap && u.utraptype == TT_BURIEDBALL)
         buried_ball_to_punishment(); /* (before we save/leave old level) */

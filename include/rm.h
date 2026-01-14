@@ -165,6 +165,34 @@ struct floor_coating {
 };
 extern struct floor_coating all_coatings[];
 
+/* flags for do_heatmaps() */
+#define HMAP_LIST HMAP(PLAYER, "player", 0x001), \
+HMAP(BLOOD, "blood", 0x002), \
+HMAP(ALL, "all", 0xfff)
+#define NUM_HEATMAPS 3
+
+// POOLS
+// LAVA
+// FLIGHT
+
+// Gold
+// Gems
+// Practical
+// Magical
+// Boulders
+// Useful
+
+#define HMAP(id, nam, val) HM_NEED_##id = val
+enum heatmaps_need_enum { HMAP_LIST };
+#undef HMAP
+#define HMAP(id, nam, val) HM_##id
+enum heatmaps_enum { HMAP_LIST };
+#undef HMAP
+struct heatmap {
+    const char *name;
+    short val;
+};
+extern struct heatmap all_heatmaps[];
 
 /*
  * The structure describing a coordinate position.
@@ -478,6 +506,8 @@ struct levelflags {
     Bitfield(has_temple, 1);
 
     Bitfield(has_scilab, 1);
+    Bitfield(has_pools, 1);
+    Bitfield(has_lava, 1);
 
     Bitfield(has_swamp, 1);
     Bitfield(noteleport, 1);
@@ -512,6 +542,7 @@ typedef struct {
     struct rm locations[COLNO][ROWNO];
     struct obj *objects[COLNO][ROWNO];
     struct monst *monsters[COLNO][ROWNO];
+    short heatmap[NUM_HEATMAPS][COLNO][ROWNO];
     struct obj *objlist;
     struct obj *buriedobjlist;
     struct monst *monlist;

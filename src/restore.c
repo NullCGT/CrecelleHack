@@ -927,6 +927,7 @@ dorecover(NHFILE *nhfp)
     gv.vision_full_recalc = 1; /* recompute vision (not saved) */
 
     run_timers(); /* expire all timers that have gone off while away */
+    do_heatmaps(HM_NEED_ALL); /* run all heatmaps */
     program_state.restoring = 0; /* affects bot() so clear before docrt() */
 
     if (ge.early_raw_messages && !program_state.beyond_savefile_load) {

@@ -1757,12 +1757,13 @@ add_coating(coordxy x, coordxy y, short coatflags, int pindex) {
     /* If in mklev we need to clear the coat info first. */
     if (gi.in_mklev)
         levl[x][y].coat_info = 0;
-    /* Mud is special*/
-    if ((coatflags & COAT_POTION) && pindex == POT_WATER
-        && levl[x][y].submask == SM_DIRT) {
-        coatflags &= ~COAT_POTION;
-        coatflags |= COAT_MUD;
-        pindex = 0;
+    /* Water is special */
+    if ((coatflags & COAT_POTION) && pindex == POT_WATER) {
+        if (levl[x][y].submask == SM_DIRT) {
+            coatflags &= ~COAT_POTION;
+            coatflags |= COAT_MUD;
+            pindex = 0;
+        }
     }
     levl[x][y].coat_info |= coatflags;
     if ((coatflags & COAT_FROST) != 0) {
@@ -1781,6 +1782,7 @@ add_coating(coordxy x, coordxy y, short coatflags, int pindex) {
         }
     } else if ((coatflags & COAT_BLOOD) != 0) {
         remove_coating(x, y, COAT_POTION | COAT_FROST | COAT_FUNGUS);
+        svc.context.heatmap.hmflags |= HM_NEED_BLOOD;
         levl[x][y].pindex = pindex;
         if (!ismnum(pindex))
             impossible("coating at <%d,%d> with invalid blood %d?", x, y, pindex);

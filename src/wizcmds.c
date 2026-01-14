@@ -903,6 +903,65 @@ wiz_map_levltyp(void)
     return;
 }
 
+/* based on wiz_map_levltyp(). Used for debugging heatmaps. */
+void
+wiz_map_heatmap(void)
+{
+    winid win;
+    coordxy x, y;
+    menu_item *sel;
+    anything any;
+    int score, which, n;
+    char row[COLNO + 1];
+    boolean istty = !strcmp(windowprocs.name, "tty");
+    char dsc[COLBUFSZ];
+
+    /* Choose which heatmap to display */
+    win = create_nhwindow(NHW_MENU);
+    start_menu(win, MENU_BEHAVE_STANDARD);
+    any = cg.zeroany;
+    for (int i = 0; i < NUM_HEATMAPS; i++) {
+        any.a_int = i + 1;
+        add_menu(win, &nul_glyphinfo, &any, 0, 0, ATR_NONE, NO_COLOR,
+                all_heatmaps[i].name, MENU_ITEMFLAGS_NONE);
+    }
+    end_menu(win, "Which heatmap?");
+    n = select_menu(win, PICK_ONE, &sel);
+    destroy_nhwindow(win);
+    if (n < 0)
+        return;
+    which = sel[0].item.a_int - 1;
+    free((genericptr_t) sel);
+
+    /* Create the display */
+    win = create_nhwindow(NHW_TEXT);
+    if (istty)
+        putstr(win, 0, "");
+    for (y = 0; y < ROWNO; y++) {
+        for (x = 0; x < COLNO; x++) {
+            score = svl.level.heatmap[which][x][y];
+            /* assumes there aren't more than 10+26+26 terrain types */
+            row[x - 1] = (char) ((!ACCESSIBLE(levl[x][y].typ))
+                                    ? ' '
+                                    : (score < 10)
+                                       ? '0' + score
+                                       : (score < 36)
+                                          ? 'a' + score - 10
+                                          : (score < 62)
+                                          ? 'A' + score - 36
+                                          : 'Z');
+        }
+        row[x] = '\0';
+        putstr(win, 0, row);
+    }
+    Sprintf(dsc, "Heatmap: %s (%d)",
+            all_heatmaps[which].name, which);
+    putstr(win, 0, dsc);
+    display_nhwindow(win, TRUE);
+    destroy_nhwindow(win);
+    return;
+}
+
 DISABLE_WARNING_FORMAT_NONLITERAL
 
 /* explanation of base-36 output from wiz_map_levltyp() */

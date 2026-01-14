@@ -913,6 +913,7 @@ static const struct instance_globals_saved_l init_svl = {
     { { { UNDEFINED_VALUES } },            /* level.locations */
       { { UNDEFINED_PTR } },               /* level.objects   */
       { { UNDEFINED_PTR } },               /* level.monsters  */
+      { { { 0 } } },                       /* level.heatmap */
       NULL, NULL, NULL, NULL, NULL, {0} }, /* level */
     { UNDEFINED_VALUES }                   /* level_info */
 };

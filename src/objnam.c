@@ -3778,6 +3778,7 @@ wizterrainwish(struct _readobjnam_data *d)
         } else {
             dbterrainmesg("Moat", x, y);
         }
+        svl.level.flags.has_pools = 1;
         water_damage_chain(svl.level.objects[x][y], TRUE);
         madeterrain = TRUE;
 
@@ -3802,6 +3803,7 @@ wizterrainwish(struct _readobjnam_data *d)
         } else {
             dbterrainmesg("Lava", x, y);
         }
+        svl.level.flags.has_lava = 1;
         fire_damage_chain(svl.level.objects[x][y], TRUE, TRUE, x, y);
         madeterrain = TRUE;
     } else if (!BSTRCMPI(bp, p - 3, "ice")) {

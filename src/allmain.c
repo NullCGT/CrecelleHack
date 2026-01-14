@@ -314,6 +314,7 @@ moveloop_core(void)
                     glibr();
                 nh_timeout();
                 run_regions();
+                check_player_heatmap();
 
                 if (u.ublesscnt)
                     u.ublesscnt--;
@@ -454,6 +455,9 @@ moveloop_core(void)
            need two checks here so that the player gets feedback
            immediately if their own action encumbered them */
         encumber_msg();
+
+        /* Update the game's heatmaps */
+        do_heatmaps(svc.context.heatmap.hmflags);
 
 #ifdef STATUS_HILITES
         if (iflags.hilite_delta)
@@ -888,6 +892,7 @@ newgame(void)
     }
     
     adj_midbosses();
+    do_heatmaps(HM_NEED_ALL);
 
     urealtime.realtime = 0L;
     urealtime.start_timing = getnow();

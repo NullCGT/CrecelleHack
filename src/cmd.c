@@ -1147,6 +1147,10 @@ doterrain(void)
             add_menu(men, &nul_glyphinfo, &any, 0, 0, ATR_NONE,
                      clr, "legend of base-36 levl[][].typ codes",
                      MENU_ITEMFLAGS_NONE);
+            any.a_int = 7;
+            add_menu(men, &nul_glyphinfo, &any, 0, 0, ATR_NONE,
+                     clr, "internal Dijkstra heatmaps in base-36",
+                     MENU_ITEMFLAGS_NONE);
         }
     }
     end_menu(men, "View which?");
@@ -1183,6 +1187,9 @@ doterrain(void)
         break;
     case 6: /* internal details */
         wiz_levltyp_legend();
+        break;
+    case 7: /* heatmap */
+        wiz_map_heatmap();
         break;
     default:
         break;

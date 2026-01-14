@@ -27,6 +27,7 @@ staticfn int m_balks_at_approaching(int, struct monst *, int *, int *);
 staticfn boolean stuff_prevents_passage(struct monst *);
 staticfn int vamp_shift(struct monst *, struct permonst *, boolean);
 staticfn void maybe_spin_web(struct monst *);
+staticfn int calculate_tile_score(struct monst *, int, int);
 
 /* a11y: give a message when monster moved */
 staticfn void
@@ -2139,6 +2140,8 @@ m_move(struct monst *mtmp, int after)
         int i, j, nx, ny, nearer;
         int jcnt, cnt;
         int ndist, nidist;
+        int lowest = 9999;
+        int score;
         coord *mtrk;
 
         cnt = mfndpos(mtmp, &mfp, flag);
@@ -2185,7 +2188,17 @@ m_move(struct monst *mtmp, int after)
 
             nearer = ((ndist = dist2(nx, ny, ggx, ggy)) < nidist);
 
-            if ((appr == 1 && nearer) || (appr == -1 && !nearer)
+            if (appr == 1) {
+                score = calculate_tile_score(mtmp, nx, ny);
+                if ((score < lowest) || ((score == lowest) && !rn2(++chcnt))) {
+                    nix = nx;
+                    niy = ny;
+                    nidist = ndist;
+                    chi = i;
+                    mmoved = MMOVE_MOVED;
+                    lowest = score;
+                }
+            } else if ((appr == 1 && nearer) || (appr == -1 && !nearer)
                 || (!appr && !rn2(++chcnt))
                 || (appr == -2
                     && ((ndist <= preferredrange_min && !nearer)

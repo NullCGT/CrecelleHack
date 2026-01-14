@@ -1270,6 +1270,11 @@ extern void spot_checks(coordxy, coordxy, schar);
 extern int rounddiv(long, int);
 extern const char *solid_stone(int, int);
 
+/* ### heatmap.c ### */
+extern void do_heatmaps(short);
+extern boolean check_player_heatmap(void);
+extern int calculate_tile_score(struct monst *, int, int);
+
 /* ### strutil.c ### */
 
 extern void strbuf_init(strbuf_t *) NONNULLARG1;
@@ -3993,6 +3998,7 @@ extern int wiz_wish(void);
 extern void makemap_remove_mons(void);
 extern void wiz_levltyp_legend(void);
 extern void wiz_map_levltyp(void);
+extern void wiz_map_heatmap(void);
 extern void wizcustom_callback(winid win, int glyphnum, char *id);
 #if (NH_DEVEL_STATUS != NH_STATUS_RELEASED) || defined(DEBUG)
 extern int wiz_display_macros(void);

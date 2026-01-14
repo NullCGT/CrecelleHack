@@ -141,6 +141,11 @@ struct lifelists {
     long total_photographed;    /* count of critters photographed (tourists) */
 };
 
+struct heatmaps {
+    coord old_cc;  /* player pos when this was last called */
+    short hmflags; /* update flags */
+};
+
 struct context_info {
     unsigned ident;         /* social security number for each monster */
     unsigned no_of_wizards; /* 0, 1 or 2 (wizard and his shadow) */
@@ -183,6 +188,7 @@ struct context_info {
     struct novel_tracking novel;
     struct achievement_tracking achieveo;
     struct lifelists lifelist;
+    struct heatmaps heatmap;
     char jingle[5 + 1];
 };
 

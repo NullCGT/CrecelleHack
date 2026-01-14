@@ -1489,6 +1489,7 @@ typedef uint32_t mmflags_nht;     /* makemon MM_ flags */
 #define NC_SHOW_MSG          0x01U
 #define NC_VIA_WAND_OR_SPELL 0x02U
 
+
 /* Constant passed to explode() for gas spores because gas spores are weird.
  * Specifically, this is an exception to whole "explode() uses dobuzz types"
  * system (the range -1 to -9 isn't used by it, for some reason), where this

@@ -3394,7 +3394,8 @@ corpse_chance(
     /* Handle magma paraelementals melting */
     if (mdat == &mons[PM_MAGMA_PARAELEMENTAL]) {
         if (IS_OVERWRITABLE(levl[mon->mx][mon->my].typ)) {
-            levl[mon->mx][mon->my].typ = LAVAPOOL;
+            set_levltyp(mon->mx, mon->my, LAVAPOOL);
+            svl.level.flags.has_lava = 1;
             newsym(mon->mx, mon->my);
             if (cansee(mon->mx, mon->my) && !was_swallowed)
                 pline("%s body dissolves into a pool of lava.",

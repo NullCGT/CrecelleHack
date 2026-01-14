@@ -830,6 +830,10 @@ count_level_features(void)
                 svl.level.flags.nfountains++;
             else if (typ == SINK)
                 svl.level.flags.nsinks++;
+            else if (IS_POOL(typ))
+                svl.level.flags.has_pools = 1;
+            else if (IS_LAVA(typ))
+                svl.level.flags.has_lava = 1;
         }
 }
 
@@ -876,6 +880,8 @@ clear_level_structures(void)
     svl.level.flags.has_temple = 0;
     svl.level.flags.has_swamp = 0;
     svl.level.flags.has_scilab = 0;
+    svl.level.flags.has_pools = 0;
+    svl.level.flags.has_lava = 0;
     svl.level.flags.noteleport = 0;
     svl.level.flags.hardfloor = 0;
     svl.level.flags.nommap = 0;
@@ -2403,7 +2409,6 @@ mkfount(struct mkroom *croom)
     /* This does not actually work */
     if (svl.level.flags.temperature == -1)
         SET_FOUNTAIN_FROZEN(m.x, m.y);
-
     svl.level.flags.nfountains++;
 }
 
@@ -2691,6 +2696,7 @@ mkinvpos(coordxy x, coordxy y, int dist)
     case 4: /* pools (aka a wide moat) */
     case 5:
         lev->typ = MOAT;
+        svl.level.flags.has_pools = 1;
         /* No kelp! */
         break;
     default:

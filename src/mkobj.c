@@ -4592,7 +4592,7 @@ oprop_from_permonst(struct permonst *pm)
         return OPROP_SANGUINE;
     if (pm->mflags4 & M4_BST_ICE)
         return OPROP_BOREAL;
-    if (pm->mflags4 & M4_BST_ASHES)
+    if (pm->mflags4 & M4_KICK_ASHES)
         return OPROP_BLAZING;
     if (is_roguish(pm))
         return OPROP_SUBTLE;

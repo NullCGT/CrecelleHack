@@ -595,7 +595,7 @@ find_defensive(struct monst *mtmp, boolean tryescape)
         }
     } else if (has_coating(x, y, COAT_ASHES) && !nolimbs(mtmp->data)
                 && !is_floater(mtmp->data) && haseyes(gy.youmonst.data)
-                && !Blind && m_next2u(mtmp)) {
+                && !Blind && m_next2u(mtmp) && ash_kicker(mtmp->data)) {
         gm.m.has_defense = MUSE_COAT_ASHES;
     } else if (has_coating(x, y, COAT_BLOOD) && is_vampire(mtmp->data)) {
         gm.m.has_defense = MUSE_COAT_BLOOD;

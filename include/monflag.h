@@ -185,7 +185,7 @@ enum ms_sounds {
 #define M4_BST_ROCK  0x0004
 #define M4_BST_WATER 0x0008
 #define M4_BST_ICE   0x0010
-#define M4_BST_ASHES 0x0020
+#define M4_KICK_ASHES 0x0020
 #define M4_BST_FUNGI 0x0040
 #define M4_BST_BLOOD 0x0080
 #define M4_BST_SAND 0x0100

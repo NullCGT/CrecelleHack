@@ -592,6 +592,7 @@ struct _hitmon_data {
     int barehand_hated_rings;
     boolean hatedmsg;
     boolean hatedobj;
+    boolean resist;
     boolean lightobj;
     int material;
     int jousting;

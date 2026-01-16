@@ -257,7 +257,7 @@ mhidden_description(
                        : surface(x, y)); /* trapper */
         } else if (mud_hider(mon->data)
                     && has_coating(mon->mx, mon->my, COAT_MUD)) {
-
+            Strcat(outbuf, "in the mud");
         } else {
             if (mon->data->mlet == S_EEL && is_pool(x, y))
                 Strcat(outbuf, " in murky water");
@@ -2540,13 +2540,9 @@ do_supplemental_info(
     }
     /* Display monster info */
     datawin = create_nhwindow(NHW_MENU);
-    if (strlen(name) && strlen(name) < (BUFSZ - 1)) {
-        putstr(datawin, iflags.menu_headings.attr, name);
-    } else {
-        Sprintf(buf, "%s", pmname(pm, MALE));
-        buf[0] = highc(buf[0]);
-        putstr(datawin, iflags.menu_headings.attr, buf);
-    }
+    Sprintf(buf, "%s", pmname(pm, NEUTRAL));
+    buf[0] = highc(buf[0]);
+    putstr(datawin, iflags.menu_headings.attr, buf);
     /* Size */
     Sprintf(buf, "%s %s", size_str(pm->msize), def_monsyms[(int) pm->mlet].explain);
     buf[0] = highc(buf[0]);
@@ -2555,20 +2551,41 @@ do_supplemental_info(
     if (auto_know || svm.mvitals[pm->pmidx].know_stats)
         Sprintf(buf, "Speed: %d, AC: %d, MR: %d", pm->mmove, pm->ac, pm->mr);
     else
-        Sprintf(buf, "You know nothing of its abilities.");
+        Sprintf(buf, "You know nothing of their abilities.");
+    putstr(datawin, 0, buf);
+    /* Resists */
+    if (auto_know || svm.mvitals[pm->pmidx].know_resist) {
+        Sprintf(buf, "Resists:");
+        if (resists_pierce(pm)) Sprintf(eos(buf), " piercing,");
+        if (resists_slash(pm)) Sprintf(eos(buf), " slashing,");
+        if (resists_whack(pm)) Sprintf(eos(buf), " bashing,");
+        putstr(datawin, 0, buf);
+        Sprintf(buf, "Immune:");
+        if (pm_resistance(pm, MR_FIRE)) Sprintf(eos(buf), " fire,");
+        if (pm_resistance(pm, MR_COLD)) Sprintf(eos(buf), " cold,");
+        if (pm_resistance(pm, MR_SLEEP)) Sprintf(eos(buf), " sleep,");
+        if (pm_resistance(pm, MR_DISINT)) Sprintf(eos(buf), " disintegration,");
+        if (pm_resistance(pm, MR_ELEC)) Sprintf(eos(buf), " shock,");
+        if (pm_resistance(pm, MR_POISON)) Sprintf(eos(buf), " poison,");
+        if (pm_resistance(pm, MR_ACID)) Sprintf(eos(buf), " acid,");
+        if (pm_resistance(pm, MR_STONE)) Sprintf(eos(buf), " petrify,");
+    } else {
+        Sprintf(buf, "You know nothing of their resistances.");
+    }
     putstr(datawin, 0, buf);
     /* Food */
-    if (!auto_know && !svm.mvitals[pm->pmidx].know_pcorpse)
-        Sprintf(buf, "You know nothing about its edibility.");
-    else
-        Sprintf(buf, "Edibility: %s, %s, %s",
-                    poisonous(pm) ? "poisonous" : "safe",
-                    acidic(pm) ? "acidic" : "bland",
-                    is_domestic(pm) ? "domestic" : "wild");
+    if (!auto_know && !svm.mvitals[pm->pmidx].know_pcorpse) {
+        Sprintf(buf, "You know nothing about their edibility.");
+    } else {
+        Sprintf(buf, "Edibility:");
+        if (poisonous(pm)) Sprintf(eos(buf), " poisonous,");
+        if (acidic(pm)) Sprintf(eos(buf), " acidic,");
+        if (is_domestic(pm)) Sprintf(eos(buf), " domestic,");
+    }
     putstr(datawin, 0, buf);
     /* Have we seen it? */
     if (!svm.mvitals[pm->pmidx].seen_close) {
-        putstr(datawin, 0, "You have never seen it up close.");
+        putstr(datawin, 0, "You have never seen them up close.");
     }
     putstr(datawin, 0, "");
     /* Attacks */

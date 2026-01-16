@@ -298,6 +298,9 @@
     ((!is_hider(ptr) && ptr->msize <= MZ_MEDIUM) \
         && !mindless(ptr))
 #define is_climber(ptr) (((ptr)->mflags2 & M2_CLIMBER) != 0L)
+#define resists_whack(ptr) (((ptr)->mflags4 & M4_RWHACK) != 0L)
+#define resists_pierce(ptr) (((ptr)->mflags4 & M4_RPIERCE) != 0L)
+#define resists_slash(ptr) (((ptr)->mflags4 & M4_RSLASH) != 0L)
 
 /* monkeys are tamable via bananas but not pacifiable via food,
    otherwise their theft attack could be nullified too easily;

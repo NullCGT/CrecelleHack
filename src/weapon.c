@@ -395,6 +395,13 @@ dmgval(struct obj *otmp, struct monst *mon)
         tmp += bonus;
     }
 
+    /* adjustments for damage types */
+    if (resist_oc_dir(mon, otmp->otyp)) {
+        tmp = (tmp + 1) / 2;
+        svm.mvitals[mon->mnum].know_resist = 1;
+        (void) handle_tip(TIP_INEFFECTIVE);
+    }
+
     if (tmp > 0) {
         /* It's debatable whether a rusted blunt instrument
            should do less damage than a pristine one, since
@@ -2085,6 +2092,17 @@ setmnotwielded(struct monst *mon, struct obj *obj)
     if (MON_WEP(mon) == obj)
         MON_NOWEP(mon);
     obj->owornmask &= ~W_WEP;
+}
+
+boolean
+resist_oc_dir(struct monst *mon, int otyp)
+{
+    return (((objects[otyp].oc_dir & WHACK)
+            && resists_whack(mon->data))
+        || ((objects[otyp].oc_dir & SLASH)
+            && resists_slash(mon->data))
+        || ((objects[otyp].oc_dir & PIERCE)
+            && resists_pierce(mon->data)));
 }
 
 #undef PN_BARE_HANDED

@@ -3835,6 +3835,7 @@ extern void skill_init(const struct def_skill *) NONNULLARG1;
 extern void setmnotwielded(struct monst *, struct obj *) NONNULLARG1;
 extern const struct throw_and_return_weapon *autoreturn_weapon(struct obj *)
     NONNULLARG1;
+extern boolean resist_oc_dir(struct monst *, int) NONNULLARG1;
 
 /* ### were.c ### */
 
@@ -4102,6 +4103,7 @@ extern void zapsetup(void);
 extern void zapwrapup(void);
 extern void weffects(struct obj *) NONNULLARG1;
 extern int spell_damage_bonus(int);
+extern const char *maybe_elipses_exclam(int force, boolean resistsed);
 extern const char *exclam(int force) NONNULL;
 extern void hit(const char *, struct monst *, const char *) NONNULLPTRS;
 extern void miss(const char *, struct monst *) NONNULLPTRS;

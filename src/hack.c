@@ -1857,6 +1857,9 @@ handle_tip(int tip)
             pline("(Tip: use #order ('%s') to issue commands to pets)",
                     visctrl(cmd_from_func(doorder)));
             break;
+        case TIP_INEFFECTIVE:
+            pline("(Tip: some types of damage are ineffective against certain monsters.)");
+            break;
         default:
             impossible("Unknown tip in handle_tip(%i)", tip);
             break;

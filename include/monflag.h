@@ -192,6 +192,10 @@ enum ms_sounds {
 #define M4_BST_POTION 0x0200
 #define M4_BST_HONEY  0x0400
 
+#define M4_RWHACK 0x0800
+#define M4_RPIERCE 0x1000
+#define M4_RSLASH 0x2000
+
 #define MZ_RANDOM      -1 /* used in set_obj_size */
 #define MZ_TINY         0 /* < 2' */
 #define MZ_SMALL        1 /* 2-4' */

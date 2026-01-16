@@ -1088,6 +1088,9 @@ hmon_hitmon_weapon(
     struct monst *mon,
     struct obj *obj)   /* obj is not NULL */
 {
+    if (resist_oc_dir(mon, obj->otyp)) {
+        hmd->resist = TRUE;
+    }
     /* is it not a melee weapon? */
     if (/* if you strike with a bow... */
         is_launcher(obj)
@@ -1411,6 +1414,9 @@ hmon_hitmon_misc_obj(
         if (mon_hates_material(mon, hmd->material)) {
             hmd->hatedmsg = hmd->hatedobj = TRUE;
         }
+        if (resist_oc_dir(mon, obj->otyp)) {
+            hmd->resist = TRUE;
+        }
         if (obj->blessed && mon_hates_blessings(mon))
             hmd->dmg += rnd(4);
     }
@@ -1580,7 +1586,7 @@ hmon_hitmon_jousting(
     struct obj *obj) /* lance; obj is not NULL */
 {
     hmd->dmg += d(2, (obj == uwep) ? 10 : 2); /* [was in dmgval()] */
-    You("joust %s%s", mon_nam(mon), canseemon(mon) ? exclam(hmd->dmg) : ".");
+    You("joust %s%s", mon_nam(mon), canseemon(mon) ? maybe_elipses_exclam(hmd->dmg, hmd->resist) : ".");
     /* if this hit just broke the never-hit-with-wielded-weapon conduct
        (handled by caller...), give a livelog message for that now */
     if (u.uconduct.weaphit <= 1)
@@ -1722,7 +1728,7 @@ hmon_hitmon_msg_hit(
             || (hmd->thrown && gm.m_shot.n > 1
                 && gm.m_shot.o == obj->otyp))) {
         if (hmd->thrown)
-            hit(mshot_xname(obj), mon, exclam(hmd->dmg));
+            hit(mshot_xname(obj), mon, maybe_elipses_exclam(hmd->dmg, hmd->resist));
         else if (!flags.verbose)
             You("hit it.");
         else /* hand_to_hand */
@@ -1732,7 +1738,7 @@ hmon_hitmon_msg_hit(
                 : (obj && is_wet_towel(obj)) ? "lash"
                   : Role_if(PM_BARBARIAN) ? "smite"
                     : weapon_hit_text(obj),
-                mon_nam(mon), canseemon(mon) ? exclam(hmd->dmg) : ".");
+                mon_nam(mon), canseemon(mon) ? maybe_elipses_exclam(hmd->dmg, hmd->resist) : ".");
     }
 }
 

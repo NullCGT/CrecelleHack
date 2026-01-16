@@ -3719,6 +3719,14 @@ spell_hit_bonus(int skill)
 }
 
 const char *
+maybe_elipses_exclam(int force, boolean resisted)
+{
+    if (resisted)
+        return "...";
+    return exclam(force);
+}
+
+const char *
 exclam(int force)
 {
     /* force == 0 occurs e.g. with sleep ray */

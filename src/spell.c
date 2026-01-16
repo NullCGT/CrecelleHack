@@ -550,6 +550,7 @@ study_book(struct obj *spellbook)
                     svm.mvitals[mnum].know_pcorpse = 1;
                     svm.mvitals[mnum].know_rcorpse = 1;
                     svm.mvitals[mnum].know_stats = 1;
+                    svm.mvitals[mnum].know_resist = 1;
                 }
                 spellbook->spestudied = MAX_SPELL_STUDY;
             } else {

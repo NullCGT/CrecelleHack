@@ -73,6 +73,8 @@
 - Tonic of Honey
   - Instead of being handled as a distinct coating, honey is now a
     bespoke potion.
+- Tonic of normality
+  - Cancels all temporary effects currently impacting the drinker.
 ## New Monsters
 - Gray Fungus
   - Originally from SporkHack, but ported from EvilHack.

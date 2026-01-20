@@ -231,7 +231,7 @@ static const struct trobj Darts[] =
     { { DART, 0, WEAPON_CLASS, 12, 15, 0 },
       { 0, 0, 0, 0, 0, 0 } };
 static const struct trobj Resizing[] =
-    { { RESIZING_KIT, 0, TOOL_CLASS, 1, 1, 0 },
+    { { RESIZING_KIT, 3, TOOL_CLASS, 1, 1, 0 },
       { 0, 0, 0, 0, 0, 0 } };
 static const struct trobj Veggies[] =
     { { APPLE, 0, FOOD_CLASS, 10, 10, 0 },

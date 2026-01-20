@@ -174,6 +174,7 @@ struct obj {
     int usecount;           /* overloaded for various things that tally */
 #define spestudied usecount /* # of times a spellbook has been studied */
 #define wishedfor usecount  /* flag for hold_another_object() if from wish */
+#define gemtype usecount    /* index of the type of gemstone for gemstone items */
     unsigned oeaten;        /* nutrition left in food, if partly eaten */
     int oprop;              /* The oprop of the item */
     long age;               /* creation date */

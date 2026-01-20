@@ -728,7 +728,10 @@ xname_flags(
         else if (is_wet_towel(obj))
             Strcpy(buf, (obj->spe < 3) ? "moist " : "wet ");
 
-        if (dknown && (obj->material != objects[typ].oc_material
+        if (dknown && (obj->material == GEMSTONE)) {
+            Strcat(buf, OBJ_NAME(objects[obj->gemtype]));
+            Strcat(buf, " ");
+        } else if (dknown && (obj->material != objects[typ].oc_material
                        || force_material_name(typ))) {
             Strcat(buf, MAT_NAME(obj->material));
             Strcat(buf, " ");

@@ -331,6 +331,7 @@ l_obj_to_table(lua_State *L)
                                 mons[obj->corpsenm].pmnames[NEUTRAL]);
     /* TODO: leashmon, fromsink, novelidx, record_achieve_special */
     nhl_add_table_entry_int(L, "usecount", obj->usecount);
+    nhl_add_table_entry_int(L, "gemtype", obj->gemtype);
     /* TODO: spestudied */
     nhl_add_table_entry_int(L, "oeaten", obj->oeaten);
     nhl_add_table_entry_int(L, "age", obj->age);

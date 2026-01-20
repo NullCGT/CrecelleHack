@@ -24,6 +24,8 @@
 - Potions weigh half as much.
 - Monsters tend to spawn with potions instead of wands as offensive items.
 - Invisible_material option to disable material color glyphs.
+- Gemstone items can be made of different types of gems.
+  - This does not modify the cost of the item.
 - New Materials
   - Nightiron.
     - Generates very rarely.

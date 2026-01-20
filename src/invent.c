@@ -4525,7 +4525,8 @@ mergable(
             (Blind || Hallucination))
         || obj->oeroded != otmp->oeroded || obj->oeroded2 != otmp->oeroded2
         || obj->greased != otmp->greased || obj->oprop != otmp->oprop
-        || obj->material != otmp->material)
+        || obj->material != otmp->material
+        || obj->gemtype != otmp->gemtype)
         return FALSE;
 
     if ((erosion_matters(obj))

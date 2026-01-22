@@ -2373,8 +2373,6 @@ do_supplemental_item_info(struct obj *otmp)
 {
     winid datawin = WIN_ERR;
     char buf[BUFSZ];
-    char dam_buf[10];
-    int dbonus;
     /* Display monster info */
     datawin = create_nhwindow(NHW_MENU);
     Sprintf(buf, "%s", Doname2(otmp));
@@ -2405,30 +2403,18 @@ do_supplemental_item_info(struct obj *otmp)
             putstr(datawin, 0, "It can be used to trip monsters.");
         if (is_poisonable(otmp) && !otmp->opoisoned)
             putstr(datawin, 0, "It can be poisoned.");
+        Sprintf(buf, "It uses your %s skill.", skill_name(objects[otmp->otyp].oc_skill));
+        putstr(datawin, 0, buf);
     }
     putstr(datawin, 0, "");
     /* Class info */
     add_menu_heading(datawin, "Statistics");
-    if (otmp->oclass == WEAPON_CLASS) {
-        dbonus = otmp->known ? (otmp->spe - greatest_erosion(otmp)) : greatest_erosion(otmp);
-        if (dbonus) {
-            Sprintf(dam_buf, " %s %d", (dbonus >= 0) ? "+" : "-", abs(dbonus));
-        }
+    if (otmp->oclass == WEAPON_CLASS || is_weptool(otmp)) {
         Sprintf(buf, "Type: %s%sweapon", objects[otmp->otyp].oc_bimanual ? "two-handed " : "one-handed ",
                                  objects[otmp->otyp].oc_finesse ? "finesse " : "");
         putstr(datawin, 0, buf);
-        #if 0
-        Sprintf(buf, "Damage (S): 1d%d%s%s%s", objects[otmp->otyp].oc_wsdam + size_mult(otmp->osize),
-                                            stringify_dmgval(otmp->otyp, FALSE),
-                                            dbonus ? dam_buf : "",
-                                            otmp->known ? "" : "?");
+        stringify_dmgval(buf, otmp);
         putstr(datawin, 0, buf);
-        Sprintf(buf, "Damage (L): 1d%d%s%s%s", objects[otmp->otyp].oc_wldam + size_mult(otmp->osize),
-                                            stringify_dmgval(otmp->otyp, TRUE),
-                                            dbonus ? dam_buf : "",
-                                            otmp->known ? "" : "?");
-        putstr(datawin, 0, buf);
-        #endif
     } else {
         Sprintf(buf, "Class: %s", OBJ_DESCR(objects[(int) otmp->oclass]));
         putstr(datawin, 0, buf);

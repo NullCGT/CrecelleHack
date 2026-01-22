@@ -753,7 +753,7 @@ doforce(void)
             else
                 You("start bashing it with %s.", yname(uwep));
             gx.xlock.box = otmp;
-            gx.xlock.chance = objects[uwep->otyp].oc_wldam * 2;
+            gx.xlock.chance = objects[uwep->otyp].oc_wddam * 2;
             gx.xlock.picktyp = picktyp;
             gx.xlock.pick = uwep;
             gx.xlock.magic_key = FALSE;

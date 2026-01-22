@@ -230,8 +230,8 @@ l_obj_objects_to_table(lua_State *L)
     nhl_add_table_entry_int(L, "prob", o->oc_prob);
     nhl_add_table_entry_int(L, "weight", o->oc_weight);
     nhl_add_table_entry_int(L, "cost", o->oc_cost);
-    nhl_add_table_entry_int(L, "damage_small", o->oc_wsdam);
-    nhl_add_table_entry_int(L, "damage_large", o->oc_wldam);
+    nhl_add_table_entry_int(L, "damage_dicenum", o->oc_wndam);
+    nhl_add_table_entry_int(L, "damage_dicesides", o->oc_wddam);
     /* TODO: oc_oc1, oc_oc2, oc_hitbon, a_ac, a_can, oc_level */
     nhl_add_table_entry_int(L, "nutrition", o->oc_nutrition);
 

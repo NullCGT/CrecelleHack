@@ -194,6 +194,97 @@ hitval(struct obj *otmp, struct monst *mon)
     return tmp;
 }
 
+/* Helper for dmgval(). Calculates the number of dice rolled for an attack.*/
+int
+dmgval_ndice(struct obj *otmp)
+{
+    int otyp = otmp->otyp;
+    int tmp = objects[otyp].oc_wndam;
+    return tmp;
+}
+
+int 
+dmgval_nsides(struct obj *otmp)
+{
+    int otyp = otmp->otyp;
+    int tmp = objects[otyp].oc_wddam;
+    tmp += size_mult(otmp->osize);
+    return tmp;
+}
+
+int
+dmgval_dbonus(struct obj *otmp)
+{
+    int tmp = 0;
+    if (otmp->oclass == WEAPON_CLASS || is_weptool(otmp))
+        tmp += otmp->spe;
+    /* It's debatable whether a rusted blunt instrument
+        should do less damage than a pristine one, since
+        it will hit with essentially the same impact, but
+        there ought to some penalty for using damaged gear
+        so always subtract erosion even for blunt weapons. */
+    tmp -= greatest_erosion(otmp);
+    /* adjust for various materials */
+    if ((otmp->material == GLASS || otmp->material == GEMSTONE
+        || otmp->material == SALT)
+        && (objects[otmp->otyp].oc_dir & (PIERCE | SLASH))) {
+        /* glass, salt, and gemstone are sharp */
+        tmp += 3;
+    } else if (otmp->material == GOLD || otmp->material == PLATINUM) {
+        /* heavy metals, but softer than stone */
+        if (objects[otmp->otyp].oc_dir & (SLASH | WHACK)) {
+            tmp += 1;
+        }
+    } else if (otmp->material == MINERAL) {
+        /* stone is heavy */
+        if (objects[otmp->otyp].oc_dir & (SLASH | WHACK)) {
+            tmp += 2;
+        }
+    } else if (otmp->material == LODEN) {
+        /* bludgeoning weapons made of lodenstone deal a massive
+           amount of damage*/
+        if (objects[otmp->otyp].oc_dir & WHACK)
+            tmp += 5;
+    } else if (otmp->material == PLASTIC || otmp->material == PAPER) {
+        /* just terrible weapons all around */
+        tmp -= 2;
+    } else if ((otmp->material == WOOD || otmp->material == BLEAKWOOD)
+                && !is_elven_weapon(otmp)) {
+        /* poor at holding an edge */
+        if (is_blade(otmp)) {
+            tmp -= 1;
+        }
+    } else if (otmp->material == METAL) {
+        /* steel has roughly the same density as iron,
+           but is stronger and makes for a finer edge
+           on bladed weapons */
+        tmp += 1;
+    } else if (otmp->material == NIGHTIRON) {
+        /* nightiron grows more deadly at night, but weaker during the
+           day. */
+        if (night()) tmp += 3;
+        else tmp -= 1;
+    }
+    
+    return tmp;
+}
+
+char *
+stringify_dmgval(char *buf, struct obj *otmp)
+{
+    int ndice = dmgval_ndice(otmp);
+    int nsides = dmgval_nsides(otmp);
+    int bonus = dmgval_dbonus(otmp);
+    if (!otmp->known && (otmp->oclass == WEAPON_CLASS || is_weptool(otmp)))
+        bonus -= otmp->spe;
+    Sprintf(buf, "Base Damage: %dd%d%s%d%s%s%s", ndice, nsides,
+                (bonus >= 0) ? "+" : "-", abs(bonus),
+                (objects[otmp->otyp].oc_dir & PIERCE) ? " piercing" : "",
+                (objects[otmp->otyp].oc_dir & SLASH) ? " slashing" : "",
+                (objects[otmp->otyp].oc_dir & WHACK) ? " bludgeoning" : "");
+    return buf;
+}
+
 /* Historical note: The original versions of Hack used a range of damage
  * which was similar to, but not identical to, the damage used in Advanced
  * Dungeons and Dragons.  I figured that since it was so close, I may as well
@@ -230,126 +321,9 @@ dmgval(struct obj *otmp, struct monst *mon)
     if (otyp == CREAM_PIE)
         return 0;
 
-    if (bigmonst(ptr)) {
-        if (objects[otyp].oc_wldam)
-            tmp = rnd(max(2, (objects[otyp].oc_wldam + size_mult(otmp->osize))));
-        switch (otyp) {
-        case IRON_CHAIN:
-        case CROSSBOW_BOLT:
-        case MORNING_STAR:
-        case PARTISAN:
-        case RUNESWORD:
-        case ELVEN_BROADSWORD:
-        case BROADSWORD:
-            tmp++;
-            break;
-
-        case FLAIL:
-        case RANSEUR:
-        case VOULGE:
-            tmp += rnd(4);
-            break;
-
-        case ACID_VENOM:
-        case HALBERD:
-        case SPETUM:
-            tmp += rnd(6);
-            break;
-
-        case BATTLE_AXE:
-        case BARDICHE:
-        case TRIDENT:
-            tmp += d(2, 4);
-            break;
-
-        case TSURUGI:
-        case DWARVISH_MATTOCK:
-        case TWO_HANDED_SWORD:
-            tmp += d(2, 6);
-            break;
-        }
-    } else {
-        if (objects[otyp].oc_wsdam)
-            tmp = rnd(objects[otyp].oc_wsdam + size_mult(otmp->osize));
-        switch (otyp) {
-        case IRON_CHAIN:
-        case CROSSBOW_BOLT:
-        case MACE:
-        case WAR_HAMMER:
-        case FLAIL:
-        case SPETUM:
-        case TRIDENT:
-            tmp++;
-            break;
-
-        case BATTLE_AXE:
-        case BARDICHE:
-        case BILL_GUISARME:
-        case GUISARME:
-        case LUCERN_HAMMER:
-        case MORNING_STAR:
-        case RANSEUR:
-        case BROADSWORD:
-        case ELVEN_BROADSWORD:
-        case RUNESWORD:
-        case VOULGE:
-            tmp += rnd(4);
-            break;
-
-        case ACID_VENOM:
-            tmp += rnd(6);
-            break;
-        }
-    }
-    if (Is_weapon) {
-        tmp += otmp->spe;
-    }
-
-    /* adjust for various materials */
-    if ((otmp->material == GLASS || otmp->material == GEMSTONE
-        || otmp->material == SALT)
-        && (objects[otmp->otyp].oc_dir & (PIERCE | SLASH))) {
-        /* glass, salt, and gemstone are sharp */
-        tmp += 3;
-    }
-    else if (otmp->material == GOLD || otmp->material == PLATINUM) {
-        /* heavy metals, but softer than stone */
-        if (objects[otmp->otyp].oc_dir & (SLASH | WHACK)) {
-            tmp += 1;
-        }
-    }
-    else if (otmp->material == MINERAL) {
-        /* stone is heavy */
-        if (objects[otmp->otyp].oc_dir & (SLASH | WHACK)) {
-            tmp += 2;
-        }
-    }
-    else if (otmp->material == LODEN) {
-        /* bludgeoning weapons made of lodenstone deal a massive
-           amount of damage*/
-        if (objects[otmp->otyp].oc_dir & WHACK)
-            tmp += 5;
-    }
-    else if (otmp->material == PLASTIC || otmp->material == PAPER) {
-        /* just terrible weapons all around */
-        tmp -= 2;
-    } else if ((otmp->material == WOOD || otmp->material == BLEAKWOOD)
-                && !is_elven_weapon(otmp)) {
-        /* poor at holding an edge */
-        if (is_blade(otmp)) {
-            tmp -= 1;
-        }
-    } else if (otmp->material == METAL) {
-        /* steel has roughly the same density as iron,
-           but is stronger and makes for a finer edge
-           on bladed weapons */
-        tmp += 1;
-    } else if (otmp->material == NIGHTIRON) {
-        /* nightiron grows more deadly at night, but weaker during the
-           day. */
-        if (night()) tmp += 3;
-        else tmp -= 1;
-    }
+    if (objects[otyp].oc_wndam && objects[otyp].oc_wddam)
+        tmp = d(dmgval_ndice(otmp), dmgval_nsides(otmp));
+    tmp += dmgval_dbonus(otmp);
 
     /* negative modifiers mustn't produce negative damage */
     if (tmp < 0)
@@ -369,7 +343,7 @@ dmgval(struct obj *otmp, struct monst *mon)
             wt = ((int) otmp->owt - wt) / WT_IRON_BALL_INCR;
             tmp += rnd(4 * wt);
             if (tmp > 25)
-                tmp = 25; /* objects[].oc_wldam */
+                tmp = 25; /* objects[].oc_wddam */
         }
     }
 
@@ -380,7 +354,7 @@ dmgval(struct obj *otmp, struct monst *mon)
 
         if (otmp->blessed && mon_hates_blessings(mon))
             bonus += rnd(4);
-        if (is_axe(otmp) && is_wooden(ptr))
+        if (is_axe(otmp) && (monmaterial(mon->mnum) == WOOD))
             bonus += rnd(4);
         if (mon_hates_material(mon, otmp->material))
             bonus += rnd(sear_damage(otmp->material));
@@ -402,76 +376,7 @@ dmgval(struct obj *otmp, struct monst *mon)
         (void) handle_tip(TIP_INEFFECTIVE);
     }
 
-    if (tmp > 0) {
-        /* It's debatable whether a rusted blunt instrument
-           should do less damage than a pristine one, since
-           it will hit with essentially the same impact, but
-           there ought to some penalty for using damaged gear
-           so always subtract erosion even for blunt weapons. */
-        tmp -= greatest_erosion(otmp);
-        if (tmp < 1)
-            tmp = 1;
-    }
-
     return  tmp;
-}
-
-const char *
-stringify_dmgval(int otyp, boolean large) {
-    if (large) {
-        switch (otyp) {
-        case IRON_CHAIN:
-        case CROSSBOW_BOLT:
-        case MORNING_STAR:
-        case PARTISAN:
-        case RUNESWORD:
-        case ELVEN_BROADSWORD:
-        case BROADSWORD:
-            return "1";
-        case FLAIL:
-        case RANSEUR:
-        case VOULGE:
-            return "+1d4";
-        case ACID_VENOM:
-        case HALBERD:
-        case SPETUM:
-            return "+1d6";
-        case BATTLE_AXE:
-        case BARDICHE:
-        case TRIDENT:
-            return "+2d4";
-        case TSURUGI:
-        case DWARVISH_MATTOCK:
-        case TWO_HANDED_SWORD:
-            return "+2d6";
-        }
-    } else {
-        switch (otyp) {
-        case IRON_CHAIN:
-        case CROSSBOW_BOLT:
-        case MACE:
-        case WAR_HAMMER:
-        case FLAIL:
-        case SPETUM:
-        case TRIDENT:
-            return "+1";
-        case BATTLE_AXE:
-        case BARDICHE:
-        case BILL_GUISARME:
-        case GUISARME:
-        case LUCERN_HAMMER:
-        case MORNING_STAR:
-        case RANSEUR:
-        case BROADSWORD:
-        case ELVEN_BROADSWORD:
-        case RUNESWORD:
-        case VOULGE:
-            return "+1d4";
-        case ACID_VENOM:
-            return "+1d6";
-        }
-    }
-    return "";
 }
 
 /* Find an object that magr is wearing (or even magr's body itself) that has a

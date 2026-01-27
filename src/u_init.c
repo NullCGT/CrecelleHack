@@ -1500,7 +1500,11 @@ ini_inv(const struct trobj *trop)
 staticfn void
 fixup_starting_material(struct obj *obj)
 {
-    if (Race_if(PM_ELF) && objects[obj->otyp].oc_material == IRON
+    if ((obj->oclass == WEAPON_CLASS || is_weptool(obj))
+                && valid_obj_material(obj, WOOD)
+                && !is_ammo(obj)) {
+        set_material(obj, WOOD);
+    } else if (Race_if(PM_ELF) && objects[obj->otyp].oc_material == IRON
             && valid_obj_material(obj, COPPER)) {
         set_material(obj, COPPER);
     } else if (Race_if(PM_ORC) && objects[obj->otyp].oc_material == MITHRIL

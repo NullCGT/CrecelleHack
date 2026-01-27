@@ -2056,6 +2056,7 @@ doseduce(struct monst *mon)
         pline("Someone caresses you...");
     else
         You_feel("very attracted to %s.", mon_nam(mon));
+    exercise(A_CHA, TRUE);
     /* cache the seducer's name in a local buffer */
     Strcpy(Who, (!seewho ? (fem ? "She" : "He") : Monnam(mon)));
 

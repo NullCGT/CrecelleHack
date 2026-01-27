@@ -6,6 +6,7 @@
 #include "weight.h"
 #include "obj.h"
 
+#include "attrib.h"
 #include "prop.h"
 #include "skills.h"
 #include "color.h"

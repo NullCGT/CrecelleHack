@@ -2403,8 +2403,13 @@ do_supplemental_item_info(struct obj *otmp)
             putstr(datawin, 0, "It can be used to trip monsters.");
         if (is_poisonable(otmp) && !otmp->opoisoned)
             putstr(datawin, 0, "It can be poisoned.");
-        Sprintf(buf, "It uses your %s skill.", skill_name(objects[otmp->otyp].oc_skill));
+        /* TODO: FIX PROJECTILES */
+        Sprintf(buf, "It uses your %s skill.", skill_name(abs(objects[otmp->otyp].oc_skill)));
         putstr(datawin, 0, buf);
+        if (get_scaling_type(otmp) >= A_STR) {
+            Sprintf(buf, "Its damage scales with your %s.", attr_name(get_scaling_type(otmp))); /* TODO: Fix this up */
+            putstr(datawin, 0, buf);
+        }
     }
     putstr(datawin, 0, "");
     /* Class info */

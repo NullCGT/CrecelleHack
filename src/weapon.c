@@ -72,6 +72,8 @@ static NEARDATA const char *const barehands_or_martial[] = {
          ? OBJ_NAME(objects[skill_names_indices[type]]) \
          : (type == P_BARE_HANDED_COMBAT)               \
                ? barehands_or_martial[martial_bonus()]  \
+               : (type >= P_FIRST_ATTR && type <= P_LAST_ATTR) \
+               ? attr_name(type - P_STRENGTH) \
                : odd_skill_names[-skill_names_indices[type]])
 
 /* targets that provide attacker with small to-hit bonus when using a spear */
@@ -200,6 +202,8 @@ dmgval_ndice(struct obj *otmp)
 {
     int otyp = otmp->otyp;
     int tmp = objects[otyp].oc_wndam;
+    if (tmp < 1)
+        tmp = 1;
     return tmp;
 }
 
@@ -209,6 +213,8 @@ dmgval_nsides(struct obj *otmp)
     int otyp = otmp->otyp;
     int tmp = objects[otyp].oc_wddam;
     tmp += size_mult(otmp->osize);
+    if (tmp < 1)
+        tmp = 1;
     return tmp;
 }
 
@@ -248,12 +254,6 @@ dmgval_dbonus(struct obj *otmp)
     } else if (otmp->material == PLASTIC || otmp->material == PAPER) {
         /* just terrible weapons all around */
         tmp -= 2;
-    } else if ((otmp->material == WOOD || otmp->material == BLEAKWOOD)
-                && !is_elven_weapon(otmp)) {
-        /* poor at holding an edge */
-        if (is_blade(otmp)) {
-            tmp -= 1;
-        }
     } else if (otmp->material == METAL) {
         /* steel has roughly the same density as iron,
            but is stronger and makes for a finer edge
@@ -1358,12 +1358,17 @@ skill_advance(int skill)
        the Luck bias they used to have over other roles */
     if (skill >= P_FIRST_SPELL && skill <= P_LAST_SPELL)
         skill_based_spellbook_id();
+
+    /* If it is an attribute skill, then we increase that attribute. */
+    if (skill >= P_FIRST_ATTR && skill <= P_LAST_ATTR)
+        adjattrib(skill - P_FIRST_ATTR, 1, -1);
 }
 
 static const struct skill_range {
     short first, last;
     const char *name;
 } skill_ranges[] = {
+    { P_FIRST_ATTR, P_LAST_ATTR, "Attributes"},
     { P_FIRST_H_TO_H, P_LAST_H_TO_H, "Miscellaneous Skills" },
     { P_FIRST_WEAPON, P_LAST_WEAPON, "Weapon Skills" },
     { P_FIRST_SPELL, P_LAST_SPELL, "Spellcasting Skills" },
@@ -1576,7 +1581,8 @@ unrestrict_weapon_skill(int skill)
     }
 }
 
-void
+/* return true if a message was printed */
+boolean
 use_skill(int skill, int degree)
 {
     boolean advance_before;
@@ -1584,9 +1590,12 @@ use_skill(int skill, int degree)
     if (skill != P_NONE && !P_RESTRICTED(skill)) {
         advance_before = can_advance(skill, FALSE);
         P_ADVANCE(skill) += degree;
-        if (!advance_before && can_advance(skill, FALSE))
+        if (!advance_before && can_advance(skill, FALSE)) {
             give_may_advance_msg(skill);
+            return TRUE;
+        }
     }
+    return FALSE;
 }
 
 void
@@ -1652,6 +1661,10 @@ drain_weapon_skill(int n) /* number of skills to drain */
             if (P_SKILL(skill) <= P_UNSKILLED)
                 panic("drain_weapon_skill (%d)", skill);
             P_SKILL(skill)--;   /* drop skill one level */
+            /* if it is an attribute skill then adjust it down. */
+            if (skill >= P_FIRST_ATTR && skill <= P_LAST_ATTR) {
+                adjattrib(skill - P_FIRST_ATTR, -1, -1);
+            }
             /* refund slots used for skill */
             u.weapon_slots += slots_required(skill);
             /* drain skill training to a value appropriate for new level */
@@ -1920,6 +1933,12 @@ skill_init(const struct def_skill *class_skill)
             P_SKILL(skill) = P_BASIC;
     }
 
+    /* All characters can train to any level in attribute skills */
+    for (int i = P_FIRST_ATTR; i <= P_LAST_ATTR; i++) {
+        P_SKILL(i) = P_UNSKILLED;
+        P_MAX_SKILL(i) = P_EXPERT;
+    }
+
     /* set skills for magic */
     if (Role_if(PM_HEALER) || Role_if(PM_MONK)) {
         P_SKILL(P_HEALING_SPELL) = P_BASIC;
@@ -2008,6 +2027,28 @@ resist_oc_dir(struct monst *mon, int otyp)
             && resists_slash(mon->data))
         || ((objects[otyp].oc_dir & PIERCE)
             && resists_pierce(mon->data)));
+}
+
+int
+get_scaling_type(struct obj *obj) {
+    int ocscal = objects[obj->otyp].oc_scaling;
+    if (obj->material == objects[obj->otyp].oc_material){
+        return ocscal;
+    }
+    switch (obj->material) {
+    case GEMSTONE:
+        return A_INT;
+    case LODEN:
+        return A_STR;
+    case BLEAKWOOD:
+        return A_WIS;
+    case WOOD:
+    case LIQUID:
+    case WAX:
+        return -1;
+    default:
+        return ocscal;
+    }
 }
 
 #undef PN_BARE_HANDED

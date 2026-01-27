@@ -12,6 +12,14 @@
     much more quickly for them. This includes both positive intrinsics
     as well as negative ones, such as terminal illness. They also
     forget spells twice as quickly.
+## Skills
+- There is now a skill that corresponds to each attribute. Enhancing this
+  skill increases this attribute by one point.
+- In order to train these skills you must exercise that attribute. This
+  replaces the previous exercise and abuse system for attributes.
+- As a result, new ways have been added to exercise attributes:
+  - Intelligence is exercised by use-testing potions and scrolls.
+  - Charisma is exercised by consorting with foocubi.
 ## Dungeon
 - Mild rewrite of Vlad's Tower.
 ## Objects

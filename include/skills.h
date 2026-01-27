@@ -67,7 +67,15 @@ enum p_skills {
     P_PET_HANDLING       = 40, /* How well you command pets */
     P_IMPROV             = 41, /* How well can you improvise weapons */
 
-    P_NUM_SKILLS         = 42
+    /* Attribute Skills */
+    P_STRENGTH           = 42,
+    P_INTELLIGENCE       = 43,
+    P_WISDOM             = 44,
+    P_DEXTERITY          = 45,
+    P_CONSTITUTION       = 46,
+    P_CHARISMA           = 47,
+
+    P_NUM_SKILLS         = 48
 };
 
 #define P_MARTIAL_ARTS P_BARE_HANDED_COMBAT /* Role distinguishes */
@@ -80,6 +88,9 @@ enum p_skills {
 
 #define P_LAST_H_TO_H P_IMPROV
 #define P_FIRST_H_TO_H P_BARE_HANDED_COMBAT
+
+#define P_FIRST_ATTR P_STRENGTH
+#define P_LAST_ATTR P_CHARISMA
 
 /* These roles qualify for a martial arts bonus */
 #define martial_bonus() (Role_if(PM_SAMURAI) || Role_if(PM_MONK))

@@ -62,6 +62,7 @@ learnscrolltyp(short scrolltyp)
     if (!objects[scrolltyp].oc_name_known) {
         makeknown(scrolltyp);
         more_experienced(0, 10);
+        exercise(A_INT, TRUE);
         return TRUE;
     } else
         return FALSE;

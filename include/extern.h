@@ -229,6 +229,7 @@ extern void adjalign(int);
 extern int is_innate(int);
 extern char *from_what(int);
 extern void uchangealign(int, int);
+extern const char *attr_name(int);
 
 /* ### ball.c ### */
 
@@ -3824,7 +3825,7 @@ extern boolean can_advance(int, boolean);
 extern void show_skills(void);
 extern int enhance_weapon_skill(void);
 extern void unrestrict_weapon_skill(int);
-extern void use_skill(int, int);
+extern boolean use_skill(int, int);
 extern void add_weapon_skill(int);
 extern void lose_weapon_skill(int);
 extern void drain_weapon_skill(int);
@@ -3839,6 +3840,7 @@ extern void setmnotwielded(struct monst *, struct obj *) NONNULLARG1;
 extern const struct throw_and_return_weapon *autoreturn_weapon(struct obj *)
     NONNULLARG1;
 extern boolean resist_oc_dir(struct monst *, int) NONNULLARG1;
+extern int get_scaling_type(struct obj *) NONNULLARG1;
 
 /* ### were.c ### */
 

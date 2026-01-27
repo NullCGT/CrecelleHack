@@ -32,6 +32,8 @@
 - Potions weigh half as much.
 - Monsters tend to spawn with potions instead of wands as offensive items.
 - Invisible_material option to disable material color glyphs.
+- Gemstone items can be made of different types of gems.
+  - This does not modify the cost of the item.
 - New Materials
   - Nightiron.
     - Generates very rarely.
@@ -81,6 +83,8 @@
 - Tonic of Honey
   - Instead of being handled as a distinct coating, honey is now a
     bespoke potion.
+- Tonic of normality
+  - Cancels all temporary effects currently impacting the drinker.
 ## New Monsters
 - Gray Fungus
   - Originally from SporkHack, but ported from EvilHack.

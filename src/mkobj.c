@@ -4529,6 +4529,11 @@ void force_material(struct obj *otmp, int material)
 {
     otmp->material = material;
     otmp->owt = weight(otmp);
+    if (material == GEMSTONE) {
+        otmp->gemtype = FIRST_REAL_GEM + rn2(NUM_REAL_GEMS);
+        if (otmp->gemtype == SALT_CRYSTAL || otmp->gemtype == DILITHIUM_CRYSTAL)
+            otmp->gemtype = OBSIDIAN;
+    }
     if (!erosion_matters(otmp))
         return;
     if (!is_rustprone(otmp) && !is_flammable(otmp) && !is_crackable(otmp))

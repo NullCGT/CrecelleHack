@@ -3855,6 +3855,8 @@ int compute_obj_glyph_color(struct obj *otmp)
                 return objects[otmp->gemtype].oc_color;
             } else if (otmp->material != objects[otmp->otyp].oc_material) {
                 return materials[otmp->material].clr;
+            } else {
+                return objects[otmp->otyp].oc_color;
             }
         } else {
             return objects[otmp->otyp].oc_color;

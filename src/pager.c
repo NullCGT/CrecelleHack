@@ -2064,13 +2064,13 @@ do_look(int mode, coord *click_cc)
 
                 supplemental_name[0] = '\0';
                 Strcpy(temp_buf, firstmatch);
+                if (supplemental_pm)
+                    do_supplemental_info(supplemental_name, supplemental_pm,
+                                         FALSE);
                 (void) checkfile(temp_buf, pm,
                                  (ans == LOOK_VERBOSE) ? chkfilDontAsk
                                                        : chkfilNone,
                                  supplemental_name);
-                if (supplemental_pm)
-                    do_supplemental_info(supplemental_name, supplemental_pm,
-                                         FALSE);
             }
         } else {
             pline("I've never heard of such things.");
@@ -2377,12 +2377,15 @@ do_supplemental_item_info(struct obj *otmp)
     int dbonus;
     /* Display monster info */
     datawin = create_nhwindow(NHW_MENU);
+    start_menu(datawin, MENU_BEHAVE_STANDARD);
+    gm.mrg_to_wielded = TRUE;
     Sprintf(buf, "%s", Doname2(otmp));
-    putstr(datawin, iflags.menu_headings.attr, buf);
+    gm.mrg_to_wielded = FALSE;
+    add_menu_heading(datawin,  buf);
     if (not_fully_identified(otmp)) {
-        putstr(datawin, 0, "There is more you could learn about it.");
+        add_menu_str(datawin, "There is more you could learn about it.");
     } else {
-        putstr(datawin, 0, "It is fully identified.");
+        add_menu_str(datawin, "It is fully identified.");
     }
     /* Dyes */
     if (has_odye(otmp) && !(otmp->otyp == POT_DYE && !otmp->dknown)) {
@@ -2390,23 +2393,23 @@ do_supplemental_item_info(struct obj *otmp)
             Sprintf(buf, "It will dye items %s.", dye_to_name(otmp));
         else
             Sprintf(buf, "It is dyed %s.", dye_to_name(otmp));
-        putstr(datawin, 0, buf);
+        add_menu_str(datawin, buf);
     }
     /* Scroll Writing */
     if ((otmp->oclass == SCROLL_CLASS || otmp->oclass == SPBOOK_CLASS)
         && objects[otmp->otyp].oc_name_known) {
         Sprintf(buf, "It would cost ~%d ink to write.", cost(otmp));
-        putstr(datawin, 0, buf);
+        add_menu_str(datawin, buf);
     }
     if (otmp->oclass == WEAPON_CLASS) {
         if (is_dualweapon(otmp))
-            putstr(datawin, 0, "It can be dual-wielded.");
+            add_menu_str(datawin, "It can be dual-wielded.");
         if (is_tripweapon(otmp))
-            putstr(datawin, 0, "It can be used to trip monsters.");
+            add_menu_str(datawin, "It can be used to trip monsters.");
         if (is_poisonable(otmp) && !otmp->opoisoned)
-            putstr(datawin, 0, "It can be poisoned.");
+            add_menu_str(datawin, "It can be poisoned.");
     }
-    putstr(datawin, 0, "");
+    add_menu_str(datawin, "");
     /* Class info */
     add_menu_heading(datawin, "Statistics");
     if (otmp->oclass == WEAPON_CLASS) {
@@ -2416,49 +2419,37 @@ do_supplemental_item_info(struct obj *otmp)
         }
         Sprintf(buf, "Type: %s%sweapon", objects[otmp->otyp].oc_bimanual ? "two-handed " : "one-handed ",
                                  objects[otmp->otyp].oc_finesse ? "finesse " : "");
-        putstr(datawin, 0, buf);
-        #if 0
-        Sprintf(buf, "Damage (S): 1d%d%s%s%s", objects[otmp->otyp].oc_wsdam + size_mult(otmp->osize),
-                                            stringify_dmgval(otmp->otyp, FALSE),
-                                            dbonus ? dam_buf : "",
-                                            otmp->known ? "" : "?");
-        putstr(datawin, 0, buf);
-        Sprintf(buf, "Damage (L): 1d%d%s%s%s", objects[otmp->otyp].oc_wldam + size_mult(otmp->osize),
-                                            stringify_dmgval(otmp->otyp, TRUE),
-                                            dbonus ? dam_buf : "",
-                                            otmp->known ? "" : "?");
-        putstr(datawin, 0, buf);
-        #endif
+        add_menu_str(datawin, buf);
     } else {
         Sprintf(buf, "Class: %s", OBJ_DESCR(objects[(int) otmp->oclass]));
-        putstr(datawin, 0, buf);
+        add_menu_str(datawin, buf);
     }
     /* Appearance */
     if (OBJ_DESCR(objects[otmp->otyp])) {
         Sprintf(buf, "Appearance: %s", OBJ_DESCR(objects[otmp->otyp]));
-        putstr(datawin, 0, buf);
+        add_menu_str(datawin, buf);
     }
     /* Armor stats */
     if (otmp->oclass == ARMOR_CLASS) {
         Sprintf(buf, "AC: %d%s", (objects[otmp->otyp].a_ac + (otmp->known ? otmp->spe : 0)),
                                 otmp->known ? "" : "?");
-        putstr(datawin, 0, buf);
+        add_menu_str(datawin, buf);
         Sprintf(buf, "MC: %d%%%s", max(0, (objects[otmp->otyp].a_can) - (otmp->known ? otmp->spe : 0)),
                                  otmp->known ? "" : "?");
-        putstr(datawin, 0, buf);
+        add_menu_str(datawin, buf);
     }
     if (size_matters(otmp)) {
         Sprintf(buf,"Size: %s", size_str(otmp->osize));
-        putstr(datawin, 0, buf);
+        add_menu_str(datawin, buf);
     }
     Sprintf(buf, "Weight: %d aum (average %d aum)", otmp->owt, objects[otmp->otyp].oc_weight);
-    putstr(datawin, 0, buf);
+    add_menu_str(datawin, buf);
     Sprintf(buf, "Material: %s (usually %s)", MAT_NAME(otmp->material),
                                                 MAT_NAME(objects[otmp->otyp].oc_material));
-    putstr(datawin, 0, buf);
+    add_menu_str(datawin, buf);
     Sprintf(buf, "Rarity: %s, %s", objects[otmp->otyp].oc_unique ? "unique" : "common",
                                     objects[otmp->otyp].oc_nowish ? "unwishable" : "wishable");
-    putstr(datawin, 0, buf);
+    add_menu_str(datawin, buf);
     if (otmp->oprop) {
         if (otmp->pknown) {
             Sprintf(buf, "Harmony: ");
@@ -2466,10 +2457,13 @@ do_supplemental_item_info(struct obj *otmp)
         } else {
             Sprintf(buf, "Harmony: Unknown");
         }
-        putstr(datawin, 0, buf);
+        add_menu_str(datawin, buf);
     }
     
-    display_nhwindow(datawin, TRUE);
+    menu_item *selected = 0;
+    end_menu(datawin, (char *) 0);
+    if (select_menu(datawin, PICK_NONE, &selected) > 0)
+        free((genericptr_t) selected);
     destroy_nhwindow(datawin), datawin = WIN_ERR;
 }
 
@@ -2540,23 +2534,24 @@ do_supplemental_info(
     }
     /* Display monster info */
     datawin = create_nhwindow(NHW_MENU);
+    start_menu(datawin, MENU_BEHAVE_STANDARD);
     if (strlen(name) && strlen(name) < (BUFSZ - 1)) {
-        putstr(datawin, iflags.menu_headings.attr, name);
+        add_menu_heading(datawin, name);
     } else {
         Sprintf(buf, "%s", pmname(pm, MALE));
         buf[0] = highc(buf[0]);
-        putstr(datawin, iflags.menu_headings.attr, buf);
+        add_menu_heading(datawin, buf);
     }
     /* Size */
     Sprintf(buf, "%s %s", size_str(pm->msize), def_monsyms[(int) pm->mlet].explain);
     buf[0] = highc(buf[0]);
-    putstr(datawin, 0, buf);
+    add_menu_str(datawin, buf);
     /* Stats */
     if (auto_know || svm.mvitals[pm->pmidx].know_stats)
         Sprintf(buf, "Speed: %d, AC: %d, MR: %d", pm->mmove, pm->ac, pm->mr);
     else
         Sprintf(buf, "You know nothing of its abilities.");
-    putstr(datawin, 0, buf);
+    add_menu_str(datawin, buf);
     /* Food */
     if (!auto_know && !svm.mvitals[pm->pmidx].know_pcorpse)
         Sprintf(buf, "You know nothing about its edibility.");
@@ -2565,14 +2560,14 @@ do_supplemental_info(
                     poisonous(pm) ? "poisonous" : "safe",
                     acidic(pm) ? "acidic" : "bland",
                     is_domestic(pm) ? "domestic" : "wild");
-    putstr(datawin, 0, buf);
+    add_menu_str(datawin, buf);
     /* Have we seen it? */
     if (!svm.mvitals[pm->pmidx].seen_close) {
-        putstr(datawin, 0, "You have never seen it up close.");
+        add_menu_str(datawin, "You have never seen it up close.");
     }
-    putstr(datawin, 0, "");
+    add_menu_str(datawin, "");
     /* Attacks */
-    putstr(datawin, iflags.menu_headings.attr, "Attacks");
+    add_menu_heading(datawin, "Attacks");
     for (int i = 0; i < NATTK; i++) {
         if (!pm->mattk[i].aatyp && !pm->mattk[i].adtyp && !pm->mattk[i].damn && !pm->mattk[i].damd) continue;
         if (!auto_know && !(svm.mvitals[pm->pmidx].know_attacks & (1 << i))) {
@@ -2584,9 +2579,12 @@ do_supplemental_info(
                                             mad_names[pm->mattk[i].adtyp]);
         }
         buf[2] = highc(buf[2]);
-        putstr(datawin, 0, buf);
+        add_menu_str(datawin, buf);
     }
-    display_nhwindow(datawin, TRUE);
+    menu_item *selected = 0;
+    end_menu(datawin, (char *) 0);
+    if (select_menu(datawin, PICK_NONE, &selected) > 0)
+        free((genericptr_t) selected);
     destroy_nhwindow(datawin), datawin = WIN_ERR;
 }
 

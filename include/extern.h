@@ -2296,6 +2296,7 @@ extern char *Tobjnam(struct obj *, const char *) NONNULL NONNULLARG1;
 extern char *otense(struct obj *, const char *) NONNULL NONNULLARG12;
 extern char *vtense(const char *, const char *) NONNULL NONNULLARG2;
 extern char *Doname2(struct obj *) NONNULL NONNULLARG1;
+extern char *Doname_lookup(struct obj *) NONNULL NONNULLARG1;
 extern char *paydoname(struct obj *) NONNULL NONNULLARG1;
 extern char *yname(struct obj *) NONNULL NONNULLARG1;
 extern char *Yname2(struct obj *) NONNULL NONNULLARG1;

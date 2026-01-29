@@ -3937,6 +3937,7 @@ use_grapple(struct obj *obj)
     struct monst *mtmp;
     struct obj *otmp;
 
+    pline("BANG");
     /* Are you allowed to use the hook? */
     if (u.uswallow) {
         pline(not_enough_room);
@@ -4371,7 +4372,8 @@ apply_ok(struct obj *obj)
     /* certain weapons */
     if (obj->oclass == WEAPON_CLASS
         && (is_pick(obj) || is_axe(obj) || is_pole(obj)
-            || obj->otyp == BULLWHIP))
+            || obj->otyp == BULLWHIP
+            || obj->otyp == SHEPHERD_S_CROOK))
         return GETOBJ_SUGGEST;
 
     if (obj->oclass == POTION_CLASS) {
@@ -4473,6 +4475,7 @@ doapply(void)
         res = use_whip(obj);
         break;
     case GRAPPLING_HOOK:
+    case SHEPHERD_S_CROOK:
         res = use_grapple(obj);
         break;
     case LARGE_BOX:

@@ -611,6 +611,9 @@ dog_goal(
         if (appr == 0) {
             if (On_stairs(u.ux, u.uy)) {
                 appr = 1;
+            } else if ((uwep && uwep->otyp == SHEPHERD_S_CROOK)
+                        || (uswapwep && uswapwep->otyp == SHEPHERD_S_CROOK)) {
+                appr = 1;
             } else {
                 for (obj = gi.invent; obj; obj = obj->nobj)
                     if (dogfood(mtmp, obj) == DOGFOOD) {

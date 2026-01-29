@@ -31,6 +31,7 @@ staticfn int grease_ok(struct obj *);
 staticfn int use_grease(struct obj *);
 staticfn void use_trap(struct obj *);
 staticfn int touchstone_ok(struct obj *);
+staticfn int rub_wand(struct obj *);
 staticfn int use_sympathy(struct obj *);
 staticfn int use_stone(struct obj *);
 staticfn int set_trap(void); /* occupation callback */
@@ -1920,7 +1921,8 @@ rub_ok(struct obj *obj)
     if (!obj)
         return GETOBJ_EXCLUDE;
 
-    if (obj->otyp == OIL_LAMP || obj->otyp == MAGIC_LAMP
+    if (obj->oclass == WAND_CLASS
+        || obj->otyp == OIL_LAMP || obj->otyp == MAGIC_LAMP
         || obj->otyp == LANTERN || is_graystone(obj)
         || obj->otyp == LUMP_OF_ROYAL_JELLY
         || obj->otyp == TOWEL)
@@ -1954,9 +1956,12 @@ dorub(void)
             pline("Sorry, I don't know how to use that.");
             return ECMD_OK;
         }
-    }
-    if (obj->oartifact == ART_SYMPATHY)
+    } else if (obj->oclass == WAND_CLASS) {
+        return rub_wand(obj);
+    } else if (obj->oartifact == ART_SYMPATHY) {
         return use_sympathy(obj);
+    }
+
     if (obj != uwep) {
         if (wield_tool(obj, "rub")) {
             cmdq_add_ec(CQ_CANNED, dorub);
@@ -2867,6 +2872,51 @@ use_sympathy(struct obj *symp)
     retouch_object(&symp, !uarmg, FALSE);
     update_inventory();
     return ECMD_TIME;
+}
+
+staticfn int
+rub_wand(struct obj *wand)
+{
+    char wandbuf[QBUFSZ];
+    struct obj *obj;
+    int n;
+    int lim = (objects[wand->otyp].oc_dir != NODIR ? 8 : 15);
+
+    Sprintf(wandbuf, "rub on the wand%s", plur(wand->quan));
+    if ((obj = getobj(wandbuf, any_obj_ok, GETOBJ_PROMPT)) == 0)
+        return ECMD_CANCEL;
+
+    if (obj == wand) {
+        pline("Try as you might, %s is not that flexible.", the(xname(obj)));
+        return ECMD_OK;
+    }
+    if (wand->otyp != obj->otyp) {
+        pline("Nothing happens.");
+        return ECMD_OK;
+    }
+    if (obj->cursed && !rn2(WAND_BACKFIRE_CHANCE)) {
+        backfire(obj);
+        return ECMD_OK;
+    }
+    if (obj->spe <= 0 || obj->otyp == WAN_WISHING || wand->otyp == WAN_WISHING) {
+        pline("Nothing interesting happens.");
+        return ECMD_OK;
+    }
+    wand->spe += max(obj->spe - 1, 1);
+
+    n = (int) wand->recharged;
+    if (((wand->spe > lim) && rn2(2 + n))
+        || (n * n * n > rn2(7 * 7 * 7))) {
+        useupall(obj);
+        wand_explode(wand, rnd(lim));
+        return ECMD_OK;
+    }
+    /* didn't explode, so increment the recharge count */
+    wand->recharged++;
+    pline("You transfer the magic of %s into %s.", the(xname(obj)), the(xname(wand)));
+    useupall(obj);
+    update_inventory();
+    return ECMD_OK;
 }
 
 /* touchstones - by Ken Arnold */
@@ -3937,6 +3987,7 @@ use_grapple(struct obj *obj)
     struct monst *mtmp;
     struct obj *otmp;
 
+    pline("BANG");
     /* Are you allowed to use the hook? */
     if (u.uswallow) {
         pline(not_enough_room);
@@ -4371,7 +4422,8 @@ apply_ok(struct obj *obj)
     /* certain weapons */
     if (obj->oclass == WEAPON_CLASS
         && (is_pick(obj) || is_axe(obj) || is_pole(obj)
-            || obj->otyp == BULLWHIP))
+            || obj->otyp == BULLWHIP
+            || obj->otyp == SHEPHERD_S_CROOK))
         return GETOBJ_SUGGEST;
 
     if (obj->oclass == POTION_CLASS) {
@@ -4473,6 +4525,7 @@ doapply(void)
         res = use_whip(obj);
         break;
     case GRAPPLING_HOOK:
+    case SHEPHERD_S_CROOK:
         res = use_grapple(obj);
         break;
     case LARGE_BOX:

@@ -317,6 +317,9 @@ itemactions(struct obj *otmp)
     else if (otmp->otyp == GRAPPLING_HOOK)
         ia_addmenu(win, IA_APPLY_OBJ, 'a',
                    "Grapple something with this hook");
+    else if (otmp->otyp == SHEPHERD_S_CROOK)
+        ia_addmenu(win, IA_APPLY_OBJ, 'a',
+                    "Grapple something with this crook");
     else if (otmp->otyp == BAG_OF_TRICKS && objects[otmp->otyp].oc_name_known)
         /* bag of tricks skips this unless discovered */
         ia_addmenu(win, IA_APPLY_OBJ, 'a', "Reach into this bag");

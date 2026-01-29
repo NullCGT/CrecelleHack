@@ -2297,6 +2297,7 @@ extern char *Tobjnam(struct obj *, const char *) NONNULL NONNULLARG1;
 extern char *otense(struct obj *, const char *) NONNULL NONNULLARG12;
 extern char *vtense(const char *, const char *) NONNULL NONNULLARG2;
 extern char *Doname2(struct obj *) NONNULL NONNULLARG1;
+extern char *Doname_lookup(struct obj *) NONNULL NONNULLARG1;
 extern char *paydoname(struct obj *) NONNULL NONNULLARG1;
 extern char *yname(struct obj *) NONNULL NONNULLARG1;
 extern char *Yname2(struct obj *) NONNULL NONNULLARG1;
@@ -4097,6 +4098,7 @@ extern int bhitpile(struct obj *, int(*)(struct obj *, struct obj *),
 extern int zappable(struct obj *) NONNULLARG1;
 extern void do_enlightenment_effect(void);
 extern void zapnodir(struct obj *) NONNULLARG1;
+extern void backfire(struct obj *) NONNULLARG1;
 extern int dozap(void);
 extern int zapyourself(struct obj *, boolean) NONNULLARG1;
 extern void ubreatheu(struct attack *) NONNULLARG1;

@@ -29,7 +29,6 @@ staticfn void zap_map(coordxy, coordxy, struct obj *) NONNULLARG3;
 staticfn int zap_hit(int, int);
 staticfn void disintegrate_mon(struct monst *, int, const char *) NONNULLARG1;
 staticfn int adtyp_to_prop(int);
-staticfn void backfire(struct obj *) NONNULLARG1;
 staticfn int zap_ok(struct obj *) NO_NNARGS;
 /* all callers of boxlock_invent() pass a NONNULL obj, and boxlock
  * boxlock_invent() calls boxlock() which has nonnull arg. */

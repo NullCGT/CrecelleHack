@@ -30,6 +30,10 @@
   - Briny
 - Many adjustments to existing oprops.
 - Potions weigh half as much.
+- Tame monsters follow you more closely if you wield a shepherd's crook.
+- Shepherd's crooks can be used for grappling as a grappling hook might be.
+- You can transfer one wand's charges into another by rubbing the wands together.
+  Warning: wands may explode.
 - Monsters tend to spawn with potions instead of wands as offensive items.
 - Invisible_material option to disable material color glyphs.
 - Gemstone items can be made of different types of gems.

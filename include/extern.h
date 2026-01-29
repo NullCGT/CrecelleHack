@@ -4092,6 +4092,7 @@ extern int bhitpile(struct obj *, int(*)(struct obj *, struct obj *),
 extern int zappable(struct obj *) NONNULLARG1;
 extern void do_enlightenment_effect(void);
 extern void zapnodir(struct obj *) NONNULLARG1;
+extern void backfire(struct obj *) NONNULLARG1;
 extern int dozap(void);
 extern int zapyourself(struct obj *, boolean) NONNULLARG1;
 extern void ubreatheu(struct attack *) NONNULLARG1;

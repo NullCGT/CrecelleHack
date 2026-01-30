@@ -47,12 +47,8 @@ multishot_class_bonus(
     switch (pm) {
     case PM_CAVE_DWELLER:
         /* give bonus for low-tech gear */
-        if (skill == -P_SLING || skill == P_SPEAR)
-            multishot++;
-        break;
-    case PM_MONK:
-        /* allow higher volley count despite skill limitation */
-        if (skill == -P_SHURIKEN)
+        if ((skill == -P_SLING || skill == P_SPEAR)
+            && ammo->otyp != TRIDENT)
             multishot++;
         break;
     case PM_RANGER:
@@ -66,7 +62,9 @@ multishot_class_bonus(
             multishot++;
         break;
     case PM_NINJA:
-        if (skill == -P_SHURIKEN || skill == -P_DART)
+    case PM_MONK:
+        /* allow higher volley count despite skill limitation */
+        if (skill == -P_MISSILES)
             multishot++;
         FALLTHROUGH;
         /*FALLTHRU*/
@@ -171,7 +169,7 @@ throw_obj(struct obj *obj, int shotlimit)
         /* some roles don't get a volley bonus until becoming expert */
         weakmultishot = (Role_if(PM_WIZARD) || Role_if(PM_CLERIC)
                          || (Role_if(PM_HEALER) && skill != P_KNIFE)
-                         || (Role_if(PM_TOURIST) && skill != -P_DART)
+                         || (Role_if(PM_TOURIST) && skill != -P_MISSILES)
                          /* poor dexterity also inhibits multishot */
                          || Fumbling || ACURR(A_DEX) <= 6);
 
@@ -1436,7 +1434,7 @@ toss_up(struct obj *obj, boolean hitsroof)
 boolean
 throwing_weapon(struct obj *obj)
 {
-    return (boolean) (is_missile(obj) || is_spear(obj)
+    return (boolean) (is_missile(obj) || (is_spear(obj) && obj->otyp != TRIDENT)
                       /* daggers and knife (excludes scalpel) */
                       || (is_blade(obj) && !is_sword(obj)
                           && (objects[obj->otyp].oc_dir & PIERCE))

@@ -152,13 +152,13 @@ PROJECTILE("crossbow bolt", NoDes,
 
 /* missiles that don't use a launcher */
 WEAPON("dart", NoDes,
-       1, 1, 0, 1, 60,   1,   2,  1,  3, 0, A_DEX, P,   -P_DART, IRON, HI_METAL,
+       1, 1, 0, 1, 60,   1,   2,  1,  3, 0, A_DEX, P,   -P_MISSILES, IRON, HI_METAL,
                                                         DART),
 WEAPON("shuriken", "throwing star",
-       0, 1, 0, 1, 35,   1,   5,  1,  6, 2, A_DEX, P,   -P_SHURIKEN, IRON, HI_METAL,
+       0, 1, 0, 1, 35,   1,   5,  1,  6, 2, A_DEX, P,   -P_MISSILES, IRON, HI_METAL,
                                                         SHURIKEN),
 WEAPON("boomerang", NoDes,
-       1, 1, 0, 1, 15,   5,  20,  1,  9, 0, A_DEX, 0,   -P_BOOMERANG, WOOD, HI_WOOD,
+       1, 1, 0, 1, 15,   5,  20,  1,  9, 0, A_DEX, 0,   -P_MISSILES, WOOD, HI_WOOD,
                                                         BOOMERANG),
 
 /* spears [note: javelin used to have a separate skill from spears,
@@ -183,7 +183,7 @@ WEAPON("javelin", "throwing spear",
 
 /* spearish; doesn't stack, not intended to be thrown */
 WEAPON("trident", NoDes,
-       1, 0, 0, 0,  8,  25,   5,  3,  4, 0, A_STR, P,   P_TRIDENT, IRON, HI_METAL,
+       1, 0, 0, 0,  8,  25,   5,  3,  4, 0, A_STR, P,   P_SPEAR, IRON, HI_METAL,
                                                         TRIDENT),
         /* +1 small, +2d4 large */
 
@@ -357,7 +357,7 @@ WEAPON("mace", NoDes,
                                                         MACE),
         /* +1 small */
 WEAPON("morning star", NoDes,
-       1, 0, 0, 0, 12, 120,  10,  1,  6, 0, A_STR, B,   P_MORNING_STAR, IRON, HI_METAL,
+       1, 0, 0, 0, 12, 120,  10,  1,  6, 0, A_STR, B,   P_MACE, IRON, HI_METAL,
                                                         MORNING_STAR),
         /* +d4 small, +1 large */
 WEAPON("war hammer", NoDes,

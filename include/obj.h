@@ -256,8 +256,7 @@ struct obj {
 #define ammo_and_launcher(a, l) (is_ammo(a) && matching_launcher(a, l))
 #define is_missile(otmp)                                          \
     ((otmp->oclass == WEAPON_CLASS || otmp->oclass == TOOL_CLASS) \
-     && objects[otmp->otyp].oc_skill >= -P_BOOMERANG              \
-     && objects[otmp->otyp].oc_skill <= -P_DART)
+     && objects[otmp->otyp].oc_skill == -P_MISSILES)
 #define is_weptool(o) \
     ((o)->oclass == TOOL_CLASS && objects[(o)->otyp].oc_skill != P_NONE)
         /* towel is not a weptool:  spe isn't an enchantment, cursed towel
@@ -271,11 +270,11 @@ struct obj {
      && objects[otmp->otyp].oc_bimanual)
 #define is_multigen(otmp)                           \
     (otmp->oclass == WEAPON_CLASS                   \
-     && objects[otmp->otyp].oc_skill >= -P_SHURIKEN \
+     && objects[otmp->otyp].oc_skill >= -P_MISSILES \
      && objects[otmp->otyp].oc_skill <= -P_BOW)
 #define is_poisonable(otmp)                          \
     ((otmp->oclass == WEAPON_CLASS                   \
-      && ((objects[otmp->otyp].oc_skill >= -P_SHURIKEN \
+      && ((objects[otmp->otyp].oc_skill >= -P_MISSILES \
             && objects[otmp->otyp].oc_skill <= -P_BOW) \
             || (is_blade(otmp))))     \
      || permapoisoned(otmp))

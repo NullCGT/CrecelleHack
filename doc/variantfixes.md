@@ -1,4 +1,11 @@
 # 1.4.1
+## Combat
+- Combined several redundant weapon skills to prevent the skill list
+  from becoming too long.
+  - Morningstars are now covered by the mace skill.
+  - Tridents are now covered by the spear skill.
+  - Boomerangs, darts, and shuriken are all covered by the throwing
+    weapons skill.
 ## Races
 - Kobold Rewrite
   - Kobolds can now talk to monsters. Several players complained

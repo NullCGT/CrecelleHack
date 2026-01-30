@@ -1700,14 +1700,12 @@ weapon_hit_text(struct obj *obj) {
     case P_SABER:
         return "slash";
     case P_MACE:
-    case P_MORNING_STAR:
     case P_FLAIL:
     case P_HAMMER:
         return "bash";
     case P_QUARTERSTAFF:
         return "strike";
     case P_SPEAR:
-    case P_TRIDENT:
     case P_LANCE:
         return "jab";
     case P_WHIP:

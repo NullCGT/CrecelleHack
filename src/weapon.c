@@ -30,21 +30,22 @@ staticfn void add_skills_to_menu(winid, boolean, boolean);
 #define PN_POLEARMS (-8)
 #define PN_SABER (-9)
 #define PN_HAMMER (-10)
-#define PN_WHIP (-11)
-#define PN_ATTACK_SPELL (-12)
-#define PN_HEALING_SPELL (-13)
-#define PN_DIVINATION_SPELL (-14)
-#define PN_ENCHANTMENT_SPELL (-15)
-#define PN_CLERIC_SPELL (-16)
-#define PN_ESCAPE_SPELL (-17)
-#define PN_MATTER_SPELL (-18)
+#define PN_MISSILES (-11)
+#define PN_WHIP (-12)
+#define PN_ATTACK_SPELL (-13)
+#define PN_HEALING_SPELL (-14)
+#define PN_DIVINATION_SPELL (-15)
+#define PN_ENCHANTMENT_SPELL (-16)
+#define PN_CLERIC_SPELL (-17)
+#define PN_ESCAPE_SPELL (-18)
+#define PN_MATTER_SPELL (-19)
 
 static NEARDATA const short skill_names_indices[P_NUM_SKILLS] = {
     /* Weapon */
     0, DAGGER, KNIFE, AXE, PICK_AXE, SHORT_SWORD, BROADSWORD, LONG_SWORD,
-    TWO_HANDED_SWORD, PN_SABER, CLUB, MACE, MORNING_STAR, FLAIL, PN_HAMMER,
-    QUARTERSTAFF, PN_POLEARMS, SPEAR, TRIDENT, LANCE, BOW, SLING, CROSSBOW,
-    DART, SHURIKEN, BOOMERANG, PN_WHIP, UNICORN_HORN,
+    TWO_HANDED_SWORD, PN_SABER, CLUB, MACE, FLAIL, PN_HAMMER,
+    QUARTERSTAFF, PN_POLEARMS, SPEAR, LANCE, BOW, SLING, CROSSBOW,
+    PN_MISSILES, PN_WHIP, UNICORN_HORN,
     /* Spell */
     PN_ATTACK_SPELL, PN_HEALING_SPELL, PN_DIVINATION_SPELL,
     PN_ENCHANTMENT_SPELL, PN_CLERIC_SPELL, PN_ESCAPE_SPELL, PN_MATTER_SPELL,
@@ -58,7 +59,7 @@ static NEARDATA const char *const odd_skill_names[] = {
     "no skill", "bare hands", /* use barehands_or_martial[] instead */
     "two weapon combat", "riding", "tripping", "grappling",
     "pet handling", "improvised weaponry",
-    "polearms", "saber", "hammer", "whip",
+    "polearms", "saber", "hammer", "throwing weapons", "whip",
     "attack spells", "healing spells", "divination spells",
     "enchantment spells", "clerical spells", "escape spells", "matter spells",
 };
@@ -1974,10 +1975,6 @@ skill_init(const struct def_skill *class_skill)
     /* Roles that start with a horse know how to ride it */
     if (can_saddle(&mons[gu.urole.petnum])) 
         P_SKILL(P_RIDING) = P_BASIC;
-
-    /* Kobolds know darts */
-    if (Race_if(PM_KOBOLD) && P_MAX_SKILL(P_DART) < P_BASIC)
-        P_MAX_SKILL(P_DART) = P_BASIC;
 
     /*
      * Make sure we haven't missed setting the max on a skill

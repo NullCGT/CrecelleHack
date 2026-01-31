@@ -735,7 +735,9 @@ make_corpse(struct monst *mtmp, unsigned int corpseflags)
     case PM_ROPE_GOLEM:
         num = rn2(3);
         while (num-- > 0) {
-            obj = mksobj_at(rn2(2) ? LEASH : BULLWHIP, x, y, TRUE, FALSE);
+            obj = mksobj_at(rn2(2) ? LEASH
+                            : rn2(3) ? BULLWHIP : GRAPPLING_HOOK,
+                            x, y, TRUE, FALSE);
         }
         free_mgivenname(mtmp);
         break;
@@ -1225,9 +1227,14 @@ mcalcmove(
      *       MFAST's `+ 2' prevents hasted speed 1 from becoming a no-op;
      *       both adjustments have negligible effect on higher speeds.
      */
-    if (mon->mspeed == MSLOW)
-        mmove = (2 * mmove + 1) / 3;
-    else if (mon->mspeed == MFAST)
+    if (mon->mspeed == MSLOW) {
+        /* slow-monster effects work better against faster monsters: they
+           lose 1/3 of their speed below 12 but 2/3 of their speed above */
+        if (mmove < 12)
+            mmove = (2 * mmove + 1) / 3;
+        else
+            mmove = 4 + (mmove / 3);
+    } else if (mon->mspeed == MFAST)
         mmove = (4 * mmove + 2) / 3;
 
     if (mon == u.usteed && u.ugallop && svc.context.mv) {

@@ -437,6 +437,13 @@ getmattk(
 
     }
 
+    /* elementals on their home plane do double damage */
+    if (attk != alt_attk_buf && is_home_elemental(mptr)) {
+        *alt_attk_buf = *attk;
+        attk = alt_attk_buf;
+        attk->damn *= 2;
+    }
+
     return attk;
 }
 
@@ -1417,15 +1424,14 @@ gulpmu(struct monst *mtmp, struct attack *mattk)
            for other swallowings, longer time means more
            chances for the swallower to attack */
         if (mattk->adtyp == AD_DGST) {
-            tim_tmp = 25 - (int) mtmp->m_lev;
-            if (tim_tmp > 0)
-                tim_tmp = rnd(tim_tmp) / 2;
-            else if (tim_tmp < 0)
-                tim_tmp = -(rnd(-tim_tmp) / 2);
             /* having good armor & high constitution makes
                it take longer for you to be digested, but
                you'll end up trapped inside for longer too */
-            tim_tmp += -u.uac + 10 + (ACURR(A_CON) / 3 - 1);
+            tim_tmp = (int)ACURR(A_CON) + 10 - (int)u.uac + rn2(20);
+            if (tim_tmp < 0)
+                tim_tmp = 0;
+            tim_tmp /= (int) mtmp->m_lev;
+            tim_tmp += 3;
         } else {
             /* higher level attacker takes longer to eject hero */
             tim_tmp = rnd((int) mtmp->m_lev + 10 / 2);
@@ -1590,8 +1596,15 @@ gulpmu(struct monst *mtmp, struct attack *mattk)
         break;
     }
 
-    if (physical_damage)
+    if (physical_damage) {
+        /* same damage reduction for AC as in hitmu */
+        if (u.uac < 0)
+            tmp -= rnd(-u.uac);
+        if (tmp < 0)
+            tmp = 1;
+
         tmp = Maybe_Half_Phys(tmp);
+    }
 
     gm.mswallower = mtmp; /* match gulpmm() */
     mdamageu(mtmp, tmp);

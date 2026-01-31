@@ -1808,7 +1808,7 @@
         M2_STRONG | M2_NEUTER, 0, M4_BST_GRASS, 
         0, 10, CLR_BROWN, EARTH_ELEMENTAL),
     MON(NAM("water elemental"), S_ELEMENTAL,
-        LVL(8, 6, 2, 30, 0), (G_NOCORPSE | 1),
+        LVL(8, 5, 2, 30, 0), (G_NOCORPSE | 1),
         A(ATTK(AT_CLAW, AD_SOAK, 5, 6),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(2500, 0, MS_SILENT, MZ_HUGE), MR_POISON | MR_STONE, 0,

@@ -1,4 +1,4 @@
-NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.1580 $ $NHDT-Date: 1764109066 2025/11/25 22:17:46 $
+NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.1614 $ $NHDT-Date: 1769342601 2026/01/25 04:03:21 $
 
 General Fixes and Modified Features
 -----------------------------------
@@ -837,7 +837,8 @@ if a lit potion of oil on the floor was launched by an explosion and it hit
 	it could trigger an "obj_is_local" panic when end of game cleanup
 	tried to extinguish it as a light source
 place_object() validated coordinates after using them to index level.objects
-killed rope golem may drop leashes and bullwhips
+killed rope golem may drop leashes, bullwhips, and grappling hooks
+killed leather golem may drop leather cloaks, and saddles
 using magic portals stuns hero for a few turns
 using level teleporters confuses hero without teleport control for a few turns
 clear obj->bypass for buried objects [a giant on ice triggers a fire trap,
@@ -1568,6 +1569,12 @@ throwing ammo without a launcher produces a message
 polymorphing into a large polyform unequips rather than destroying cloaks
 clarify in the #quit message that it doesn't save the game
 cursed potion of invisibility removes intrinsic invisibility
+fix bug which caused engulf damage from air elementals and fog clouds to
+        ignore damage reduction from armor class
+elementals do double damage on their home plane
+water elementals move slightly more slowly
+the "totally digested" instadeath timer is much faster
+slow monster effects are more effective against faster enemies
 
 
 Fixes to 3.7.0-x General Problems Exposed Via git Repository
@@ -2194,6 +2201,7 @@ when reading a T-shirt or apron, add trailing period to the slogan unless
 	 already present in the quoted text
 when reading an engraving, suppress the addition of a trailing period if the
 	text already has one
+cursed magic whistle could teleport hero on no-teleport levels
 
 
 Fixes to 3.7.0-x Platform and/or Interface Problems Exposed Via git Repository
@@ -3081,6 +3089,7 @@ add silver maces (pr #1405 by disperse)
 applied several source comment spelling or grammar fixes that were linked
 	to an old rec.games.roguelike.nethack post from May 2006
 	by Arthur J. O'Dwyer
+modernize code of LaTeX Guidebook (pr #1473 by Daniel Clow)
 
 
 Code Cleanup and Reorganization

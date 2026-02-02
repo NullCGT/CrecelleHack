@@ -2732,7 +2732,7 @@ grappling_finisher(coordxy x, coordxy y, struct monst *mtmp)
         pline_mon(mtmp, "You hit %s with a lariat!", mon_nam(mtmp));
         make_mon_prone(mtmp);
     } else if (future_dist == 2) {
-        pline_mon(mtmp, "You spin-kick %s!", mon_nam(mtmp));
+        pline_mon(mtmp, "You elbow smash %s!", mon_nam(mtmp));
         if (rn2(8 - P_SKILL(P_GRAPPLING))) {
             mtmp->mconf = 1;
             if (canseemon(mtmp))

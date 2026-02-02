@@ -5641,6 +5641,8 @@ mhitm_knockback(
             if (!was_u)
                 *hitflags |= M_ATTK_DEF_DIED;
         } else if (!rn2(4)) {
+            if (Role_if(PM_GRAPPLER) && u.uen == u.uenmax)
+                pline_mon(mdef, "%s is stunned! Now's your chance!", Monnam(mdef));
             mdef->mstun = 1;
             /* if steed and hero were knocked back, update attacker's idea
                of where hero is */

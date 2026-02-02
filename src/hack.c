@@ -2883,6 +2883,22 @@ domove_core(void)
         if (domove_bump_mon(mtmp, glyph))
             return;
 
+        if (Role_if(PM_GRAPPLER) && u.usticker && mtmp == u.ustuck
+            && mtmp->mstun && u.uen == u.uenmax
+            && (y_n("Use your finishing move?") == 'y')) {
+            wrestling_finisher_name();
+            u.uen = 0;
+            disp.botl = 0;
+            unstuck(u.ustuck);
+            if (!u.uconduct.killer) {
+                pline_mon(mtmp, "%s is KO'd!", Monnam(mtmp));
+                mtmp->msleeping = 1;
+            } else {
+                xkilled(mtmp, XKILL_GIVEMSG);
+            }
+            return;
+        }
+
         /* attack monster */
         if (domove_attackmon_at(mtmp, x, y, &displaceu))
             return;
@@ -4648,6 +4664,34 @@ solid_stone(int x, int y)
     if (levl[x][y].submask == SM_DIRT)
         return "packed dirt";
     return "solid stone";
+}
+
+static const char *finisher_pre[] = {
+    "Here it comes!",
+    "It's finally here!",
+    "This is it!",
+
+};
+
+static const char *finisher_1[] = {
+    "Yendorian", "Dungeon", "Newt",
+    "YASD", "Woodchuck", "Rogue",
+    "Ludicrous"
+};
+
+static const char *finisher_2[] = {
+    " press", " moonsault", "'s elbow", " stunner",
+    " backbreaker", " thrust", " combo", " stomp",
+    " bomb", " cutter", " lariat", "breaker", " spear",
+    " boot"
+};
+
+void
+wrestling_finisher_name(void) {
+    int i1 = (long) ubirthday % SIZE(finisher_1);
+    int i2 = (long) ubirthday % SIZE(finisher_2);
+    pline("%s The %s%s!", ROLL_FROM(finisher_pre),
+            finisher_1[i1], finisher_2[i2]);
 }
 
 

@@ -1269,6 +1269,7 @@ extern long money_cnt(struct obj *) NO_NNARGS;
 extern void spot_checks(coordxy, coordxy, schar);
 extern int rounddiv(long, int);
 extern const char *solid_stone(int, int);
+extern void wrestling_finisher_name(void);
 
 /* ### strutil.c ### */
 

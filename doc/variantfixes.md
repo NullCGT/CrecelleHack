@@ -16,6 +16,8 @@
 - Grapplers can now attack monsters they are currently grappling.
 - Grapplers are treated as martial characters, improvin their kicks
   and unarmed strikes.
+- Grapplers can use their finishing move to instantly kill stunned monsters,
+  but only when they have full hit points.
 ## Dungeon
 - Mild rewrite of Vlad's Tower.
 ## Objects

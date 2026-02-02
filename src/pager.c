@@ -468,6 +468,8 @@ look_at_monster(
     else if (mtmp->msleeping)
         /* sleeping for an indeterminate duration */
         Strcat(buf, ", asleep");
+    else if (Role_if(PM_GRAPPLER) && mtmp->mstun)
+        Strcat(buf, ", stunned");
     else if ((mtmp->mstrategy & STRAT_WAITMASK) != 0)
         /* arbitrary reason why it isn't moving */
         Strcat(buf, ", meditating");

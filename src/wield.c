@@ -173,7 +173,7 @@ ready_weapon(struct obj *wep)
         if (uwep) {
             You("are %s.", empty_handed());
             setuwep((struct obj *) 0);
-            res = ECMD_TIME;
+            res = P_SKILL(P_BARE_HANDED_COMBAT) >= P_BASIC ? ECMD_OK : ECMD_TIME;
         } else
             You("are already %s.", empty_handed());
     } else if (wep->otyp == CORPSE && cant_wield_corpse(wep)) {
@@ -283,6 +283,18 @@ ready_weapon(struct obj *wep)
         }
         if (size_matters(wep) && wep->osize != USIZE)
             pline("%s awkward to wield due to your size.", Yobjnam2(wep, "are"));
+
+        /* Basic with a weapon lets you wield it instantly. */
+        if (P_SKILL(weapon_type(wep)) >= P_BASIC)
+            res = ECMD_OK;
+        /* Being skilled with a weapon identifies it upon wielding. */
+        if ((wep->oclass == WEAPON_CLASS || is_weptool(wep))
+            && (P_SKILL(weapon_type(wep)) >= P_SKILLED)
+            && not_fully_identified(wep)) {
+            You("use your superior skills to identify your weapon.");
+            (void) identify(wep);
+            update_inventory();
+        }
     }
     if ((had_wep != (uwep != 0)) && condtests[bl_bareh].enabled)
         disp.botl = TRUE;

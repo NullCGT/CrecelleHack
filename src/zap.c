@@ -4447,7 +4447,7 @@ boomhit(struct obj *obj, coordxy dx, coordxy dy)
         if (u_at(gb.bhitpos.x, gb.bhitpos.y)) { /* ct == 9 */
             if (Fumbling || rn2(20) >= ACURR(A_DEX)) {
                 /* we hit ourselves */
-                (void) thitu(10 + obj->spe, dmgval(obj, &gy.youmonst), &obj,
+                (void) thitu(10 + obj->spe, dmgval(obj, &gy.youmonst, &gy.youmonst), &obj,
                              "boomerang");
                 endmultishot(TRUE);
                 break;

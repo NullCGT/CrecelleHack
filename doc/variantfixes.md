@@ -6,6 +6,22 @@
   - Tridents are now covered by the spear skill.
   - Boomerangs, darts, and shuriken are all covered by the throwing
     weapons skill.
+- Weapon damage has been rewritten.
+  - Every weapon has two attributes: an accuracy attribute and
+    damage attribute.
+  - Increasing the attribute associated with accuracy will increase
+    your to-hit bonus with that weapon.
+  - Increasing the attribute associated with damage will increase
+    the number of dice rolled when dealing damage with that weapon.
+- Weapon skills have been altered significantly.
+  - Weapon skills no longer provide a bonus to hit.
+  - Basic weapon skill allows you to wield a weapon that uses that
+    skill without spending a turn. Basic skill in bare-handed
+    combat similarly allows you to go bare-handed without spending
+    a turn.
+  - Skilled weapon skill allows you to fully identify any weapon of
+    that type simply by wielding it.
+  - Expert weapon skill adds 1 side to the dice rolled with that weapon.
 ## Races
 - Kobold Rewrite
   - Kobolds can now talk to monsters. Several players complained
@@ -19,6 +35,8 @@
     much more quickly for them. This includes both positive intrinsics
     as well as negative ones, such as terminal illness. They also
     forget spells twice as quickly.
+- Human
+  - Human can advance any attribute skill to master instead of expert.
 ## Skills
 - There is now a skill that corresponds to each attribute. Enhancing this
   skill increases this attribute by one point.

@@ -199,10 +199,14 @@ hitval(struct obj *otmp, struct monst *mon)
 
 /* Helper for dmgval(). Calculates the number of dice rolled for an attack.*/
 int
-dmgval_ndice(struct obj *otmp)
+dmgval_ndice(struct obj *otmp, struct monst *magr)
 {
     int otyp = otmp->otyp;
     int tmp = objects[otyp].oc_wndam;
+    int scaler = get_scaling_type(otmp);
+    if (magr == &gy.youmonst && scaler >= A_STR) {
+        tmp += AMOD(scaler);
+    }
     if (tmp < 1)
         tmp = 1;
     return tmp;
@@ -213,7 +217,12 @@ dmgval_nsides(struct obj *otmp)
 {
     int otyp = otmp->otyp;
     int tmp = objects[otyp].oc_wddam;
+    int type = weapon_type(otmp);
     tmp += size_mult(otmp->osize);
+    if (type >= P_FIRST_WEAPON && type <= P_LAST_WEAPON
+        && P_SKILL(type) >= P_EXPERT) {
+        tmp += 1;
+    }
     if (tmp < 1)
         tmp = 1;
     return tmp;
@@ -271,14 +280,16 @@ dmgval_dbonus(struct obj *otmp)
 }
 
 char *
-stringify_dmgval(char *buf, struct obj *otmp)
+stringify_dmgval(char *buf, struct monst *mon, struct obj *otmp)
 {
-    int ndice = dmgval_ndice(otmp);
+    int ndice = dmgval_ndice(otmp, mon);
     int nsides = dmgval_nsides(otmp);
     int bonus = dmgval_dbonus(otmp);
     if (!otmp->known && (otmp->oclass == WEAPON_CLASS || is_weptool(otmp)))
         bonus -= otmp->spe;
-    Sprintf(buf, "Base Damage: %dd%d%s%d%s%s%s", ndice, nsides,
+    Sprintf(buf, "%s Damage: %dd%d%s%d%s%s%s",
+                mon ? "Adjusted" : "Base",
+                ndice, nsides,
                 (bonus >= 0) ? "+" : "-", abs(bonus),
                 (objects[otmp->otyp].oc_dir & PIERCE) ? " piercing" : "",
                 (objects[otmp->otyp].oc_dir & SLASH) ? " slashing" : "",
@@ -313,17 +324,17 @@ stringify_dmgval(char *buf, struct obj *otmp)
  *      of "otmp" against the monster.
  */
 int
-dmgval(struct obj *otmp, struct monst *mon)
+dmgval(struct obj *otmp, struct monst *magr, struct monst *mdef)
 {
     int tmp = 0, otyp = otmp->otyp;
-    struct permonst *ptr = mon->data;
+    struct permonst *ptr = mdef->data;
     boolean Is_weapon = (otmp->oclass == WEAPON_CLASS || is_weptool(otmp));
 
     if (otyp == CREAM_PIE)
         return 0;
 
     if (objects[otyp].oc_wndam && objects[otyp].oc_wddam)
-        tmp = d(dmgval_ndice(otmp), dmgval_nsides(otmp));
+        tmp = d(dmgval_ndice(otmp, magr), dmgval_nsides(otmp));
     tmp += dmgval_dbonus(otmp);
 
     /* negative modifiers mustn't produce negative damage */
@@ -353,27 +364,27 @@ dmgval(struct obj *otmp, struct monst *mon)
         || otmp->oclass == CHAIN_CLASS || otmp->oclass == BOTTLE_CLASS) {
         int bonus = 0;
 
-        if (otmp->blessed && mon_hates_blessings(mon))
+        if (otmp->blessed && mon_hates_blessings(mdef))
             bonus += rnd(4);
-        if (is_axe(otmp) && (monmaterial(mon->mnum) == WOOD))
+        if (is_axe(otmp) && (monmaterial(mdef->mnum) == WOOD))
             bonus += rnd(4);
-        if (mon_hates_material(mon, otmp->material))
+        if (mon_hates_material(mdef, otmp->material))
             bonus += rnd(sear_damage(otmp->material));
         if (artifact_light(otmp) && otmp->lamplit && hates_light(ptr))
             bonus += rnd(8);
 
         /* if the weapon is going to get a double damage bonus, adjust
            this bonus so that effectively it's added after the doubling */
-        if (bonus > 1 && otmp->oartifact && spec_dbon(otmp, mon, 25) >= 25)
+        if (bonus > 1 && otmp->oartifact && spec_dbon(otmp, mdef, 25) >= 25)
             bonus = (bonus + 1) / 2;
 
         tmp += bonus;
     }
 
     /* adjustments for damage types */
-    if (resist_oc_dir(mon, otmp->otyp)) {
+    if (resist_oc_dir(mdef, otmp->otyp)) {
         tmp = (tmp + 1) / 2;
-        svm.mvitals[mon->mnum].know_resist = 1;
+        svm.mvitals[mdef->mnum].know_resist = 1;
         (void) handle_tip(TIP_INEFFECTIVE);
     }
 
@@ -461,7 +472,7 @@ special_dmgval(struct monst *magr, struct monst *mdef,
 
     for (i = 0; i < 9; ++i) {
         if (*array[i].obj && (armask & array[i].mask)) {
-            tmpbonus = dmgval(*array[i].obj, mdef);
+            tmpbonus = dmgval(*array[i].obj, magr, mdef);
             if (tmpbonus > bonus) {
                 bonus = tmpbonus;
                 if (hated_obj) {
@@ -1714,7 +1725,7 @@ uwep_skill_type(void)
 int
 weapon_hit_bonus(struct obj *weapon)
 {
-    int type, wep_type, skill, bonus = 0;
+    int type, wep_type, skill, ochitbon, bonus = 0;
     static const char bad_skill[] = "weapon_hit_bonus: bad skill %d";
 
     wep_type = weapon_type(weapon);
@@ -1725,7 +1736,7 @@ weapon_hit_bonus(struct obj *weapon)
                : wep_type;
     if (type == P_NONE) {
         bonus = 0;
-    } else if (type <= P_LAST_WEAPON || type == P_IMPROV) {
+    } else if (type == P_IMPROV) {
         switch (P_SKILL(type)) {
         default:
             impossible(bad_skill, P_SKILL(type));
@@ -1783,6 +1794,10 @@ weapon_hit_bonus(struct obj *weapon)
         bonus = P_SKILL(type);
         bonus = max(bonus, P_UNSKILLED) - 1; /* unskilled => 0 */
         bonus = ((bonus + 2) * (martial_bonus() ? 2 : 1)) / 2;
+    } else if (weapon) {
+        ochitbon = get_hitbon_type(weapon);
+        if (ochitbon >= A_STR)
+            bonus += AMOD(ochitbon);
     }
 
     /* KMH -- It's harder to hit while you are riding */
@@ -1937,7 +1952,11 @@ skill_init(const struct def_skill *class_skill)
     /* All characters can train to any level in attribute skills */
     for (int i = P_FIRST_ATTR; i <= P_LAST_ATTR; i++) {
         P_SKILL(i) = P_UNSKILLED;
-        P_MAX_SKILL(i) = P_EXPERT;
+        if (Role_if(PM_HUMAN)) {
+            P_MAX_SKILL(i) = P_MASTER;
+        } else {
+            P_MAX_SKILL(i) = P_EXPERT;
+        }
     }
 
     /* set skills for magic */
@@ -2045,6 +2064,25 @@ get_scaling_type(struct obj *obj) {
         return -1;
     default:
         return ocscal;
+    }
+}
+
+int
+get_hitbon_type(struct obj *obj) {
+    int ochitbon = objects[obj->otyp].oc_hitbon;
+    if (obj->material == objects[obj->otyp].oc_material) {
+        return ochitbon;
+    }
+    switch (obj->material) {
+    case ICECRYSTAL:
+        return A_DEX;
+    case WOOD:
+    case LIQUID:
+    case WAX:
+    case LODEN:
+        return -1;
+    default:
+        return ochitbon;
     }
 }
 

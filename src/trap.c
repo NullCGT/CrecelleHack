@@ -1279,7 +1279,7 @@ trapeffect_arrow_trap(
         pline("%s shoots out at you!", An(xname(otmp)));
         if (u.usteed && !rn2(2) && steedintrap(trap, otmp)) {
             ; /* nothing */
-        } else if (thitu(8, dmgval(otmp, &gy.youmonst), &otmp, "arrow")) {
+        } else if (thitu(8, dmgval(otmp, (struct monst *) 0, &gy.youmonst), &otmp, "arrow")) {
             if (otmp)
                 obfree(otmp, (struct obj *) 0);
         } else {
@@ -1370,7 +1370,7 @@ trapeffect_dart_trap(
         extract_nobj(otmp, &trap->ammo);
         if (u.usteed && !rn2(2) && steedintrap(trap, otmp)) {
             ; /* nothing */
-        } else if (thitu(7, dmgval(otmp, &gy.youmonst),
+        } else if (thitu(7, dmgval(otmp, (struct monst *) 0, &gy.youmonst),
                          &otmp, "little dart")) {
             if (otmp) {
                 if (otmp->opoisoned)
@@ -3555,7 +3555,7 @@ launch_obj(
         } else if (u_at(x, y)) {
             if (gm.multi)
                 nomul(0);
-            if (thitu(9 + singleobj->spe, dmgval(singleobj, &gy.youmonst),
+            if (thitu(9 + singleobj->spe, dmgval(singleobj, (struct monst *) 0, &gy.youmonst),
                       &singleobj, (char *) 0))
                 stop_occupation();
         }
@@ -7021,7 +7021,7 @@ thitm(
         if (d_override) {
             dam = d_override;
         } else if (obj) {
-            dam = dmgval(obj, mon);
+            dam = dmgval(obj, (struct monst *) 0, mon);
             if (dam < 1)
                 dam = 1;
             if (mon_hates_material(mon, obj->material)) {

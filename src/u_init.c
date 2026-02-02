@@ -1473,10 +1473,8 @@ ini_inv(const struct trobj *trop)
 staticfn void
 fixup_starting_material(struct obj *obj)
 {
-    if ((obj->oclass == WEAPON_CLASS || is_weptool(obj))
-                && valid_obj_material(obj, WOOD)
-                && !is_ammo(obj)) {
-        set_material(obj, WOOD);
+    if ((obj->oclass == WEAPON_CLASS || is_weptool(obj)) && !is_ammo(obj)) {
+        force_material(obj, WOOD);
     } else if (Race_if(PM_ELF) && objects[obj->otyp].oc_material == IRON
             && valid_obj_material(obj, COPPER)) {
         set_material(obj, COPPER);
@@ -1489,7 +1487,8 @@ fixup_starting_material(struct obj *obj)
 
     /* This happens afterward, since many objects cannot be converted to
        bone or wood. */
-    if (Race_if(PM_KOBOLD) && obj->otyp != DART) {
+    if (Race_if(PM_KOBOLD) && obj->otyp != DART
+        && obj->oclass != WEAPON_CLASS && !is_weptool(obj)) {
         if (valid_obj_material(obj, BONE) && rn2(2))
             set_material(obj, BONE);
         else if (valid_obj_material(obj, WOOD))

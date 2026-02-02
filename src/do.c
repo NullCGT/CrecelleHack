@@ -210,7 +210,7 @@ flooreffects(
                     if (svc.context.mon_moving) {
                         /* normally we'd use ohitmon() but it can call
                            drop_throw() which calls flooreffects() */
-                        damage = dmgval(obj, mtmp);
+                        damage = dmgval(obj, mtmp, mtmp);
                         mtmp->mhp -= damage;
                         if (DEADMONSTER(mtmp)) {
                             if (canspotmon(mtmp))

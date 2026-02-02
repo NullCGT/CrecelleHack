@@ -1351,7 +1351,7 @@ toss_up(struct obj *obj, boolean hitsroof)
                 harmless = (stone_missile(obj)
                             && passes_rocks(gy.youmonst.data)),
                 artimsg = FALSE;
-        int dmg = dmgval(obj, &gy.youmonst);
+        int dmg = dmgval(obj, &gy.youmonst, &gy.youmonst);
 
         if ((obj->oartifact || obj->oprop) && !harmless)
             /* need a fake die roll here; rn1(18,2) avoids 1 and 20 */

@@ -1263,6 +1263,7 @@ extern int near_capacity(void);
 extern int calc_capacity(int);
 extern int max_capacity(void);
 extern boolean check_capacity(const char *);
+extern void dump_weapons(void);
 extern void dump_weights(void);
 extern int inv_cnt(boolean);
 /* sometimes money_cnt(gi.invent) which can be null */
@@ -3805,11 +3806,11 @@ extern int vms_get_saved_games(const char *, char ***);
 
 extern const char *weapon_descr(struct obj *) NONNULLARG1;
 extern int hitval(struct obj *, struct monst *) NONNULLARG12;
-extern int dmgval_ndice(struct obj *) NONNULLARG1;
+extern int dmgval_ndice(struct obj *, struct monst*) NONNULLARG1;
 extern int dmgval_nsides(struct obj *) NONNULLARG1;
 extern int dmgval_dbonus(struct obj *) NONNULLARG1;
-extern int dmgval(struct obj *, struct monst *) NONNULLARG12;
-extern char *stringify_dmgval(char *, struct obj*) NONNULLARG12;
+extern int dmgval(struct obj *, struct monst *, struct monst *) NONNULLARG13;
+extern char *stringify_dmgval(char *, struct monst *, struct obj*) NONNULLARG13;
 extern int special_dmgval(struct monst *, struct monst *, long, struct obj **) NONNULLARG12;
 extern void searmsg(struct monst *, struct monst *, struct obj*, boolean);
 extern struct obj *select_rwep(struct monst *) NONNULLARG1;
@@ -3844,6 +3845,7 @@ extern const struct throw_and_return_weapon *autoreturn_weapon(struct obj *)
     NONNULLARG1;
 extern boolean resist_oc_dir(struct monst *, int) NONNULLARG1;
 extern int get_scaling_type(struct obj *) NONNULLARG1;
+extern int get_hitbon_type(struct obj *) NONNULLARG1;
 
 /* ### were.c ### */
 

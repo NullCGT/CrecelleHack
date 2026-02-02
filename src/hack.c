@@ -4494,6 +4494,26 @@ struct weight_table_entry {
 static struct weight_table_entry *weightlist;
 
 void
+dump_weapons(void)
+{
+    decl_globals_init();
+    init_objects();
+    raw_printf("weapon_stats[] = {");
+    for (int i = svb.bases[(uchar) WEAPON_CLASS];
+                i < svb.bases[(uchar) WEAPON_CLASS + 1]; ++i) {
+
+        raw_printf("    %dd%d D:%s A:%s /* %s */",
+                    objects[i].oc_wndam, objects[i].oc_wddam,
+                    attr_name(objects[i].oc_scaling),
+                    attr_name(objects[i].oc_hitbon),
+                    OBJ_NAME(objects[i]));
+    }
+    raw_print("};");
+    raw_print("");
+    freedynamicdata();
+}
+
+void
 dump_weights(void)
 {
     int i, cnt = 0, nmwidth = 49, mcount = NUMMONS, ocount = NUM_OBJECTS;

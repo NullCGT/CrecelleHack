@@ -2399,7 +2399,7 @@ do_supplemental_item_info(struct obj *otmp)
         Sprintf(buf, "It would cost ~%d ink to write.", cost(otmp));
         add_menu_str(datawin, buf);
     }
-    if (otmp->oclass == WEAPON_CLASS) {
+    if (otmp->oclass == WEAPON_CLASS || is_weptool(otmp)) {
         if (is_dualweapon(otmp))
             add_menu_str(datawin, "It can be dual-wielded.");
         if (is_tripweapon(otmp))
@@ -2409,7 +2409,13 @@ do_supplemental_item_info(struct obj *otmp)
         Sprintf(buf, "It uses your %s skill.", skill_name(abs(objects[otmp->otyp].oc_skill)));
         add_menu_str(datawin, buf);
         if (get_scaling_type(otmp) >= A_STR) {
-            Sprintf(buf, "Its damage scales with your %s.", attr_name(get_scaling_type(otmp))); /* TODO: Fix this up */
+            Sprintf(buf, "Its damage scales with your %s.",
+                    attr_name(get_scaling_type(otmp)));
+            add_menu_str(datawin, buf);
+        }
+        if (get_hitbon_type(otmp) >= A_STR) {
+            Sprintf(buf, "Its accuracy scales with your %s.",
+                    attr_name(get_hitbon_type(otmp)));
             add_menu_str(datawin, buf);
         }
     }
@@ -2420,7 +2426,12 @@ do_supplemental_item_info(struct obj *otmp)
         Sprintf(buf, "Type: %s%sweapon", objects[otmp->otyp].oc_bimanual ? "two-handed " : "one-handed ",
                                  objects[otmp->otyp].oc_finesse ? "finesse " : "");
         add_menu_str(datawin, buf);
-        stringify_dmgval(buf, otmp);
+        stringify_dmgval(buf, (struct monst *) 0, otmp);
+        add_menu_str(datawin, buf);
+        stringify_dmgval(buf, &gy.youmonst, otmp);
+        add_menu_str(datawin, buf);
+        Sprintf(buf, "Adjusted Accuracy: %s%d",
+                (weapon_hit_bonus(otmp) >= 0) ? "+" : "", weapon_hit_bonus(otmp));
         add_menu_str(datawin, buf);
     } else {
         Sprintf(buf, "Class: %s", OBJ_DESCR(objects[(int) otmp->oclass]));

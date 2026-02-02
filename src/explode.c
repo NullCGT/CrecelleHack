@@ -873,7 +873,7 @@ scatter(coordxy sx, coordxy sy,  /* location of objects to scatter */
                         hitvalu = 8 + stmp->obj->spe;
                         if (bigmonst(gy.youmonst.data))
                             hitvalu++;
-                        hitu = thitu(hitvalu, dmgval(stmp->obj, &gy.youmonst),
+                        hitu = thitu(hitvalu, dmgval(stmp->obj, (struct monst *) 0, &gy.youmonst),
                                      &stmp->obj, (char *) 0);
                         if (!stmp->obj)
                             stmp->stopped = TRUE;

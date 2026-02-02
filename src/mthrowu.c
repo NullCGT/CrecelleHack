@@ -374,7 +374,7 @@ ohitmon(
     } else {
         boolean harmless = (stone_missile(otmp) && passes_rocks(mtmp->data));
 
-        damage = dmgval(otmp, mtmp);
+        damage = dmgval(otmp, (struct monst *) 0, mtmp);
         if (otmp->otyp == ACID_VENOM && resists_acid(mtmp))
             damage = 0;
 #if 0 /* can't use this because we don't have the attacker */
@@ -694,7 +694,7 @@ m_throw(
                 {
                     int dam, hitv;
 
-                    dam = dmgval(singleobj, &gy.youmonst);
+                    dam = dmgval(singleobj, mon, &gy.youmonst);
                     hitv = 3 - distmin(u.ux, u.uy, mon->mx, mon->my);
                     if (hitv < -4)
                         hitv = -4;
@@ -1204,7 +1204,7 @@ thrwmu(struct monst *mtmp)
                   obj_is_pname(otmp) ? the(onm) : an(onm));
         }
 
-        dam = dmgval(otmp, &gy.youmonst);
+        dam = dmgval(otmp, mtmp, &gy.youmonst);
         hitv = 3 - distmin(u.ux, u.uy, mtmp->mx, mtmp->my);
         if (hitv < -4)
             hitv = -4;

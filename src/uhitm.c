@@ -964,7 +964,7 @@ hmon_hitmon_weapon_melee(
 
     /* "normal" weapon usage */
     hmd->use_weapon_skill = TRUE;
-    hmd->dmg = dmgval(obj, mon);
+    hmd->dmg = dmgval(obj, &gy.youmonst, mon);
     /* a minimal hit doesn't exercise proficiency */
     hmd->train_weapon_skill = (hmd->dmg > 1);
     /* special attack actions */
@@ -1144,7 +1144,7 @@ hmon_hitmon_misc_obj(
     case BOULDER:         /* 1d20 */
     case HEAVY_IRON_BALL: /* 1d25 */
     case IRON_CHAIN:      /* 1d4+1 */
-        hmd->dmg = dmgval(obj, mon);
+        hmd->dmg = dmgval(obj, &gy.youmonst, mon);
         if (mon_hates_material(mon, obj->material)) {
             /* dmgval() already added damage, but track hated_obj */
             hmd->hatedobj = hmd->hatedmsg = TRUE;
@@ -1358,7 +1358,7 @@ hmon_hitmon_misc_obj(
             hmd->dmg = 0;
         } else {
             Your("venom burns %s!", mon_nam(mon));
-            hmd->dmg = dmgval(obj, mon);
+            hmd->dmg = dmgval(obj, &gy.youmonst, mon);
         }
         {
             boolean more_than_1 = (obj->quan > 1L);
@@ -2110,7 +2110,7 @@ shade_miss(
     boolean youagr = (magr == &gy.youmonst), youdef = (mdef == &gy.youmonst);
 
     /* we're using dmgval() for zero/not-zero, not for actual damage amount */
-    if (mdef->data != &mons[PM_SHADE] || (obj && dmgval(obj, mdef)))
+    if (mdef->data != &mons[PM_SHADE] || (obj && dmgval(obj, magr, mdef)))
         return FALSE;
 
     if (verbose
@@ -4295,7 +4295,7 @@ mhitm_ad_phys(
                         }
                     }
                 }
-                mhm->damage += dmgval(otmp, mdef);
+                mhm->damage += dmgval(otmp, magr, mdef);
                 if ((marmg = which_armor(magr, W_ARMG)) != 0
                     && marmg->otyp == GAUNTLETS_OF_POWER)
                     mhm->damage += rn1(4, 3); /* 3..6 */
@@ -4385,7 +4385,7 @@ mhitm_ad_phys(
                     return;
             }
 
-            mhm->damage += dmgval(mwep, mdef);
+            mhm->damage += dmgval(mwep, magr, mdef);
             if ((marmg = which_armor(magr, W_ARMG)) != 0
                 && marmg->otyp == GAUNTLETS_OF_POWER)
                 mhm->damage += rn1(4, 3); /* 3..6 */

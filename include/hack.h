@@ -442,6 +442,7 @@ enum earlyarg {
     , ARG_DUMPGLYPHIDS
     , ARG_DUMPMONGEN
     , ARG_DUMPWEIGHTS
+    , ARG_DUMPWEAPONS
 #ifdef WIN32
     , ARG_WINDOWS
 #endif

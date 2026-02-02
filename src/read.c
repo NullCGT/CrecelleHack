@@ -2436,7 +2436,7 @@ drop_boulder_on_player(
     if (!amorphous(gy.youmonst.data) && !Passes_walls
         && !noncorporeal(gy.youmonst.data) && !unsolid(gy.youmonst.data)) {
         You("are hit by %s!", doname(otmp2));
-        dmg = (int) (dmgval(otmp2, &gy.youmonst) * otmp2->quan);
+        dmg = (int) (dmgval(otmp2, (struct monst *) 0, &gy.youmonst) * otmp2->quan);
         if (uarmh && helmet_protects) {
             if (hard_helmet(uarmh)) {
                 pline("Fortunately, you are wearing a hard helmet.");
@@ -2488,7 +2488,7 @@ drop_boulder_on_monster(coordxy x, coordxy y, boolean confused, boolean byu)
                      s_suffix(mon_nam(mtmp)), mbodypart(mtmp, STOMACH),
                      body_part(HEAD));
 
-        mdmg = dmgval(otmp2, mtmp) * otmp2->quan;
+        mdmg = dmgval(otmp2, (struct monst *) 0, mtmp) * otmp2->quan;
         if (helmet) {
             if (hard_helmet(helmet)) {
                 if (canspotmon(mtmp))

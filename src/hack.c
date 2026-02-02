@@ -2883,12 +2883,6 @@ domove_core(void)
         if (domove_bump_mon(mtmp, glyph))
             return;
 
-        if (Role_if(PM_GRAPPLER) && u.usticker && mtmp == u.ustuck) {
-            You("are already grappling %s!", mon_nam(mtmp));
-            nomul(0);
-            return;
-        }
-
         /* attack monster */
         if (domove_attackmon_at(mtmp, x, y, &displaceu))
             return;

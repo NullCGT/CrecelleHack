@@ -14,6 +14,8 @@
     forget spells twice as quickly.
 ## Roles
 - Grapplers can now attack monsters they are currently grappling.
+- Grapplers are treated as martial characters, improvin their kicks
+  and unarmed strikes.
 ## Dungeon
 - Mild rewrite of Vlad's Tower.
 ## Objects

@@ -53,6 +53,8 @@
 ## Monsters
 - Some monsters are coded as climbers (YANI Archive #1700 by aosdict)
   and can climb out of pits easily.
+- Some monsters can accidentally hit the ground when they miss, causing
+  collateral damage.
 - The open wounds spell can now cause bleeding.
 - Monsters throw potions of hallucination, which can cause short-term
   hallucination.

@@ -2176,6 +2176,9 @@ role_init(void)
     /* 0 or 1; no gods are neuter, nor is gender randomized */
     svq.quest_status.godgend = !strcmpi(align_gtitle(alignmnt), "goddess");
 
+    if (Role_if(PM_CLERIC))
+        objects[SPE_LIGHT].oc_skill = P_CLERIC_SPELL;
+
 #if 0
 /*
  * Disable this fixup so that mons[] can be const.  The only

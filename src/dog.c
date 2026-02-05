@@ -237,6 +237,7 @@ makedog(void)
     struct monst *mtmp;
     const char *petname;
     int pettype;
+    int petsym;
 
     if (gp.preferred_pet == 'n') {
         /* static init yields 0 (PM_GIANT_ANT); fix that up now */
@@ -245,12 +246,12 @@ makedog(void)
     }
 
     pettype = svc.context.startingpet_typ = pet_type();
-    petname = (pettype == PM_LITTLE_DOG 
-                || pettype == PM_LARGE_DOG 
-                || pettype == PM_KOBOLD) ? gd.dogname
-              : (pettype == PM_KITTEN) ? gc.catname
-                : (pettype == PM_PONY) ? gh.horsename
-                  : "";
+    petsym = mons[pettype].mlet;
+    petname = (petsym == S_DOG) ? gd.dogname
+              : (petsym == S_FELINE) ? gc.catname
+                : (petsym == S_UNICORN) ? gh.horsename
+                  : (petsym == S_KOBOLD) ? gk.koboldname
+                    : "";
 
     /* default pet names */
     if (!*petname && pettype == PM_LITTLE_DOG) {

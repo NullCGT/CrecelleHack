@@ -515,6 +515,9 @@ struct instance_globals_k {
     /* read.c */
     boolean known;
 
+    /* dog.c */
+    char koboldname[PL_PSIZ];
+
     boolean havestate;
 };
 

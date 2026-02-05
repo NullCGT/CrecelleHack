@@ -426,6 +426,9 @@ static int optfn_##a(int, int, boolean, char *, char *);
     NHOPTB(invweight, Variant, 0, opt_out, set_in_game,
            On, Yes, No, No, "wizweight", &iflags.invweight, Term_False,
            "display weight of items" )
+    NHOPTC(koboldname, Advanced, PL_PSIZ, opt_in, set_gameview,
+                No, Yes, No, No, NoAlias,
+                "name of your starting pet if it is a kobold")
 #if 0   /* obsolete - pre-OSX Mac */
     NHOPTB(large_font, Advanced, 0, opt_in, set_in_config,
            Off, Yes, No, No, NoAlias, &iflags.obsolete,

@@ -807,7 +807,8 @@ peffect_normality(struct obj *otmp) {
     }
     newsym(u.ux, u.uy);
     You_feel("normal.");
-    rehumanize();
+    if (Upolyd)
+        rehumanize();
     gp.potion_unkn++;
 }
 

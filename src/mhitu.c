@@ -8,6 +8,7 @@
 
 static NEARDATA struct obj *mon_currwep = (struct obj *) 0;
 
+staticfn void collateral_damage(struct monst *, struct attack *);
 staticfn void missmu(struct monst *, boolean, struct attack *);
 staticfn void mswings(struct monst *, struct obj *, boolean);
 staticfn void wildmiss(struct monst *, struct attack *);
@@ -92,17 +93,48 @@ missmu(struct monst *mtmp, boolean nearmiss, struct attack *mattk)
 {
     gh.hitmsg_mid = 0;
     gh.hitmsg_prev = NULL;
+    boolean floor_dmg = collateral(mtmp->data) && (nearmiss || !rn2(5));
 
     if (!canspotmon(mtmp))
         map_invisible(mtmp->mx, mtmp->my);
 
-    if (could_seduce(mtmp, &gy.youmonst, mattk) && !mtmp->mcan)
+    if (could_seduce(mtmp, &gy.youmonst, mattk) && !mtmp->mcan) {
         pline_mon(mtmp, "%s pretends to be friendly.", Monnam(mtmp));
-    else
+    } else if (floor_dmg) {
+        pline_mon(mtmp, "%s misses and hits the %s!",
+                        Monnam(mtmp), surface(u.ux, u.uy));
+        collateral_damage(mtmp, mattk);
+    } else {
         pline_mon(mtmp, "%s %smisses!", Monnam(mtmp),
               (nearmiss && flags.verbose) ? "just " : "");
+    }
 
     stop_occupation();
+}
+
+/* monster's miss caused collateral damage */
+staticfn void
+collateral_damage(struct monst *mtmp, struct attack *mattk)
+{
+    boolean smash = FALSE;
+    boolean slice = FALSE;
+    struct obj *mwep = MON_WEP(mtmp);
+    if (mattk->aatyp == AT_WEAP && mwep) {
+        smash = is_blunt_weapon(mwep);
+        slice = objects[mwep->otyp].oc_dir & SLASH;
+    } else {
+        smash = TRUE;
+    }
+    /* effects */
+    if (smash) {
+        (void) scatter(u.ux, u.uy, 2,
+                        MAY_DESTROY | MAY_HIT | VIS_EFFECTS,
+                        (struct obj *) 0);
+    }
+    if (slice && remove_coating(u.ux, u.uy, COAT_GRASS)
+        && flags.verbose) {
+        pline("Grass flies through the air.");
+    }
 }
 
 /* strike types P|S|B: Pierce (pointed: stab) => "thrusts",

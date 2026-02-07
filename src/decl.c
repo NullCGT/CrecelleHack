@@ -435,6 +435,7 @@ static const struct instance_globals_k g_init_k = {
     UNDEFINED_PTR, /* kickedobj */
     /* read.c */
     UNDEFINED_VALUE, /* known */
+    DUMMY, /* koboldname */
     TRUE, /* havestate*/
 };
 

@@ -883,7 +883,8 @@ petname_optfn(
     char *petname = (optidx == opt_catname) ? gc.catname
                     : (optidx == opt_dogname) ? gd.dogname
                       : (optidx == opt_horsename) ? gh.horsename
-                        : failsafe;
+                        : (optidx == opt_koboldname) ? gk.koboldname
+                          : failsafe;
 
     if (req == do_init) {
         ;
@@ -1988,6 +1989,15 @@ optfn_hilite_status(
 
 staticfn int
 optfn_horsename(
+    int optidx,
+    int req, boolean negated,
+    char *opts, char *op)
+{
+    return petname_optfn(optidx, req, negated, opts, op);
+}
+
+staticfn int
+optfn_koboldname(
     int optidx,
     int req, boolean negated,
     char *opts, char *op)

@@ -1575,6 +1575,8 @@ elementals do double damage on their home plane
 water elementals move slightly more slowly
 the "totally digested" instadeath timer is much faster
 slow monster effects are more effective against faster enemies
+light-spell is clerical, if playing a priest
+boomerang can hit multiple monsters
 
 
 Fixes to 3.7.0-x General Problems Exposed Via git Repository

@@ -20,6 +20,8 @@ shorten_buc             shortens buc text to [B][U][C]             [False]
 
 
 Compound Crecelle Options
+koboldname              name of your starting pet if it is
+                        a kobold
 orientation             controls foocubus interactions         [straight,
                                                                 gay,
                                                                 bisexual]

@@ -89,7 +89,7 @@ enum p_skills {
 #define P_LAST_ATTR P_CHARISMA
 
 /* These roles qualify for a martial arts bonus */
-#define martial_bonus() (Role_if(PM_SAMURAI) || Role_if(PM_MONK))
+#define martial_bonus() (Role_if(PM_SAMURAI) || Role_if(PM_MONK) || Role_if(PM_GRAPPLER))
 
 /*
  * These are the standard weapon skill levels.  It is important that

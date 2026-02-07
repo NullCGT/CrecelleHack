@@ -2640,7 +2640,7 @@ map_glyphinfo(
        handled elsewhere. */
     if (glyph_is_object(glyph)) {
         struct obj* otmp = vobj_at(x, y);
-        if (otmp)
+        if (otmp && otmp->otyp)
             glyphinfo->gm.sym.color = compute_obj_glyph_color(otmp);
     }
     /* If the floor has extra surface info, we need to track it to swap the color around. */
@@ -3850,6 +3850,10 @@ int compute_obj_glyph_color(struct obj *otmp)
         if (!flags.invisible_dye
             && has_odye(otmp) && otmp->otyp != POT_DYE) {
             return ODYE(otmp);
+        } else if (otmp->otyp == CORPSE) {
+            int color;
+            mon_color(otmp->corpsenm);
+            return color;
         } else if (!flags.invisible_material) {
             if (otmp->material == GEMSTONE) {
                 return objects[otmp->gemtype].oc_color;

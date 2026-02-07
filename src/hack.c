@@ -2699,7 +2699,7 @@ escape_from_sticky_mon(coordxy x, coordxy y)
                 /*FALLTHRU*/
             default:
                 if (Conflict || u.ustuck->mconf || !u.ustuck->mtame) {
-                    You("cannot escape from %s!", y_monnam(u.ustuck));
+                    You("fail to escape %s's clutches!", y_monnam(u.ustuck));
                     nomul(0);
                     return TRUE;
                 }
@@ -2735,7 +2735,7 @@ grappling_finisher(coordxy x, coordxy y, struct monst *mtmp)
         pline_mon(mtmp, "You hit %s with a lariat!", mon_nam(mtmp));
         make_mon_prone(mtmp);
     } else if (future_dist == 2) {
-        pline_mon(mtmp, "You spin-kick %s!", mon_nam(mtmp));
+        pline_mon(mtmp, "You elbow smash %s!", mon_nam(mtmp));
         if (rn2(8 - P_SKILL(P_GRAPPLING))) {
             mtmp->mconf = 1;
             if (canseemon(mtmp))
@@ -2886,9 +2886,19 @@ domove_core(void)
         if (domove_bump_mon(mtmp, glyph))
             return;
 
-        if (Role_if(PM_GRAPPLER) && u.usticker && mtmp == u.ustuck) {
-            You("are already grappling %s!", mon_nam(mtmp));
-            nomul(0);
+        if (Role_if(PM_GRAPPLER) && u.usticker && mtmp == u.ustuck
+            && mtmp->mstun && u.uen == u.uenmax
+            && (y_n("Use your finishing move?") == 'y')) {
+            wrestling_finisher_name();
+            u.uen = 0;
+            disp.botl = 0;
+            unstuck(u.ustuck);
+            if (!u.uconduct.killer) {
+                pline_mon(mtmp, "%s is KO'd!", Monnam(mtmp));
+                mtmp->msleeping = 1;
+            } else {
+                xkilled(mtmp, XKILL_GIVEMSG);
+            }
             return;
         }
 
@@ -4677,6 +4687,34 @@ solid_stone(int x, int y)
     if (levl[x][y].submask == SM_DIRT)
         return "packed dirt";
     return "solid stone";
+}
+
+static const char *finisher_pre[] = {
+    "Here it comes!",
+    "It's finally here!",
+    "This is it!",
+
+};
+
+static const char *finisher_1[] = {
+    "Yendorian", "Dungeon", "Newt",
+    "YASD", "Woodchuck", "Rogue",
+    "Ludicrous"
+};
+
+static const char *finisher_2[] = {
+    " press", " moonsault", "'s elbow", " stunner",
+    " backbreaker", " thrust", " combo", " stomp",
+    " bomb", " cutter", " lariat", "breaker", " spear",
+    " boot"
+};
+
+void
+wrestling_finisher_name(void) {
+    int i1 = (long) ubirthday % SIZE(finisher_1);
+    int i2 = (long) ubirthday % SIZE(finisher_2);
+    pline("%s The %s%s!", ROLL_FROM(finisher_pre),
+            finisher_1[i1], finisher_2[i2]);
 }
 
 

@@ -280,6 +280,7 @@
     (!vegan(ptr) && !unsolid(ptr) && !amorphous(ptr))
 #define has_skull(ptr) \
     (has_head(ptr) && has_bones(ptr))
+#define collateral(ptr) (((ptr)->mflags2 & M2_COLLAT) != 0L)
 
 #define likes_bones(ptr) \
     (ptr->mlet == S_DOG || ptr == &mons[PM_HUMAN_WEREWOLF] \

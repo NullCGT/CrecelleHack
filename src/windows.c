@@ -2748,7 +2748,8 @@ get_menu_coloring(const char *str, int *color, int *attr)
     return FALSE;
 }
 
-int select_menu(winid window, int how, menu_item **menu_list)
+int
+select_menu(winid window, int how, menu_item **menu_list)
 {
     int reslt;
     boolean old_bot_disabled = gb.bot_disabled;

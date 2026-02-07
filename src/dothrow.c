@@ -1481,6 +1481,37 @@ swallowit(struct obj *obj)
         throwit_return(TRUE);
 }
 
+/* thrown object hits a monster.
+   mon may be NULL.
+   returns TRUE if shopkeeper caught the object.
+   may delete object, clearing gt.thrownobj */
+boolean
+throwit_mon_hit(struct obj *obj, struct monst *mon)
+{
+    if (mon) {
+        boolean obj_gone;
+
+        if (mon->isshk && obj->where == OBJ_MINVENT && obj->ocarry == mon) {
+            return TRUE;
+        }
+        (void) snuff_candle(obj);
+        gn.notonhead = (gb.bhitpos.x != mon->mx || gb.bhitpos.y != mon->my);
+        obj_gone = thitmonst(mon, obj);
+        /* Monster may have been tamed; this frees old mon [obsolete] */
+        mon = m_at(gb.bhitpos.x, gb.bhitpos.y);
+
+        /* [perhaps this should be moved into thitmonst or hmon] */
+        if (mon && mon->isshk
+            && (!inside_shop(u.ux, u.uy)
+                || !strchr(in_rooms(mon->mx, mon->my, SHOPBASE), *u.ushops)))
+            hot_pursuit(mon);
+
+        if (obj_gone)
+            gt.thrownobj = (struct obj *) 0;
+    }
+    return FALSE;
+}
+
 /* throw an object, NB: obj may be consumed in the process */
 void
 throwit(
@@ -1668,27 +1699,9 @@ throwit(
         }
     }
 
-    if (mon) {
-        boolean obj_gone;
-
-        if (mon->isshk && obj->where == OBJ_MINVENT && obj->ocarry == mon) {
-            throwit_return(TRUE); /* alert shk caught it */
-            return;
-        }
-        (void) snuff_candle(obj);
-        gn.notonhead = (gb.bhitpos.x != mon->mx || gb.bhitpos.y != mon->my);
-        obj_gone = thitmonst(mon, obj);
-        /* Monster may have been tamed; this frees old mon [obsolete] */
-        mon = m_at(gb.bhitpos.x, gb.bhitpos.y);
-
-        /* [perhaps this should be moved into thitmonst or hmon] */
-        if (mon && mon->isshk
-            && (!inside_shop(u.ux, u.uy)
-                || !strchr(in_rooms(mon->mx, mon->my, SHOPBASE), *u.ushops)))
-            hot_pursuit(mon);
-
-        if (obj_gone)
-            gt.thrownobj = (struct obj *) 0;
+    if (throwit_mon_hit(obj, mon)) {
+        throwit_return(TRUE); /* alert shk caught it */
+        return;
     }
 
     if (!gt.thrownobj) {

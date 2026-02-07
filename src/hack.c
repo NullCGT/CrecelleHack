@@ -2696,7 +2696,7 @@ escape_from_sticky_mon(coordxy x, coordxy y)
                 /*FALLTHRU*/
             default:
                 if (Conflict || u.ustuck->mconf || !u.ustuck->mtame) {
-                    You("cannot escape from %s!", y_monnam(u.ustuck));
+                    You("fail to escape %s's clutches!", y_monnam(u.ustuck));
                     nomul(0);
                     return TRUE;
                 }

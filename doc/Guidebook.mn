@@ -1,4 +1,4 @@
-.\" $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.611 $ $NHDT-Date: 1769271623 2026/01/24 08:20:23 $
+.\" $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.614 $ $NHDT-Date: 1770881338 2026/02/11 23:28:58 $
 .\"
 .\" This is an excerpt from the 'roff' man page from the 'groff' package.
 .\"+--
@@ -60,7 +60,7 @@
 .ds f0 \*(vr
 .ds f1 \" empty
 .\"DO NOT REMOVE NH_DATESUB .ds f2 Date(%B %-d, %Y)
-.ds f2 February 10, 2026
+.ds f2 February 11, 2026
 .
 .\" A note on some special characters:
 .\" \(lq = left double quote
@@ -2608,8 +2608,8 @@ Some confer defensive capabilities when wielded or have other powers that
 aren't listed here.
 .pg
 You might find them simply lying on the floor, including but not limited
-to inside shops, or be granted as a reward for \(lq#offer\(rq on an altar
-to your patron deity.
+to inside shops, or be granted as a reward for \(lq#offer\(rq on an
+altar to your patron deity.
 A few might be dropped by monsters, or might be converted from an ordinary
 object of the same type via assigning the right name.
 .\" should we mention dipping for Excalibur here?
@@ -2627,9 +2627,9 @@ These are commonly known as quest artifacts.
 All are aligned and most are non-weapons.
 They won't be found randomly.
 .pg
-The \(oq\f(CR\\\fP\(cq and \(oq\f(CR\`a\fP\(cq commands will list
-artifacts that you have fully identified (knowing the name and item type
-isn't sufficient).
+The \(oq\f(CR\\\fP\(cq and \(oq\f(CR\`a\fP\(cq commands will
+list artifacts that you have fully identified (knowing the name and item
+type isn't sufficient).
 .hn 2
 Relics
 .pg

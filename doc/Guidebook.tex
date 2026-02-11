@@ -1,4 +1,4 @@
-% NetHack 3.7  Guidebook.tex $NHDT-Date: 1745139202 2025/04/20 00:53:22 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.579 $ */
+% NetHack 3.7  Guidebook.tex $NHDT-Date: 1770881338 2026/02/11 23:28:58 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.596 $ */
 \documentclass[titlepage]{article}
 \usepackage[hidelinks]{hyperref}
 \usepackage{longtable}
@@ -25,7 +25,7 @@
 \author{Original version - Eric S. Raymond\\
 (Edited and expanded for 3.7.0 by Mike Stephenson and others)}
 %DO NOT REMOVE NH_DATESUB \date{Date(%B %-d, %Y)}
-\date{January 3, 2026}
+\date{February 11, 2026}
 
 \maketitle
 
@@ -2789,6 +2789,64 @@ Sometimes the bless or curse state of objects is referred to as their
 ``\texttt{BUC}'' attribute, for Blessed, Uncursed, or Cursed state,
 or ``\texttt{BUCX}'' for Blessed, Uncursed, Cursed, or unknown.
 (The term \textit{beatitude} is occasionally used as well.)
+
+%.hn 2
+\subsection*{Artifacts}
+
+%.pg
+Some objects have been imbued with special powers and are known as
+\textit{Artifacts}.
+They have specific types (such as long sword or orcish dagger) and distinct
+names such as \textit{Giantslayer} or \textit{Grimtooth}.
+Artifact weapons typically do more damage than their ordinary counterparts.
+Some do extra damage against all monsters, others only against specific
+types of monsters so aren't better than regular weapons against other types.
+Some confer defensive capabilities when wielded or have other powers that
+aren't listed here.
+
+%.pg
+You might find them simply lying on the floor, including but not limited
+to inside shops, or be granted as a reward for ``\texttt{\#offer}'' on an
+altar to your patron deity.
+A few might be dropped by monsters, or might be converted from an ordinary
+object of the same type via assigning the right name.
+% should we mention dipping for Excalibur here?
+Or you might wish for them, if you happen to be granted a wish, but such
+wishes can fail.
+
+%.pg
+Some artifacts have a specific alignment, others don't.
+You won't obtain aligned ones that have a different alignment from yours
+via offering and might get a shock if you attempt to wish for any of those
+or find one and attempt to use it.
+
+%pg
+Each role has a distinct artifact that is contained in the \textit{Quest}
+dungeon branch.
+These are commonly known as quest artifacts.
+All are aligned and most are non-weapons.
+They won't be found randomly.
+
+%.pg
+The `\texttt{\textbackslash}' and `\texttt{\textasciigrave a}' commands will
+list artifacts that you have fully identified (knowing the name and item
+type isn't sufficient).
+
+%.hn 2
+\subsection*{Relics}
+
+%.pg
+There are three unique items that are named and have limited special
+powers but aren't classified as artifacts.
+Each is guarded by a particular monster and you'll need to collect all
+three for use late in the game.
+% The relics are listed in the same order as the Oracle's message about
+% them rather than in the order they need to be used for the invocation.
+They are \textit{the Bell of Opening},
+\textit{the Book of the Dead}, and
+\textit{the Candelabrum of Invocation}.
+Their corresponding descriptions when not yet identified are
+silver bell, papyrus spellbook, and candelabrum.
 
 %.hn 2
 \subsection*{Weapons (`\texttt{)}')}

@@ -83,7 +83,7 @@ putmesg(const char *line)
 void
 set_msg_dir(int dir)
 {
-    dtoxy(&a11y.msg_loc, dir);
+    dirtocoord(&a11y.msg_loc, dir);
     a11y.msg_loc.x += u.ux;
     a11y.msg_loc.y += u.uy;
 }

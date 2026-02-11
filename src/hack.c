@@ -1046,7 +1046,7 @@ test_move(
                     else
                         Sprintf(buf, "impossible [background glyph=%d]",
                                 glyph);
-                    pline_dir(xytod(dx, dy), "It's %s.", buf);
+                    pline_dir(xytodir(dx, dy), "It's %s.", buf);
                 }
             }
             return FALSE;
@@ -1197,7 +1197,7 @@ test_move(
         if (mode != TEST_TRAV && svc.context.run >= 2
             && !(Blind || Hallucination) && !could_move_onto_boulder(x, y)) {
             if (mode == DO_MOVE && flags.mention_walls)
-                pline_dir(xytod(dx,dy), "A boulder blocks your path.");
+                pline_dir(xytodir(dx,dy), "A boulder blocks your path.");
             return FALSE;
         }
         if (mode == DO_MOVE) {
@@ -2582,7 +2582,7 @@ move_out_of_bounds(coordxy x, coordxy y)
                     dy = 0;
             }
             You("have already gone as far %s as possible.",
-                directionname(xytod(dx, dy)));
+                directionname(xytodir(dx, dy)));
         }
         nomul(0);
         svc.context.move = 0;

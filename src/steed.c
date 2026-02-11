@@ -471,7 +471,7 @@ landing_spot(
 
     (void) memset((genericptr_t) try, 0, sizeof try);
     n = 0;
-    j = xytod(u.dx, u.dy);
+    j = xytodir(u.dx, u.dy);
     if (reason == DISMOUNT_KNOCKED && j != DIR_ERR) {
         /* we'll check preferred location first; if viable it'll be picked */
         best_j = j;
@@ -479,10 +479,10 @@ landing_spot(
         /* the two next best locations are checked second and third */
         i = rn2(2);
         clockwise_j = DIR_RIGHT(j); /* (j + 1) % 8 */
-        dtoxy(&cc, clockwise_j);
+        dirtocoord(&cc, clockwise_j);
         try[1 + i].x = cc.x, try[1 + i].y = cc.y; /* [1] or [2] */
         counterclk_j = DIR_LEFT(j); /* (j + 8 - 1) % 8 */
-        dtoxy(&cc, counterclk_j);
+        dirtocoord(&cc, counterclk_j);
         try[2 - i].x = cc.x, try[2 - i].y = cc.y; /* [2] or [1] */
         n = 3;
         debugpline3("knock from saddle: best %s, next %s or %s",
@@ -500,7 +500,7 @@ landing_spot(
            so odd j values are diagonal directions here */
         if (reason == DISMOUNT_POLY && NODIAG(u.umonnum) && (j % 1) != 0)
             continue;
-        dtoxy(&cc, j);
+        dirtocoord(&cc, j);
         try[n++] = cc;
     }
 

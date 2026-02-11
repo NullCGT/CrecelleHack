@@ -1348,14 +1348,14 @@ hero_behind_chokepoint(struct monst *mtmp)
     coordxy x = mtmp->mux + dx;
     coordxy y = mtmp->muy + dy;
 
-    int dir = xytod(dx, dy);
+    int dir = xytodir(dx, dy);
     int dir_l = DIR_CLAMP(DIR_LEFT2(dir));
     int dir_r = DIR_CLAMP(DIR_RIGHT2(dir));
 
     coord c1, c2;
 
-    dtoxy(&c1, dir_l);
-    dtoxy(&c2, dir_r);
+    dirtocoord(&c1, dir_l);
+    dirtocoord(&c2, dir_r);
     c1.x += x, c2.x += x;
     c1.y += y, c2.y += y;
 

@@ -449,8 +449,8 @@ extern int enter_explore_mode(void);
 extern boolean bind_mousebtn(int, const char *);
 extern boolean bind_key(uchar, const char *);
 extern void dokeylist(void);
-extern int xytod(coordxy, coordxy);
-extern void dtoxy(coord *, int);
+extern int xytodir(int, int);
+extern void dirtocoord(coord *, int);
 extern int movecmd(char, int);
 extern int dxdy_moveok(void);
 extern int getdir(const char *);
@@ -3957,11 +3957,11 @@ extern int spell_damage_bonus(int);
 extern const char *exclam(int force) NONNULL;
 extern void hit(const char *, struct monst *, const char *) NONNULLPTRS;
 extern void miss(const char *, struct monst *) NONNULLPTRS;
-extern struct monst *bhit(coordxy, coordxy, int, enum bhit_call_types,
+extern struct monst *bhit(int, int, int, enum bhit_call_types,
                           int(*)(struct monst *, struct obj *),
                           int(*)(struct obj *, struct obj *),
                           struct obj **) NONNULLARG7;
-extern struct monst *boomhit(struct obj *, coordxy, coordxy) NONNULLARG1;
+extern struct monst *boomhit(struct obj *, int, int) NONNULLARG1;
 extern int zhitm(struct monst *, int, int, struct obj **) NONNULLPTRS;
 extern int burn_floor_objects(coordxy, coordxy, boolean, boolean);
 extern void ubuzz(int, int);

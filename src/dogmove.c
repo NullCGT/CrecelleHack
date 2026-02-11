@@ -1325,14 +1325,14 @@ dog_move(
         if (goodpos(cc.x, cc.y, mtmp, 0))
             goto dognext;
 
-        i = xytod(nx, ny);
+        i = xytodir(nx, ny);
         for (j = DIR_LEFT(i); j < DIR_RIGHT(i); j++) {
-            dtoxy(&cc, j);
+            dirtocoord(&cc, j);
             if (goodpos(cc.x, cc.y, mtmp, 0))
                 goto dognext;
         }
         for (j = DIR_LEFT2(i); j < DIR_RIGHT2(i); j++) {
-            dtoxy(&cc, j);
+            dirtocoord(&cc, j);
             if (goodpos(cc.x, cc.y, mtmp, 0))
                 goto dognext;
         }

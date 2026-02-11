@@ -3814,7 +3814,7 @@ zap_map(
  */
 struct monst *
 bhit(
-    coordxy ddx, coordxy ddy, int range,  /* direction and range */
+    int ddx, int ddy, int range,  /* direction and range */
     enum bhit_call_types weapon,  /* defined in hack.h */
     int (*fhitm)(MONST_P, OBJ_P), /* fns called when mon/obj hit */
     int (*fhito)(OBJ_P, OBJ_P),
@@ -4134,7 +4134,7 @@ bhit(
  * is too obviously silly.
  */
 struct monst *
-boomhit(struct obj *obj, coordxy dx, coordxy dy)
+boomhit(struct obj *obj, int dx, int dy)
 {
     int i, ct;
     int boom; /* showsym[] index  */
@@ -4158,7 +4158,7 @@ boomhit(struct obj *obj, coordxy dx, coordxy dy)
     gb.bhitpos.x = u.ux;
     gb.bhitpos.y = u.uy;
     boom = counterclockwise ? S_boomleft : S_boomright;
-    i = xytod(dx, dy);
+    i = xytodir(dx, dy);
     tmp_at(DISP_FLASH, cmap_to_glyph(boom));
     for (ct = 0; ct < 10; ct++) {
         i = DIR_CLAMP(i);
@@ -4947,7 +4947,7 @@ dobuzz(
                 goto buzzmonst;
             } else if (zap_hit((int) u.uac, 0)) {
                 range -= 2;
-                pline_dir(xytod(-dx, -dy), "%s hits you!",
+                pline_dir(xytodir(-dx, -dy), "%s hits you!",
                           The(flash_str(fltyp, FALSE)));
                 if (Reflecting) {
                     if (!Blind) {

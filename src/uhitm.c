@@ -663,7 +663,7 @@ hitum_cleave(
     int count, umort, x = u.ux, y = u.uy;
 
     /* find the direction toward primary target */
-    i = xytod(u.dx, u.dy);
+    i = xytodir(u.dx, u.dy);
     if (i == DIR_ERR) {
         impossible("hitum_cleave: unknown target direction [%d,%d,%d]?",
                    u.dx, u.dy, u.dz);

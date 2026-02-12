@@ -1,4 +1,4 @@
-/* NetHack 3.7	potion.c	$NHDT-Date: 1737605675 2025/01/22 20:14:35 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.274 $ */
+/* NetHack 3.7	potion.c	$NHDT-Date: 1770949988 2026/02/12 18:33:08 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.279 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2013. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -1777,12 +1777,19 @@ potionhit(struct monst *mon, struct obj *obj, int how)
                 mon->mconf = TRUE;
             break;
         case POT_INVISIBILITY: {
-            boolean sawit = canspotmon(mon);
+            boolean sawit = canspotmon(mon),
+                    cursed_potion = obj->cursed ? TRUE : FALSE;
 
-            angermon = FALSE;
-            mon_set_minvis(mon);
-            if (sawit && !canspotmon(mon) && cansee(mon->mx, mon->my))
-                map_invisible(mon->mx, mon->my);
+            angermon = mon->minvis && cursed_potion;
+            mon_set_minvis(mon, cursed_potion);
+            if (sawit && !canspotmon(mon)) {
+                if (cansee(mon->mx, mon->my))
+                    map_invisible(mon->mx, mon->my);
+            } else if (!sawit && canspotmon(mon)) {
+                /* if an invisible mon glyph was present, mon_set_minvis()'s
+                   newsym() has gotten rid of it */
+                pline("%s appears!", Monnam(mon));
+            }
             break;
         }
         case POT_SLEEPING:

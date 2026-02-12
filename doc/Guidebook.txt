@@ -15,7 +15,7 @@
                        Original version - Eric S. Raymond
      (Edited and expanded for NetHack 3.7.0 by Mike Stephenson and others)
 
-                               December 11, 2025
+                               February 11, 2026
 
 
 
@@ -126,7 +126,7 @@
      employ to great advantage.
 
 
-     NetHack 3.7.0                                        December 11, 2025
+     NetHack 3.7.0                                        February 11, 2026
 
 
 
@@ -192,7 +192,7 @@
      NetHack continues this fine tradition.  Unlike  text  adventure  games
 
 
-     NetHack 3.7.0                                        December 11, 2025
+     NetHack 3.7.0                                        February 11, 2026
 
 
 
@@ -258,7 +258,7 @@
 
 
 
-     NetHack 3.7.0                                        December 11, 2025
+     NetHack 3.7.0                                        February 11, 2026
 
 
 
@@ -324,7 +324,7 @@
 
 
 
-     NetHack 3.7.0                                        December 11, 2025
+     NetHack 3.7.0                                        February 11, 2026
 
 
 
@@ -390,7 +390,7 @@
 
 
 
-     NetHack 3.7.0                                        December 11, 2025
+     NetHack 3.7.0                                        February 11, 2026
 
 
 
@@ -456,7 +456,7 @@
           The number of turns elapsed so far, displayed  if  you  have  the
 
 
-     NetHack 3.7.0                                        December 11, 2025
+     NetHack 3.7.0                                        February 11, 2026
 
 
 
@@ -522,7 +522,7 @@
 
 
 
-     NetHack 3.7.0                                        December 11, 2025
+     NetHack 3.7.0                                        February 11, 2026
 
 
 
@@ -588,7 +588,7 @@
 
 
 
-     NetHack 3.7.0                                        December 11, 2025
+     NetHack 3.7.0                                        February 11, 2026
 
 
 
@@ -654,7 +654,7 @@
 
 
 
-     NetHack 3.7.0                                        December 11, 2025
+     NetHack 3.7.0                                        February 11, 2026
 
 
 
@@ -720,7 +720,7 @@
           instead.   Only  these  one-step  movement  commands cause you to
 
 
-     NetHack 3.7.0                                        December 11, 2025
+     NetHack 3.7.0                                        February 11, 2026
 
 
 
@@ -786,7 +786,7 @@
           ing <Control>. ^<key> is  used  as  shorthand  elsewhere  in  the
 
 
-     NetHack 3.7.0                                        December 11, 2025
+     NetHack 3.7.0                                        February 11, 2026
 
 
 
@@ -852,7 +852,7 @@
 
 
 
-     NetHack 3.7.0                                        December 11, 2025
+     NetHack 3.7.0                                        February 11, 2026
 
 
 
@@ -918,7 +918,7 @@
 
 
 
-     NetHack 3.7.0                                        December 11, 2025
+     NetHack 3.7.0                                        February 11, 2026
 
 
 
@@ -984,7 +984,7 @@
 
 
 
-     NetHack 3.7.0                                        December 11, 2025
+     NetHack 3.7.0                                        February 11, 2026
 
 
 
@@ -1050,7 +1050,7 @@
           at an adjacent "remembered, unseen monster" marker.
 
 
-     NetHack 3.7.0                                        December 11, 2025
+     NetHack 3.7.0                                        February 11, 2026
 
 
 
@@ -1116,7 +1116,7 @@
 
 
 
-     NetHack 3.7.0                                        December 11, 2025
+     NetHack 3.7.0                                        February 11, 2026
 
 
 
@@ -1182,7 +1182,7 @@
      (R)UNIX is a registered trademark of The Open Group.
 
 
-     NetHack 3.7.0                                        December 11, 2025
+     NetHack 3.7.0                                        February 11, 2026
 
 
 
@@ -1248,7 +1248,7 @@
           menu_next_page,  and  menu_last_page  keys (`^', `<', `>', `|' by
 
 
-     NetHack 3.7.0                                        December 11, 2025
+     NetHack 3.7.0                                        February 11, 2026
 
 
 
@@ -1314,7 +1314,7 @@
           doesn't and give that name to the result, while splitting  (count
 
 
-     NetHack 3.7.0                                        December 11, 2025
+     NetHack 3.7.0                                        February 11, 2026
 
 
 
@@ -1380,7 +1380,7 @@
 
 
 
-     NetHack 3.7.0                                        December 11, 2025
+     NetHack 3.7.0                                        February 11, 2026
 
 
 
@@ -1446,7 +1446,7 @@
           extinct.
 
 
-     NetHack 3.7.0                                        December 11, 2025
+     NetHack 3.7.0                                        February 11, 2026
 
 
 
@@ -1512,7 +1512,7 @@
 
 
 
-     NetHack 3.7.0                                        December 11, 2025
+     NetHack 3.7.0                                        February 11, 2026
 
 
 
@@ -1578,7 +1578,7 @@
 
 
 
-     NetHack 3.7.0                                        December 11, 2025
+     NetHack 3.7.0                                        February 11, 2026
 
 
 
@@ -1644,7 +1644,7 @@
           right  away.)   Since  using  this  command by accident can cause
 
 
-     NetHack 3.7.0                                        December 11, 2025
+     NetHack 3.7.0                                        February 11, 2026
 
 
 
@@ -1710,7 +1710,7 @@
           Default key is `M-R'.
 
 
-     NetHack 3.7.0                                        December 11, 2025
+     NetHack 3.7.0                                        February 11, 2026
 
 
 
@@ -1776,7 +1776,7 @@
           (worn blindfold or towel or lenses, lit lamp(s) and/or candle(s),
 
 
-     NetHack 3.7.0                                        December 11, 2025
+     NetHack 3.7.0                                        February 11, 2026
 
 
 
@@ -1842,7 +1842,7 @@
 
 
 
-     NetHack 3.7.0                                        December 11, 2025
+     NetHack 3.7.0                                        February 11, 2026
 
 
 
@@ -1908,7 +1908,7 @@
           line will show "(no travel path)" if your character does not know
 
 
-     NetHack 3.7.0                                        December 11, 2025
+     NetHack 3.7.0                                        February 11, 2026
 
 
 
@@ -1974,7 +1974,7 @@
 
 
 
-     NetHack 3.7.0                                        December 11, 2025
+     NetHack 3.7.0                                        February 11, 2026
 
 
 
@@ -2040,7 +2040,7 @@
           Set one or more intrinsic attributes.  Autocompletes.  Debug mode
 
 
-     NetHack 3.7.0                                        December 11, 2025
+     NetHack 3.7.0                                        February 11, 2026
 
 
 
@@ -2106,7 +2106,7 @@
      "high"] bit), you can invoke many extended commands  by  meta-ing  the
 
 
-     NetHack 3.7.0                                        December 11, 2025
+     NetHack 3.7.0                                        February 11, 2026
 
 
 
@@ -2172,7 +2172,7 @@
 
 
 
-     NetHack 3.7.0                                        December 11, 2025
+     NetHack 3.7.0                                        February 11, 2026
 
 
 
@@ -2238,7 +2238,7 @@
 
 
 
-     NetHack 3.7.0                                        December 11, 2025
+     NetHack 3.7.0                                        February 11, 2026
 
 
 
@@ -2304,7 +2304,7 @@
 
 
 
-     NetHack 3.7.0                                        December 11, 2025
+     NetHack 3.7.0                                        February 11, 2026
 
 
 
@@ -2370,7 +2370,7 @@
      them).  Some monsters who can open doors can also use unlocking tools.
 
 
-     NetHack 3.7.0                                        December 11, 2025
+     NetHack 3.7.0                                        February 11, 2026
 
 
 
@@ -2436,7 +2436,7 @@
      been nullified, giving access to whatever  is  beyond  them.   In  the
 
 
-     NetHack 3.7.0                                        December 11, 2025
+     NetHack 3.7.0                                        February 11, 2026
 
 
 
@@ -2502,7 +2502,7 @@
      play.
 
 
-     NetHack 3.7.0                                        December 11, 2025
+     NetHack 3.7.0                                        February 11, 2026
 
 
 
@@ -2568,7 +2568,7 @@
 
 
 
-     NetHack 3.7.0                                        December 11, 2025
+     NetHack 3.7.0                                        February 11, 2026
 
 
 
@@ -2634,7 +2634,7 @@
      attack,  when guessing where an unseen monster is or when deliberately
 
 
-     NetHack 3.7.0                                        December 11, 2025
+     NetHack 3.7.0                                        February 11, 2026
 
 
 
@@ -2700,7 +2700,7 @@
      noid_confirmation:attack   option  to  require  a  response  of  "yes"
 
 
-     NetHack 3.7.0                                        December 11, 2025
+     NetHack 3.7.0                                        February 11, 2026
 
 
 
@@ -2766,7 +2766,7 @@
 
 
 
-     NetHack 3.7.0                                        December 11, 2025
+     NetHack 3.7.0                                        February 11, 2026
 
 
 
@@ -2832,7 +2832,7 @@
      are encumbered, one of the conditions  Burdened,  Stressed,  Strained,
 
 
-     NetHack 3.7.0                                        December 11, 2025
+     NetHack 3.7.0                                        February 11, 2026
 
 
 
@@ -2898,7 +2898,7 @@
 
 
 
-     NetHack 3.7.0                                        December 11, 2025
+     NetHack 3.7.0                                        February 11, 2026
 
 
 
@@ -2922,7 +2922,59 @@
      "BUCX" for Blessed, Uncursed, Cursed, or unknown.  (The term beatitude
      is occasionally used as well.)
 
-     7.2.  Weapons (`)')
+     7.2.  Artifacts
+
+          Some  objects  have been imbued with special powers and are known
+     as Artifacts.  They have specific types (such as long sword or  orcish
+     dagger) and distinct names such as Giantslayer or Grimtooth.  Artifact
+     weapons typically do more damage  than  their  ordinary  counterparts.
+     Some  do  extra  damage against all monsters, others only against spe-
+     cific types of monsters so aren't better than regular weapons  against
+     other  types.  Some confer defensive capabilities when wielded or have
+     other powers that aren't listed here.
+
+          You might find them simply lying on the floor, including but  not
+     limited  to inside shops, or be granted as a reward for "#offer" on an
+     altar to your patron deity.  A few might be dropped  by  monsters,  or
+     might  be  converted  from  an  ordinary  object  of the same type via
+     assigning the right name.  Or you might wish for them, if  you  happen
+     to be granted a wish, but such wishes can fail.
+
+          Some  artifacts  have  a  specific  alignment, others don't.  You
+     won't obtain aligned ones that have a different alignment  from  yours
+     via  offering  and might get a shock if you attempt to wish for any of
+     those or find one and attempt to use it.
+
+          Each role has a distinct artifact that is contained in the  Quest
+     dungeon branch.  These are commonly known as quest artifacts.  All are
+     aligned and most are non-weapons.  They won't be found randomly.
+
+          The `\' and ``a' commands will list artifacts that you have fully
+     identified (knowing the name and item type isn't sufficient).
+
+     7.3.  Relics
+
+          There are three unique items that are named and have limited spe-
+     cial powers but aren't classified as artifacts.  Each is guarded by  a
+     particular  monster  and you'll need to collect all three for use late
+     in the game.  They are the Bell of Opening, the Book of the Dead,  and
+     the  Candelabrum of Invocation.  Their corresponding descriptions when
+     not yet identified are silver  bell,  papyrus  spellbook,  and  cande-
+     labrum.
+
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   46
+
+
+
+     7.4.  Weapons (`)')
 
           Given  a chance, most monsters in the Mazes of Menace will gratu-
      itously try to kill you.  You need weapons for  self-defense  (killing
@@ -2962,18 +3014,6 @@
      And if you have proficiency in the "two weapon combat" skill, you  may
      wield  both  weapons  simultaneously as primary and secondary; use the
      `X' command to engage or disengage that.  Only some types  of  charac-
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                   46
-
-
-
      ters  (barbarians,  for  instance) have the necessary skill available.
      Even with that skill, using two weapons at once incurs  a  penalty  in
      the  chance  to hit your target compared to using just one weapon at a
@@ -2988,13 +3028,25 @@
      each weapon which existed in AD&D does roughly the same damage to mon-
      sters  in  NetHack.   Some  of  the  more obscure weapons (such as the
      aklys, lucern hammer, and bec-de-corbin) are defined in an appendix to
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   47
+
+
+
      Unearthed Arcana, an AD&D supplement.
 
           The  commands  to  use  weapons are `w' (wield), `t' (throw), `f'
      (fire), `Q' (quiver), `x' (exchange), `X' (twoweapon), and  "#enhance"
      (see below).
 
-     7.2.1.  Throwing and shooting
+     7.4.1.  Throwing and shooting
 
           You  can  throw just about anything via the `t' command.  It will
      prompt for the item to throw; picking `?' will  list  things  in  your
@@ -3027,19 +3079,6 @@
      quiver.   The fire command also has extra assistance, if fireassist is
      on it will try to wield a launcher matching the ammo in the quiver.
 
-
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                   47
-
-
-
           Some characters have the ability to throw or shoot  a  volley  of
      multiple  items (from the same stack) in a single action.  Knowing how
      to load several rounds of ammunition at once--or hold several missiles
@@ -3055,11 +3094,23 @@
      most 2 arrows are shot even if you could have fired 3.  If you specify
      a  larger  number  than  would  have been shot ("4f" in this example),
      you'll just end up shooting the same number (3, here) as if  no  limit
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   48
+
+
+
      had  been  specified.   Once the volley is in motion, all of the items
      will travel in the same direction; if the first ones kill  a  monster,
      the others can still continue beyond that spot.
 
-     7.2.2.  Weapon proficiency
+     7.4.2.  Weapon proficiency
 
           You  will have varying degrees of skill in the weapons available.
      Weapon proficiency, or weapon skills, affect how well you can use par-
@@ -3094,24 +3145,12 @@
      the next skill level (unless you've already reached the limit for this
      skill).  Once such training reaches the threshold for that next level,
      you'll  be  told that you feel more confident in your skills.  At that
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                   48
-
-
-
      point you can use "#enhance" to increase one  or  more  skills.   Such
      skills  are  not  increased  automatically because there is a limit to
      your total overall skills, so you need to actively choose which skills
      to enhance and which to ignore.
 
-     7.2.3.  Two-Weapon combat
+     7.4.3.  Two-Weapon combat
 
           Some  characters  can use two weapons at once.  Setting things up
      to do so can seem cumbersome but becomes second nature with  use.   To
@@ -3121,6 +3160,18 @@
      with is considered primary and the other one is considered  secondary.
      The most noticeable difference is after you stop--or before you begin,
      for that matter--wielding two weapons at once.  The  primary  is  your
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   49
+
+
+
      wielded  weapon  and  the  secondary is just an item in your inventory
      that's been designated as alternate weapon.)
 
@@ -3145,7 +3196,7 @@
      ons or having one of them be stolen or destroyed will  also  make  you
      revert to single-weapon combat.
 
-     7.3.  Armor (`[')
+     7.5.  Armor (`[')
 
           Lots  of  unfriendly things lurk about; you need armor to protect
      yourself from their blows.  Some types of armor offer  better  protec-
@@ -3159,19 +3210,6 @@
                    Dragon scale mail                        1
                    Plate mail, Crystal plate mail           3
                    Bronze plate mail, Splint mail,
-
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                   49
-
-
-
                       Banded mail, Dwarvish mithril-coat    4
                    Chain mail, Elven mithril-coat           5
                    Scale mail, Orcish chain mail            6
@@ -3188,6 +3226,18 @@
      also  be  enchanted.   Shirts are an exception; they don't provide any
      protection unless enchanted.  Some cloaks also don't improve  AC  when
      unenchanted  but all cloaks offer some protection against rust or cor-
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   50
+
+
+
      rosion to suits  worn  under  them  and  against  some  monster  touch
      attacks.
 
@@ -3214,7 +3264,7 @@
      can  be  used  for armor, but pieces of armor won't be shown as likely
      candidates in a prompt for choosing what to put on or remove.
 
-     7.4.  Food (`%')
+     7.6.  Food (`%')
 
           Food is necessary to survive.  If you go too long without  eating
      you  will faint, and eventually die of starvation.  Some types of food
@@ -3227,17 +3277,6 @@
      special powers when you eat them.  A good rule of thumb  is  "you  are
      what you eat."
 
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                   50
-
-
-
           Some  character roles and some monsters are vegetarian.  Vegetar-
      ian monsters will typically never eat animal corpses, while vegetarian
      players can, but with some rather unpleasant side-effects.
@@ -3247,12 +3286,23 @@
 
           The command to eat food is `e'.
 
-     7.5.  Scrolls (`?')
+     7.7.  Scrolls (`?')
 
           Scrolls are labeled  with  various  titles,  probably  chosen  by
      ancient  wizards  for their amusement value (for example "READ ME," or
      "THANX MAUD"  backwards).   Scrolls  disappear  after  you  read  them
      (except for blank ones, without magic spells on them).
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   51
+
+
 
           One  of the most useful of these is the scroll of identify, which
      can be used to determine what another object is, whether it is  cursed
@@ -3281,7 +3331,7 @@
 
           The command to read a scroll is `r'.
 
-     7.6.  Potions (`!')
+     7.8.  Potions (`!')
 
           Potions are distinguished by the color of the liquid  inside  the
      flask.  They disappear after you quaff them.
@@ -3292,21 +3342,9 @@
      at them.  It is also sometimes very useful to dip ("#dip")  an  object
      into a potion.
 
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                   51
-
-
-
           The command to drink a potion is `q' (quaff).
 
-     7.7.  Wands (`/')
+     7.9.  Wands (`/')
 
           Wands usually have multiple magical charges.  Some types of wands
      require a direction in which to zap them.  You can also  zap  them  at
@@ -3320,6 +3358,18 @@
      ally, however, it may be possible to squeeze the last few mana  points
      from  an  otherwise  spent wand, destroying it in the process.  A wand
      may be recharged by using suitable magic, but doing so runs  the  risk
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   52
+
+
+
      of causing it to explode.  The chance for such an explosion starts out
      very small and increases each time the wand is recharged.
 
@@ -3337,7 +3387,7 @@
           The  command  to  use a wand is `z' (zap).  To break one, use the
      `a' (apply) command.
 
-     7.8.  Rings (`=')
+     7.10.  Rings (`=')
 
           Rings are very useful items, since they are relatively  permanent
      magic,  unlike  the  usually fleeting effects of potions, scrolls, and
@@ -3358,19 +3408,7 @@
           The commands to use rings are `P'  (put  on)  and  `R'  (remove).
      `A', `W', and `T' can also be used; see Amulets.
 
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                   52
-
-
-
-     7.9.  Spellbooks (`+')
+     7.11.  Spellbooks (`+')
 
           Spellbooks  are tomes of mighty magic.  When studied with the `r'
      (read) command, they transfer to the reader the knowledge of  a  spell
@@ -3386,6 +3424,18 @@
 
           Casting  a  spell  calls  forth magical energies and focuses them
      with your naked mind.  Some of the magical energy released comes  from
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   53
+
+
+
      within you.  Casting temporarily drains your magical power, which will
      slowly be recovered, and causes you to need additional food.   Casting
      of  spells  also requires practice.  With practice, your skill in each
@@ -3417,24 +3467,12 @@
      of  how  strongly  it  is  remembered.  The `Z' (cast) command casts a
      spell.
 
-     7.10.  Tools (`(')
+     7.12.  Tools (`(')
 
           Tools are miscellaneous  objects  with  various  purposes.   Some
      tools  have a limited number of uses, akin to wand charges.  For exam-
      ple, lamps burn out after a while.  Other tools are containers,  which
      objects can be placed into or taken out of.
-
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                   53
-
-
 
           Some  tools  (such  as a blindfold) can be worn and can be put on
      and removed like other  accessories  (rings,  amulets);  see  Amulets.
@@ -3448,10 +3486,22 @@
 
           The command to use a tool is `a' (apply).
 
-     7.10.1.  Containers
+     7.12.1.  Containers
 
           You  may  encounter  bags,  boxes, and chests in your travels.  A
      tool of this sort can be opened with the "#loot" extended command when
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   54
+
+
+
      you  are  standing  on top of it (that is, on the same floor spot), or
      with the `a' (apply) command  when  you  are  carrying  it.   However,
      chests  are  often  locked, and are in any case unwieldy objects.  You
@@ -3487,22 +3537,7 @@
      tents  into  another  container.   (As of this writing, the other con-
      tainer must be carried rather than on the floor.)
 
-
-
-
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                   54
-
-
-
-     7.11.  Amulets (`"')
+     7.13.  Amulets (`"')
 
           Amulets are very similar to rings, and often more powerful.  Like
      rings,  amulets have various magical properties, some beneficial, some
@@ -3519,7 +3554,21 @@
      and eyewear), but accessories won't be shown as likely candidates in a
      prompt for choosing what to wear or take off.
 
-     7.12.  Gems (`*')
+
+
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   55
+
+
+
+     7.14.  Gems (`*')
 
           Some  gems are valuable, and can be sold for a lot of gold.  They
      are also a far more efficient way of carrying your  riches.   Valuable
@@ -3530,7 +3579,7 @@
      (if  you have a sling).  In the most desperate of cases, you can still
      throw them by hand.
 
-     7.13.  Large rocks (``')
+     7.15.  Large rocks (``')
 
           Statues and boulders are not particularly useful, and are  gener-
      ally heavy.  It is rumored that some statues are not what they seem.
@@ -3556,19 +3605,7 @@
      shown  as  ``'  but by the letter representing the monster they depict
      instead.
 
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                   55
-
-
-
-     7.14.  Gold (`$')
+     7.16.  Gold (`$')
 
           Gold adds to your score, and you can buy things in shops with it.
      There  are  a number of monsters in the dungeon that may be influenced
@@ -3582,7 +3619,22 @@
      matters  when  you're using an object selection prompt that can filter
      by "BUCX" state.
 
-     7.15.  Persistence of Objects
+
+
+
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   56
+
+
+
+     7.17.  Persistence of Objects
 
           Normally, if you have seen an object at a particular map location
      and  move to another location where you can't directly see that object
@@ -3623,17 +3675,6 @@
      your god for help with starvation does not violate any food challenges
      either.
 
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                   56
-
-
-
           A  strict  vegan  diet  is one which avoids any food derived from
      animals.  The primary source of nutrition is  fruits  and  vegetables.
      The  corpses  and  tins of blobs (`b'), jellies (`j'), and fungi (`F')
@@ -3647,6 +3688,18 @@
           Vegetarians  do not eat animals; however, they are less selective
      about eating animal byproducts than vegans.  In addition to the  vegan
      items  listed above, they may eat any kind of pudding (`P') other than
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   57
+
+
+
      the black puddings, eggs and food made from eggs (fortune cookies  and
      pancakes),  food made with milk (cream pies and candy bars), and lumps
      of royal jelly.  Monks are expected to observe a vegetarian diet.
@@ -3689,17 +3742,6 @@
      and  kick  weapons; use a wand, spell, or other type of item; or fight
      with your hands and feet.
 
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                   57
-
-
-
           In NetHack, a pacifist refuses to cause the death  of  any  other
      monster  (i.e.  if you would get experience for the death).  This is a
      particularly difficult challenge, although it  is  still  possible  to
@@ -3712,6 +3754,18 @@
      engraving,  or  any item that is absolutely necessary to win the game,
      is not counted against this conduct.   The  identity  of  scrolls  and
      spellbooks  (and  knowledge  of  spells) in your starting inventory is
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   58
+
+
+
      assumed to be learned from your teachers prior to  the  start  of  the
      game and isn't counted.
 
@@ -3753,19 +3807,6 @@
      to make a wish for an item, you may choose "nothing" if  you  want  to
      decline.
 
-
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                   58
-
-
-
      8.1.  Achievements
 
           End  of  game  disclosure  will also display various achievements
@@ -3778,6 +3819,19 @@
 
          Rank         -  Attained rank title Rank.
          Shop         -  Entered a shop.
+
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   59
+
+
+
          Temple       -  Entered a temple.
          Mines        -  Entered the Gnomish Mines.
          Town         -  Entered Mine Town.
@@ -3820,18 +3874,6 @@
      to revert to lower rank(s) does not discard the corresponding achieve-
      ment(s).
 
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                   59
-
-
-
           There's  no guaranteed Novel so the achievement to read one might
      not always be attainable (except perhaps by wishing).  Similarly,  the
      Big  Room level is not always present.  Unlike with the Novel, there's
@@ -3842,6 +3884,19 @@
      levels since doing so is not necessary to complete the game.   Finding
      other  instances  of the same objects doesn't record the corresponding
      achievement.
+
+
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   60
+
+
 
           The Medusa achievement is recorded if she dies  for  any  reason,
      even if you are not directly responsible, and only if she dies.
@@ -3886,18 +3941,6 @@
      "%USERPROFILE%\NetHack\".  The file may not exist, but it is a  normal
      ASCII  text  file can can be created with any text editor.  After run-
      ning NetHack for the first time, you should find  a  default  template
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                   60
-
-
-
      for    the   configuration   file   named   ".nethackrc.template"   in
      "%USERPROFILE%\NetHack\".  If you have not created  the  configuration
      file, NetHack will create one for you using the default template file.
@@ -3909,6 +3952,18 @@
 
           Any line beginning with `[' and ending in `]' is a section marker
      (the  closing  `]' can be followed by whitespace and then an arbitrary
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   61
+
+
+
      comment beginning with `#').  The text between the square brackets  is
      the  section  name.   Section  markers  are  only valid after a CHOOSE
      directive and their names are case-insensitive.  Lines after a section
@@ -3952,18 +4007,6 @@
        The  location  where saved games are kept. Defaults to HACKDIR, must
        be writable.
 
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                   61
-
-
-
      BONESDIR
        The location that bones files are kept. Defaults to HACKDIR, must be
        writable.
@@ -3975,6 +4018,17 @@
      TROUBLEDIR
        The location that a record of game aborts  and  self-diagnosed  game
        problems is kept. Defaults to HACKDIR, must be writable.
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   62
+
+
 
      AUTOCOMPLETE
        Enable  or  disable an extended command autocompletion.  Autocomple-
@@ -4018,18 +4072,6 @@
 
        If [] is present, the preceding section is closed and no new section
        begins;  whatever follows will be common to all sections.  Otherwise
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                   62
-
-
-
        the last section extends to the end of the options file.
 
      MENUCOLOR
@@ -4042,6 +4084,17 @@
 
      ROGUESYMBOLS
        Custom symbols for the rogue level's symbol set.  See SYMBOLS below.
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   63
+
+
 
      SOUND
        Define a sound mapping.  See the "Configuring User Sounds" section.
@@ -4074,28 +4127,6 @@
 
      Here is an example of configuration file contents:
 
-
-
-
-
-
-
-
-
-
-
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                   63
-
-
-
      # Set your character's role, race, gender, and alignment.
      OPTIONS=role:Valkyrie, race:Human, gender:female, align:lawful
      #
@@ -4119,6 +4150,18 @@
 
           The NETHACKOPTIONS variable is a comma-separated list of  initial
      values  for  the  various options.  Some can only be turned on or off.
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   64
+
+
+
      You turn one of these on by adding the name of the option to the list,
      and  turn it off by typing a `!' or "no" before the name.  Others take
      a character string as a value.  You can set string options  by  typing
@@ -4150,18 +4193,6 @@
      be  set  to the full name of a configuration file you want to use.  If
      that full name doesn't start with a slash, precede it  with  `@'  (at-
      sign)  to  let  NetHack know that the rest is intended as a file name.
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                   64
-
-
-
      If it does start with `/', the at-sign is optional.
 
      9.4.  Customization options
@@ -4185,6 +4216,18 @@
      alignment
        Your   starting   alignment   (align:lawful,    align:neutral,    or
        align:chaotic).   You may specify just the first letter.  Many roles
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   65
+
+
+
        and the non-human races restrict which alignments are allowed.   See
        role for a description of how to use negation to exclude choices.
 
@@ -4216,18 +4259,6 @@
 
      autoquiver
        This  option  controls  what happens when you attempt the `f' (fire)
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                   65
-
-
-
        command when nothing is quivered or readied (default  false).   When
        true,  the  computer  will  fill  your quiver or quiver sack or make
        ready some suitable weapon.  Note that it will not take into account
@@ -4251,6 +4282,18 @@
                    using it;
        Kick      - kick the door (if you omit untrap or decline to  attempt
                    untrap  and  you omit apply-key or you lack a key or you
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   66
+
+
+
                    decline to use the key; has no effect on containers);
        Force     - try to force  a  container's  lid  with  your  currently
                    wielded weapon (if you omit untrap or decline to attempt
@@ -4282,18 +4325,6 @@
 
      catname
        Name your starting cat (for example  "catname:Morris").   Cannot  be
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                   66
-
-
-
        set with the `O' command.
 
      character
@@ -4317,6 +4348,17 @@
 
      deaf
        Start the character permanently deaf (default false).  Persistent.
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   67
+
+
 
      dropped_nopick
        If  this  option  is on, items you dropped will not be automatically
@@ -4348,18 +4390,6 @@
        The listings of vanquished monsters and of genocided  types  can  be
        sorted, so there are two additional choices for `v' and `g':
 
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                   67
-
-
-
             ? - prompt you and default to ask on the prompt;
             # - disclose it without prompting, ask for sort order.
 
@@ -4383,6 +4413,18 @@
        by traps and each other as well as by you.  And the dungeon overview
        shows  all  levels  you had visited but does not reveal things about
        them that you hadn't discovered.
+
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   68
+
+
 
      dogname
        Name your starting dog (for example "dogname:Fang").  Cannot be  set
@@ -4414,18 +4456,6 @@
        on).  If this is off, dropping an object shifts  all  the  remaining
        inventory letters.  Persistent.
 
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                   68
-
-
-
      force_invmenu
        Commands  asking for an inventory item show a menu instead of a text
        query with possible menu letters. Default is off.
@@ -4448,6 +4478,19 @@
        If  gender  is not specified, there is no default value; player will
        be prompted unless role and/or race  forces  a  choice  for  gender.
        Cannot be set with the `O' command.  Persistent.
+
+
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   69
+
+
 
      goldX
        When filtering objects based on bless/curse state (BUCX), whether to
@@ -4479,19 +4522,6 @@
        highlight pets and setting it will turn the hilite_pet option on  or
        off as warranted.
 
-
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                   69
-
-
-
      hilite_pile
        Visually  distinguish  piles  of  objects  from  individual  objects
        (default off).  The behavior of this option depends on the  type  of
@@ -4516,6 +4546,18 @@
 
        The "Qt" interface also supports hitpointbar, by drawing a solid bar
        above the name and title with a hard-coded  color  scheme.   (As  of
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   70
+
+
+
        this writing, having the bar enabled unintentionally inhibits resiz-
        ing the status panel.  To resize that, use the #optionsfull  command
        to  toggle the hitpointbar option off, perform the resize while it's
@@ -4546,18 +4588,6 @@
      lootabc
        When  using  a  menu  to interact with a container, use the old `a',
        `b', and `c' keyboard shortcuts rather than the mnemonics `o',  `i',
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                   70
-
-
-
        and `b' (default off).  Persistent.
 
      mail
@@ -4582,6 +4612,18 @@
 
      menucolors
        Enable coloring menu lines (default  off).   See  "Configuring  Menu
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   71
+
+
+
        Colors" on how to configure the colors.
 
      menustyle
@@ -4612,18 +4654,6 @@
      menu_first_page
        Key to jump to the first page in a menu.  Default `^'.
 
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                   71
-
-
-
      menu_headings
        Controls  how  the headings in a menu are highlighted.  Takes a text
        attribute, or text color and attribute separated by ampersand.   For
@@ -4648,6 +4678,18 @@
        beginning of each group.  You can have menus add the display  symbol
        for the class of objects for each header line.  You can also add the
        display symbol for the individual item in each menu  entry.   For  a
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   72
+
+
+
        tiles map, that would be a small rendition of an object's tile.  For
        a text map, it is the same character as is  used  for  the  object's
        class, which would be most useful when there are no headers separat-
@@ -4678,18 +4720,6 @@
        Key to search for some text and toggle selection state  of  matching
        menu items.  Default `:'.
 
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                   72
-
-
-
      menu_select_all
        Key to select all items in a menu.  Default `.'.
 
@@ -4713,6 +4743,18 @@
      monpolycontrol
        Prompt for new form whenever  any  monster  changes  shape  (default
        off).  Debug mode only.
+
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   73
+
+
 
      montelecontrol
        Prompt for destination whenever any monster gets teleported (default
@@ -4744,18 +4786,6 @@
 
        For backward compatibility, no value needs to  be  specified  (which
        defaults  to  "full"), or it can be negated (which defaults to "sin-
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                   73
-
-
-
        gle").
 
      name
@@ -4780,6 +4810,17 @@
 
      null
        Send padding nulls to the terminal (default on).  Persistent.
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   74
+
+
 
      number_pad
        Use digit keys instead of letters to move (default 0 or off).  Valid
@@ -4810,18 +4851,6 @@
 
      paranoid_confirmation
        A  space  separated  list  of  specific  situations  where alternate
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                   74
-
-
-
        prompting is desired.  The  default  is  "paranoid_confirmation:pray
        swim trap".
 
@@ -4847,6 +4876,18 @@
                      immediately praying; on by default; (to require  "yes"
                      rather than just `y', set Confirm too);
        trap        - require `y' to confirm an attempt to move into or onto
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   75
+
+
+
                      a known trap, unless doing  so  is  considered  to  be
                      harmless; when enabled, this confirmation is also used
                      for moving into visible gas cloud regions; (to require
@@ -4876,18 +4917,6 @@
        new entries and remove some old ones, you  can  use  multiple  para-
        noid_confirmation  option  settings, or you can use the `+' form and
        list entries to be added by their name and entries to be removed  by
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                   75
-
-
-
        `!' and name.  The positive (no `!') and negative (with `!') entries
        can be intermixed.
 
@@ -4912,6 +4941,18 @@
        all    - show all inventory except for gold;
        full   - show full inventory including gold;
        in-use - only show items which are in use (worn, wielded, lit lamp).
+
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   76
+
+
 
        Default is none but if perm_invent gets set to true while it is none
        it will be changed to all.
@@ -4941,19 +4982,6 @@
        Loaded), you will be asked if you want to continue.  (Default  `S').
        Persistent.
 
-
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                   76
-
-
-
      pickup_stolen
        If  this  option  is  on  and  autopickup is also on, try to pick up
        things that a monster  stole  from  you,  even  if  they  aren't  in
@@ -4980,6 +5008,17 @@
        don't  pick  up,  you can set pickup_types to `.'.  That is the type
        symbol for venom and you won't come across any venom items so  won't
        unintentionally pick such up.
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   77
+
+
 
      pile_limit
        When  walking  across  a  pile of objects on the floor, threshold at
@@ -5008,18 +5047,6 @@
      query_menu
        Use a menu when asked specific yes/no queries, instead of a prompt.
 
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                   77
-
-
-
      quick_farsight
        When set, usually prevents the "you sense your surroundings" message
        where  play pauses to allow you to browse the map whenever clairvoy-
@@ -5047,6 +5074,18 @@
        on  whether  or  not you win the game than your actions later in the
        game).  This option exists partly as an  acknowledgement  that  some
        players will insist on doing so anyway, and partly because rerolling
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   78
+
+
+
        may be necessary for certain types of challenge games.
 
      rest_on_space
@@ -5073,18 +5112,6 @@
 
        If role is not specified, there is no default value; player will  be
        prompted.  Cannot be set with the `O' command.  Persistent.
-
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                   78
-
-
 
      roguesymset
        This option may be used to select one of the named symbol sets found
@@ -5113,6 +5140,18 @@
        depend  upon  the window port used or on the type of terminal.  Per-
        sistent.
 
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   79
+
+
+
      safe_pet
        Prevent you from (knowingly) attacking your pets (default on).  Per-
        sistent.
@@ -5138,19 +5177,6 @@
      showexp
        Show  your  accumulated  experience  points  on bottom line (default
        off).  Persistent.
-
-
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                   79
-
-
 
      showrace
        Display yourself as the glyph for your race, rather than  the  glyph
@@ -5179,6 +5205,19 @@
        Controls the sorting behavior for the output of the `\' and ``' com-
        mands.  Persistent.
 
+
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   80
+
+
+
        The possible values are:
 
        o - list object types by  class,  in  discovery  order  within  each
@@ -5204,19 +5243,6 @@
        loot - only  sort  the  lists that don't use inventory letters, like
               with the #loot and pickup commands;
        none - show lists the traditional way without sorting; default.
-
-
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                   80
-
-
 
      sortpack
        Sort the pack contents by type when  displaying  inventory  (default
@@ -5247,6 +5273,17 @@
        Allow sounds to be emitted from an integrated sound library (default
        on).
 
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   81
+
+
+
      sparkle
        Display  a sparkly effect when a monster (including yourself) is hit
        by an attack to which it is resistant (default on).  Persistent.
@@ -5270,19 +5307,6 @@
        This  option may be set to a NetHack version level to suppress alert
        notification messages about feature changes for that and prior  ver-
        sions (for example "suppress_alert:3.3.1").
-
-
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                   81
-
-
 
      symset
        This option may be used to select one of the named symbol sets found
@@ -5313,6 +5337,19 @@
        dow, but it no longer leaves the score list around after game end on
        a terminal or emulating window.
 
+
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   82
+
+
+
      travel
        Allow the travel command via mouse click (default on).  Turning this
        option off will prevent the game from attempting unintended moves if
@@ -5339,20 +5376,9 @@
             s - screen [row,column] (row is offset to match tty usage);
             n - none (no coordinates shown) [default].
 
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                   82
-
-
-
-            The whatis_coord option is also used with the "/m", "/M", "/o",
-            and "/O" sub-commands of `/', where the "none" setting is over-
-            ridden with "map".
+       The whatis_coord option is also used with the "/m", "/M", "/o",  and
+       "/O"  sub-commands  of  `/',  where the "none" setting is overridden
+       with "map".
 
      whatis_filter
        When getting a location on the map, and  using  the  keys  to  cycle
@@ -5378,6 +5404,18 @@
      whatis_moveskip
        When  getting a location on the map, and using shifted movement keys
        or meta-digit keys to fast-move, instead of  moving  8  units  at  a
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   83
+
+
+
        time, move by skipping the same glyphs.  (default off)
 
      windowtype
@@ -5401,20 +5439,6 @@
        When writing out a save file, perform zero-comp compression  of  the
        contents.  Not  all  ports  support zero-comp compression. It has no
        effect on reading an existing save file.
-
-
-
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                   83
-
-
 
      9.5.  Window Port Customization options
 
@@ -5446,6 +5470,18 @@
        IBMgraphics if your display supports  them.   Setting  ascii_map  to
        True forces tiled_map to be False.
 
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   84
+
+
+
      color
        If NetHack can, it should display color if it can for different mon-
        sters, objects, and dungeon features (default on).
@@ -5470,17 +5506,6 @@
      font_status
        If NetHack can, it should use a font by the chosen name for the sta-
        tus window.
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                   84
-
-
 
      font_text
        If NetHack can, it should use a font by the  chosen  name  for  text
@@ -5510,6 +5535,19 @@
        non-map  data  (such  as  menu  selector letters).  Curses interface
        only; default is on.
 
+
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   85
+
+
+
      large_font
        If NetHack can, it should use a large font.
 
@@ -5536,18 +5574,6 @@
 
      scroll_margin
        If NetHack can, it should scroll the display when the hero or cursor
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                   85
-
-
-
        is this number of cells away from the edge of the window.
 
      selectsaved
@@ -5575,6 +5601,19 @@
        The curses interface does likewise if the align_status option is set
        to top or bottom but ignores statuslines when set to left or right.
 
+
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   86
+
+
+
        The Qt interface already displays more than 3 lines  for  status  so
        uses the statuslines value differently.  A value of 3 renders status
        in the Qt interface's original format, with the status window spread
@@ -5600,19 +5639,6 @@
        Note: the X11 interface  uses  X  resources  rather  than  NetHack's
        options  to select an alternate tile file.  See NetHack.ad, the sam-
        ple X "application defaults" file.
-
-
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                   86
-
-
 
      tile_height
        Specify the preferred height of each tile in a tile capable port.
@@ -5642,6 +5668,18 @@
        persistent inventory window  if  enabled.   Curses  interface  only.
        Acceptable values are
 
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   87
+
+
+
             0 - off, never show borders
             1 - on, always show borders
             2 - auto, on if display is at least (24+2)x(80+2) [default]
@@ -5666,19 +5704,6 @@
        and curses windowport only.  The format is
 
           OPTION=windowcolors:style foreground/background
-
-
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                   87
-
-
 
        where  style  is  one of "menu", "message", "status", or "text", and
        foreground and background are colors, either numeric (hash sign fol-
@@ -5709,6 +5734,18 @@
 
           OPTION=crash_urlmax:bytes
             This option is used to limit the length of the  URLs  generated
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   88
+
+
+
             and  is  only  needed if your browser cannot handle arbitrarily
             long URLs.
 
@@ -5734,17 +5771,6 @@
        by  typing  ESC  will leave NetHack waiting for another character to
        complete the two character sequence.  Type a second  ESC  to  finish
        cancelling such a count.  At other prompts a single ESC suffices.
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                   88
-
-
 
      BIOS
        Use  BIOS calls to update the screen display quickly and to read the
@@ -5774,6 +5800,18 @@
        16 colors, a mode that is compatible with all  VGA  hardware.  Third
        party   tilesets  will  probably  not  work.   Setting  "autodetect"
        attempts "vesa", then "vga", and finally sets "default"  if  neither
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   89
+
+
+
        of those modes works.  Cannot be set with the `O' command.
 
      video_height
@@ -5800,18 +5838,6 @@
           Regular expressions are normally POSIX extended  regular  expres-
      sions.  It  is  possible to compile NetHack without regular expression
      support on a platform where there is no  regular  expression  library.
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                   89
-
-
-
      While  this  is  not  true of any modern platform, if your NetHack was
      built this way, patterns are instead glob patterns;  regardless,  this
      document  refers  to  both  as `regular expressions.'  This applies to
@@ -5840,6 +5866,18 @@
 
        The  autopickup_exception  rules are processed in the order in which
        they appear in your configuration file, thus allowing a  later  rule
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   90
+
+
+
        to override an earlier rule.
 
        Exceptions can be set with the `O' command, but because they are not
@@ -5867,17 +5905,6 @@
      character  ("x"),  a  control key ("^X", "C-x"), a meta key ("M-x"), a
      mouse button, or a three-digit decimal ASCII code.
 
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                   90
-
-
-
           For example:
 
           BIND=^X:getpos.autodescribe
@@ -5904,6 +5931,18 @@
        bound  to  same  keys with no problems, others are in the same "con-
        text", and if bound to same keys, only one of those commands will be
        available.  Special command can only be bound to a single key.
+
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   91
+
+
 
      count
        Prefix  key  to  start a count, to repeat a command this many times.
@@ -5933,17 +5972,6 @@
        When asked for a location, the key to toggle autodescribe.   Default
        is `#'.
 
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                   91
-
-
-
      getpos.all.next
        When asked for a location, the key to go to next closest interesting
        thing.  Default is `a'.
@@ -5970,6 +5998,17 @@
      getpos.mon.prev
        When asked for a location, the key to go to  previous  closest  mon-
        ster.  Default is `M'.
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   92
+
+
 
      getpos.obj.next
        When  asked  for  a  location, the key to go to next closest object.
@@ -5998,18 +6037,6 @@
      getpos.pick
        When asked for a location, the key to choose the location, and  pos-
        sibly  ask for more info.  When simulating a mouse click after being
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                   92
-
-
-
        asked for a direction (see getdir.mouse above), the key  to  use  to
        respond as right click.  Default is `.'.
 
@@ -6035,6 +6062,19 @@
      getpos.unexplored.next
        When asked for a location, the key to go to next closest  unexplored
        location.  Default is `x'.
+
+
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   93
+
+
 
      getpos.unexplored.prev
        When  asked  for a location, the key to go to previous closest unex-
@@ -6063,19 +6103,6 @@
      type    - how the message should be shown;
      pattern - the pattern to match.
 
-
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                   93
-
-
-
        The pattern should be a regular expression.
 
        Allowed types are:
@@ -6103,6 +6130,18 @@
 
           Some platforms allow you to define colors used in menu lines when
      the  line  matches  a  user-defined  pattern.   At  this time the tty,
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   94
+
+
+
      curses, win32tty and win32gui interfaces support this.
 
           In general, the configuration file entries to describe  the  menu
@@ -6131,17 +6170,6 @@
        Here's  an  example  of menu colors using NetHack's internal pattern
        matching facility:
 
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                   94
-
-
-
             MENUCOLOR="* blessed *"=green
             MENUCOLOR="* cursed *"=red
             MENUCOLOR="* cursed *(being worn)"=red&underline
@@ -6168,6 +6196,18 @@
           The  following configuration file entries are relevant to mapping
      user sounds to messages:
 
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   95
+
+
+
      SOUNDDIR
        The directory that houses the sound files to be played.
 
@@ -6191,20 +6231,6 @@
           SOUNDDIR=C:\nethack\sounds
           SOUND=MESG "This door is locked" "lock.wav" 100
           SOUND=MESG hide "^You miss the " "swing.wav" 75
-
-
-
-
-
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                   95
 
 
 
@@ -6236,6 +6262,18 @@
 
           Allowed colors are black, red, green, brown, blue, magenta, cyan,
      gray, orange, light-green, yellow, light-blue,  light-magenta,  light-
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   96
+
+
+
      cyan,  and white.  And "no-color", the default foreground color on the
      display, which is not necessarily the same as black or white or any of
      the other colors.
@@ -6261,19 +6299,6 @@
           You can adjust the appearance of the following status fields:
                    title       dungeon-level   experience-level
                   strength         gold           experience
-
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                   96
-
-
-
                  dexterity       hitpoints            HD
                 constitution   hitpoints-max         time
                 intelligence       power            hunger
@@ -6303,6 +6328,18 @@
 
           * "always" will set the default attributes for that field.
 
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   97
+
+
+
           * "up",  "down" set the field attributes for when the field value
             changes upwards or downwards.  This attribute times  out  after
             statushilites turns.
@@ -6328,18 +6365,6 @@
             is  based on the progress from the start of the current experi-
             ence level to the start of the  next  level.   So  if  level  2
             starts  at 20 points and level 3 starts at 40 points, having 30
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                   97
-
-
-
             points is 50% and 35 points is 75%.  100% is  unattainable  for
             experience  because  you'll  gain  a level and the calculations
             will be reset for that new level,  but  a  rule  for  =100%  is
@@ -6368,6 +6393,19 @@
           The  in-game options menu can help you determine the correct syn-
      tax for a configuration file.
 
+
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   98
+
+
+
           The whole feature can be disabled by setting option statushilites
      to 0.
 
@@ -6392,19 +6430,6 @@
 
           The  options that are used to select a particular symbol set from
      the symbol file are:
-
-
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                   98
-
-
 
      symset
        Set the name of the symbol set that you want to load.
@@ -6434,6 +6459,19 @@
         [  S_armor                (suit or piece of armor)
         [  S_armour               (suit or piece of armor)
         ^  S_arrow_trap           (arrow trap)
+
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   99
+
+
+
         0  S_ball                 (iron ball)
         #  S_bars                 (iron bars)
         B  S_bat                  (bat or bird)
@@ -6459,19 +6497,6 @@
         #  S_darkroom             (dark room)
         ^  S_dart_trap            (dart trap)
         &  S_demon                (major demon)
-
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                   99
-
-
-
         *  S_digbeam              (dig beam)
         >  S_dnladder             (ladder down)
         >  S_dnstair              (staircase down)
@@ -6500,6 +6525,19 @@
         F  S_fungus               (fungus or mold)
         *  S_gem                  (gem or rock)
            S_ghost                (ghost)
+
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                  100
+
+
+
         H  S_giant                (giant humanoid)
         G  S_gnome                (gnome)
         '  S_golem                (golem)
@@ -6525,19 +6563,6 @@
         }  S_lava                 (molten lava)
         }  S_lavawall             (wall of lava)
         l  S_leprechaun           (leprechaun)
-
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                  100
-
-
-
         ^  S_level_teleporter     (level teleporter)
         L  S_lich                 (lich)
         y  S_light                (light)
@@ -6566,6 +6591,19 @@
         =  S_ring                 (ring)
         `  S_rock                 (boulder or statue)
         r  S_rodent               (rodent)
+
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                  101
+
+
+
         ^  S_rolling_boulder_trap (rolling boulder trap)
         .  S_room                 (floor of a room)
         /  S_rslant               (diagonal beam [zap animation])
@@ -6591,19 +6629,6 @@
         |  S_sw_ml                (swallow middle left)
         |  S_sw_mr                (swallow middle right)
         -  S_sw_tc                (swallow top center)
-
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                  101
-
-
-
         /  S_sw_tl                (swallow top left)
         \  S_sw_tr                (swallow top right)
         -  S_tdwall               (wall)
@@ -6632,6 +6657,19 @@
         ^  S_vibrating_square     (vibrating square)
         .  S_vodbridge            (vertical lowered drawbridge)
         -  S_vodoor               (open door in vertical wall)
+
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                  102
+
+
+
         v  S_vortex               (vortex)
         |  S_vwall                (vertical wall)
         /  S_wand                 (wand)
@@ -6658,18 +6696,6 @@
 
      * S_rock  is  misleadingly named; rocks and stones use S_gem.  Statues
        and boulders are the rock  being  referred  to,  but  since  version
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                  102
-
-
-
        3.6.0,  statues are displayed as the monster they depict.  So S_rock
        is only used for boulders and not used at all if overridden  by  the
        more specific S_boulder.
@@ -6698,6 +6724,18 @@
 
      The  list  of acceptable glyphid's can be produced by nethack --dumpg-
      lyphids.  Individual NetHack glyphs can be specified using the G_ pre-
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                  103
+
+
+
      fix,  or  you  can use an S_ symbol for a glyphid and store the custom
      representation for all NetHack glyphs that would map to that  particu-
      lar symbol.
@@ -6724,17 +6762,6 @@
      column of your review cursor and the PC  cursor.   These  co-ordinates
      are often useful in giving players a better sense of the overall loca-
      tion of items on the screen.
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                  103
-
-
 
           NetHack can also be compiled with support for  sending  the  game
      messages to an external program, such as a text-to-speech synthesizer.
@@ -6764,6 +6791,17 @@
      paranoid_confirmation:swim
        Prevent walking into water or lava.
 
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                  104
+
+
+
      accessiblemsg
        Adds direction or location information to messages.
 
@@ -6788,19 +6826,6 @@
      whatis_coord:compass
        When targeting with cursor, describe the cursor position with  coor-
        dinates relative to your character.
-
-
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                  104
-
-
 
      whatis_filter:area
        When  targeting with cursor, filter possible locations so only those
@@ -6831,6 +6856,18 @@
        WIZARDS = A  space-separated  list  of user names who are allowed to
        play in debug mode (commonly referred to as wizard mode).   A  value
        of  a  single  asterisk  (*)  allows anyone to start a game in debug
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                  105
+
+
+
        mode.
 
        SHELLERS = A list of users who are allowed to use the  shell  escape
@@ -6854,19 +6891,6 @@
 
        SEDUCE = 0  or  1  to  disable  or  enable, respectively, the SEDUCE
        option.  When disabled, incubi and succubi behave like nymphs.
-
-
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                  105
-
-
 
        CHECK_PLNAME = Setting this to 1 will make the  EXPLORERS,  WIZARDS,
        and  SHELLERS  check for the player name instead of the user's login
@@ -6898,6 +6922,18 @@
        ity for players to set S_pet_override and S_hero_override symbols in
        their configuration file.
 
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                  106
+
+
+
        PORTABLE_DEVICE_PATHS = 0 or 1 Windows OS only, the game  will  look
        for  all of its external files, and write to all of its output files
        in one place rather than at the standard locations.
@@ -6922,18 +6958,6 @@
        panying  the  program  contains a comment which lists the meaning of
        the various bits  used.   Intended  for  server  systems  supporting
        simultaneous play by multiple players (to be clear, each one running
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                  106
-
-
-
        a separate single player game), for displaying their  game  progress
        to  observers.   Only relevant if the program was built with LIVELOG
        enabled.  When available, it should be left commented out on  single
@@ -6964,6 +6988,18 @@
      only  hear  about  90%  of  your  gold  when your corpse is discovered
      (adventurers have been known to collect finder's fees).  So,  consider
      whether  you  want  to  take one last hit at that monster and possibly
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                  107
+
+
+
      live, or quit and stop with whatever you have.  If you quit, you  keep
      all your gold, but if you swing and live, you might find more.
 
@@ -6985,20 +7021,6 @@
      provides your character with a wand of wishing in  initial  inventory;
      switching  during  play  does not.  The other benefits of explore mode
      are left for the trepid reader to discover.
-
-
-
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                  107
-
-
 
      11.1.  Debug mode
 
@@ -7032,6 +7054,18 @@
           Jay  Fenlason wrote the original Hack, with help from Kenny Wood-
      land, Mike Thome, and Jon Payne.
 
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                  108
+
+
+
           Andries Brouwer did a major re-write while at Stichting  Mathema-
      tisch  Centrum (now Centrum Wiskunde & Informatica), transforming Hack
      into a very different game.  He published the Hack source code for use
@@ -7054,18 +7088,6 @@
           Mike  Stephenson  merged  these  various  versions back together,
      incorporating many of the added features, and produced NetHack version
      1.4 in 1987.  He then coordinated a cast of thousands in enhancing and
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                  108
-
-
-
      debugging NetHack 1.4 and released NetHack versions 2.2 and 2.3.  Like
      Hack,  they were released by posting their source code to Usenet where
      they remained available in various archives  accessible  via  ftp  and
@@ -7098,6 +7120,18 @@
      Janet  Walz,  the  NetHack  Development  Team  which  now included Ken
      Arromdee, David Cohrs, Jean-Christophe Collet, Kevin Darcy, Matt  Day,
      Timo  Hakulinen,  Steve Linhart, Dean Luick, Pat Rankin, Eric Raymond,
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                  109
+
+
+
      and Eric Smith undertook a radical revision of  3.0.   They  re-struc-
      tured  the  game's design, and re-wrote major parts of the code.  They
      added multiple dungeons, a new display, special  individual  character
@@ -7120,18 +7154,6 @@
 
           Timo Hakulinen ported NetHack 3.1 to  OS/2.   Eric  Smith  ported
      NetHack  3.1  to  the  Atari.   Pat  Rankin,  with  help  from  Joshua
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                  109
-
-
-
      Delahunty, was  responsible  for  the  VMS  version  of  NetHack  3.1.
      Michael Allison ported NetHack 3.1 to Windows NT.
 
@@ -7164,6 +7186,18 @@
      thirteen  members of the original NetHack Development Team remained on
      the team at the start of work on that release.   During  the  interval
      between the release of 3.1.3 and 3.2.0, one of the founding members of
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                  110
+
+
+
      the NetHack Development Team, Dr. Izchak Miller,  was  diagnosed  with
      cancer and passed away.  That release of the game was dedicated to him
      by the development and porting teams.
@@ -7186,18 +7220,6 @@
 
           Warren Cheung combined SLASH with the  Wizard  Patch  to  produce
      Slash'EM, and with the help of Kevin Hugo, added more features.  Kevin
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                  110
-
-
-
      later joined the NetHack Development Team and incorporated the best of
      these ideas into NetHack 3.3.
 
@@ -7230,6 +7252,18 @@
      and  Ranger  roles joined Archeologists, Barbarians, Cavemen, Healers,
      Knights, Priests, Rogues, Samurai, Tourists, Valkyries and of  course,
      Wizards.   It was also the first version to allow you to ride a steed,
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                  111
+
+
+
      and was the first version to have a publicly available web-site  list-
      ing  all  the  bugs that had been discovered.  Despite that constantly
      growing bug list, 3.3 proved stable enough to last  for  more  than  a
@@ -7252,17 +7286,6 @@
 
           Dean Luick, Mark Modrall, and Kevin Hugo maintained and  enhanced
      the Macintosh port of 3.4.
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                  111
-
-
 
           Michael  Allison,  David  Cohrs,  Alex Kompel, Dion Nicolaas, and
      Yitzhak Sapir maintained and enhanced 3.4 for  the  Microsoft  Windows
@@ -7295,6 +7318,18 @@
 
           In September 2014, an interim snapshot of the code under develop-
      ment  was  released  publicly by other parties.  Since that code was a
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                  112
+
+
+
      work-in-progress and had not gone through the process of debugging  it
      as a suitable release, it was decided that the version numbers present
      on that code snapshot would be retired and never used in  an  official
@@ -7317,18 +7352,6 @@
      inspirations  for  many  of the humorous and fun features found in the
      game, author Terry Pratchett, passed away.  NetHack 3.6.0 introduced a
      tribute to him.
-
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                  112
-
-
 
           3.6.0  was released in December 2015, and merged work done by the
      development team since the release of 3.4.3 with some of  the  beloved
@@ -7362,6 +7385,17 @@
      Rankin, Derek S. Ray, Alex Smith, Mike  Stephenson,  Janet  Walz,  and
      Paul Winner.
 
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                  113
+
+
+
           In early May 2019, another 320 bug fixes along with some enhance-
      ments and the adopted curses window port, were released as 3.6.2.
 
@@ -7383,18 +7417,6 @@
 
           NetHack 3.6.7 was released on  February  16,  2023  containing  a
      security fix and some bug fixes.
-
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                  113
-
-
 
           The  official  NetHack  web  site  is maintained by Ken Lorber at
      https://www.nethack.org/.
@@ -7430,12 +7452,13 @@
 
 
 
+     NetHack 3.7.0                                        February 11, 2026
 
 
 
 
 
-
+     NetHack Guidebook                                                  114
 
 
 
@@ -7452,13 +7475,40 @@
 
 
 
-     NetHack 3.7.0                                        December 11, 2025
 
 
 
 
 
-     NetHack Guidebook                                                  114
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -7466,6 +7516,18 @@
 
           From time to time, some depraved individual out there in  netland
      sends  a  particularly  intriguing  modification  to help out with the
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                  115
+
+
+
      game.  The NetHack Development Team sometimes makes note of the  names
      of the worst of these miscreants in this, the list of Dungeoneers:
 
@@ -7515,23 +7577,23 @@
             Andy Church            Jeff Bailey          Pasi Kallinen
            Andy Swanson           Jochen Erwied           Pat Rankin
            Andy Thomson            John Kallen          Patric Mueller
-
-
-
-     NetHack 3.7.0                                        December 11, 2025
-
-
-
-
-
-     NetHack Guidebook                                                  115
-
-
-
            Ari Huttunen            John Rupley           Paul Winner
             Bart House             John S. Bien        Pierre Martineau
         Benson I. Margulies         Johnny Lee            Ralf Brown
              Bill Dyer              Jon W{tte             Ray Chason
+
+
+
+     NetHack 3.7.0                                        February 11, 2026
+
+
+
+
+
+     NetHack Guidebook                                                  116
+
+
+
          Boudewijn Waijers       Jonathan Handler      Richard Addison
              Bruce Cox           Joshua Delahunty       Richard Beigel
           Bruce Holloway          Karl Garrison       Richard P. Hughey
@@ -7584,13 +7646,17 @@
 
 
 
-     NetHack 3.7.0                                        December 11, 2025
+
+
+
+
+     NetHack 3.7.0                                        February 11, 2026
 
 
 
 
 
-     NetHack Guidebook                                                  116
+     NetHack Guidebook                                                  117
 
 
 
@@ -7650,7 +7716,7 @@
 
 
 
-     NetHack 3.7.0                                        December 11, 2025
+     NetHack 3.7.0                                        February 11, 2026
 
 
 

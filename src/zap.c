@@ -4140,7 +4140,7 @@ boomhit(struct obj *obj, int dx, int dy)
     int boom; /* showsym[] index  */
     struct monst *mtmp;
     boolean counterclockwise = URIGHTY; /* ULEFTY => clockwise */
-    int nhits = (obj->spe + 1);
+    int nhits = max(1, obj->spe + 1);
 
     /* counterclockwise traversal patterns, from @ to 1 then on through to 9
      *  ..........................54.................................

@@ -1841,6 +1841,11 @@ pickup_object(
         if (fatal_corpse_mistake(obj, telekinesis)
             || rider_corpse_revival(obj, telekinesis))
             return -1;
+    } else if (has_osum(obj) && !obj->oartifact) {
+        pline("The %s vanish%s.", xname(obj),
+              (obj->quan == 1L) ? "es" : "");
+        useupf(obj, obj->quan);
+        return 1;
     } else if (obj->otyp == SCR_SCARE_MONSTER) {
         int old_wt, new_wt;
 

@@ -165,12 +165,13 @@ make_familiar(struct obj *otmp, coordxy x, coordxy y, boolean quietly)
         if (!(pm = pick_familiar_pm(otmp, quietly)))
             break;
 
-        mmflags = MM_EDOG | MM_IGNOREWATER | NO_MINVENT | MM_NOMSG;
+        mmflags = MM_EDOG | MM_IGNOREWATER | NO_MINVENT | MM_NOMSG | MM_ESUM;
         cgend = otmp ? (otmp->spe & CORPSTAT_GENDER) : 0;
         mmflags |= ((cgend == CORPSTAT_FEMALE) ? MM_FEMALE
                     : (cgend == CORPSTAT_MALE) ? MM_MALE : 0L);
 
         mtmp = makemon(pm, x, y, mmflags);
+        ESUM(mtmp)->ownermid = gy.youmonst.m_id;
         if (otmp) { /* figurine */
             if (!mtmp) {
                 /* monster has been genocided or target spot is occupied */

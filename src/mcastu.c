@@ -963,10 +963,13 @@ cast_monster_spell(struct monst *mtmp, int dmg, int spellnum)
             if (!enexto(&bypos, mtmp->mux, mtmp->muy, mtmp->data))
                 break;
             if ((pm = mkclass(let, 0)) != 0
-                && (mtmp2 = makemon(pm, bypos.x, bypos.y, MM_ANGRY | MM_NOMSG))
+                && (mtmp2 = makemon(pm, bypos.x, bypos.y, MM_ANGRY | MM_NOMSG | MM_ESUM))
                    != 0) {
                 success = TRUE;
                 mtmp2->msleeping = mtmp2->mpeaceful = mtmp2->mtame = 0;
+                if (!has_esum(mtmp))
+                    newesum(mtmp);
+                ESUM(mtmp2)->ownermid = mtmp->m_id;
                 set_malign(mtmp2);
             }
         }

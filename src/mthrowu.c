@@ -1027,6 +1027,8 @@ spitmm(struct monst *mtmp, struct attack *mattk, struct monst *mtarg)
             otmp = mksobj(ACID_VENOM, TRUE, FALSE);
             break;
         }
+        if (is_summoned(mtmp))
+            newosum(otmp);
         if (!rn2(BOLT_LIM-distmin(mtmp->mx,mtmp->my,tx,ty))) {
             if (canseemon(mtmp))
                 pline("%s spits venom!", Monnam(mtmp));

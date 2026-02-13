@@ -178,6 +178,20 @@ free_odye(struct obj *otmp)
 }
 
 void
+newosum(struct obj *otmp)
+{
+    if (!otmp->oextra)
+        otmp->oextra = newoextra();
+    OSUM(otmp) = 1;
+}
+
+void
+free_osum(struct obj *otmp)
+{
+    OSUM(otmp) = 0;
+}
+
+void
 new_omailcmd(struct obj *otmp, const char *response_cmd)
 {
     if (!otmp->oextra)
@@ -504,6 +518,11 @@ copy_oextra(struct obj *obj2, struct obj *obj1)
         if (!ODYE(obj2))
             newodye(obj2);
         ODYE(obj2) = ODYE(obj1);
+    }
+    if (has_osum(obj1)) {
+        if (!OSUM(obj2))
+            newosum(obj2);
+        OSUM(obj2) = OSUM(obj1);
     }
 }
 

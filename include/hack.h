@@ -1188,6 +1188,8 @@ typedef uint32_t mmflags_nht;     /* makemon MM_ flags */
 #define GP_ALLOW_U      0x00400000L /* don't reject hero's location */
 #define GP_CHECKSCARY   0x00800000L /* check monster for onscary() */
 #define GP_AVOID_MONPOS 0x01000000L /* don't accept existing mon location */
+/* Creckle */
+#define MM_ESUM        0x02000000L /* add esum structure */
 /* 25 bits used */
 
 /* flags for mhidden_description() (pager.c; used for mimics and hiders) */

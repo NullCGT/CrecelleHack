@@ -3996,6 +3996,7 @@ sellobj(
     if ((!saleitem && !(container && cltmp > 0L)) || eshkp->billct == BILLSZ
         || obj->oclass == BALL_CLASS || obj->oclass == CHAIN_CLASS
         || obj->oclass == BOTTLE_CLASS
+        || has_osum(obj)
         || offer == 0L || (obj->oclass == FOOD_CLASS && obj->oeaten)
         || (Is_candle(obj)
             && obj->age < 20L * (long) objects[obj->otyp].oc_cost)) {

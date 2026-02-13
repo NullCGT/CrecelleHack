@@ -68,6 +68,11 @@
     own list containing some of the nastiest spells in the game.
   - The Chromatic Dragon and Ixoth summon monsters from a unique list
     containing dragons and reptiles.
+- As in dnethack, summoned monsters disappear when their summoner is killed,
+  and they do not drop items.
+- Aleaxes appear with an identical inventory to the player. If the player
+  does not have the amulet, all items are +0 and have no charges. If they
+  do have the amulet? Watch out...
 ## Weather System
 - Weather and daytime visibility now only impacts first five floors of
   dungeon and outdoor levels.

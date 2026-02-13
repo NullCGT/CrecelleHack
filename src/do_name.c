@@ -1066,6 +1066,8 @@ x_monnam(
         Strcat(strcat(buf, adjective), " ");
     if (do_invis)
         Strcat(buf, "invisible ");
+    if (is_summoned(mtmp))
+        Strcat(buf, "summoned ");
     if (mtmp->mtraitor)
         Strcat(buf, "treacherous ");
     if (do_saddle && (mtmp->misc_worn_check & W_SADDLE) && !Blind

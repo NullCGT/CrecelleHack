@@ -670,6 +670,7 @@ nasty(struct monst *summoner)
     /* when a monster casts the "summon nasties" spell, it gives feedback;
        when random post-Wizard harassment casts that, we give feedback */
     unsigned mmflags = summoner ? MM_NOMSG : NO_MM_FLAGS;
+    mmflags |= MM_ESUM;
 
 #define MAXNASTIES 10 /* more than this can be created */
 
@@ -732,6 +733,9 @@ nasty(struct monst *summoner)
                 if ((mtmp = makemon(&mons[makeindex], bypos.x, bypos.y,
                                     mmflags)) != 0) {
                     mtmp->msleeping = mtmp->mpeaceful = mtmp->mtame = 0;
+                    if (!has_esum(summoner))
+                        newesum(summoner);
+                    ESUM(mtmp)->ownermid = summoner->m_id;
                     set_malign(mtmp);
                 } else {
                     /* random monster to substitute for geno'd selection;

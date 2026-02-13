@@ -26,6 +26,7 @@ staticfn void hmon_hitmon_barehands(struct _hitmon_data *,
                              struct monst *) NONNULLARG12;
 staticfn void hmon_hitmon_weapon_ranged(struct _hitmon_data *, struct monst *,
                              struct obj *) NONNULLARG123;
+staticfn boolean backstabbable(struct monst *) NONNULLARG1;
 staticfn void hmon_hitmon_weapon_melee(struct _hitmon_data *, struct monst *,
                              struct obj *) NONNULLARG123;
 staticfn void hmon_hitmon_weapon(struct _hitmon_data *, struct monst *,
@@ -915,6 +916,20 @@ hmon_hitmon_weapon_ranged(
     }
 }
 
+/* can monster be stabbed in the back? */
+staticfn boolean
+backstabbable(struct monst *mon)
+{
+    return !amorphous(mon->data)
+        && !is_whirly(mon->data)
+        && !noncorporeal(mon->data)
+        && mon->data->mlet != S_BLOB
+        && mon->data->mlet != S_EYE
+        && mon->data->mlet != S_FUNGUS
+        && canseemon(mon)
+        && (mon->mflee || helpless(mon));
+}
+
 staticfn void
 hmon_hitmon_weapon_melee(
     struct _hitmon_data *hmd,
@@ -942,7 +957,7 @@ hmon_hitmon_weapon_melee(
            let it also hit from behind or shatter foes' weapons */
         || (hmd->hand_to_hand && is_art(obj, ART_CLEAVER))) {
         ; /* no special bonuses */
-    } else if (mon->mflee && Role_if(PM_ROGUE) && !Upolyd
+    } else if (Role_if(PM_ROGUE) && backstabbable(mon) && !Upolyd
                /* multi-shot throwing is too powerful here */
                && hmd->hand_to_hand) {
         You("strike %s from behind!", mon_nam(mon));

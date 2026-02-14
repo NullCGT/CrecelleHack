@@ -1684,6 +1684,8 @@ extern void newomid(struct obj *) NONNULLARG1;
 extern void free_omid(struct obj *) NONNULLARG1;
 extern void newodye(struct obj*) NONNULLARG1;
 extern void free_odye(struct obj *) NONNULLARG1;
+extern void newosum(struct obj*) NONNULLARG1;
+extern void free_osum(struct obj *) NONNULLARG1;
 /*
 extern void newolong(struct obj *);
 extern void free_olong(struct obj *);
@@ -1904,6 +1906,8 @@ extern void see_monster_closeup(struct monst *, boolean) NONNULLARG1;
 extern void see_nearby_monsters(void);
 extern void shieldeff_mon(struct monst *) NONNULLARG1;
 extern void flash_mon(struct monst *) NONNULLARG1;
+extern void newesum(struct monst *) NONNULLARG1;
+extern void free_esum(struct monst *) NONNULLARG1;
 
 /* ### mondata.c ### */
 

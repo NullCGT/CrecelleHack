@@ -742,6 +742,7 @@ saveobj(NHFILE *nhfp, struct obj *otmp)
            gets saved/restored whenever any other oextra components do */
         Sfo_unsigned(nhfp, &OMID(otmp), "obj-omid");
         Sfo_unsigned(nhfp, &ODYE(otmp), "obj-odye");
+        Sfo_unsigned(nhfp, &OSUM(otmp), "obj-osum");
     }
 }
 
@@ -851,6 +852,11 @@ savemon(NHFILE *nhfp, struct monst *mtmp)
         Sfo_int(nhfp, &buflen, "monst-edog_length");
         if (buflen > 0) {
             Sfo_edog(nhfp, EDOG(mtmp), "monst-edog");
+        }
+        buflen = ESUM(mtmp) ? (int) sizeof (struct esum) : 0;
+        Sfo_int(nhfp, &buflen, "monst-esum_length");
+        if (buflen > 0) {
+            Sfo_esum(nhfp, ESUM(mtmp), "monst-esum");
         }
         buflen = EBONES(mtmp) ? (int) sizeof (struct ebones) : 0;
         Sfo_int(nhfp, &buflen, "monst-ebones_length");

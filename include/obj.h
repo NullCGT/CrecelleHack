@@ -31,6 +31,7 @@ struct oextra {
     unsigned omid;        /* for corpse: m_id of corpse's ghost; overloaded
                            * for glob: owt at time added to shop's bill */
     uchar odye;           /* dye color */
+    boolean osum;          /* summoned */
 };
 
 struct obj {
@@ -201,12 +202,14 @@ struct obj {
 #define OMAILCMD(o) ((o)->oextra->omailcmd)
 #define OMID(o) ((o)->oextra->omid) /* non-zero => set, zero => not set */
 #define ODYE(o) ((o)->oextra->odye)
+#define OSUM(o) ((o)->oextra->osum)
 
 #define has_oname(o) ((o)->oextra && ONAME(o))
 #define has_omonst(o) ((o)->oextra && OMONST(o))
 #define has_omailcmd(o) ((o)->oextra && OMAILCMD(o))
 #define has_omid(o) ((o)->oextra && OMID(o))
 #define has_odye(o) ((o)->oextra && ODYE(o))
+#define has_osum(o) ((o)->oextra && OSUM(o))
 
 /* Weapons and weapon-tools */
 /* KMH -- now based on skill categories.  Formerly:

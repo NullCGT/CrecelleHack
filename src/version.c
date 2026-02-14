@@ -594,6 +594,7 @@ struct critical_sizes_with_names critical_sizes[] = {
     { (uchar) sizeof(struct engr), "struct engr" },
     { (uchar) sizeof(struct epri), "struct epri" },
     { (uchar) sizeof(struct eshk), "struct eshk" },
+    { (uchar) sizeof(struct esum), "struct esum" },
     { (uchar) sizeof(struct fe), "struct fe" },
     { (uchar) sizeof(struct flag), "struct flag" },
     { (uchar) sizeof(struct fruit), "struct fruit" },

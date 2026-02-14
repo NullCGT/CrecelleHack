@@ -703,6 +703,7 @@ void norm_ptrs_emin(struct emin *d_emin);
 void norm_ptrs_engr(struct engr *d_engr);
 void norm_ptrs_epri(struct epri *d_epri);
 void norm_ptrs_eshk(struct eshk *d_eshk);
+void norm_ptrs_esum(struct esum *d_esum);
 void norm_ptrs_fakecorridor(struct fakecorridor *d_fakecorridor);
 void norm_ptrs_fe(struct fe *d_fe);
 void norm_ptrs_flag(struct flag *d_flag);
@@ -907,6 +908,12 @@ void
 norm_ptrs_eshk(struct eshk *d_eshk UNUSED)
 {
 }
+
+void
+norm_ptrs_esum(struct esum *d_esum UNUSED)
+{
+}
+
 
 void
 norm_ptrs_fakecorridor(struct fakecorridor *d_fakecorridor UNUSED)

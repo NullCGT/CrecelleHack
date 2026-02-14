@@ -1269,6 +1269,11 @@ hold_another_object(
         obj->wishedfor = 0;
         obj = addinv_core0(obj, (struct obj *) 0, FALSE);
         goto drop_it;
+    } else if (has_osum(obj) && !obj->oartifact) {
+        pline("The %s vanish%s.", xname(obj),
+              (obj->quan == 1L) ? "es" : "");
+        obfree(obj, (struct obj *) 0);
+        return (struct obj *) 0;
     } else {
         long oquan = obj->quan;
         int prev_encumbr = near_capacity(); /* before addinv() */
@@ -4562,7 +4567,7 @@ mergable(
     /* some additional information is always incompatible */
     if (has_omonst(obj) || has_omid(obj)
         || has_omonst(otmp) || has_omid(otmp)
-        || has_odye(otmp))
+        || has_odye(otmp) || has_osum(otmp))
         return FALSE;
 
     /* if they have names, make sure they're the same */

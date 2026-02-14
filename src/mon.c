@@ -36,6 +36,7 @@ staticfn int wiz_force_cham_form(struct monst *);
 staticfn struct permonst *accept_newcham_form(struct monst *, int);
 staticfn void kill_eggs(struct obj *) NO_NNARGS;
 staticfn void pacify_guard(struct monst *);
+staticfn void erase_summons(struct monst *);
 
 extern const struct shclass shtypes[]; /* defined in shknam.c */
 
@@ -2821,6 +2822,12 @@ copy_mextra(struct monst *mtmp2, struct monst *mtmp1)
         assert(has_ebones(mtmp2));
         *EBONES(mtmp2) = *EBONES(mtmp1);
     }
+    if (ESUM(mtmp1)) {
+        if (!ESUM(mtmp2))
+            newesum(mtmp2);
+        assert(has_esum(mtmp2));
+        *ESUM(mtmp2) = *ESUM(mtmp1);
+    }
     if (has_mcorpsenm(mtmp1))
         MCORPSENM(mtmp2) = MCORPSENM(mtmp1);
 }
@@ -3283,6 +3290,13 @@ mondead(struct monst *mtmp)
     be_sad = iflags.sad_feeling;
     iflags.sad_feeling = FALSE;
 
+    /* Summoned monsters vanish */
+    if (is_summoned(mtmp)) {
+        mongone(mtmp);
+        return;
+    }
+    erase_summons(mtmp);
+
     mtmp->mhp = 0; /* in case caller hasn't done this */
     lifesaved_monster(mtmp);
     if (!DEADMONSTER(mtmp))
@@ -3382,11 +3396,6 @@ corpse_chance(
     int i, tmp;
     struct obj *otmp;
 
-    /* maybe leave behind some blood */
-    if (rn2(4) && has_blood(mon->data) && !touch_petrifies(mon->data) && !was_swallowed) {
-        add_coating(mon->mx, mon->my, COAT_BLOOD, undead_to_corpse(mon->mnum));
-    }
-    
     if (!magr && gm.mswallower && attacktype(gm.mswallower->data, AT_ENGL))
         magr = gm.mswallower, was_swallowed = TRUE; /* for gas spore boom */
 
@@ -3446,6 +3455,12 @@ corpse_chance(
             add_coating(mon->mx, mon->my, COAT_GRASS, 0);
         }
         return FALSE;
+    }
+
+    /* maybe leave behind some blood */
+    if (has_blood(mon->data) && !touch_petrifies(mon->data)
+        && !was_swallowed && rn2(4)) {
+        add_coating(mon->mx, mon->my, COAT_BLOOD, undead_to_corpse(mon->mnum));
     }
 
     /* Fungus spreads upon death. */
@@ -3536,6 +3551,8 @@ mongone(struct monst *mdef)
     mdrop_special_objs(mdef);
     /* release rest of monster's inventory--it is removed from game */
     discard_minvent(mdef, FALSE);
+    /* erase any summons they might have on the level */
+    erase_summons(mdef);
     m_detach(mdef, mdef->data, FALSE);
 }
 
@@ -3830,7 +3847,8 @@ xkilled(
         goto cleanup;
     }
 
-    if (nocorpse || LEVEL_SPECIFIC_NOCORPSE(mdat))
+    if (nocorpse || LEVEL_SPECIFIC_NOCORPSE(mdat)
+        || (is_summoned(mtmp)))
         goto cleanup;
 
 #ifdef MAIL_STRUCTURES
@@ -6418,4 +6436,40 @@ flash_mon(struct monst *mtmp)
     newsym(mx, my);
 }
 
+void
+newesum(struct monst *mtmp)
+{
+    if (!mtmp->mextra)
+        mtmp->mextra = newmextra();
+    if (!ESUM(mtmp))
+        ESUM(mtmp) = (struct esum *) alloc(sizeof(struct esum));
+    (void) memset((genericptr_t) ESUM(mtmp), 0, sizeof(struct esum));
+    ESUM(mtmp)->ownermid = 0;
+}
+
+void
+free_esum(struct monst *mtmp)
+{
+    if (mtmp->mextra && ESUM(mtmp)) {
+        free((genericptr_t) ESUM(mtmp));
+        ESUM(mtmp) = (struct esum *) 0;
+    }
+    mtmp->isshk = 0;
+}
+
+void
+erase_summons(struct monst *mtmp)
+{
+    struct monst *mtmp2;
+    if (has_esum(mtmp) && !(ESUM(mtmp)->ownermid)) {
+        for (mtmp2 = fmon; mtmp2; mtmp2 = mtmp2->nmon) {
+            if (has_esum(mtmp2)
+                && (ESUM(mtmp2)->ownermid == mtmp->m_id)) {
+                if (flags.verbose && canseemon(mtmp2))
+                    pline_mon(mtmp2, "%s disappears in a puff of smoke.", Monnam(mtmp2));
+                mongone(mtmp2);
+            }
+        }
+    }
+}
 /*mon.c*/

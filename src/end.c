@@ -219,6 +219,8 @@ done_in_by(struct monst *mtmp, int how)
     (void) monhealthdescr(mtmp, TRUE, eos(buf));
     if (mtmp->minvis)
         Strcat(buf, "invisible ");
+    if (is_summoned(mtmp))
+        Strcat(buf, "summoned ");
     if (mtmp->mtraitor)
         Strcat(buf, "traitorous ");
     if (distorted)

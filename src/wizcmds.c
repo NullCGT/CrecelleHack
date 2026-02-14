@@ -1318,6 +1318,8 @@ size_monst(struct monst *mtmp, boolean incl_wsegs)
             sz += (int) sizeof (struct edog);
         if (EBONES(mtmp))
             sz += (int) sizeof (struct ebones);
+        if (ESUM(mtmp))
+            sz += (int) sizeof (struct esum);
         /* mextra->mcorpsenm doesn't point to more memory */
     }
     return sz;

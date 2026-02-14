@@ -83,6 +83,7 @@ extern void sfo_emin(NHFILE *, struct emin *, const char *);
 extern void sfo_engr(NHFILE *, struct engr *, const char *);
 extern void sfo_epri(NHFILE *, struct epri *, const char *);
 extern void sfo_eshk(NHFILE *, struct eshk *, const char *);
+extern void sfo_esum(NHFILE *, struct esum *, const char *);
 extern void sfo_trap(NHFILE *, struct trap *, const char *);
 extern void sfo_gamelog_line(NHFILE *, struct gamelog_line *, const char *);
 extern void sfo_fruit(NHFILE *, struct fruit *, const char *);
@@ -171,6 +172,7 @@ extern void sfi_emin(NHFILE *, struct emin *, const char *);
 extern void sfi_engr(NHFILE *, struct engr *, const char *);
 extern void sfi_epri(NHFILE *, struct epri *, const char *);
 extern void sfi_eshk(NHFILE *, struct eshk *, const char *);
+extern void sfi_esum(NHFILE *, struct esum *, const char *);
 extern void sfi_trap(NHFILE *, struct trap *, const char *);
 extern void sfi_fruit(NHFILE *, struct fruit *, const char *);
 extern void sfi_gamelog_line(NHFILE *, struct gamelog_line *, const char *);
@@ -240,6 +242,7 @@ extern void sfi_ulong(NHFILE *, ulong *, const char *);
 #define Sfo_engr(a,b,c) sfo_engr(a, b, c)
 #define Sfo_epri(a,b,c) sfo_epri(a, b, c)
 #define Sfo_eshk(a,b,c) sfo_eshk(a, b, c)
+#define Sfo_esum(a,b,c) sfo_esum(a, b, c)
 #define Sfo_trap(a,b,c) sfo_trap(a, b, c)
 #define Sfo_gamelog_line(a,b,c) sfo_gamelog_line(a, b, c)
 #define Sfo_fruit(a,b,c) sfo_fruit(a, b, c)
@@ -305,6 +308,7 @@ extern void sfi_ulong(NHFILE *, ulong *, const char *);
 #define Sfi_engr(a,b,c) sfi_engr(a, b, c)
 #define Sfi_epri(a,b,c) sfi_epri(a, b, c)
 #define Sfi_eshk(a,b,c) sfi_eshk(a, b, c)
+#define Sfi_esum(a,b,c) sfi_esum(a, b, c)
 #define Sfi_trap(a,b,c) sfi_trap(a, b, c)
 #define Sfi_fruit(a,b,c) sfi_fruit(a, b, c)
 #define Sfi_gamelog_line(a,b,c) sfi_gamelog_line(a, b, c)
@@ -349,6 +353,7 @@ extern void sfi_ulong(NHFILE *, ulong *, const char *);
     struct engr *         : sfo_engr,          \
     struct epri *         : sfo_epri,          \
     struct eshk *         : sfo_eshk,          \
+    struct esum *        : sfo_esum,         \
     struct fe *           : sfo_fe,            \
     struct flag *         : sfo_flag,          \
     struct fruit *        : sfo_fruit,         \
@@ -411,6 +416,7 @@ extern void sfi_ulong(NHFILE *, ulong *, const char *);
     struct engr *         : sfi_engr,          \
     struct epri *         : sfi_epri,          \
     struct eshk *         : sfi_eshk,          \
+    struct esum *        : sfi_esum,         \
     struct fe *           : sfi_fe,            \
     struct flag *         : sfi_flag,          \
     struct fruit *        : sfi_fruit,         \
@@ -499,6 +505,7 @@ extern void sfi_ulong(NHFILE *, ulong *, const char *);
 #define Sfo_engr(a,b,c) sfo(a, b, c)
 #define Sfo_epri(a,b,c) sfo(a, b, c)
 #define Sfo_eshk(a,b,c) sfo(a, b, c)
+#define Sfo_esum(a,b,c) sfo(a,b,c)
 #define Sfo_trap(a,b,c) sfo(a, b, c)
 #define Sfo_gamelog_line(a,b,c) sfo(a, b, c)
 #define Sfo_fruit(a,b,c) sfo(a, b, c)
@@ -565,6 +572,7 @@ extern void sfi_ulong(NHFILE *, ulong *, const char *);
 #define Sfi_engr(a,b,c) sfi(a, b, c)
 #define Sfi_epri(a,b,c) sfi(a, b, c)
 #define Sfi_eshk(a,b,c) sfi(a, b, c)
+#define Sfi_esum(a,b,c) sfi(a, b, c)
 #define Sfi_trap(a,b,c) sfi(a, b, c)
 #define Sfi_fruit(a,b,c) sfi(a, b, c)
 #define Sfi_gamelog_line(a,b,c) sfi(a, b, c)

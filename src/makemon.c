@@ -488,7 +488,24 @@ m_initweap(struct monst *mtmp)
         break;
 
     case S_ANGEL:
-        if (humanoid(ptr)) {
+        if (mm == PM_ALEAX) {
+            /* Aleaxes receive a perfect copy of all items in the inventory
+               of the player. */
+            for (struct obj *uobj = gi.invent; uobj; uobj = uobj->nobj) {
+                if (is_ascension_obj(uobj))
+                    continue;
+                otmp = mksobj(uobj->otyp, FALSE, FALSE);
+                otmp->spe = (u.uhave.amulet
+                                || otmp->otyp == SLIME_MOLD) ? uobj->spe : 0;
+                otmp->oeroded = uobj->oeroded;
+                otmp->oeroded2 = uobj->oeroded2;
+                otmp->quan = uobj->quan;
+                force_material(otmp, uobj->material);
+                set_obj_size(otmp, mtmp->data->msize, FALSE);
+                newosum(otmp);
+                mpickobj(mtmp, otmp);
+            }
+        } else if (humanoid(ptr)) {
             /* create minion stuff; can't use mongets */
             int typ;
             const char *nam;
@@ -963,6 +980,8 @@ m_initinv(struct monst *mtmp)
             if (!rn2(4))
                 otmp->oerodeproof = 1;
             set_obj_size(otmp, mtmp->data->msize, FALSE);
+            if (is_summoned(mtmp))
+                newosum(otmp);
             (void) mpickobj(mtmp, otmp);
         }
         break;
@@ -1497,6 +1516,8 @@ makemon(
         newemin(mtmp);
     if (mmflags & MM_EDOG)
         newedog(mtmp);
+    if (mmflags & MM_ESUM)
+        newesum(mtmp);
     if (mmflags & MM_ASLEEP)
         mtmp->msleeping = 1;
     mtmp->nmon = fmon;
@@ -2554,6 +2575,13 @@ mongets(struct monst *mtmp, int otyp)
 
         /* adjust the size of the object */
         set_obj_size(otmp, mtmp->data->msize, FALSE);
+
+        /* set whether it is a summoned object. we don't use is_summoned()
+           because the owner bit has not yet been set. */
+        if (has_esum(mtmp)) {
+            newosum(otmp);
+            pline("KABOOM");
+        }
 
         /* powerful monsters have a good chance of getting
            some kind of boosted weapon related to their

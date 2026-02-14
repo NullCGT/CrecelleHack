@@ -185,6 +185,7 @@ restobj(NHFILE *nhfp, struct obj *otmp)
     int buflen = 0;
     unsigned omid = 0;
     uchar odye = 0;
+    boolean osum = 0;
 
     Sfi_obj(nhfp, otmp, "obj");
     otmp->lua_ref_cnt = 0;
@@ -227,6 +228,8 @@ restobj(NHFILE *nhfp, struct obj *otmp)
         OMID(otmp) = omid;
         Sfi_unsigned(nhfp, &odye, "obj-odye");
         ODYE(otmp) = odye;
+        Sfi_boolean(nhfp, &osum, "obj-osum");
+        OSUM(otmp) = osum;
     }
 }
 
@@ -358,6 +361,12 @@ restmon(NHFILE *nhfp, struct monst *mtmp)
            if (EDOG(mtmp)->apport <= 0) {
                EDOG(mtmp)->apport = 1;
            }
+        }
+        /* esum - summoned */
+        Sfi_int(nhfp, &buflen, "monst-esum_length");
+        if (buflen > 0) {
+            newesum(mtmp);
+            Sfi_esum(nhfp, ESUM(mtmp), "monst-esum");
         }
         /* ebones */
         Sfi_int(nhfp, &buflen, "monst-ebones_length");

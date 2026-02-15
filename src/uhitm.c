@@ -1477,7 +1477,7 @@ hmon_hitmon_do_hit(
 staticfn void
 hmon_hitmon_dmg_recalc(struct _hitmon_data *hmd, struct obj *obj)
 {
-    int dmgbonus = 0, strbonus, absbonus;
+    int dmgbonus = 0;
 
     /*
      * Potential bonus (or penalty) from worn ring of increase damage
@@ -1500,6 +1500,7 @@ hmon_hitmon_dmg_recalc(struct _hitmon_data *hmd, struct obj *obj)
            for two-handed strength does not apply to polearms unless
            hero is simply bashing with one of those and does not apply
            to jousting because lances are one-handed */
+        #if 0
         if (hmd->thrown != HMON_THROWN
             || !obj || !uwep || !ammo_and_launcher(obj, uwep)) {
             strbonus = dbon();
@@ -1510,6 +1511,7 @@ hmon_hitmon_dmg_recalc(struct _hitmon_data *hmd, struct obj *obj)
                 strbonus = ((3 * absbonus + 1) / 2) * sgn(strbonus);
             dmgbonus += strbonus;
         }
+        #endif
     }
 
     /*

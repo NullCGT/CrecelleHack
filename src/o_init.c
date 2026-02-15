@@ -440,16 +440,21 @@ restnames(NHFILE *nhfp)
 void
 observe_object(struct obj *obj)
 {
-    obj->dknown = 1;
-    discover_object(obj->otyp, FALSE, TRUE, FALSE);
+    int oindx = obj->otyp;
+
+    /* skip for generic objects and for STRANGE_OBJECT */
+    if (oindx >= FIRST_OBJECT && !Hallucination) {
+        obj->dknown = 1;
+        discover_object(oindx, FALSE, TRUE, FALSE);
+    }
 }
 
 void
 discover_object(
-    int oindx,
-    boolean mark_as_known,
-    boolean mark_as_encountered,
-    boolean credit_hero)
+    int oindx,                   /* type of object */
+    boolean mark_as_known,       /* discover the type */
+    boolean mark_as_encountered, /* mark the type as having been seen/felt */
+    boolean credit_hero)         /* exercise wisdom */
 {
     if (oindx < FIRST_OBJECT) /* don't discover generic objects */
         return;

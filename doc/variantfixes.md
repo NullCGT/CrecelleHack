@@ -42,9 +42,7 @@
   skill increases this attribute by one point.
 - In order to train these skills you must exercise that attribute. This
   replaces the previous exercise and abuse system for attributes.
-- As a result, new ways have been added to exercise attributes:
-  - Intelligence is exercised by use-testing potions and scrolls.
-  - Charisma is exercised by consorting with foocubi.
+- As a result, new ways have been added to exercise attributes.
 ## Roles
 - Grapplers can now attack monsters they are currently grappling.
 - Grapplers are treated as martial characters, improvin their kicks

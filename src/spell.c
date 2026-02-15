@@ -1427,6 +1427,7 @@ spelleffects(int spell_otyp, boolean atme, boolean force)
     u.uen -= energy;
     disp.botl = TRUE;
     exercise(A_WIS, TRUE);
+    exercise(A_INT, TRUE);
     /* pseudo is a temporary "false" object containing the spell stats */
     pseudo = mksobj(force ? spell : spellid(spell), FALSE, FALSE);
     pseudo->blessed = pseudo->cursed = 0;

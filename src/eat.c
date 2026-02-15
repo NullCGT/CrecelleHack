@@ -1136,6 +1136,7 @@ eye_of_newt_buzz(void)
             You_feel("a mild buzz.");
             disp.botl = TRUE;
         }
+        exercise(A_INT, TRUE);
     }
 }
 

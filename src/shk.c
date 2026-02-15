@@ -4142,6 +4142,7 @@ sellobj(
                 obj->no_charge = 1;
             subfrombill(obj, shkp);
             pay(-offer, shkp);
+            exercise(A_CHA, TRUE);
             shk_names_obj(shkp, obj,
                           (gs.sell_how != SELL_NORMAL)
                            ? ((!ltmp && cltmp && only_partially_your_contents)

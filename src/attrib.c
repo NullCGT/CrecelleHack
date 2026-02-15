@@ -492,8 +492,6 @@ exercise(int i, boolean inc_or_dec)
 {
     int alter;
     debugpline0("Exercise:");
-    if (i == A_INT || i == A_CHA)
-        return; /* can't exercise these */
 
     /* no physical exercise while polymorphed; the body's temporary */
     if (Upolyd && i != A_WIS)

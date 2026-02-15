@@ -1282,6 +1282,7 @@ domonnoise(struct monst *mtmp)
             pline_msg = "is busy reading a copy of Sandman #8.";
         } else
             verbl_msg = "Who do you think you are, War?";
+        exercise(A_CHA, TRUE);
         break;
     } /* case MS_RIDER */
     } /* switch */

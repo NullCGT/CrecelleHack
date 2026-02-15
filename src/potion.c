@@ -673,7 +673,6 @@ dopotion(struct obj *otmp)
     if (otmp->dknown && !objects[otmp->otyp].oc_name_known) {
         if (!gp.potion_unkn) {
             makeknown(otmp->otyp);
-            exercise(A_INT, TRUE);
             more_experienced(0, 10);
         } else
             trycall(otmp);

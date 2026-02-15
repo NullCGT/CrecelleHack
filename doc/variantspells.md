@@ -17,7 +17,7 @@
 
 ## Undead
 - This spell list is used by undead spellcasters and Orcus.
-- Haste self, stun, weaken, sleep, vulnerability, curse items, aggravation, raise dead, death touch, mirror image, disappear, teleport.
+- Haste self, stun, weaken, sleep, curse items, aggravation, raise dead, death touch, mirror image, disappear, teleport.
 
 ## Tricksters
 - This spell list is used by gnomes, kobolds, and Dispater.
@@ -41,8 +41,6 @@
   - If at low hp, warps to stairs as a covetous monster might.
 - **Disguise Self**:
   - Change appearance to that of a different monster.
-- **Vulnerability**:
-  - Temporarily quashes an intrinsic resistance.
 - **Levitation**:
   - Levitates the player.
 - **Chaos Rain**:

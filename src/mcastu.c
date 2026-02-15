@@ -23,7 +23,6 @@
     MSPEL("invisibility", 5, DISAPPEAR), \
     MSPEL("blind", 6, BLIND_YOU), \
     MSPEL("strength of newt", 7, WEAKEN_YOU), \
-    MSPEL("vulnerability", 8, VULNERABILITY), \
     MSPEL("summon vermin", 9, INSECTS), \
     MSPEL("destroy armor", 9, DESTRY_ARMR), \
     MSPEL("bloody pierce", 9, BLOOD_SPEAR), \

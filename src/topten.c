@@ -16,7 +16,7 @@
 
 /*
  * Updating in place can leave junk at the end of the file in some
- * circumstances (if it shrinks and the O.S. doesn't have a straightforward
+ * circumstances (if it shrinks and the OS doesn't have a straightforward
  * way to truncate it).  The trailing junk is harmless and the code
  * which reads the scores will ignore it.
  */
@@ -453,6 +453,8 @@ encodeconduct(void)
         e |= 1L << 15;
     if (u.uconduct.holy_water)
         e |= 1L << 16;
+    if (u.uconduct.dyed)
+        e |= 1L << 17;
 
     return e;
 }
@@ -613,6 +615,7 @@ encode_extended_conducts(char *buf)
     add_achieveX(buf, "petless",      !u.uconduct.pets);
     add_achieveX(buf, "conflictless", !u.uconduct.conflicting);
     add_achieveX(buf, "blessless",    !u.uconduct.holy_water);
+    add_achieveX(buf, "dyeless",      !u.uconduct.dyed);
     add_achieveX(buf, "unrerolled",   !u.uroleplay.reroll);
 
     return buf;

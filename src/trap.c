@@ -116,7 +116,7 @@ burnarmor(struct monst *victim)
             item = hitting_u ? uarmh : which_armor(victim, W_ARMH);
             if (item) {
                 mat_idx = item->material;
-                Sprintf(buf, "%s %s", materialnm[mat_idx],
+                Sprintf(buf, "%s %s", MAT_NAME(mat_idx),
                         helm_simple_name(item));
             }
             if (!burn_dmg(item, item ? buf : "helmet"))
@@ -564,7 +564,7 @@ maketrap(coordxy x, coordxy y, int typ)
 
         /*
          * some cases which can happen when digging
-         * down while phazing thru solid areas
+         * down while phasing thru solid areas
          */
         } else if (lev->typ == STONE || lev->typ == SCORR) {
             (void) set_levltyp(x, y, CORR);
@@ -1279,7 +1279,7 @@ trapeffect_arrow_trap(
         pline("%s shoots out at you!", An(xname(otmp)));
         if (u.usteed && !rn2(2) && steedintrap(trap, otmp)) {
             ; /* nothing */
-        } else if (thitu(8, dmgval(otmp, &gy.youmonst), &otmp, "arrow")) {
+        } else if (thitu(8, dmgval(otmp, (struct monst *) 0, &gy.youmonst), &otmp, "arrow")) {
             if (otmp)
                 obfree(otmp, (struct obj *) 0);
         } else {
@@ -1370,7 +1370,7 @@ trapeffect_dart_trap(
         extract_nobj(otmp, &trap->ammo);
         if (u.usteed && !rn2(2) && steedintrap(trap, otmp)) {
             ; /* nothing */
-        } else if (thitu(7, dmgval(otmp, &gy.youmonst),
+        } else if (thitu(7, dmgval(otmp, (struct monst *) 0, &gy.youmonst),
                          &otmp, "little dart")) {
             if (otmp) {
                 if (otmp->opoisoned)
@@ -2011,12 +2011,12 @@ trapeffect_spark_trap(
     } else if (!mtmp) {
         if (cansee(tx, ty))
             seetrap(trap);
-        You_hear("Something begin to tick.");
+        You_hear("something begin to tick.");
     } else {
         if (cansee(tx, ty))
             seetrap(trap);
         pline("%s triggers a pressure plate!", Monnam(mtmp));
-        You_hear("Something begin to tick.");
+        You_hear("something begin to tick.");
     }
         (void) start_timer((long) rn1(4, 3), TIMER_LEVEL, SPARK_DELAY,
                            long_to_any(where));
@@ -2342,7 +2342,7 @@ trapeffect_web(
         /* time will be adjusted below */
         set_utrap(1, TT_WEB);
 
-        /* Time stuck in the web depends on your/steed strength. */
+        /* Time stuck in the web depends on your/steed's strength. */
         {
             int tim, str = ACURR(A_STR);
 
@@ -2709,8 +2709,8 @@ trapeffect_landmine(
                   already_seen ? " land mine" : "it");
         } else {
             /* prevent landmine from killing steed, throwing you to
-             * the ground, and you being affected again by the same
-             * mine because it hasn't been deleted yet
+             * the ground, and then that same landmine affecting you
+             * again because it hasn't been deleted yet
              */
             static boolean recursive_mine = FALSE;
 
@@ -3461,7 +3461,8 @@ launch_obj(
     newsym(x1, y1);
     /* in case you're using a pick-axe to chop the boulder that's being
        launched (perhaps a monster triggered it), destroy context so that
-       next dig attempt never thinks you're resuming previous effort */
+       the next dig attempt never thinks that you're resuming
+       the previous effort */
     if ((otyp == BOULDER || otyp == STATUE)
         && singleobj->ox == svc.context.digging.pos.x
         && singleobj->oy == svc.context.digging.pos.y)
@@ -3555,7 +3556,7 @@ launch_obj(
         } else if (u_at(x, y)) {
             if (gm.multi)
                 nomul(0);
-            if (thitu(9 + singleobj->spe, dmgval(singleobj, &gy.youmonst),
+            if (thitu(9 + singleobj->spe, dmgval(singleobj, (struct monst *) 0, &gy.youmonst),
                       &singleobj, (char *) 0))
                 stop_occupation();
         }
@@ -3865,7 +3866,8 @@ staticfn boolean
 m_easy_escape_pit(struct monst *mtmp)
 {
     return (mtmp->data == &mons[PM_PIT_FIEND]
-            || mtmp->data->msize >= MZ_HUGE);
+            || mtmp->data->msize >= MZ_HUGE
+            || is_climber(mtmp->data));
 }
 
 int
@@ -4828,12 +4830,10 @@ acid_damage(struct obj *obj)
 
     if (obj->greased) {
         grease_protect(obj, (char *) 0, victim);
-    } else if (obj->otyp == BOTTLE) {
-        if (carried(obj))
-            pline_The("%s fills up your %s.", hliquid("acid"), cxname(obj));
+    } else if (obj->otyp == BOTTLE && carried(obj)) {
+        pline_The("%s fills up your %s.", hliquid("acid"), cxname(obj));
         poly_obj(obj, POT_ACID);
-        if (carried(obj))
-            update_inventory();
+        update_inventory();
         return;
     } else if (obj->oclass == SCROLL_CLASS && obj->otyp != SCR_BLANK_PAPER) {
         if (obj->otyp != SCR_BLANK_PAPER
@@ -4937,8 +4937,8 @@ water_damage(
         wet_a_towel(obj, -rnd(7 - obj->spe), TRUE);
         return ER_NOTHING;
     } else if (obj->otyp == BOTTLE) {
-        poly_obj(obj, POT_WATER);
         if (in_invent) {
+            poly_obj(obj, POT_WATER);
             pline_The("%s fills up your %s.", hliquid("water"), ostr);
             described = TRUE;
             update_inventory();
@@ -4967,6 +4967,13 @@ water_damage(
         }
         water_damage_chain(obj->cobj, FALSE);
         return ER_DAMAGED; /* contents were damaged */
+    } else if (obj->material == SALT && !is_ascension_obj(obj)) {
+        if (in_invent) {
+            pline("The %s dissolves your %s!", hliquid("water"), ostr);
+            gm.mentioned_water = !Hallucination;
+        }
+        useup(obj);
+        return ER_DESTROYED;
     } else if (Waterproof_container(obj)) {
         if (in_invent && !Blind && !Underwater) {
             pline_The("%s cannot get into your %s.", hliquid("water"), ostr);
@@ -6669,7 +6676,7 @@ chest_trap(
         bot(); /* to get immediate botl re-display */
     }
 
-    otmp->tknown = 1; /* hero knows chest is no longer trapped */
+    obj->tknown = 1; /* hero knows chest is no longer trapped */
     return FALSE;
 }
 
@@ -7017,7 +7024,7 @@ thitm(
         if (d_override) {
             dam = d_override;
         } else if (obj) {
-            dam = dmgval(obj, mon);
+            dam = dmgval(obj, (struct monst *) 0, mon);
             if (dam < 1)
                 dam = 1;
             if (mon_hates_material(mon, obj->material)) {

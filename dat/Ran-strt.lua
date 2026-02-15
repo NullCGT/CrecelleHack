@@ -40,7 +40,7 @@ des.map({ halign = "left", valign = "center", map = [[
                                        xx
 ]] });
 -- Dungeon Description
-des.region(selection.area(00,00,40,20), "lit")
+des.region(selection.area(00,00,40,20), "unlit")
 -- Stairs
 des.stair("down", 10,10)
 -- Portal arrival point; just about anywhere on the right hand side of the map

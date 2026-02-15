@@ -1164,15 +1164,9 @@ break_armor(struct permonst *old)
         if ((otmp = uarmc) != 0
             /* mummy wrapping adapts to small and very big sizes */
             && (otmp->otyp != MUMMY_WRAPPING || !WrappingAllowed(uptr))) {
-            if (otmp->oartifact) {
-                Your("%s falls off!", cloak_simple_name(otmp));
-                (void) Cloak_off();
-                dropp(otmp);
-            } else {
-                Your("%s tears apart!", cloak_simple_name(otmp));
-                (void) Cloak_off();
-                useup(otmp);
-            }
+            pline_The("clasp on your %s breaks open!", cloak_simple_name(otmp));
+            (void) Cloak_off();
+            dropp(otmp);
         }
         if (uarmu) {
             Your("shirt rips to shreds!");
@@ -2241,6 +2235,7 @@ polysense(void)
         break;
     case PM_VAMPIRE:
     case PM_VAMPIRE_LEADER:
+    case PM_VAMPIRE_MAGE:
         svc.context.warntype.polyd = MH_HUMAN | MH_ELF;
         HWarn_of_mon |= FROMRACE;
         return;

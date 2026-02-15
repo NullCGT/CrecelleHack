@@ -67,9 +67,6 @@ extern struct engr *head_engr;
 /* used by coloratt.c, options.c, utf8map.c, windows.c */
 extern const char hexdd[33];
 
-/* material strings */
-extern const char *materialnm[];
-
 /* current mon class symbols */
 extern uchar monsyms[MAXMCLASSES];
 
@@ -518,6 +515,9 @@ struct instance_globals_k {
     /* read.c */
     boolean known;
 
+    /* dog.c */
+    char koboldname[PL_PSIZ];
+
     boolean havestate;
 };
 
@@ -851,6 +851,7 @@ struct instance_globals_s {
     /* artifact.c */
     int spec_dbon_applies; /* coordinate effects from spec_dbon() with
                               messages in artifact_hit() */
+    int spec_oprop_applies; /* coordinate effects from spec_oprop() */
 
     /* decl.c */
     stairway *stairs;

@@ -290,6 +290,11 @@ losexp(
             rehumanize();
     }
 
+    /* Damage attribute skills */
+    for (int i = P_FIRST_ATTR; i <= P_LAST_ATTR; i++) {
+        use_skill(i, -4);
+    }
+
     disp.botl = TRUE;
 }
 
@@ -370,6 +375,11 @@ pluslvl(
                            (u.ulevel <= u.ulevelpeak) ? "re" : "", u.ulevel);
         if (u.ulevel > u.ulevelpeak)
             u.ulevelpeak = u.ulevel;
+
+        /* Boost attribute skills */
+        for (int i = P_FIRST_ATTR; i <= P_LAST_ATTR; i++) {
+            use_skill(i, 4);
+        }
     }
     disp.botl = TRUE;
 }

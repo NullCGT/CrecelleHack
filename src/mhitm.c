@@ -20,8 +20,6 @@ staticfn int explmm(struct monst *, struct monst *, struct attack *);
 staticfn int mdamagem(struct monst *, struct monst *, struct attack *,
                     struct obj *, int);
 staticfn void mswingsm(struct monst *, struct monst *, struct obj *);
-staticfn int passivemm(struct monst *, struct monst *, boolean, int,
-                     struct obj *);
 
 staticfn void
 noises(struct monst *magr, struct attack *mattk)
@@ -455,7 +453,7 @@ mattackm(
                 res[i] = hitmm(magr, mdef, mattk, mwep, dieroll);
                 if ((mdef->data == &mons[PM_BLACK_PUDDING]
                      || mdef->data == &mons[PM_BROWN_PUDDING])
-                    && (mwep && (mwep->material == IRON
+                    && (mwep && (is_iron(mwep)
                                  || mwep->material == METAL))
                     && mdef->mhp > 1 && !mdef->mcan) {
                     struct monst *mclone;
@@ -1323,7 +1321,7 @@ mswingsm(
  * Passive responses by defenders.  Does not replicate responses already
  * handled above.  Returns same values as mattackm.
  */
-staticfn int
+int
 passivemm(
     struct monst *magr,
     struct monst *mdef,
@@ -1382,6 +1380,15 @@ passivemm(
             /* No message */
         }
         break;
+    case AD_DISE:
+	    if (canseemon(magr)) {
+		    pline("%s is covered with tiny spores!", Monnam(magr));
+	    }
+	    if (resists_sick(magr)) {
+		    pline("%s doesn't seem to notice the spores.", Monnam(magr));
+		    tmp = 0;
+	    }
+	    break;
     default:
         break;
     }
@@ -1472,7 +1479,7 @@ passivemm(
                           Monnam(magr));
             break;
         case AD_HONY:
-            add_coating(mdef->mx, mdef->my, COAT_HONEY, 0);
+            floor_spillage(mdef->mx, mdef->my, POT_HONEY, NON_PM);
             tmp = 0;
             break;
         default:

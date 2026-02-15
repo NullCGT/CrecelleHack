@@ -1683,11 +1683,9 @@ Can_rise_up(coordxy x, coordxy y, d_level *lev)
 }
 
 boolean
-has_no_tod_cycles(d_level *lev)
+exposed_to_elements(d_level *lev UNUSED)
 {
-    return (In_endgame(lev) || In_mines(lev)
-            || In_hell(lev) || In_tower(lev)
-            || Is_rogue_level(lev));
+    return (svl.level.flags.outdoors || depth(&u.uz) < 5);
 }
 
 boolean

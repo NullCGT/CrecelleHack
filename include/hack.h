@@ -442,6 +442,7 @@ enum earlyarg {
     , ARG_DUMPGLYPHIDS
     , ARG_DUMPMONGEN
     , ARG_DUMPWEIGHTS
+    , ARG_DUMPWEAPONS
 #ifdef WIN32
     , ARG_WINDOWS
 #endif
@@ -575,6 +576,11 @@ enum hunger_state_types {
     STARVED    = 6
 };
 
+/* fake inventory letters, not 'a'..'z' or 'A'..'Z' */
+#define NOINVSYM '#'      /* overflow because all 52 letters are in use */
+#define CONTAINED_SYM '>' /* designator for inside a container */
+#define HANDS_SYM '-'     /* hands|fingers|self depending on context */
+
 /* inventory counts (slots in tty parlance)
  * a...zA..Z    invlet_basic (52)
  * $a...zA..Z#  2 special additions
@@ -677,6 +683,7 @@ struct mvitals {
     Bitfield(know_pcorpse, 1);
     Bitfield(know_rcorpse, 1);
     Bitfield(know_stats, 1);
+    Bitfield(know_resist, 1);
     Bitfield(know_attacks, 6);
     Bitfield(photographed, 1);
 };
@@ -785,7 +792,7 @@ struct selectionvar {
 
 /* structure for 'program_state'; not saved and restored */
 struct sinfo {
-    int gameover;               /* self explanatory? */
+    int gameover;               /* self-explanatory? */
     int stopprint;              /* inhibit further end of game disclosure */
 #ifdef HANGUPHANDLING
     volatile int done_hup;      /* SIGHUP or moral equivalent received
@@ -1183,6 +1190,8 @@ typedef uint32_t mmflags_nht;     /* makemon MM_ flags */
 #define GP_ALLOW_U      0x00400000L /* don't reject hero's location */
 #define GP_CHECKSCARY   0x00800000L /* check monster for onscary() */
 #define GP_AVOID_MONPOS 0x01000000L /* don't accept existing mon location */
+/* Creckle */
+#define MM_ESUM        0x02000000L /* add esum structure */
 /* 25 bits used */
 
 /* flags for mhidden_description() (pager.c; used for mimics and hiders) */
@@ -1365,7 +1374,7 @@ typedef uint32_t mmflags_nht;     /* makemon MM_ flags */
 
 /* Macros for launching objects */
 #define ROLL 0x01          /* the object is rolling */
-#define FLING 0x02         /* the object is flying thru the air */
+#define FLING 0x02         /* the object is flying through the air */
 #define LAUNCH_UNSEEN 0x40 /* hero neither caused nor saw it */
 #define LAUNCH_KNOWN 0x80  /* the hero caused this by explicit action */
 

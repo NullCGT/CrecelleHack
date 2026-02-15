@@ -705,6 +705,11 @@ eat_brains(
          * monster mind flayer is eating hero's brain
          */
         /* no such thing as mindless players */
+        if (gy.youmonst.data == &mons[PM_STRAW_GOLEM]) {
+            pline("If you only had a brain...");
+            return M_ATTK_MISS;
+        }
+
         if (ABASE(A_INT) <= ATTRMIN(A_INT)) {
             static NEARDATA const char brainlessness[] = "brainlessness";
 
@@ -1131,6 +1136,7 @@ eye_of_newt_buzz(void)
             You_feel("a mild buzz.");
             disp.botl = TRUE;
         }
+        exercise(A_INT, TRUE);
     }
 }
 
@@ -2483,6 +2489,13 @@ eatspecial(void)
         /* chewable vitamin for kids based on "The Flintstones" TV cartoon */
         pline("Yabba-dabba delicious!");
         exercise(A_CON, TRUE);
+    }
+    if (otmp->material == SALT) {
+        pline(Hallucination ? "Ugh! That was pure salt!"
+                            : "You're back in the salt mines.");
+        if (otmp->otyp == SALT_CRYSTAL)
+            makeknown(otmp->otyp);
+        exercise(A_CON,FALSE);
     }
 
     if (otmp == uwep && otmp->quan == 1L)

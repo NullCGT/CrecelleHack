@@ -399,7 +399,7 @@ staticfn int new_angle(struct rm *, unsigned char *, int, int);
  * this is good enough.
  *
  *      + When this function is called we don't have all of the seen
- *        information (we're doing a top down scan in vision_recalc).
+ *        information (we're doing a top-down scan in vision_recalc).
  *        We would need to scan once to set all IN_SIGHT and COULD_SEE
  *        bits, then again to correctly set the seenv bits.
  *      + I'm trying to make this as cheap as possible.  The display
@@ -565,7 +565,7 @@ vision_recalc(int control)
 
         /*
          * Our own version of the update loop below.  We know we can't see
-         * anything, so we only need update positions we used to be able
+         * anything, so we only need to update positions we used to be able
          * to see.
          */
         temp_array = gv.viz_array; /* set gv.viz_array so newsym() will work */
@@ -592,7 +592,7 @@ vision_recalc(int control)
 
         if (Underwater && !Is_waterlevel(&u.uz)) {
             /*
-             * The hero is under water.  Only see surrounding locations if
+             * The hero is underwater.  Only see surrounding locations if
              * they are also underwater.  This overrides night vision but
              * does not override x-ray vision.
              */
@@ -671,15 +671,15 @@ vision_recalc(int control)
             }
         }
 
-        visrange = (!night() && !has_no_tod_cycles(&u.uz)) ? u.uenvirons.dt_vis : u.nv_range;
+        visrange = (!night() && exposed_to_elements(&u.uz)) ? u.uenvirons.dt_vis : u.nv_range;
 
-        if ((has_night_vision && u.xray_range < visrange) || (!night() && !has_no_tod_cycles(&u.uz))) {
+        if ((has_night_vision && u.xray_range < visrange) || (!night() && exposed_to_elements(&u.uz))) {
             if (!visrange) { /* range is 0 */
                 next_array[u.uy][u.ux] |= IN_SIGHT;
                 levl[u.ux][u.uy].seenv = SVALL;
                 next_rmin[u.uy] = min(u.ux, next_rmin[u.uy]);
                 next_rmax[u.uy] = max(u.ux, next_rmax[u.uy]);
-            } else if (visrange > 0 || (!night() && !has_no_tod_cycles(&u.uz))) {
+            } else if (visrange > 0 || (!night() && exposed_to_elements(&u.uz))) {
                 ranges = circle_ptr(visrange);
 
                 for (row = u.uy - visrange; row <= u.uy + visrange;
@@ -720,7 +720,7 @@ vision_recalc(int control)
      *      + Set the IN_SIGHT bit for places that we could see and are lit.
      *      + Reset changed places.
      *
-     * There is one thing that make deciding what the hero can see
+     * There is one thing that makes deciding what the hero can see
      * difficult:
      *
      *  1.  Directional lighting.  Items that block light create problems.
@@ -767,10 +767,9 @@ vision_recalc(int control)
                      || IS_WALL(lev->typ)) && !viz_clear[row][col]) {
                     /*
                      * Make sure doors, walls, boulders or mimics don't show
-                     * up
-                     * at the end of dark hallways.  We do this by checking
+                     * up at the end of dark hallways.  We do this by checking
                      * the adjacent position.  If it is lit, then we can see
-                     * the door or wall, otherwise we can't.
+                     * the door or wall; otherwise we can't.
                      */
                     dx = u.ux - col;
                     dx = sign(dx);
@@ -1792,7 +1791,7 @@ right_side(
          *
          * Otherwise, we know we can see the right edge of the current row.
          *
-         * This must be a strict less than so that we can always see a
+         * This must be a strict "less than" so that we can always see a
          * horizontal wall, even if it is adjacent to us.
          */
         if (right_mark < right_edge) {

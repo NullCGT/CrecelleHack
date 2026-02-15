@@ -192,7 +192,7 @@
    as unique even though they really aren't; that's ok here */
 #define unique_corpstat(ptr) (((ptr)->geno & G_UNIQ) != 0)
 
-/* this returns the light's range, or 0 if none; if we add more light emitting
+/* this returns the light's range, or 0 if none; if we add more light-emitting
    monsters, we'll likely have to add a new light range field to mons[] */
 #define emits_light(ptr)                                          \
     (((ptr)->mlet == S_LIGHT || (ptr) == &mons[PM_FLAMING_SPHERE] \
@@ -232,7 +232,8 @@
 #define is_mind_flayer(ptr) \
     ((ptr) == &mons[PM_MIND_FLAYER] || (ptr) == &mons[PM_MASTER_MIND_FLAYER])
 
-#define is_vampire(ptr) ((ptr)->mlet == S_VAMPIRE || (ptr) == &mons[PM_CRIMSON_DEATH])
+#define is_vampire(ptr) ((ptr)->mlet == S_VAMPIRE || (ptr) == &mons[PM_CRIMSON_DEATH] \
+                         || (ptr) == &mons[PM_BLOOD_IMP])
 
 #define hates_light(ptr) ((ptr) == &mons[PM_GREMLIN] || (ptr) == &mons[PM_SHADOW_FIEND])
 
@@ -248,7 +249,9 @@
      || (ptr) == &mons[PM_SCROLEM])
 #define completelyrots(ptr) \
     ((ptr) == &mons[PM_WOOD_GOLEM] || (ptr) == &mons[PM_LEATHER_GOLEM])
-#define completelyrusts(ptr) ((ptr) == &mons[PM_IRON_GOLEM])
+/* somewhat of a misnomer... */
+#define completelyrusts(ptr) ((ptr) == &mons[PM_IRON_GOLEM] \
+                                || (ptr) == &mons[PM_SALT_GOLEM])
 
 /* Used for conduct with corpses, tins, and digestion attacks */
 /* G_NOCORPSE monsters might still be swallowed as a purple worm */
@@ -277,6 +280,8 @@
     (!vegan(ptr) && !unsolid(ptr) && !amorphous(ptr))
 #define has_skull(ptr) \
     (has_head(ptr) && has_bones(ptr))
+#define collateral(ptr) (((ptr)->mflags2 & M2_COLLAT) != 0L)
+#define is_summoned(mon) (has_esum(mon) && ESUM(mon)->ownermid != 0)
 
 #define likes_bones(ptr) \
     (ptr->mlet == S_DOG || ptr == &mons[PM_HUMAN_WEREWOLF] \
@@ -294,6 +299,11 @@
 #define mud_hider(ptr) \
     ((!is_hider(ptr) && ptr->msize <= MZ_MEDIUM) \
         && !mindless(ptr))
+#define ash_kicker(ptr) (((ptr)->mflags4 & M4_KICK_ASHES) != 0L)
+#define is_climber(ptr) (((ptr)->mflags2 & M2_CLIMBER) != 0L)
+#define resists_whack(ptr) (((ptr)->mflags4 & M4_RWHACK) != 0L)
+#define resists_pierce(ptr) (((ptr)->mflags4 & M4_RPIERCE) != 0L)
+#define resists_slash(ptr) (((ptr)->mflags4 & M4_RSLASH) != 0L)
 
 /* monkeys are tamable via bananas but not pacifiable via food,
    otherwise their theft attack could be nullified too easily;

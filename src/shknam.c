@@ -713,6 +713,12 @@ stock_room_goodpos(struct mkroom *sroom, int rmno, int sh, int sx, int sy)
     return TRUE;
 }
 
+static const char *doormats[] = {
+    "Welcome!",         "U zap it U Bought it!",
+    "Come on in!",      "The customer is always right.",
+    "Buy Buy Buy!",     "SALE",
+};
+
 /* stock a newly-created room with objects */
 void
 stock_room(int shp_indx, struct mkroom *sroom)
@@ -723,7 +729,7 @@ stock_room(int shp_indx, struct mkroom *sroom)
      * shop-style placement (all squares except a row nearest the first
      * door get objects).
      */
-    int sx, sy, sh;
+    int sx, sy, sh, m, n;
     int stockcount = 0, specialspot = 0;
     char buf[BUFSZ];
     int rmno = (int) ((sroom - svr.rooms) + ROOMOFFSET);
@@ -736,6 +742,7 @@ stock_room(int shp_indx, struct mkroom *sroom)
     /* make sure no doorways without doors, and no trapped doors, in shops */
     sx = svd.doors[sroom->fdoor].x;
     sy = svd.doors[sroom->fdoor].y;
+    m = sx, n = sy;
     if (levl[sx][sy].doormask == D_NODOOR) {
         levl[sx][sy].doormask = D_ISOPEN;
         newsym(sx, sy);
@@ -747,23 +754,21 @@ stock_room(int shp_indx, struct mkroom *sroom)
     if (levl[sx][sy].doormask & D_TRAPPED)
         levl[sx][sy].doormask = D_LOCKED;
 
-    if (levl[sx][sy].doormask == D_LOCKED) {
-        int m = sx, n = sy;
-
-        if (inside_shop(sx + 1, sy))
-            m--;
-        else if (inside_shop(sx - 1, sy))
-            m++;
-        if (inside_shop(sx, sy + 1))
-            n--;
-        else if (inside_shop(sx, sy - 1))
-            n++;
-        Sprintf(buf, "Closed for inventory");
-        make_engr_at(m, n, buf, NULL, 0L, DUST);
-        if (levl[m][n].typ != CORR && levl[m][n].typ != ROOM)
-            levl[m][n].typ = (Is_special(&u.uz)
-                              || *in_rooms(m, n, 0)) ? ROOM : CORR;
-    }
+    /* Previously this was where "Closed for inventory" was
+       used, but the TOD system made this confusing. - K*/
+    if (inside_shop(sx + 1, sy))
+        m--;
+    else if (inside_shop(sx - 1, sy))
+        m++;
+    if (inside_shop(sx, sy + 1))
+        n--;
+    else if (inside_shop(sx, sy - 1))
+        n++;
+    Sprintf(buf, "%s", ROLL_FROM(doormats));
+    make_engr_at(m, n, buf, NULL, 0L, DUST);
+    if (levl[m][n].typ != CORR && levl[m][n].typ != ROOM)
+        levl[m][n].typ = (Is_special(&u.uz)
+                            || *in_rooms(m, n, 0)) ? ROOM : CORR;
 
     if (svc.context.tribute.enabled && !svc.context.tribute.bookstock) {
         /*

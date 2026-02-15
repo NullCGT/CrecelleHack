@@ -1,4 +1,4 @@
-/* NetHack 3.7	u_init.c	$NHDT-Date: 1737620595 2025/01/23 00:23:15 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.113 $ */
+/* NetHack 3.7	u_init.c	$NHDT-Date: 1769398807 2026/01/25 19:40:07 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.121 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2017. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -231,7 +231,7 @@ static const struct trobj Darts[] =
     { { DART, 0, WEAPON_CLASS, 12, 15, 0 },
       { 0, 0, 0, 0, 0, 0 } };
 static const struct trobj Resizing[] =
-    { { RESIZING_KIT, 0, TOOL_CLASS, 1, 1, 0 },
+    { { RESIZING_KIT, 3, TOOL_CLASS, 1, 1, 0 },
       { 0, 0, 0, 0, 0, 0 } };
 static const struct trobj Veggies[] =
     { { APPLE, 0, FOOD_CLASS, 10, 10, 0 },
@@ -293,8 +293,7 @@ static const struct def_skill Skill_A[] = {
     { P_CLUB, P_SKILLED },
     { P_QUARTERSTAFF, P_SKILLED },
     { P_SLING, P_SKILLED },
-    { P_DART, P_BASIC },
-    { P_BOOMERANG, P_EXPERT },
+    { P_MISSILES, P_EXPERT },
     { P_WHIP, P_EXPERT },
     { P_UNICORN_HORN, P_SKILLED },
     { P_ATTACK_SPELL, P_BASIC },
@@ -321,12 +320,10 @@ static const struct def_skill Skill_B[] = {
     { P_SABER, P_SKILLED },
     { P_CLUB, P_SKILLED },
     { P_MACE, P_SKILLED },
-    { P_MORNING_STAR, P_SKILLED },
     { P_FLAIL, P_BASIC },
     { P_HAMMER, P_EXPERT },
     { P_QUARTERSTAFF, P_BASIC },
     { P_SPEAR, P_SKILLED },
-    { P_TRIDENT, P_SKILLED },
     { P_BOW, P_BASIC },
     { P_ATTACK_SPELL, P_BASIC },
     { P_ESCAPE_SPELL, P_BASIC }, /* special spell is haste self */
@@ -346,18 +343,16 @@ static const struct def_skill Skill_C[] = {
     { P_PICK_AXE, P_BASIC },
     { P_CLUB, P_EXPERT },
     { P_MACE, P_EXPERT },
-    { P_MORNING_STAR, P_BASIC },
     { P_FLAIL, P_SKILLED },
     { P_HAMMER, P_SKILLED },
     { P_QUARTERSTAFF, P_EXPERT },
     { P_POLEARMS, P_SKILLED },
     { P_SPEAR, P_EXPERT },
-    { P_TRIDENT, P_SKILLED },
     { P_BOW, P_SKILLED },
     { P_SLING, P_EXPERT },
     { P_ATTACK_SPELL, P_BASIC },
     { P_MATTER_SPELL, P_SKILLED },
-    { P_BOOMERANG, P_EXPERT },
+    { P_MISSILES, P_EXPERT },
     { P_UNICORN_HORN, P_BASIC },
     { P_BARE_HANDED_COMBAT, P_MASTER },
     { P_TRIPPING, P_SKILLED },
@@ -372,14 +367,12 @@ static const struct def_skill Skill_Grp[] = {
     { P_PICK_AXE, P_BASIC },
     { P_CLUB, P_BASIC },
     { P_MACE, P_BASIC },
-    { P_MORNING_STAR, P_BASIC },
     { P_FLAIL, P_BASIC },
     { P_HAMMER, P_BASIC },
     { P_QUARTERSTAFF, P_BASIC },
     { P_POLEARMS, P_BASIC },
-    { P_SPEAR, P_BASIC },
-    { P_TRIDENT, P_SKILLED },
-    { P_BOOMERANG, P_EXPERT },
+    { P_SPEAR, P_SKILLED },
+    { P_MISSILES, P_EXPERT },
     { P_UNICORN_HORN, P_BASIC },
     { P_MARTIAL_ARTS, P_MASTER },
     { P_TRIPPING, P_EXPERT },
@@ -398,10 +391,8 @@ static const struct def_skill Skill_H[] = {
     { P_QUARTERSTAFF, P_EXPERT },
     { P_POLEARMS, P_BASIC },
     { P_SPEAR, P_BASIC },
-    { P_TRIDENT, P_BASIC },
     { P_SLING, P_SKILLED },
-    { P_DART, P_EXPERT },
-    { P_SHURIKEN, P_SKILLED },
+    { P_MISSILES, P_EXPERT },
     { P_UNICORN_HORN, P_EXPERT },
     { P_HEALING_SPELL, P_EXPERT },
     { P_BARE_HANDED_COMBAT, P_BASIC },
@@ -422,12 +413,10 @@ static const struct def_skill Skill_K[] = {
     { P_SABER, P_SKILLED },
     { P_CLUB, P_BASIC },
     { P_MACE, P_SKILLED },
-    { P_MORNING_STAR, P_SKILLED },
     { P_FLAIL, P_BASIC },
     { P_HAMMER, P_BASIC },
     { P_POLEARMS, P_SKILLED },
     { P_SPEAR, P_SKILLED },
-    { P_TRIDENT, P_BASIC },
     { P_LANCE, P_EXPERT },
     { P_BOW, P_BASIC },
     { P_CROSSBOW, P_SKILLED },
@@ -444,7 +433,7 @@ static const struct def_skill Skill_Mon[] = {
     { P_QUARTERSTAFF, P_BASIC },
     { P_SPEAR, P_BASIC },
     { P_CROSSBOW, P_BASIC },
-    { P_SHURIKEN, P_BASIC },
+    { P_MISSILES, P_BASIC },
     { P_ATTACK_SPELL, P_BASIC },
     { P_HEALING_SPELL, P_EXPERT },
     { P_DIVINATION_SPELL, P_BASIC },
@@ -461,20 +450,16 @@ static const struct def_skill Skill_Mon[] = {
 static const struct def_skill Skill_P[] = {
     { P_CLUB, P_EXPERT },
     { P_MACE, P_EXPERT },
-    { P_MORNING_STAR, P_EXPERT },
     { P_FLAIL, P_EXPERT },
     { P_HAMMER, P_EXPERT },
     { P_QUARTERSTAFF, P_EXPERT },
     { P_POLEARMS, P_SKILLED },
     { P_SPEAR, P_SKILLED },
-    { P_TRIDENT, P_SKILLED },
     { P_LANCE, P_BASIC },
     { P_BOW, P_BASIC },
     { P_SLING, P_BASIC },
     { P_CROSSBOW, P_BASIC },
-    { P_DART, P_BASIC },
-    { P_SHURIKEN, P_BASIC },
-    { P_BOOMERANG, P_BASIC },
+    { P_MISSILES, P_BASIC },
     { P_UNICORN_HORN, P_SKILLED },
     { P_HEALING_SPELL, P_EXPERT },
     { P_DIVINATION_SPELL, P_EXPERT },
@@ -494,14 +479,12 @@ static const struct def_skill Skill_R[] = {
     { P_SABER, P_SKILLED },
     { P_CLUB, P_SKILLED },
     { P_MACE, P_SKILLED },
-    { P_MORNING_STAR, P_BASIC },
     { P_FLAIL, P_BASIC },
     { P_HAMMER, P_BASIC },
     { P_POLEARMS, P_BASIC },
     { P_SPEAR, P_BASIC },
     { P_CROSSBOW, P_EXPERT },
-    { P_DART, P_EXPERT },
-    { P_SHURIKEN, P_SKILLED },
+    { P_MISSILES, P_SKILLED },
     { P_DIVINATION_SPELL, P_SKILLED },
     { P_ESCAPE_SPELL, P_SKILLED },
     { P_MATTER_SPELL, P_SKILLED },
@@ -520,19 +503,16 @@ static const struct def_skill Skill_Ran[] = {
     { P_AXE, P_SKILLED },
     { P_PICK_AXE, P_BASIC },
     { P_SHORT_SWORD, P_BASIC },
-    { P_MORNING_STAR, P_BASIC },
+    { P_MACE, P_BASIC },
     { P_FLAIL, P_SKILLED },
     { P_HAMMER, P_BASIC },
     { P_QUARTERSTAFF, P_BASIC },
     { P_POLEARMS, P_SKILLED },
     { P_SPEAR, P_EXPERT },
-    { P_TRIDENT, P_BASIC },
     { P_BOW, P_EXPERT },
     { P_SLING, P_EXPERT },
     { P_CROSSBOW, P_EXPERT },
-    { P_DART, P_EXPERT },
-    { P_SHURIKEN, P_SKILLED },
-    { P_BOOMERANG, P_EXPERT },
+    { P_MISSILES, P_EXPERT },
     { P_WHIP, P_BASIC },
     { P_HEALING_SPELL, P_BASIC },
     { P_DIVINATION_SPELL, P_EXPERT },
@@ -559,7 +539,7 @@ static const struct def_skill Skill_S[] = {
     { P_SPEAR, P_SKILLED },
     { P_LANCE, P_SKILLED },
     { P_BOW, P_EXPERT },
-    { P_SHURIKEN, P_EXPERT },
+    { P_MISSILES, P_EXPERT },
     { P_ATTACK_SPELL, P_BASIC },
     { P_DIVINATION_SPELL, P_BASIC }, /* special spell is clairvoyance */
     { P_CLERIC_SPELL, P_SKILLED },
@@ -580,20 +560,16 @@ static const struct def_skill Skill_T[] = {
     { P_TWO_HANDED_SWORD, P_BASIC },
     { P_SABER, P_SKILLED },
     { P_MACE, P_BASIC },
-    { P_MORNING_STAR, P_BASIC },
     { P_FLAIL, P_BASIC },
     { P_HAMMER, P_BASIC },
     { P_QUARTERSTAFF, P_BASIC },
     { P_POLEARMS, P_BASIC },
     { P_SPEAR, P_BASIC },
-    { P_TRIDENT, P_BASIC },
     { P_LANCE, P_BASIC },
     { P_BOW, P_BASIC },
     { P_SLING, P_BASIC },
     { P_CROSSBOW, P_BASIC },
-    { P_DART, P_EXPERT },
-    { P_SHURIKEN, P_BASIC },
-    { P_BOOMERANG, P_BASIC },
+    { P_MISSILES, P_EXPERT },
     { P_WHIP, P_BASIC },
     { P_UNICORN_HORN, P_SKILLED },
     { P_DIVINATION_SPELL, P_BASIC },
@@ -621,7 +597,6 @@ static const struct def_skill Skill_V[] = {
     { P_QUARTERSTAFF, P_BASIC },
     { P_POLEARMS, P_SKILLED },
     { P_SPEAR, P_EXPERT },
-    { P_TRIDENT, P_BASIC },
     { P_LANCE, P_SKILLED },
     { P_SLING, P_BASIC },
     { P_ATTACK_SPELL, P_BASIC },
@@ -644,10 +619,8 @@ static const struct def_skill Skill_W[] = {
     { P_QUARTERSTAFF, P_EXPERT },
     { P_POLEARMS, P_SKILLED },
     { P_SPEAR, P_BASIC },
-    { P_TRIDENT, P_BASIC },
     { P_SLING, P_SKILLED },
-    { P_DART, P_EXPERT },
-    { P_SHURIKEN, P_BASIC },
+    { P_MISSILES, P_EXPERT },
     { P_ATTACK_SPELL, P_EXPERT },
     { P_HEALING_SPELL, P_SKILLED },
     { P_DIVINATION_SPELL, P_EXPERT },
@@ -972,7 +945,7 @@ u_init_race(void)
     }
 }
 
-/* for 'pauper' aka 'unpreparsed'; take away any skills (bare-handed combat,
+/* for 'pauper' aka 'unprepared'; take away any skills (bare-handed combat,
    riding) that are better than unskilled; learn the book (without carrying
    it or knowing its spell yet) for some key spells */
 staticfn void
@@ -1125,7 +1098,7 @@ u_init_misc(void)
 
     /*
      *  For now, everyone starts out with a night vision range of 1 and
-     *  their xray range disabled.
+     *  their xray_range disabled.
      */
     u.nv_range = 1;
     u.xray_range = -1;
@@ -1448,8 +1421,8 @@ ini_inv(const struct trobj *trop)
         } else { /* UNDEF_TYP */
             obj = ini_inv_mkobj_filter(trop->trclass, got_sp1);
             otyp = obj->otyp;
-            /* Heavily relies on the fact that 1) we create wands
-             * before rings, 2) that we create rings before
+            /* Heavily relies on the facts that 1) we create wands
+             * before rings, that 2) we create rings before
              * spellbooks, and that 3) not more than 1 object of a
              * particular symbol is to be prohibited.  (For more
              * objects, we need more nocreate variables...)
@@ -1500,7 +1473,9 @@ ini_inv(const struct trobj *trop)
 staticfn void
 fixup_starting_material(struct obj *obj)
 {
-    if (Race_if(PM_ELF) && objects[obj->otyp].oc_material == IRON
+    if ((obj->oclass == WEAPON_CLASS || is_weptool(obj)) && !is_ammo(obj)) {
+        force_material(obj, WOOD);
+    } else if (Race_if(PM_ELF) && objects[obj->otyp].oc_material == IRON
             && valid_obj_material(obj, COPPER)) {
         set_material(obj, COPPER);
     } else if (Race_if(PM_ORC) && objects[obj->otyp].oc_material == MITHRIL
@@ -1512,7 +1487,8 @@ fixup_starting_material(struct obj *obj)
 
     /* This happens afterward, since many objects cannot be converted to
        bone or wood. */
-    if (Race_if(PM_KOBOLD) && obj->otyp != DART) {
+    if (Race_if(PM_KOBOLD) && obj->otyp != DART
+        && obj->oclass != WEAPON_CLASS && !is_weptool(obj)) {
         if (valid_obj_material(obj, BONE) && rn2(2))
             set_material(obj, BONE);
         else if (valid_obj_material(obj, WOOD))

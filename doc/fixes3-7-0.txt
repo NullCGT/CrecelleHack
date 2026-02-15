@@ -1,4 +1,4 @@
-NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.1580 $ $NHDT-Date: 1764109066 2025/11/25 22:17:46 $
+NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.1614 $ $NHDT-Date: 1769342601 2026/01/25 04:03:21 $
 
 General Fixes and Modified Features
 -----------------------------------
@@ -837,7 +837,8 @@ if a lit potion of oil on the floor was launched by an explosion and it hit
 	it could trigger an "obj_is_local" panic when end of game cleanup
 	tried to extinguish it as a light source
 place_object() validated coordinates after using them to index level.objects
-killed rope golem may drop leashes and bullwhips
+killed rope golem may drop leashes, bullwhips, and grappling hooks
+killed leather golem may drop leather cloaks, and saddles
 using magic portals stuns hero for a few turns
 using level teleporters confuses hero without teleport control for a few turns
 clear obj->bypass for buried objects [a giant on ice triggers a fire trap,
@@ -1552,6 +1553,30 @@ you cannot sacrifice objects/corpses while stunned or confused
 	that they work; /y and /n for them now only work when lootabc is off
 writing on an unidentified scroll of blank paper identifies blank paper
 dumplogs include spells and skills
+praying will not restore monster-form HP while polymorphed, unless you
+        have unchanging
+winter wolf cub was missing for monster to lycanthrope conversion
+monster elves shooting arrows weren't getting intended small to-hit and damage
+	bonuses
+luck has a reduced effect on to-hit chance
+monsters use wand of teleportation to move hero away from item pile
+lycanthrope instincts keep hero from changing shape while next to hostiles
+scroll of enchant armor formula has changed (in particular, magical armor now
+        gains less enchantment when enchanted than nonmagical armor and
+        uncursed scrolls can sometimes enchant by more than one point)
+dragonhide can rot
+throwing ammo without a launcher produces a message
+polymorphing into a large polyform unequips rather than destroying cloaks
+clarify in the #quit message that it doesn't save the game
+cursed potion of invisibility removes intrinsic invisibility
+fix bug which caused engulf damage from air elementals and fog clouds to
+        ignore damage reduction from armor class
+elementals do double damage on their home plane
+water elementals move slightly more slowly
+the "totally digested" instadeath timer is much faster
+slow monster effects are more effective against faster enemies
+light-spell is clerical, if playing a priest
+boomerang can hit multiple monsters
 
 
 Fixes to 3.7.0-x General Problems Exposed Via git Repository
@@ -2172,6 +2197,13 @@ livelog/#chronicle for saving-grace: if saving-grace prevents hero's death,
 naming a type of item, unnaming it (with name of <space>), naming it again
 	(new name or re-use of old one), then unnaming it again would issue
 	impossible: "named object not in disco"
+throwing entire quiver and then picking the stack back up was not putting it
+	back into quiver
+when reading a T-shirt or apron, add trailing period to the slogan unless
+	 already present in the quoted text
+when reading an engraving, suppress the addition of a trailing period if the
+	text already has one
+cursed magic whistle could teleport hero on no-teleport levels
 
 
 Fixes to 3.7.0-x Platform and/or Interface Problems Exposed Via git Repository
@@ -2329,7 +2361,7 @@ curses: if user's terminal was set to 'application keypad mode' (DEC VTxxx
 	"ESC SPC G"), nethack wasn't recognizing number pad keys
 curses: change petattr attributes, dropping support for curses-only ones
 curses: swap the grey and no-color color initialization
-curses+Qt: allow changing default colors with the 'palette' config option
+curses+tty+Qt: allow changing default colors with the 'palette' config option
 	(only if compiled with CHANGE_COLOR)
 curses: if messages have been issued during start-up (for instance, warnings
 	about issues in run-time config file), prompt user to press <return>
@@ -2702,7 +2734,7 @@ menu for what-is command supports /^ and /" to view a list of nearby or whole
 	level visible and remembered traps
 spiders will occasionally spin webs when moving around
 drinking a burning potion of oil will cure being turned into slime
-new bigroom variants, a boulder maze and hexagons
+new bigroom variants, a boulder maze, hexagons, pillars
 vomiting on an altar provokes the deities wrath
 branch stairs have a different glyph, show up in yellow color in tty
 duration of confusion when drinking booze depends upon hunger state
@@ -2916,7 +2948,7 @@ Unix: support --nethackrc=filename on the command line; same effect as
 	NETHACKOPTIONS='@filename' but leaves NETHACKOPTIONS available for
 	specifying options; --no-nethackrc is same as --nethackrc=/dev/null
 Windows: implement MSGHANDLER (pr #749 by argrath)
-Windows: Add configuration to support Curses on WinGUI (pr #1028 by chasonr) 
+Windows: Add configuration to support Curses on WinGUI (pr #1028 by chasonr)
 X11: implement 'selectsaved', restore via menu of saved games
 X11: echo getline prompt and response (wishes, applying names) to message
 	window and dumplog message history
@@ -3056,6 +3088,10 @@ split making pits on do_earthquake() into a separate function and
 update the WASM cross-compile to work with the current
 	code (pr #1331 by guillaumebrunerie)
 add silver maces (pr #1405 by disperse)
+applied several source comment spelling or grammar fixes that were linked
+	to an old rec.games.roguelike.nethack post from May 2006
+	by Arthur J. O'Dwyer
+modernize code of LaTeX Guidebook (pr #1473 by Daniel Clow)
 
 
 Code Cleanup and Reorganization
@@ -3189,4 +3225,3 @@ relocate general-purpose function choose_classes_menu(), from
 	options.c to windows.c
 remove register from variable declarations
 make glyph_to_cmap() a function instead of a macro
-

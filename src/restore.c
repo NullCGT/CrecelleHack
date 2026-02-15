@@ -184,6 +184,8 @@ restobj(NHFILE *nhfp, struct obj *otmp)
 {
     int buflen = 0;
     unsigned omid = 0;
+    uchar odye = 0;
+    boolean osum = 0;
 
     Sfi_obj(nhfp, otmp, "obj");
     otmp->lua_ref_cnt = 0;
@@ -224,6 +226,10 @@ restobj(NHFILE *nhfp, struct obj *otmp)
         newomid(otmp); /* superfluous; we're already allocated otmp->oextra */
         Sfi_unsigned(nhfp, &omid, "obj-omid");
         OMID(otmp) = omid;
+        Sfi_unsigned(nhfp, &odye, "obj-odye");
+        ODYE(otmp) = odye;
+        Sfi_boolean(nhfp, &osum, "obj-osum");
+        OSUM(otmp) = osum;
     }
 }
 
@@ -355,6 +361,12 @@ restmon(NHFILE *nhfp, struct monst *mtmp)
            if (EDOG(mtmp)->apport <= 0) {
                EDOG(mtmp)->apport = 1;
            }
+        }
+        /* esum - summoned */
+        Sfi_int(nhfp, &buflen, "monst-esum_length");
+        if (buflen > 0) {
+            newesum(mtmp);
+            Sfi_esum(nhfp, ESUM(mtmp), "monst-esum");
         }
         /* ebones */
         Sfi_int(nhfp, &buflen, "monst-ebones_length");
@@ -1342,8 +1354,8 @@ grow_dungeon(void) {
     }
     if (has_coating(x, y, COAT_FUNGUS) 
         && !has_coating(cc.x, cc.y, COAT_FUNGUS)
-        && add_coating(cc.x, cc.y, COAT_FUNGUS, 0)) {
-        if (cansee(cc.x, cc.y)) pline_xy(cc.x, cc.y, "You see some fungus grow.");
+        && add_coating(cc.x, cc.y, COAT_FUNGUS, levl[x][y].pindex)) {
+        if (cansee(cc.x, cc.y)) pline_xy(cc.x, cc.y, "You see some fungus spread.");
     }
     /* evaporate potions */
     if (!IS_RAINING && has_coating(x, y, COAT_POTION)) {

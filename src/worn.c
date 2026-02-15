@@ -505,7 +505,7 @@ mon_adjust_speed(
     switch (adjust) {
     case 2:
         mon->permspeed = MFAST;
-        give_msg = FALSE; /* special case monster creation */
+        give_msg = FALSE; /* special-case monster creation */
         break;
     case 1:
         if (mon->permspeed == MSLOW)
@@ -1034,7 +1034,7 @@ m_dowear_type(
         }
     }
     update_mon_extrinsics(mon, best, TRUE, creation);
-    /* if couldn't see it but now can, or vice versa, */
+    /* if couldn't see it but now can, or vice versa */
     if (!creation && (sawmon ^ canseemon(mon))) {
         if (mon->minvis && !See_invisible) {
             pline("Suddenly you cannot see %s.", nambuf);

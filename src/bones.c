@@ -103,6 +103,11 @@ resetobjs(struct obj *ochain, boolean restore)
             if (!valid_obj_material(otmp, otmp->material)) {
                 set_material(otmp, objects[otmp->otyp].oc_material);
             }
+            /* wooden objects have a chance of becoming bleakwood */
+            if (otmp->material == WOOD
+                && valid_obj_material(otmp, BLEAKWOOD) && !rn2(10)) {
+                set_material(otmp, BLEAKWOOD);
+            }
         } else { /* saving */
             /* do not zero out o_ids for ghost levels anymore */
 

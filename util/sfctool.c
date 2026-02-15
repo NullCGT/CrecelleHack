@@ -1056,6 +1056,27 @@ free_ebones(struct monst *mtmp)
     }
 }
 
+void
+newesum(struct monst *mtmp)
+{
+    if (!mtmp->mextra)
+        mtmp->mextra = newmextra();
+    if (!ESUM(mtmp)) {
+        ESUM(mtmp) = (struct esum *) alloc(sizeof(struct esum));
+        (void) memset((genericptr_t) ESUM(mtmp), 0, sizeof(struct esum));
+    }
+}
+
+void
+free_esum(struct monst *mtmp)
+{
+    if (mtmp->mextra && ESUM(mtmp)) {
+        free((genericptr_t) ESUM(mtmp));
+        ESUM(mtmp) = (struct esum *) 0;
+    }
+}
+
+
 static const struct mextra zeromextra = DUMMY;
 
 static void
@@ -1176,6 +1197,8 @@ dealloc_mextra(struct monst* m)
             free((genericptr_t) x->edog);
         if (x->ebones)
             free((genericptr_t) x->ebones);
+        if (x->esum)
+            free((genericptr_t) x->esum);
         /* [no action needed for x->mcorpsenm] */
 
         free((genericptr_t) x);

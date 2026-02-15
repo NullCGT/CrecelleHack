@@ -883,7 +883,8 @@ petname_optfn(
     char *petname = (optidx == opt_catname) ? gc.catname
                     : (optidx == opt_dogname) ? gd.dogname
                       : (optidx == opt_horsename) ? gh.horsename
-                        : failsafe;
+                        : (optidx == opt_koboldname) ? gk.koboldname
+                          : failsafe;
 
     if (req == do_init) {
         ;
@@ -1988,6 +1989,15 @@ optfn_hilite_status(
 
 staticfn int
 optfn_horsename(
+    int optidx,
+    int req, boolean negated,
+    char *opts, char *op)
+{
+    return petname_optfn(optidx, req, negated, opts, op);
+}
+
+staticfn int
+optfn_koboldname(
     int optidx,
     int req, boolean negated,
     char *opts, char *op)
@@ -5452,6 +5462,12 @@ optfn_boolean(
         case opt_tiled_map:
             go.opt_need_redraw = TRUE;
             go.opt_need_glyph_reset = TRUE;
+            break;
+        case opt_invisible_dye:
+        case opt_invisible_material:
+            go.opt_need_redraw = TRUE;
+            go.opt_need_glyph_reset = TRUE;
+            update_inventory();
             break;
         case opt_hitpointbar:
             if (VIA_WINDOWPORT()) {

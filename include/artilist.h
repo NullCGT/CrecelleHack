@@ -202,7 +202,7 @@ static NEARDATA struct artifact artilist[] = {
      *              or the shriek that shrieked he,
      *      As I gnashed my teeth, and from my sheath
      *              I drew my Snickersnee!
-     *                      --Koko, Lord high executioner of Titipu
+     *                      --Ko-Ko, Lord high executioner of Titipu
      *                        (From Sir W.S. Gilbert's "The Mikado")
      */
     A("Snickersnee", KATANA, SPFX_RESTR, 0, 0, PHYS(0, 8), NO_DFNS, NO_CARY,
@@ -304,7 +304,7 @@ static NEARDATA struct artifact artilist[] = {
     A("The Longbow of Diana", BOW,
       (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL | SPFX_REFLECT), SPFX_ESP, 0,
       PHYS(5, 0), NO_DFNS, NO_CARY, CREATE_AMMO, A_CHAOTIC, PM_RANGER, NON_PM,
-      0, 12, 4000L, NO_COLOR, DEFAULT_MAT, FIXED_OTYP, LONGBOW_OF_DIANA),
+      0, 12, 4000L, NO_COLOR, BLEAKWOOD, FIXED_OTYP, LONGBOW_OF_DIANA),
 
     /* MKoT has an additional carry property if the Key is not cursed (for
        rogues) or blessed (for non-rogues):  #untrap of doors and chests

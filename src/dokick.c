@@ -152,8 +152,8 @@ kick_monster(struct monst *mon, coordxy x, coordxy y)
     /* anger target even if wild miss will occur */
     setmangry(mon, TRUE);
 
-    if (Levitation && !rn2(3) && verysmall(mon->data)
-        && !is_flyer(mon->data)) {
+    if (Levitation && !Role_if(PM_GRAPPLER)
+        && !rn2(3) && verysmall(mon->data) && !is_flyer(mon->data)) {
         pline("Floating in the air, you miss wildly!");
         exercise(A_DEX, FALSE);
         (void) passive(mon, uarmf, FALSE, 1, AT_KICK, FALSE);
@@ -210,7 +210,8 @@ kick_monster(struct monst *mon, coordxy x, coordxy y)
                 Your("%s %s.", kick_passes_thru, mon_nam(mon));
                 break; /* skip any additional kicks */
             } else if (tmp > kickdieroll) {
-                You("kick %s.", mon_nam(mon));
+                You("%skick %s.", mon_nam(mon),
+                    !Role_if(PM_GRAPPLER) ? "" : Levitation ? "drop" : "super");
                 sum = damageum(mon, uattk, specialdmg);
                 if (hated_obj)
                     searmsg(&gy.youmonst, mon, hated_obj, FALSE);
@@ -265,7 +266,7 @@ kick_monster(struct monst *mon, coordxy x, coordxy y)
             pline_mon(mon, "You kick ashes in the %s of %s.",
                 mbodypart(mon, FACE), mon_nam(mon));
     }
-    You("kick %s.", mon_nam(mon));
+    You("%skick %s.", !Role_if(PM_GRAPPLER) ? "" : Levitation ? "drop" : "super", mon_nam(mon));
     if (!rn2(clumsy ? 3 : 4) && (clumsy || !bigmonst(mon->data))
         && mon->mcansee && !mon->mtrapped && !thick_skinned(mon->data)
         && mon->data->mlet != S_EEL && haseyes(mon->data) && mon->mcanmove
@@ -449,7 +450,7 @@ container_impact_dmg(
         if (otmp->material == GLASS
             && otmp->oclass != GEM_CLASS && !obj_resists(otmp, 33, 100)) {
             result = "shatter";
-        } else if (objects[otmp->otyp].oc_material == ICECRYSTAL) {
+        } else if (otmp->material == ICECRYSTAL && !obj_resists(otmp, 33, 0)) {
             result = "tinkling";
         } else if (otmp->otyp == EGG && !rn2(3)) {
             result = "cracking";

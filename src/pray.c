@@ -217,7 +217,7 @@ in_trouble(void)
         return TROUBLE_STARVING;
     if (region_danger())
         return TROUBLE_REGION;
-    if (critically_low_hp(FALSE))
+    if ((!Upolyd || Unchanging) && critically_low_hp(FALSE))
         return TROUBLE_HIT;
     if (ismnum(u.ulycn))
         return TROUBLE_LYCANTHROPE;
@@ -1833,7 +1833,7 @@ bestow_artifact(uchar max_giftvalue)
             exercise(A_WIS, TRUE);
             livelog_printf(LL_DIVINEGIFT | LL_ARTIFACT,
                             "was bestowed with %s %s named %s by %s",
-                            an(materialnm[otmp->material]),
+                            an(MAT_NAME(otmp->material)),
                             OBJ_NAME(objects[otmp->otyp]),
                             artiname(otmp->oartifact),
                             align_gname(u.ualign.type));

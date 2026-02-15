@@ -47,12 +47,8 @@ multishot_class_bonus(
     switch (pm) {
     case PM_CAVE_DWELLER:
         /* give bonus for low-tech gear */
-        if (skill == -P_SLING || skill == P_SPEAR)
-            multishot++;
-        break;
-    case PM_MONK:
-        /* allow higher volley count despite skill limitation */
-        if (skill == -P_SHURIKEN)
+        if ((skill == -P_SLING || skill == P_SPEAR)
+            && ammo->otyp != TRIDENT)
             multishot++;
         break;
     case PM_RANGER:
@@ -66,7 +62,9 @@ multishot_class_bonus(
             multishot++;
         break;
     case PM_NINJA:
-        if (skill == -P_SHURIKEN || skill == -P_DART)
+    case PM_MONK:
+        /* allow higher volley count despite skill limitation */
+        if (skill == -P_MISSILES)
             multishot++;
         FALLTHROUGH;
         /*FALLTHRU*/
@@ -171,7 +169,7 @@ throw_obj(struct obj *obj, int shotlimit)
         /* some roles don't get a volley bonus until becoming expert */
         weakmultishot = (Role_if(PM_WIZARD) || Role_if(PM_CLERIC)
                          || (Role_if(PM_HEALER) && skill != P_KNIFE)
-                         || (Role_if(PM_TOURIST) && skill != -P_DART)
+                         || (Role_if(PM_TOURIST) && skill != -P_MISSILES)
                          /* poor dexterity also inhibits multishot */
                          || Fumbling || ACURR(A_DEX) <= 6);
 
@@ -1353,7 +1351,7 @@ toss_up(struct obj *obj, boolean hitsroof)
                 harmless = (stone_missile(obj)
                             && passes_rocks(gy.youmonst.data)),
                 artimsg = FALSE;
-        int dmg = dmgval(obj, &gy.youmonst);
+        int dmg = dmgval(obj, &gy.youmonst, &gy.youmonst);
 
         if ((obj->oartifact || obj->oprop) && !harmless)
             /* need a fake die roll here; rn1(18,2) avoids 1 and 20 */
@@ -1436,7 +1434,7 @@ toss_up(struct obj *obj, boolean hitsroof)
 boolean
 throwing_weapon(struct obj *obj)
 {
-    return (boolean) (is_missile(obj) || is_spear(obj)
+    return (boolean) (is_missile(obj) || (is_spear(obj) && obj->otyp != TRIDENT)
                       /* daggers and knife (excludes scalpel) */
                       || (is_blade(obj) && !is_sword(obj)
                           && (objects[obj->otyp].oc_dir & PIERCE))
@@ -1479,6 +1477,37 @@ swallowit(struct obj *obj)
         throwit_return(FALSE);
     } else
         throwit_return(TRUE);
+}
+
+/* thrown object hits a monster.
+   mon may be NULL.
+   returns TRUE if shopkeeper caught the object.
+   may delete object, clearing gt.thrownobj */
+boolean
+throwit_mon_hit(struct obj *obj, struct monst *mon)
+{
+    if (mon) {
+        boolean obj_gone;
+
+        if (mon->isshk && obj->where == OBJ_MINVENT && obj->ocarry == mon) {
+            return TRUE;
+        }
+        (void) snuff_candle(obj);
+        gn.notonhead = (gb.bhitpos.x != mon->mx || gb.bhitpos.y != mon->my);
+        obj_gone = thitmonst(mon, obj);
+        /* Monster may have been tamed; this frees old mon [obsolete] */
+        mon = m_at(gb.bhitpos.x, gb.bhitpos.y);
+
+        /* [perhaps this should be moved into thitmonst or hmon] */
+        if (mon && mon->isshk
+            && (!inside_shop(u.ux, u.uy)
+                || !strchr(in_rooms(mon->mx, mon->my, SHOPBASE), *u.ushops)))
+            hot_pursuit(mon);
+
+        if (obj_gone)
+            gt.thrownobj = (struct obj *) 0;
+    }
+    return FALSE;
 }
 
 /* throw an object, NB: obj may be consumed in the process */
@@ -1614,8 +1643,13 @@ throwit(
                     range = BOLT_LIM;
                 else
                     range++;
-            } else if (obj->oclass != GEM_CLASS)
+            } else if (obj->oclass != GEM_CLASS) {
                 range /= 2;
+                pline("You aren't wielding %s, so you throw your %s by %s.",
+                      an(skill_name(weapon_type(obj))),
+                      weapon_descr(obj),
+                      body_part(HAND));
+            }
         }
 
         if (Is_airlevel(&u.uz) || Levitation) {
@@ -1663,27 +1697,9 @@ throwit(
         }
     }
 
-    if (mon) {
-        boolean obj_gone;
-
-        if (mon->isshk && obj->where == OBJ_MINVENT && obj->ocarry == mon) {
-            throwit_return(TRUE); /* alert shk caught it */
-            return;
-        }
-        (void) snuff_candle(obj);
-        gn.notonhead = (gb.bhitpos.x != mon->mx || gb.bhitpos.y != mon->my);
-        obj_gone = thitmonst(mon, obj);
-        /* Monster may have been tamed; this frees old mon [obsolete] */
-        mon = m_at(gb.bhitpos.x, gb.bhitpos.y);
-
-        /* [perhaps this should be moved into thitmonst or hmon] */
-        if (mon && mon->isshk
-            && (!inside_shop(u.ux, u.uy)
-                || !strchr(in_rooms(mon->mx, mon->my, SHOPBASE), *u.ushops)))
-            hot_pursuit(mon);
-
-        if (obj_gone)
-            gt.thrownobj = (struct obj *) 0;
+    if (throwit_mon_hit(obj, mon)) {
+        throwit_return(TRUE); /* alert shk caught it */
+        return;
     }
 
     if (!gt.thrownobj) {
@@ -2482,7 +2498,7 @@ breakobj(
 
     switch (obj->oclass == POTION_CLASS ? POT_WATER : obj->otyp) {
     case LUMP_OF_ROYAL_JELLY:
-        add_coating(x, y, COAT_HONEY, 0);
+        floor_spillage(x, y, POT_HONEY, NON_PM);
         break;
     case MIRROR:
         if (hero_caused)

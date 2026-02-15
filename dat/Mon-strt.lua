@@ -36,7 +36,7 @@ des.map([[
 ............................................................................
 ]]);
 -- Dungeon Description
-des.region(selection.area(00,00,75,19), "lit")
+des.region(selection.area(00,00,75,19), "unlit")
 des.region({ region={24,06, 33,13}, lit=1, type="temple" })
 
 des.replace_terrain({ region={00,00, 10,19}, fromterrain=".", toterrain="T", chance=10 })

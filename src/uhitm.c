@@ -199,7 +199,7 @@ attack_checks(
         return FALSE;
 
     if (svc.context.forcefight) {
-        /* Do this in the caller, after we checked that the monster
+        /* Do this in the caller, after we have checked that the monster
          * didn't die from the blow.  Reason: putting the 'I' there
          * causes the hero to forget the square's contents since
          * both 'I' and remembered contents are stored in .glyph.
@@ -373,16 +373,11 @@ find_roll_to_hit(
     int *role_roll_penalty)
 {
     int tmp, tmp2;
-    int luck = 0;
 
     *role_roll_penalty = 0; /* default is `none' */
 
-    if (Luck > 0) {
-        luck = d(1, Luck);
-    } else if (Luck < 0) {
-        luck = d(1, -1 * Luck);
-    }
-    tmp = 1 + luck + abon(weapon) + find_mac(mtmp) + u.uhitinc
+    tmp = 1 + abon(uwep) + find_mac(mtmp) + u.uhitinc
+          + (sgn(Luck) * ((abs(Luck) + 2) / 3))
           + maybe_polyd(gy.youmonst.data->mlevel, u.ulevel);
 
     /* some actions should occur only once during multiple attacks */
@@ -969,7 +964,7 @@ hmon_hitmon_weapon_melee(
 
     /* "normal" weapon usage */
     hmd->use_weapon_skill = TRUE;
-    hmd->dmg = dmgval(obj, mon);
+    hmd->dmg = dmgval(obj, &gy.youmonst, mon);
     /* a minimal hit doesn't exercise proficiency */
     hmd->train_weapon_skill = (hmd->dmg > 1);
     /* special attack actions */
@@ -1070,7 +1065,7 @@ hmon_hitmon_weapon_melee(
         && (is_ammo(obj) || is_missile(obj))) {
         if (ammo_and_launcher(obj, uwep)) {
             /* elves and samurai do extra damage using their own
-               bows with own arrows; they're highly trained */
+               bows with their own arrows; they're highly trained */
             if (Role_if(PM_SAMURAI) && obj->otyp == YA
                 && uwep->otyp == YUMI)
                 hmd->dmg++;
@@ -1093,6 +1088,9 @@ hmon_hitmon_weapon(
     struct monst *mon,
     struct obj *obj)   /* obj is not NULL */
 {
+    if (resist_oc_dir(mon, obj->otyp)) {
+        hmd->resist = TRUE;
+    }
     /* is it not a melee weapon? */
     if (/* if you strike with a bow... */
         is_launcher(obj)
@@ -1146,7 +1144,7 @@ hmon_hitmon_misc_obj(
     case BOULDER:         /* 1d20 */
     case HEAVY_IRON_BALL: /* 1d25 */
     case IRON_CHAIN:      /* 1d4+1 */
-        hmd->dmg = dmgval(obj, mon);
+        hmd->dmg = dmgval(obj, &gy.youmonst, mon);
         if (mon_hates_material(mon, obj->material)) {
             /* dmgval() already added damage, but track hated_obj */
             hmd->hatedobj = hmd->hatedmsg = TRUE;
@@ -1360,7 +1358,7 @@ hmon_hitmon_misc_obj(
             hmd->dmg = 0;
         } else {
             Your("venom burns %s!", mon_nam(mon));
-            hmd->dmg = dmgval(obj, mon);
+            hmd->dmg = dmgval(obj, &gy.youmonst, mon);
         }
         {
             boolean more_than_1 = (obj->quan > 1L);
@@ -1415,6 +1413,9 @@ hmon_hitmon_misc_obj(
            need another silver check; blessed check too */
         if (mon_hates_material(mon, hmd->material)) {
             hmd->hatedmsg = hmd->hatedobj = TRUE;
+        }
+        if (resist_oc_dir(mon, obj->otyp)) {
+            hmd->resist = TRUE;
         }
         if (obj->blessed && mon_hates_blessings(mon))
             hmd->dmg += rnd(4);
@@ -1476,7 +1477,7 @@ hmon_hitmon_do_hit(
 staticfn void
 hmon_hitmon_dmg_recalc(struct _hitmon_data *hmd, struct obj *obj)
 {
-    int dmgbonus = 0, strbonus, absbonus;
+    int dmgbonus = 0;
 
     /*
      * Potential bonus (or penalty) from worn ring of increase damage
@@ -1499,6 +1500,7 @@ hmon_hitmon_dmg_recalc(struct _hitmon_data *hmd, struct obj *obj)
            for two-handed strength does not apply to polearms unless
            hero is simply bashing with one of those and does not apply
            to jousting because lances are one-handed */
+        #if 0
         if (hmd->thrown != HMON_THROWN
             || !obj || !uwep || !ammo_and_launcher(obj, uwep)) {
             strbonus = dbon();
@@ -1509,6 +1511,7 @@ hmon_hitmon_dmg_recalc(struct _hitmon_data *hmd, struct obj *obj)
                 strbonus = ((3 * absbonus + 1) / 2) * sgn(strbonus);
             dmgbonus += strbonus;
         }
+        #endif
     }
 
     /*
@@ -1585,7 +1588,7 @@ hmon_hitmon_jousting(
     struct obj *obj) /* lance; obj is not NULL */
 {
     hmd->dmg += d(2, (obj == uwep) ? 10 : 2); /* [was in dmgval()] */
-    You("joust %s%s", mon_nam(mon), canseemon(mon) ? exclam(hmd->dmg) : ".");
+    You("joust %s%s", mon_nam(mon), canseemon(mon) ? maybe_elipses_exclam(hmd->dmg, hmd->resist) : ".");
     /* if this hit just broke the never-hit-with-wielded-weapon conduct
        (handled by caller...), give a livelog message for that now */
     if (u.uconduct.weaphit <= 1)
@@ -1657,6 +1660,7 @@ hmon_hitmon_splitmon(
            also allow either or both weapons to cause split when twoweap] */
         && obj && (obj == uwep || (u.twoweap && obj == uswapwep))
         && ((hmd->material == IRON
+             || hmd->material == NIGHTIRON
              /* allow scalpel and tsurugi to split puddings */
              || hmd->material == METAL
              || hmd->mdat == &mons[PM_HELLBAT])
@@ -1698,14 +1702,12 @@ weapon_hit_text(struct obj *obj) {
     case P_SABER:
         return "slash";
     case P_MACE:
-    case P_MORNING_STAR:
     case P_FLAIL:
     case P_HAMMER:
         return "bash";
     case P_QUARTERSTAFF:
         return "strike";
     case P_SPEAR:
-    case P_TRIDENT:
     case P_LANCE:
         return "jab";
     case P_WHIP:
@@ -1726,7 +1728,7 @@ hmon_hitmon_msg_hit(
             || (hmd->thrown && gm.m_shot.n > 1
                 && gm.m_shot.o == obj->otyp))) {
         if (hmd->thrown)
-            hit(mshot_xname(obj), mon, exclam(hmd->dmg));
+            hit(mshot_xname(obj), mon, maybe_elipses_exclam(hmd->dmg, hmd->resist));
         else if (!flags.verbose)
             You("hit it.");
         else /* hand_to_hand */
@@ -1736,7 +1738,7 @@ hmon_hitmon_msg_hit(
                 : (obj && is_wet_towel(obj)) ? "lash"
                   : Role_if(PM_BARBARIAN) ? "smite"
                     : weapon_hit_text(obj),
-                mon_nam(mon), canseemon(mon) ? exclam(hmd->dmg) : ".");
+                mon_nam(mon), canseemon(mon) ? maybe_elipses_exclam(hmd->dmg, hmd->resist) : ".");
     }
 }
 
@@ -1871,6 +1873,7 @@ hmon_hitmon(
     hmd.doreturn = FALSE;
     hmd.retval = FALSE;
     hmd.saved_oname[0] = '\0';
+    hmd.resist = 0;
 
     hmon_hitmon_do_hit(&hmd, mon, obj);
     if (hmd.doreturn)
@@ -1930,7 +1933,7 @@ hmon_hitmon(
         mon->mhp -= hmd.dmg;
     }
     /* adjustments might have made tmp become less than what
-       a level draining artifact has already done to max HP */
+       a level-draining artifact has already done to max HP */
     if (mon->mhp > mon->mhpmax)
         mon->mhp = mon->mhpmax;
     if (mon->mx == 0) {
@@ -2109,7 +2112,7 @@ shade_miss(
     boolean youagr = (magr == &gy.youmonst), youdef = (mdef == &gy.youmonst);
 
     /* we're using dmgval() for zero/not-zero, not for actual damage amount */
-    if (mdef->data != &mons[PM_SHADE] || (obj && dmgval(obj, mdef)))
+    if (mdef->data != &mons[PM_SHADE] || (obj && dmgval(obj, magr, mdef)))
         return FALSE;
 
     if (verbose
@@ -4294,7 +4297,7 @@ mhitm_ad_phys(
                         }
                     }
                 }
-                mhm->damage += dmgval(otmp, mdef);
+                mhm->damage += dmgval(otmp, magr, mdef);
                 if ((marmg = which_armor(magr, W_ARMG)) != 0
                     && marmg->otyp == GAUNTLETS_OF_POWER)
                     mhm->damage += rn1(4, 3); /* 3..6 */
@@ -4326,7 +4329,7 @@ mhitm_ad_phys(
 
                 if (u.mh - tmp > 1
                     /* relevant 'metal' objects are scalpel and tsurugi */
-                    && (otmp->material == IRON || otmp->material == METAL)
+                    && (is_iron(otmp) || otmp->material == METAL)
                     && (u.umonnum == PM_BLACK_PUDDING
                         || u.umonnum == PM_BROWN_PUDDING)) {
                     if (tmp > 1)
@@ -4384,7 +4387,7 @@ mhitm_ad_phys(
                     return;
             }
 
-            mhm->damage += dmgval(mwep, mdef);
+            mhm->damage += dmgval(mwep, magr, mdef);
             if ((marmg = which_armor(magr, W_ARMG)) != 0
                 && marmg->otyp == GAUNTLETS_OF_POWER)
                 mhm->damage += rn1(4, 3); /* 3..6 */
@@ -5647,6 +5650,8 @@ mhitm_knockback(
             if (!was_u)
                 *hitflags |= M_ATTK_DEF_DIED;
         } else if (!rn2(4)) {
+            if (Role_if(PM_GRAPPLER) && u.uen == u.uenmax)
+                pline_mon(mdef, "%s is stunned! Now's your chance!", Monnam(mdef));
             mdef->mstun = 1;
             /* if steed and hero were knocked back, update attacker's idea
                of where hero is */
@@ -6258,6 +6263,9 @@ passive(
             learn_it = TRUE;
         }
         break;
+    case AD_DISE:
+        diseasemu(ptr);
+        break;
     default:
         break;
     }
@@ -6329,6 +6337,7 @@ passive(
                 if ((mon->mhpmax > (((int) mon->m_lev) + 1) * 8)
                     && mon->data != &mons[PM_FROSTWURM])
                     (void) split_mon(mon, &gy.youmonst);
+                spread_mold(mon->mx, mon->my, mon->data);
                 learn_it = TRUE;
             }
             break;
@@ -6336,6 +6345,7 @@ passive(
             if (!Stunned)
                 make_stunned((long) tmp, TRUE);
             learn_it = TRUE;
+            spread_mold(mon->mx, mon->my, mon->data);
             break;
         case AD_FIRE:
             if (monnear(mon, u.ux, u.uy)) {
@@ -6348,6 +6358,7 @@ passive(
                 }
                 monstunseesu(M_SEEN_FIRE);
                 You("are suddenly very hot!");
+                spread_mold(mon->mx, mon->my, mon->data);
                 learn_it = TRUE;
             }
             break;
@@ -6368,7 +6379,7 @@ passive(
                 learn_it = TRUE;
                 pline_mon(mon, "Some honey drips from %s.", mon_nam(mon));
             }
-            add_coating(mon->mx, mon->my, COAT_HONEY, 0);
+            floor_spillage(mon->mx, mon->my, POT_HONEY, NON_PM);
             break;
         default:
             break;
@@ -6776,7 +6787,7 @@ oprop_effects_pre(struct monst *magr, struct monst *mdef)
             gb.buzzer = 0;
         }
     }
-    if (weapon->oprop == OPROP_THERMAL && !rn2(5)) {
+    if (weapon->oprop == OPROP_BLAZING && !rn2(5)) {
         if (cansee(dx, dy)) {
             pline_The("%s ignites!", simpleonames(weapon));
             weapon->pknown = 1;
@@ -6784,6 +6795,23 @@ oprop_effects_pre(struct monst *magr, struct monst *mdef)
         create_bonfire(dx, dy, rnd(7), d(2, 4));
     }
     return DEADMONSTER(mdef);
+}
+
+/* spread mold to nearby squares */
+void
+spread_mold(coordxy x, coordxy y, struct permonst *mold)
+{
+    coord cc;
+
+    if (mold->mlet != S_FUNGUS)
+        return;
+    if (!has_coating(x, y, COAT_FUNGUS) || levl[x][y].pindex != mold->pmidx) {
+        add_coating(x, y, COAT_FUNGUS, mold->pmidx);
+        return;
+    } else {
+        enexto(&cc, x, y, &mons[PM_EARTH_ELEMENTAL]);
+        add_coating(cc.x, cc.y, COAT_FUNGUS, mold->pmidx);
+    }
 }
 
 /*uhitm.c*/

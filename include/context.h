@@ -17,6 +17,7 @@ enum nh_tips {
     TIP_UNTRAP_MON,  /* walking into trapped peaceful */
     TIP_GETPOS,      /* getpos/farlook */
     TIP_ORDER,       /* order pets */
+    TIP_INEFFECTIVE, /* ineffective weapon */
 
     NUM_TIPS
 };

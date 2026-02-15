@@ -8,6 +8,7 @@
 
 static NEARDATA struct obj *mon_currwep = (struct obj *) 0;
 
+staticfn void collateral_damage(struct monst *, struct attack *);
 staticfn void missmu(struct monst *, boolean, struct attack *);
 staticfn void mswings(struct monst *, struct obj *, boolean);
 staticfn void wildmiss(struct monst *, struct attack *);
@@ -92,17 +93,48 @@ missmu(struct monst *mtmp, boolean nearmiss, struct attack *mattk)
 {
     gh.hitmsg_mid = 0;
     gh.hitmsg_prev = NULL;
+    boolean floor_dmg = collateral(mtmp->data) && (nearmiss || !rn2(5));
 
     if (!canspotmon(mtmp))
         map_invisible(mtmp->mx, mtmp->my);
 
-    if (could_seduce(mtmp, &gy.youmonst, mattk) && !mtmp->mcan)
+    if (could_seduce(mtmp, &gy.youmonst, mattk) && !mtmp->mcan) {
         pline_mon(mtmp, "%s pretends to be friendly.", Monnam(mtmp));
-    else
+    } else if (floor_dmg) {
+        pline_mon(mtmp, "%s misses and hits the %s!",
+                        Monnam(mtmp), surface(u.ux, u.uy));
+        collateral_damage(mtmp, mattk);
+    } else {
         pline_mon(mtmp, "%s %smisses!", Monnam(mtmp),
               (nearmiss && flags.verbose) ? "just " : "");
+    }
 
     stop_occupation();
+}
+
+/* monster's miss caused collateral damage */
+staticfn void
+collateral_damage(struct monst *mtmp, struct attack *mattk)
+{
+    boolean smash = FALSE;
+    boolean slice = FALSE;
+    struct obj *mwep = MON_WEP(mtmp);
+    if (mattk->aatyp == AT_WEAP && mwep) {
+        smash = is_blunt_weapon(mwep);
+        slice = objects[mwep->otyp].oc_dir & SLASH;
+    } else {
+        smash = TRUE;
+    }
+    /* effects */
+    if (smash) {
+        (void) scatter(u.ux, u.uy, 2,
+                        MAY_DESTROY | MAY_HIT | VIS_EFFECTS,
+                        (struct obj *) 0);
+    }
+    if (slice && remove_coating(u.ux, u.uy, COAT_GRASS)
+        && flags.verbose) {
+        pline("Grass flies through the air.");
+    }
 }
 
 /* strike types P|S|B: Pierce (pointed: stab) => "thrusts",
@@ -437,6 +469,13 @@ getmattk(
 
     }
 
+    /* elementals on their home plane do double damage */
+    if (attk != alt_attk_buf && is_home_elemental(mptr)) {
+        *alt_attk_buf = *attk;
+        attk = alt_attk_buf;
+        attk->damn *= 2;
+    }
+
     return attk;
 }
 
@@ -732,7 +771,8 @@ mattacku(struct monst *mtmp)
         && is_trippable(gy.youmonst.data) && (u.uhp > mtmp->m_lev)
         && !rn2((10 - u.uac > mtmp->m_lev) ? 8 : 100)) {
         trip_monster(mtmp, &gy.youmonst,
-                    is_tripweapon(MON_WEP(mtmp)) ? MON_WEP(mtmp) : (struct obj *) 0);
+                    (MON_WEP(mtmp) && is_tripweapon(MON_WEP(mtmp)))
+                        ? MON_WEP(mtmp) : (struct obj *) 0);
         return 0;
     }
 
@@ -1416,15 +1456,14 @@ gulpmu(struct monst *mtmp, struct attack *mattk)
            for other swallowings, longer time means more
            chances for the swallower to attack */
         if (mattk->adtyp == AD_DGST) {
-            tim_tmp = 25 - (int) mtmp->m_lev;
-            if (tim_tmp > 0)
-                tim_tmp = rnd(tim_tmp) / 2;
-            else if (tim_tmp < 0)
-                tim_tmp = -(rnd(-tim_tmp) / 2);
             /* having good armor & high constitution makes
                it take longer for you to be digested, but
                you'll end up trapped inside for longer too */
-            tim_tmp += -u.uac + 10 + (ACURR(A_CON) / 3 - 1);
+            tim_tmp = (int)ACURR(A_CON) + 10 - (int)u.uac + rn2(20);
+            if (tim_tmp < 0)
+                tim_tmp = 0;
+            tim_tmp /= (int) mtmp->m_lev;
+            tim_tmp += 3;
         } else {
             /* higher level attacker takes longer to eject hero */
             tim_tmp = rnd((int) mtmp->m_lev + 10 / 2);
@@ -1589,10 +1628,17 @@ gulpmu(struct monst *mtmp, struct attack *mattk)
         break;
     }
 
-    if (physical_damage)
+    if (physical_damage) {
+        /* same damage reduction for AC as in hitmu */
+        if (u.uac < 0)
+            tmp -= rnd(-u.uac);
+        if (tmp < 0)
+            tmp = 1;
+
         tmp = Maybe_Half_Phys(tmp);
-    else
+    } else {
         adjust_damage(&gy.youmonst, &tmp, AD_FIRE);
+    }
 
     gm.mswallower = mtmp; /* match gulpmm() */
     mdamageu(mtmp, tmp);
@@ -2059,6 +2105,7 @@ doseduce(struct monst *mon)
         pline("Someone caresses you...");
     else
         You_feel("very attracted to %s.", mon_nam(mon));
+    exercise(A_CHA, TRUE);
     /* cache the seducer's name in a local buffer */
     Strcpy(Who, (!seewho ? (fem ? "She" : "He") : Monnam(mon)));
 
@@ -2667,8 +2714,17 @@ passiveum(
             break;
         case AD_HONY:
             You("release some honey.");
-            add_coating(u.ux, u.uy, COAT_HONEY, 0);
+            floor_spillage(u.ux, u.uy, POT_HONEY, NON_PM);
             tmp = 0;
+            break;
+        case AD_DISE:
+            if (canseemon(mtmp)) {
+                pline("%s is covered with tiny spores!", Monnam(mtmp));
+            }
+            if (resists_sick(mtmp)) {
+                pline("%s doesn't seem to notice the spores.", Monnam(mtmp));
+                tmp = 0;
+            }
             break;
         default:
             tmp = 0;

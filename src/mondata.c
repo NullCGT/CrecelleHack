@@ -162,6 +162,8 @@ Resists_Elem(struct monst *mon, int propindx)
         return resists_drli(mon);
     case BLND_RES:
         return resists_blnd(mon);
+    case SICK_RES:
+        return resists_sick(mon);
 
     default:
         impossible("Resists_Elem(%d), unexpected property type", propindx);
@@ -209,6 +211,15 @@ resists_drli(struct monst *mon)
         || ptr == &mons[PM_TORNADO])
         return TRUE;
     return defended(mon, AD_DRLI);
+}
+
+boolean
+resists_sick(struct monst *mon)
+{
+    if (mon->data->mlet == S_FUNGUS
+            || mon->data == &mons[PM_GHOUL])
+        return TRUE;
+    return defended(mon, AD_DISE);
 }
 
 /* True if monster is magic-missile (actually, general magic) resistant */
@@ -554,7 +565,9 @@ hates_material(struct permonst *ptr, int material)
         return (boolean) (is_were(ptr) || ptr->mlet == S_VAMPIRE
                           || is_demon(ptr) || ptr == &mons[PM_SHADE]
                           || (ptr->mlet == S_IMP));
-    } else if (material == IRON) {
+    } else if (material == SALT) {
+        return (ptr->mlet == S_MUMMY);
+    } else if (material == IRON || material == NIGHTIRON) {
         /* elves hate cold iron */
         return is_elf(ptr);
     }
@@ -727,6 +740,7 @@ num_horns(struct permonst *ptr)
     case PM_MINOTAUR:
     case PM_ASMODEUS:
     case PM_BALROG:
+    case PM_BLOOD_IMP:
         return 2;
     case PM_WHITE_UNICORN:
     case PM_GRAY_UNICORN:
@@ -1307,6 +1321,7 @@ static const short grownups[][2] = {
     { PM_DEMILICH, PM_MASTER_LICH },
     { PM_MASTER_LICH, PM_ARCH_LICH },
     { PM_VAMPIRE, PM_VAMPIRE_LEADER },
+    { PM_VAMPIRE_LEADER, PM_VAMPIRE_MAGE },
     { PM_BAT, PM_GIANT_BAT },
     { PM_BABY_GRAY_DRAGON, PM_GRAY_DRAGON },
     { PM_BABY_GOLD_DRAGON, PM_GOLD_DRAGON },
@@ -1764,6 +1779,8 @@ monmaterial(int mndx)
         return IRON;
     case PM_ICE_PARAELEMENTAL:
         return ICECRYSTAL;
+    case PM_SALT_GOLEM:
+        return SALT;
     default:
         return 0;
     }

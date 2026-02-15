@@ -257,7 +257,7 @@ mhidden_description(
                        : surface(x, y)); /* trapper */
         } else if (mud_hider(mon->data)
                     && has_coating(mon->mx, mon->my, COAT_MUD)) {
-
+            Strcat(outbuf, "in the mud");
         } else {
             if (mon->data->mlet == S_EEL && is_pool(x, y))
                 Strcat(outbuf, " in murky water");
@@ -468,6 +468,8 @@ look_at_monster(
     else if (mtmp->msleeping)
         /* sleeping for an indeterminate duration */
         Strcat(buf, ", asleep");
+    else if (Role_if(PM_GRAPPLER) && mtmp->mstun)
+        Strcat(buf, ", stunned");
     else if ((mtmp->mstrategy & STRAT_WAITMASK) != 0)
         /* arbitrary reason why it isn't moving */
         Strcat(buf, ", meditating");
@@ -656,7 +658,8 @@ coat_descr(coordxy x, coordxy y, short symidx, char *outbuf) {
     pindex = levl[x][y].pindex;
     for (int i = 0; i < NUM_COATINGS; i++) {
         if (all_coatings[i].val == COAT_POTION
-            || all_coatings[i].val == COAT_BLOOD)
+            || all_coatings[i].val == COAT_BLOOD
+            || all_coatings[i].val == COAT_FUNGUS)
                 continue;
         if (levl[x][y].coat_info & all_coatings[i].val)
             Strcat(outbuf, all_coatings[i].adj);
@@ -674,6 +677,11 @@ coat_descr(coordxy x, coordxy y, short symidx, char *outbuf) {
             Sprintf(buf, "%s covered in %s blood", floor_descr(x, y, symidx), mons[levl[x][y].pindex].pmnames[NEUTRAL]);
         else
             Sprintf(buf, "%s covered in blood", floor_descr(x, y, symidx));
+    } else if ((levl[x][y].coat_info & COAT_FUNGUS) != 0) {
+        if (ismnum(levl[x][y].pindex))
+            Sprintf(buf, "%s covered in %s", floor_descr(x, y, symidx), mons[levl[x][y].pindex].pmnames[NEUTRAL]);
+        else
+            Sprintf(buf, "%s covered in funky fungus", floor_descr(x, y, symidx));
     } else
         Sprintf(buf, "%s", floor_descr(x, y, symidx));
     Strcat(outbuf, buf);
@@ -693,8 +701,8 @@ potion_coating_text(char *outbuf, int pindex) {
                                                 : OBJ_DESCR(objects[pindex]),
                     objects[pindex].oc_name_known ?
                         ((pindex == POT_BOOZE
-                            || pindex == POT_OIL
-                            || pindex == POT_WATER
+                            || pindex == POT_OIL || pindex == POT_WATER
+                            || pindex == POT_DYE || pindex == POT_HONEY
                             || pindex == POT_BLOOD) ? "" : " tonic") : " liquid");
     }
     return outbuf;
@@ -1838,7 +1846,7 @@ do_look(int mode, coord *click_cc)
              * introduced.
              *
              * When lootabc is set, abandon the 'y'|'n' compatibility in
-             * favor of newer '/' and '?' compatobility instead.
+             * favor of newer '/' and '?' compatibility instead.
              */
 
             any.a_char = '/';
@@ -2060,13 +2068,13 @@ do_look(int mode, coord *click_cc)
 
                 supplemental_name[0] = '\0';
                 Strcpy(temp_buf, firstmatch);
+                if (supplemental_pm)
+                    do_supplemental_info(supplemental_name, supplemental_pm,
+                                         FALSE);
                 (void) checkfile(temp_buf, pm,
                                  (ans == LOOK_VERBOSE) ? chkfilDontAsk
                                                        : chkfilNone,
                                  supplemental_name);
-                if (supplemental_pm)
-                    do_supplemental_info(supplemental_name, supplemental_pm,
-                                         FALSE);
             }
         } else {
             pline("I've never heard of such things.");
@@ -2369,84 +2377,96 @@ do_supplemental_item_info(struct obj *otmp)
 {
     winid datawin = WIN_ERR;
     char buf[BUFSZ];
-    char dam_buf[10];
-    int dbonus;
     /* Display monster info */
     datawin = create_nhwindow(NHW_MENU);
+    start_menu(datawin, MENU_BEHAVE_STANDARD);
+    gm.mrg_to_wielded = TRUE;
     Sprintf(buf, "%s", Doname2(otmp));
-    putstr(datawin, iflags.menu_headings.attr, buf);
+    gm.mrg_to_wielded = FALSE;
+    add_menu_heading(datawin,  buf);
     if (not_fully_identified(otmp)) {
-        putstr(datawin, 0, "There is more you could learn about it.");
+        add_menu_str(datawin, "There is more you could learn about it.");
     } else {
-        putstr(datawin, 0, "It is fully identified.");
+        add_menu_str(datawin, "It is fully identified.");
+    }
+    /* Dyes */
+    if (has_odye(otmp) && !(otmp->otyp == POT_DYE && !otmp->dknown)) {
+        if (otmp->otyp == POT_DYE)
+            Sprintf(buf, "It will dye items %s.", dye_to_name(otmp));
+        else
+            Sprintf(buf, "It is dyed %s.", dye_to_name(otmp));
+        add_menu_str(datawin, buf);
     }
     /* Scroll Writing */
     if ((otmp->oclass == SCROLL_CLASS || otmp->oclass == SPBOOK_CLASS)
         && objects[otmp->otyp].oc_name_known) {
         Sprintf(buf, "It would cost ~%d ink to write.", cost(otmp));
-        putstr(datawin, 0, buf);
+        add_menu_str(datawin, buf);
     }
-    if (otmp->oclass == WEAPON_CLASS) {
+    if (otmp->oclass == WEAPON_CLASS || is_weptool(otmp)) {
         if (is_dualweapon(otmp))
-            putstr(datawin, 0, "It can be dual-wielded.");
+            add_menu_str(datawin, "It can be dual-wielded.");
         if (is_tripweapon(otmp))
-            putstr(datawin, 0, "It can be used to trip monsters.");
-        if (is_poisonable(otmp))
-            putstr(datawin, 0, "It can be poisoned.");
+            add_menu_str(datawin, "It can be used to trip monsters.");
+        if (is_poisonable(otmp) && !otmp->opoisoned)
+            add_menu_str(datawin, "It can be poisoned.");
+        Sprintf(buf, "It uses your %s skill.", skill_name(abs(objects[otmp->otyp].oc_skill)));
+        add_menu_str(datawin, buf);
+        if (get_scaling_type(otmp) >= A_STR) {
+            Sprintf(buf, "Its damage scales with your %s.",
+                    attr_name(get_scaling_type(otmp)));
+            add_menu_str(datawin, buf);
+        }
+        if (get_hitbon_type(otmp) >= A_STR) {
+            Sprintf(buf, "Its accuracy scales with your %s.",
+                    attr_name(get_hitbon_type(otmp)));
+            add_menu_str(datawin, buf);
+        }
     }
-    putstr(datawin, 0, "");
+    add_menu_str(datawin, "");
     /* Class info */
     add_menu_heading(datawin, "Statistics");
-    if (otmp->oclass == WEAPON_CLASS) {
-        dbonus = otmp->known ? (otmp->spe - greatest_erosion(otmp)) : greatest_erosion(otmp);
-        if (dbonus) {
-            Sprintf(dam_buf, " %s %d", (dbonus >= 0) ? "+" : "-", abs(dbonus));
-        }
+    if (otmp->oclass == WEAPON_CLASS || is_weptool(otmp)) {
         Sprintf(buf, "Type: %s%sweapon", objects[otmp->otyp].oc_bimanual ? "two-handed " : "one-handed ",
                                  objects[otmp->otyp].oc_finesse ? "finesse " : "");
-        putstr(datawin, 0, buf);
-        #if 0
-        Sprintf(buf, "Damage (S): 1d%d%s%s%s", objects[otmp->otyp].oc_wsdam + size_mult(otmp->osize),
-                                            stringify_dmgval(otmp->otyp, FALSE),
-                                            dbonus ? dam_buf : "",
-                                            otmp->known ? "" : "?");
-        putstr(datawin, 0, buf);
-        Sprintf(buf, "Damage (L): 1d%d%s%s%s", objects[otmp->otyp].oc_wldam + size_mult(otmp->osize),
-                                            stringify_dmgval(otmp->otyp, TRUE),
-                                            dbonus ? dam_buf : "",
-                                            otmp->known ? "" : "?");
-        putstr(datawin, 0, buf);
-        #endif
+        add_menu_str(datawin, buf);
+        stringify_dmgval(buf, (struct monst *) 0, otmp);
+        add_menu_str(datawin, buf);
+        stringify_dmgval(buf, &gy.youmonst, otmp);
+        add_menu_str(datawin, buf);
+        Sprintf(buf, "Adjusted Accuracy: %s%d",
+                (weapon_hit_bonus(otmp) >= 0) ? "+" : "", weapon_hit_bonus(otmp));
+        add_menu_str(datawin, buf);
     } else {
         Sprintf(buf, "Class: %s", OBJ_DESCR(objects[(int) otmp->oclass]));
-        putstr(datawin, 0, buf);
+        add_menu_str(datawin, buf);
     }
     /* Appearance */
     if (OBJ_DESCR(objects[otmp->otyp])) {
         Sprintf(buf, "Appearance: %s", OBJ_DESCR(objects[otmp->otyp]));
-        putstr(datawin, 0, buf);
+        add_menu_str(datawin, buf);
     }
     /* Armor stats */
     if (otmp->oclass == ARMOR_CLASS) {
         Sprintf(buf, "AC: %d%s", (objects[otmp->otyp].a_ac + (otmp->known ? otmp->spe : 0)),
                                 otmp->known ? "" : "?");
-        putstr(datawin, 0, buf);
+        add_menu_str(datawin, buf);
         Sprintf(buf, "MC: %d%%%s", max(0, (objects[otmp->otyp].a_can) - (otmp->known ? otmp->spe : 0)),
                                  otmp->known ? "" : "?");
-        putstr(datawin, 0, buf);
+        add_menu_str(datawin, buf);
     }
     if (size_matters(otmp)) {
         Sprintf(buf,"Size: %s", size_str(otmp->osize));
-        putstr(datawin, 0, buf);
+        add_menu_str(datawin, buf);
     }
     Sprintf(buf, "Weight: %d aum (average %d aum)", otmp->owt, objects[otmp->otyp].oc_weight);
-    putstr(datawin, 0, buf);
-    Sprintf(buf, "Material: %s (usually %s)", materialnm[otmp->material],
-                                                materialnm[objects[otmp->otyp].oc_material]);
-    putstr(datawin, 0, buf);
+    add_menu_str(datawin, buf);
+    Sprintf(buf, "Material: %s (usually %s)", MAT_NAME(otmp->material),
+                                                MAT_NAME(objects[otmp->otyp].oc_material));
+    add_menu_str(datawin, buf);
     Sprintf(buf, "Rarity: %s, %s", objects[otmp->otyp].oc_unique ? "unique" : "common",
                                     objects[otmp->otyp].oc_nowish ? "unwishable" : "wishable");
-    putstr(datawin, 0, buf);
+    add_menu_str(datawin, buf);
     if (otmp->oprop) {
         if (otmp->pknown) {
             Sprintf(buf, "Harmony: ");
@@ -2454,10 +2474,13 @@ do_supplemental_item_info(struct obj *otmp)
         } else {
             Sprintf(buf, "Harmony: Unknown");
         }
-        putstr(datawin, 0, buf);
+        add_menu_str(datawin, buf);
     }
     
-    display_nhwindow(datawin, TRUE);
+    menu_item *selected = 0;
+    end_menu(datawin, (char *) 0);
+    if (select_menu(datawin, PICK_NONE, &selected) > 0)
+        free((genericptr_t) selected);
     destroy_nhwindow(datawin), datawin = WIN_ERR;
 }
 
@@ -2528,39 +2551,61 @@ do_supplemental_info(
     }
     /* Display monster info */
     datawin = create_nhwindow(NHW_MENU);
+    start_menu(datawin, MENU_BEHAVE_STANDARD);
     if (strlen(name) && strlen(name) < (BUFSZ - 1)) {
-        putstr(datawin, iflags.menu_headings.attr, name);
+        add_menu_heading(datawin, name);
     } else {
         Sprintf(buf, "%s", pmname(pm, MALE));
         buf[0] = highc(buf[0]);
-        putstr(datawin, iflags.menu_headings.attr, buf);
+        add_menu_heading(datawin, buf);
     }
     /* Size */
     Sprintf(buf, "%s %s", size_str(pm->msize), def_monsyms[(int) pm->mlet].explain);
     buf[0] = highc(buf[0]);
-    putstr(datawin, 0, buf);
+    add_menu_str(datawin, buf);
     /* Stats */
     if (auto_know || svm.mvitals[pm->pmidx].know_stats)
         Sprintf(buf, "Speed: %d, AC: %d, MR: %d", pm->mmove, pm->ac, pm->mr);
     else
-        Sprintf(buf, "You know nothing of its abilities.");
-    putstr(datawin, 0, buf);
+        Sprintf(buf, "You know nothing of their abilities.");
+    add_menu_str(datawin, buf);
+    /* Resists */
+    if (auto_know || svm.mvitals[pm->pmidx].know_resist) {
+        Sprintf(buf, "Resists:");
+        if (resists_pierce(pm)) Sprintf(eos(buf), " piercing,");
+        if (resists_slash(pm)) Sprintf(eos(buf), " slashing,");
+        if (resists_whack(pm)) Sprintf(eos(buf), " bashing,");
+        add_menu_str(datawin, buf);
+        Sprintf(buf, "Immune:");
+        if (pm_resistance(pm, MR_FIRE)) Sprintf(eos(buf), " fire,");
+        if (pm_resistance(pm, MR_COLD)) Sprintf(eos(buf), " cold,");
+        if (pm_resistance(pm, MR_SLEEP)) Sprintf(eos(buf), " sleep,");
+        if (pm_resistance(pm, MR_DISINT)) Sprintf(eos(buf), " disintegration,");
+        if (pm_resistance(pm, MR_ELEC)) Sprintf(eos(buf), " shock,");
+        if (pm_resistance(pm, MR_POISON)) Sprintf(eos(buf), " poison,");
+        if (pm_resistance(pm, MR_ACID)) Sprintf(eos(buf), " acid,");
+        if (pm_resistance(pm, MR_STONE)) Sprintf(eos(buf), " petrify,");
+    } else {
+        Sprintf(buf, "You know nothing of their resistances.");
+    }
+    add_menu_str(datawin, buf);
     /* Food */
-    if (!auto_know && !svm.mvitals[pm->pmidx].know_pcorpse)
-        Sprintf(buf, "You know nothing about its edibility.");
-    else
-        Sprintf(buf, "Edibility: %s, %s, %s",
-                    poisonous(pm) ? "poisonous" : "safe",
-                    acidic(pm) ? "acidic" : "bland",
-                    is_domestic(pm) ? "domestic" : "wild");
-    putstr(datawin, 0, buf);
+    if (!auto_know && !svm.mvitals[pm->pmidx].know_pcorpse) {
+        Sprintf(buf, "You know nothing about their edibility.");
+    } else {
+        Sprintf(buf, "Edibility:");
+        if (poisonous(pm)) Sprintf(eos(buf), " poisonous,");
+        if (acidic(pm)) Sprintf(eos(buf), " acidic,");
+        if (is_domestic(pm)) Sprintf(eos(buf), " domestic,");
+    }
+    add_menu_str(datawin, buf);
     /* Have we seen it? */
     if (!svm.mvitals[pm->pmidx].seen_close) {
-        putstr(datawin, 0, "You have never seen it up close.");
+        add_menu_str(datawin, "You have never seen them up close.");
     }
-    putstr(datawin, 0, "");
+    add_menu_str(datawin, "");
     /* Attacks */
-    putstr(datawin, iflags.menu_headings.attr, "Attacks");
+    add_menu_heading(datawin, "Attacks");
     for (int i = 0; i < NATTK; i++) {
         if (!pm->mattk[i].aatyp && !pm->mattk[i].adtyp && !pm->mattk[i].damn && !pm->mattk[i].damd) continue;
         if (!auto_know && !(svm.mvitals[pm->pmidx].know_attacks & (1 << i))) {
@@ -2572,9 +2617,12 @@ do_supplemental_info(
                                             mad_names[pm->mattk[i].adtyp]);
         }
         buf[2] = highc(buf[2]);
-        putstr(datawin, 0, buf);
+        add_menu_str(datawin, buf);
     }
-    display_nhwindow(datawin, TRUE);
+    menu_item *selected = 0;
+    end_menu(datawin, (char *) 0);
+    if (select_menu(datawin, PICK_NONE, &selected) > 0)
+        free((genericptr_t) selected);
     destroy_nhwindow(datawin), datawin = WIN_ERR;
 }
 

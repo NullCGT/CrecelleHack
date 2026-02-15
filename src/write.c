@@ -7,7 +7,7 @@ staticfn int write_ok(struct obj *) NO_NNARGS;
 staticfn char *new_book_description(int, char *) NONNULL NONNULLPTRS;
 
 /*
- * returns basecost of a scroll or a spellbook
+ * returns base cost of a scroll or a spellbook
  */
 int
 cost(struct obj *otmp)
@@ -37,7 +37,9 @@ cost(struct obj *otmp)
         return 12;
     case SCR_IDENTIFY:
         return 14;
+    case SCR_ENCHANT_ARMOR:
     case SCR_REMOVE_CURSE:
+    case SCR_ENCHANT_WEAPON:
     case SCR_CHARGING:
         return 16;
     case SCR_SCARE_MONSTER:
@@ -45,13 +47,10 @@ cost(struct obj *otmp)
     case SCR_TAMING:
     case SCR_TELEPORTATION:
     case SCR_MAZE:
+    case SCR_TRANSMUTE_MATERIAL:
         return 20;
     case SCR_GENOCIDE:
         return 30;
-    case SCR_ENCHANT_ARMOR:
-    case SCR_ENCHANT_WEAPON:
-    case SCR_TRANSMUTE_MATERIAL:
-        return 40;
     case SCR_BLANK_PAPER:
     default:
         impossible("You can't write such a weird scroll!");
@@ -354,7 +353,7 @@ dowrite(struct obj *pen)
         return ECMD_TIME;
     }
 
-    /* useup old scroll / spellbook */
+    /* use up old scroll / spellbook */
     useup(paper);
 
     /* success */

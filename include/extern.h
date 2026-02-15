@@ -71,6 +71,10 @@
 #include "artifact.h"
 #endif
 
+#ifndef MFNDPOS_H
+#include "mfndpos.h"
+#endif
+
 /* ### alloc.c ### */
 
 #if 0
@@ -167,6 +171,7 @@ extern void set_artifact_intrinsic(struct obj *, boolean, long);
 extern int touch_artifact(struct obj *, struct monst *) NONNULLARG2;
 extern int spec_abon(struct obj *, struct monst *) NONNULLARG2;
 extern int spec_dbon(struct obj *, struct monst *, int) NONNULLARG2;
+extern int oprop_dbon(struct obj *, struct monst *, int) NONNULLARG2;
 extern void discover_artifact(xint16);
 extern boolean undiscovered_artifact(xint16);
 extern int disp_artifact_discoveries(winid);
@@ -225,6 +230,7 @@ extern int is_innate(int);
 extern char *from_what(int);
 extern char *from_what_item(int);
 extern void uchangealign(int, int);
+extern const char *attr_name(int);
 
 /* ### ball.c ### */
 
@@ -643,6 +649,7 @@ extern int warning_of(struct monst *) NONNULLARG1;
 extern void map_glyphinfo(coordxy, coordxy, int, unsigned, glyph_info *) NONNULLPTRS;
 extern void reset_glyphmap(enum glyphmap_change_triggers trigger);
 extern int fn_cmap_to_glyph(int);
+extern int compute_obj_glyph_color(struct obj *);
 
 /* ### do.c ### */
 
@@ -854,6 +861,7 @@ extern void hurtle(int, int, int, boolean);
 extern void mhurtle(struct monst *, int, int, int) NONNULLARG1;
 extern boolean harmless_missile(struct obj *) NONNULLARG1;
 extern boolean throwing_weapon(struct obj *) NONNULLARG1;
+extern boolean throwit_mon_hit(struct obj *, struct monst *) NONNULLARG1;
 extern void throwit(struct obj *, long, boolean, struct obj *) NONNULLARG1;
 extern int omon_adj(struct monst *, struct obj *, boolean) NONNULLPTRS;
 extern boolean should_mulch_missile(struct obj *);
@@ -900,7 +908,7 @@ extern boolean Is_botlevel(d_level *) NONNULLARG1;
 extern boolean Can_fall_thru(d_level *) NONNULLARG1;
 extern boolean Can_dig_down(d_level *) NONNULLARG1;
 extern boolean Can_rise_up(coordxy, coordxy, d_level *) NONNULLARG3;
-extern boolean has_no_tod_cycles(d_level *) NONNULLARG1;
+extern boolean exposed_to_elements(d_level *) NONNULLARG1;
 extern boolean has_ceiling(d_level *) NONNULLARG1;
 extern boolean avoid_ceiling(d_level *) NONNULLARG1;
 extern const char *surface(coordxy, coordxy);
@@ -1257,6 +1265,7 @@ extern int near_capacity(void);
 extern int calc_capacity(int);
 extern int max_capacity(void);
 extern boolean check_capacity(const char *);
+extern void dump_weapons(void);
 extern void dump_weights(void);
 extern int inv_cnt(boolean);
 /* sometimes money_cnt(gi.invent) which can be null */
@@ -1264,6 +1273,7 @@ extern long money_cnt(struct obj *) NO_NNARGS;
 extern void spot_checks(coordxy, coordxy, schar);
 extern int rounddiv(long, int);
 extern const char *solid_stone(int, int);
+extern void wrestling_finisher_name(void);
 
 /* ### strutil.c ### */
 
@@ -1278,6 +1288,10 @@ extern boolean pmatchi(const char *, const char *) NONNULLPTRS;
 /*
 extern boolean pmatchz(const char *, const char *) NONNULLPTRS;
 */
+
+/* ### iactions.c ### */
+
+extern int itemactions(struct obj *otmp) NONNULLARG1;
 
 /* ### insight.c ### */
 
@@ -1536,6 +1550,8 @@ extern char *mdlib_version_string(char *, const char *) NONNULL NONNULLPTRS;
 extern int fightm(struct monst *) NONNULLARG1;
 extern int mdisplacem(struct monst *, struct monst *, boolean);
 extern int mattackm(struct monst *, struct monst *);
+extern int passivemm(struct monst *, struct monst *, boolean, int,
+                     struct obj *);
 extern boolean failed_grab(struct monst *, struct monst *,
                            struct attack *) NONNULLPTRS;
 extern boolean engulf_target(struct monst *, struct monst *) NONNULLARG12;
@@ -1668,6 +1684,10 @@ extern void newomonst(struct obj *) NONNULLARG1;
 extern void free_omonst(struct obj *) NONNULLARG1;
 extern void newomid(struct obj *) NONNULLARG1;
 extern void free_omid(struct obj *) NONNULLARG1;
+extern void newodye(struct obj*) NONNULLARG1;
+extern void free_odye(struct obj *) NONNULLARG1;
+extern void newosum(struct obj*) NONNULLARG1;
+extern void free_osum(struct obj *) NONNULLARG1;
 /*
 extern void newolong(struct obj *);
 extern void free_olong(struct obj *);
@@ -1812,7 +1832,7 @@ extern boolean can_touch_safely(struct monst *, struct obj *) NONNULLARG12;
 extern int can_carry(struct monst *, struct obj *) NONNULLARG12;
 extern long mon_allowflags(struct monst *) NONNULLARG1;
 extern boolean m_in_air(struct monst *) NONNULLARG1;
-extern int mfndpos(struct monst *, coord *, long *, long) NONNULLPTRS;
+extern int mfndpos(struct monst *, struct mfndposdata *, long) NONNULLPTRS;
 extern long mm_aggression(struct monst *, struct monst *);
 extern boolean monnear(struct monst *, coordxy, coordxy) NONNULLARG1;
 extern void dmonsfree(void);
@@ -1888,6 +1908,8 @@ extern void see_monster_closeup(struct monst *, boolean) NONNULLARG1;
 extern void see_nearby_monsters(void);
 extern void shieldeff_mon(struct monst *) NONNULLARG1;
 extern void flash_mon(struct monst *) NONNULLARG1;
+extern void newesum(struct monst *) NONNULLARG1;
+extern void free_esum(struct monst *) NONNULLARG1;
 
 /* ### mondata.c ### */
 
@@ -1899,6 +1921,7 @@ extern boolean poly_when_stoned(struct permonst *) NONNULLARG1;
 extern boolean defended(struct monst *, int) NONNULLARG1;
 extern boolean Resists_Elem(struct monst *, int) NONNULLARG1;
 extern boolean resists_drli(struct monst *) NONNULLARG1;
+extern boolean resists_sick(struct monst *) NONNULLARG1;
 extern boolean resists_magm(struct monst *) NONNULLARG1;
 extern boolean resists_blnd(struct monst *) NONNULLARG1;
 extern boolean resists_blnd_by_arti(struct monst *) NONNULLARG1;
@@ -1988,8 +2011,8 @@ extern boolean accessible(coordxy, coordxy);
 extern void set_apparxy(struct monst *) NONNULLARG1;
 extern boolean can_ooze(struct monst *) NONNULLARG1;
 extern boolean can_fog(struct monst *) NONNULLARG1;
-extern boolean should_displace(struct monst *, coord *, long *, int, coordxy,
-                               coordxy) NONNULLPTRS;
+extern boolean should_displace(struct monst *, const struct mfndposdata *,
+                               coordxy, coordxy) NONNULLPTRS;
 extern boolean undesirable_disp(struct monst *, coordxy, coordxy) NONNULLARG1;
 extern boolean can_hide_under_obj(struct obj *);
 
@@ -2283,6 +2306,7 @@ extern char *Tobjnam(struct obj *, const char *) NONNULL NONNULLARG1;
 extern char *otense(struct obj *, const char *) NONNULL NONNULLARG12;
 extern char *vtense(const char *, const char *) NONNULL NONNULLARG2;
 extern char *Doname2(struct obj *) NONNULL NONNULLARG1;
+extern char *Doname_lookup(struct obj *) NONNULL NONNULLARG1;
 extern char *paydoname(struct obj *) NONNULL NONNULLARG1;
 extern char *yname(struct obj *) NONNULL NONNULLARG1;
 extern char *Yname2(struct obj *) NONNULL NONNULLARG1;
@@ -2324,6 +2348,8 @@ extern const char *boots_simple_name(struct obj *) NONNULL NO_NNARGS;
 extern const char *shield_simple_name(struct obj *) NONNULL NO_NNARGS;
 /* shirt_simple_name always just returns hardcoded "shirt" */
 extern const char *shirt_simple_name(struct obj *) NONNULL NO_NNARGS;
+/* weapon_simple_name is only used for artifact hit messages - K */
+extern const char *weapon_simple_name(struct obj *);
 extern const char *mimic_obj_name(struct monst *) NONNULL NONNULLARG1;
 /* safe_qbuf() contains tests for NULL arg2 and arg3, qprefix and qsuffix,
    preventing use of NONNULLPTRS. */
@@ -2588,8 +2614,10 @@ extern boolean has_coating(coordxy, coordxy, short);
 extern boolean add_coating(coordxy, coordxy, short, int);
 extern boolean remove_coating(coordxy, coordxy, short);
 extern boolean coateffects(coordxy, coordxy, struct monst *);
+extern boolean moldeffects(coordxy, coordxy, struct monst *);
 extern void evaporate_potion_puddles(coordxy, coordxy);
-extern void floor_alchemy(int, int, int, int);
+extern void floor_spillage(int, int, short, int);
+extern int floor_alchemy(int, int, short);
 extern void potion_splatter(coordxy, coordxy, int, int);
 extern void potion_fumigate(coordxy, coordxy, struct obj *);
 extern boolean potionhit_effects(struct monst *, struct obj *, boolean);
@@ -2603,6 +2631,8 @@ extern void djinni_from_bottle(struct obj *) NONNULLARG1;
 extern struct monst *split_mon(struct monst *, struct monst *) NONNULLARG1;
 extern const char *bottlename(void);
 extern void speed_up(long);
+extern void dye_obj(struct obj *, int, boolean) NONNULLARG1;
+extern const char *dye_to_name(struct obj *) NONNULLARG1;
 
 /* ### pray.c ### */
 
@@ -3130,6 +3160,8 @@ extern int nhl_abs_coord(lua_State *) NONNULLARG1;
 extern void update_croom(void);
 extern const char *get_trapname_bytype(int);
 extern void l_register_des(lua_State *) NONNULLARG1;
+extern int get_table_objclass(lua_State *) NONNULLARG1;
+extern int get_table_objtype(lua_State *) NONNULLARG1;
 #endif /* !CROSSCOMPILE || CROSSCOMPILE_TARGET */
 extern const char *get_mkroom_name(int) NONNULL;
 
@@ -3349,7 +3381,7 @@ extern boolean grease_protect(struct obj *, const char *,
                               struct monst *) NONNULLARG1;
 extern struct trap *maketrap(coordxy, coordxy, int);
 extern d_level *clamp_hole_destination(d_level *) NONNULLARG1;
-extern void set_trap_ammo(struct trap *trap, struct obj *obj) NONNULLARG1;
+extern void set_trap_ammo(struct trap *trap, struct obj *obj);
 extern void fall_through(boolean, unsigned);
 extern struct monst *animate_statue(struct obj *, coordxy, coordxy,
                                     int, int *) NONNULLARG1;
@@ -3548,6 +3580,7 @@ extern boolean disguised_as_mon(struct monst *) NONNULLARG1;
 extern int flash_hits_mon(struct monst *, struct obj *) NONNULLARG12;
 extern void light_hits_gremlin(struct monst *, int) NONNULLARG1;
 extern boolean oprop_effects_pre(struct monst *, struct monst *);
+extern void spread_mold(coordxy x, coordxy y, struct permonst *);
 
 
 /* ### unixmain.c ### */
@@ -3781,8 +3814,11 @@ extern int vms_get_saved_games(const char *, char ***);
 
 extern const char *weapon_descr(struct obj *) NONNULLARG1;
 extern int hitval(struct obj *, struct monst *) NONNULLARG12;
-extern int dmgval(struct obj *, struct monst *) NONNULLARG12;
-extern const char *stringify_dmgval(int, boolean);
+extern int dmgval_ndice(struct obj *, struct monst*) NONNULLARG1;
+extern int dmgval_nsides(struct obj *) NONNULLARG1;
+extern int dmgval_dbonus(struct obj *) NONNULLARG1;
+extern int dmgval(struct obj *, struct monst *, struct monst *) NONNULLARG13;
+extern char *stringify_dmgval(char *, struct monst *, struct obj*) NONNULLARG13;
 extern int special_dmgval(struct monst *, struct monst *, long, struct obj **) NONNULLARG12;
 extern void searmsg(struct monst *, struct monst *, struct obj*, boolean);
 extern struct obj *select_rwep(struct monst *) NONNULLARG1;
@@ -3801,7 +3837,7 @@ extern boolean can_advance(int, boolean);
 extern void show_skills(void);
 extern int enhance_weapon_skill(void);
 extern void unrestrict_weapon_skill(int);
-extern void use_skill(int, int);
+extern boolean use_skill(int, int);
 extern void add_weapon_skill(int);
 extern void lose_weapon_skill(int);
 extern void drain_weapon_skill(int);
@@ -3815,6 +3851,9 @@ extern void skill_init(const struct def_skill *) NONNULLARG1;
 extern void setmnotwielded(struct monst *, struct obj *) NONNULLARG1;
 extern const struct throw_and_return_weapon *autoreturn_weapon(struct obj *)
     NONNULLARG1;
+extern boolean resist_oc_dir(struct monst *, int) NONNULLARG1;
+extern int get_scaling_type(struct obj *) NONNULLARG1;
+extern int get_hitbon_type(struct obj *) NONNULLARG1;
 
 /* ### were.c ### */
 
@@ -3933,7 +3972,7 @@ extern int tactics(struct monst *) NONNULLARG1;
 extern boolean has_aggravatables(struct monst *) NONNULLARG1;
 extern void aggravate(void);
 extern void clonewiz(void);
-extern int pick_nasty(int);
+extern int pick_nasty(struct monst *, int);
 extern int nasty(struct monst *) NO_NNARGS;
 extern void resurrect(void);
 extern void intervene(void);
@@ -4071,6 +4110,7 @@ extern int bhitpile(struct obj *, int(*)(struct obj *, struct obj *),
 extern int zappable(struct obj *) NONNULLARG1;
 extern void do_enlightenment_effect(void);
 extern void zapnodir(struct obj *) NONNULLARG1;
+extern void backfire(struct obj *) NONNULLARG1;
 extern int dozap(void);
 extern int zapyourself(struct obj *, boolean) NONNULLARG1;
 extern void ubreatheu(struct attack *) NONNULLARG1;
@@ -4082,6 +4122,7 @@ extern void zapsetup(void);
 extern void zapwrapup(void);
 extern void weffects(struct obj *) NONNULLARG1;
 extern int spell_damage_bonus(int);
+extern const char *maybe_elipses_exclam(int force, boolean resistsed);
 extern const char *exclam(int force) NONNULL;
 extern void hit(const char *, struct monst *, const char *) NONNULLPTRS;
 extern void miss(const char *, struct monst *) NONNULLPTRS;

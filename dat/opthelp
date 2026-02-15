@@ -9,6 +9,8 @@ color_surfaces          indicate non-stone surfaces using color    [True]
 drip_messages           display messages about dripping liquid     [True]
 implicit_medium         omit "medium" from inventory, if possible  [True]
 implicit_material       omit default material from item names      [True]
+invisible_dye           display dyed items with usual item colors  [False]
+invisible_material      display items without material colors      [False]
 invweight               display weight of objects                  [True]
 no_flipped_soko         disable sokoban level flips                [False]
 obscure_role_obj_names  disable role-specific object names         [False]
@@ -18,6 +20,8 @@ shorten_buc             shortens buc text to [B][U][C]             [False]
 
 
 Compound Crecelle Options
+koboldname              name of your starting pet if it is
+                        a kobold
 orientation             controls foocubus interactions         [straight,
                                                                 gay,
                                                                 bisexual]

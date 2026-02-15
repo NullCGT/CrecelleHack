@@ -87,9 +87,9 @@ enum ms_sounds {
 #define M1_FLY          0x00000001L /* can fly or float */
 #define M1_SWIM         0x00000002L /* can traverse water */
 #define M1_AMORPHOUS    0x00000004L /* can flow under doors */
-#define M1_WALLWALK     0x00000008L /* can phase thru rock */
+#define M1_WALLWALK     0x00000008L /* can phase through rock */
 #define M1_CLING        0x00000010L /* can cling to ceiling */
-#define M1_TUNNEL       0x00000020L /* can tunnel thru rock */
+#define M1_TUNNEL       0x00000020L /* can tunnel through rock */
 #define M1_NEEDPICK     0x00000040L /* needs pick to tunnel */
 #define M1_CONCEAL      0x00000080L /* hides under objects */
 #define M1_HIDE         0x00000100L /* mimics, blends in with ceiling */
@@ -123,7 +123,7 @@ enum ms_sounds {
 #endif
 
 #define M2_NOPOLY       0x00000001L /* players mayn't poly into one */
-// #define M2_UNDEAD       0x00000002L /* is walking dead */
+#define M2_COLLAT       0x00000002L /* smashes items on floor when missing */
 // #define M2_WERE         0x00000004L /* is a lycanthrope */
 // #define M2_HUMAN        0x00000008L /* is a human */
 // #define M2_ELF          0x00000010L /* is an elf */
@@ -135,7 +135,7 @@ enum ms_sounds {
 #define M2_LORD         0x00000400L /* is a lord to its kind */
 #define M2_PRINCE       0x00000800L /* is an overlord to its kind */
 #define M2_MINION       0x00001000L /* is a minion of a deity */
-// #define M2_GIANT        0x00002000L /* is a giant */
+#define M2_CLIMBER      0x00002000L /* can climb pits easily */
 #define M2_SHAPESHIFTER 0x00004000L /* is a shapeshifting species */
 #define M2_MALE         0x00010000L /* always male */
 #define M2_FEMALE       0x00020000L /* always female */
@@ -185,12 +185,16 @@ enum ms_sounds {
 #define M4_BST_ROCK  0x0004
 #define M4_BST_WATER 0x0008
 #define M4_BST_ICE   0x0010
-#define M4_BST_ASHES 0x0020
+#define M4_KICK_ASHES 0x0020
 #define M4_BST_FUNGI 0x0040
 #define M4_BST_BLOOD 0x0080
 #define M4_BST_SAND 0x0100
 #define M4_BST_POTION 0x0200
 #define M4_BST_HONEY  0x0400
+
+#define M4_RWHACK 0x0800
+#define M4_RPIERCE 0x1000
+#define M4_RSLASH 0x2000
 
 #define MZ_RANDOM      -1 /* used in set_obj_size */
 #define MZ_TINY         0 /* < 2' */

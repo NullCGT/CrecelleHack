@@ -2636,20 +2636,12 @@ map_glyphinfo(
         }
         glyphinfo->gm.glyphflags |= MG_HERO;
     }
-    /* If it has a material, color it */
+    /* If it has a material and is on the map, color it. Colors for items in menus are
+       handled elsewhere. */
     if (glyph_is_object(glyph)) {
         struct obj* otmp = vobj_at(x, y);
-        if (iflags.use_color && otmp
-            && otmp->material != objects[otmp->otyp].oc_material) {
-            /* Externify this array if it's ever needed anywhere else. */
-            const int materialclr[] = {
-                CLR_BLACK, HI_ORGANIC, CLR_WHITE, HI_ORGANIC, CLR_RED,
-                CLR_WHITE, HI_CLOTH, HI_LEATHER, HI_WOOD, CLR_WHITE, CLR_BLACK,
-                HI_METAL, HI_METAL, HI_COPPER, HI_SILVER, HI_GOLD, CLR_WHITE,
-                HI_SILVER, CLR_WHITE, HI_GLASS, HI_GLASS, CLR_RED, CLR_GRAY
-            };
-            glyphinfo->gm.sym.color = materialclr[otmp->material];
-        } 
+        if (otmp && otmp->otyp)
+            glyphinfo->gm.sym.color = compute_obj_glyph_color(otmp);
     }
     /* If the floor has extra surface info, we need to track it to swap the color around. */
     if (IS_COATABLE(levl[x][y].typ)
@@ -2662,16 +2654,14 @@ map_glyphinfo(
                 glyphinfo->gm.sym.color = CLR_BLUE;
             else
                 glyphinfo->gm.sym.color = objects[levl[x][y].pindex].oc_color;
+        } else if ((levl[x][y].coat_info & COAT_FUNGUS) != 0) {
+            glyphinfo->gm.sym.color = mons[levl[x][y].pindex].mcolor;
         } else if ((levl[x][y].coat_info & COAT_SHARDS) != 0)
             glyphinfo->gm.sym.color = CLR_BRIGHT_CYAN;
         else if ((levl[x][y].coat_info & COAT_FROST) != 0)
             glyphinfo->gm.sym.color = CLR_WHITE;
         else if ((levl[x][y].coat_info & COAT_MUD) != 0)
             glyphinfo->gm.sym.color = CLR_BROWN;
-        else if ((levl[x][y].coat_info & COAT_HONEY) != 0)
-            glyphinfo->gm.sym.color = CLR_YELLOW;
-        else if ((levl[x][y].coat_info & COAT_FUNGUS) != 0)
-            glyphinfo->gm.sym.color = CLR_CYAN;
         else if ((levl[x][y].coat_info & COAT_BLOOD) != 0)
             glyphinfo->gm.sym.color = CLR_RED;
         else if ((levl[x][y].coat_info & COAT_ASHES) != 0)
@@ -3849,6 +3839,34 @@ int
 fn_cmap_to_glyph(int cmap)
 {
     return cmap_to_glyph(cmap);
+}
+
+/* Computes the color of an object's glyph, taking into account both
+   the material of the object and whether or not the object has been
+   dyed. */
+int compute_obj_glyph_color(struct obj *otmp)
+{
+    if (iflags.use_color && otmp) {
+        if (!flags.invisible_dye
+            && has_odye(otmp) && otmp->otyp != POT_DYE) {
+            return ODYE(otmp);
+        } else if (otmp->otyp == CORPSE) {
+            int color;
+            mon_color(otmp->corpsenm);
+            return color;
+        } else if (!flags.invisible_material) {
+            if (otmp->material == GEMSTONE) {
+                return objects[otmp->gemtype].oc_color;
+            } else if (otmp->material != objects[otmp->otyp].oc_material) {
+                return materials[otmp->material].clr;
+            } else {
+                return objects[otmp->otyp].oc_color;
+            }
+        } else {
+            return objects[otmp->otyp].oc_color;
+        }
+    }
+    return NO_COLOR;
 }
 
 /* for 'onefile' processing where end of this file isn't necessarily the

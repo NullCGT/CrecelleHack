@@ -67,6 +67,10 @@ struct Jitem {
     const char *name;
 };
 
+#define OPROP(id, nam, prob, val) nam
+static const char *oprop_nams[] = { OPROP_LIST };
+#undef OPROP
+
 #define BSTRCMPI(base, ptr, str) ((ptr) < base || strcmpi((ptr), str))
 #define BSTRNCMPI(base, ptr, str, num) \
     ((ptr) < base || strncmpi((ptr), str, num))
@@ -690,7 +694,7 @@ xname_flags(
     switch (obj->oclass) {
     case AMULET_CLASS:
         if (obj->material != objects[obj->otyp].oc_material) {
-            Strcat(buf, materialnm[obj->material]);
+            Strcat(buf, MAT_NAME(obj->material));
             Strcat(buf, " ");
         }
         if (!dknown)
@@ -724,9 +728,12 @@ xname_flags(
         else if (is_wet_towel(obj))
             Strcpy(buf, (obj->spe < 3) ? "moist " : "wet ");
 
-        if (dknown && (obj->material != objects[typ].oc_material
+        if (dknown && (obj->material == GEMSTONE)) {
+            Strcat(buf, OBJ_NAME(objects[obj->gemtype]));
+            Strcat(buf, " ");
+        } else if (dknown && (obj->material != objects[typ].oc_material
                        || force_material_name(typ))) {
-            Strcat(buf, materialnm[obj->material]);
+            Strcat(buf, MAT_NAME(obj->material));
             Strcat(buf, " ");
         }
 
@@ -759,7 +766,7 @@ xname_flags(
             add_oprop_text(obj, pknown, buf);
         if ((obj->material != objects[typ].oc_material
              || force_material_name(typ)) && dknown) {
-            Strcat(buf, materialnm[obj->material]);
+            Strcat(buf, MAT_NAME(obj->material));
             Strcat(buf, " ");
         }
         /* depends on order of the dragon scales objects */
@@ -896,6 +903,11 @@ xname_flags(
                     Strcat(buf, mons[omndx].pmnames[NEUTRAL]);
                     Strcat(buf, " ");
                 }
+                if (typ == POT_DYE && (obj->dknown || iflags.override_ID)
+                    && has_odye(obj)) {
+                    Strcat(buf, dye_to_name(obj));
+                    Strcat(buf, " ");
+                }
                 Strcat(buf, actualn);
             } else {
                 xcalled(buf, BUFSZ - PREFIX, "", un);
@@ -966,7 +978,8 @@ xname_flags(
             Sprintf(buf, "%s ring", dn);
         break;
     case GEM_CLASS: {
-        const char *rock = (ocl->oc_material == MINERAL) ? "stone" : "gem";
+        const char *rock = (ocl->oc_material == MINERAL
+                            || ocl->oc_material == LODEN) ? "stone" : "gem";
 
         if (!dknown) {
             Strcpy(buf, rock);
@@ -1046,6 +1059,11 @@ xname_flags(
             break;
         default:
             break;
+        }
+        
+        /* Display dye colors */
+        if (has_odye(obj) && obj->otyp != POT_DYE) {
+            ConcatF1(buf, 0, " dyed %s", dye_to_name(obj));
         }
     }
 
@@ -1206,18 +1224,6 @@ the_unique_pm(struct permonst *ptr)
     return uniq;
 }
 
-
-/* Names for oprops. Must be updated every time a new oprop is added. */
-static const char *oprop_nams[] = {
-    "glorkumized",
-    "sanguine",
-    "boreal",
-    "thermal",
-    "crackling",
-    "subtle",
-    "hexed",
-};
-
 /* Add text for oprop weaons to the existing prefix. */
 void
 add_oprop_text(struct obj *obj, boolean known, char *prefix)
@@ -1287,6 +1293,8 @@ add_erosion_words(struct obj *obj, char *prefix)
             Strcat(prefix, "fireproof ");
         else if (is_crackable(obj))
             Strcat(prefix, "tempered ");
+        else if (is_rottable(obj))
+            Strcat(prefix, "rotproof ");
     }
 }
 
@@ -1798,7 +1806,7 @@ doname_base(
 
     /* show weight for items (debug tourist info);
        "aum" is stolen from Crawl's "Arbitrary Unit of Measure" */
-    if (iflags.invweight && obj->owt) {
+    if (iflags.invweight && !gm.mrg_to_wielded && obj->owt) {
         /* wizard mode user has asked to see object weights */
         if (with_price && bp_eos[-1] == ')')
             ConcatF1(bp, 1, 
@@ -4325,6 +4333,7 @@ readobjnam_preparse(struct _readobjnam_data *d)
             prop = lookup_oprop_by_name(d->bp, &l);
             if (prop) {
                 d->oprop = prop;
+                l += 1;
                 goto inc_bp;
             }
             /* check for materials */
@@ -4337,6 +4346,7 @@ readobjnam_preparse(struct _readobjnam_data *d)
             mat = lookup_material_by_name(d->bp, &l);
             if (mat) {
                 d->material = mat;
+                l += 1;
                 goto inc_bp;
             }
             /* break out */
@@ -5085,7 +5095,7 @@ staticfn boolean
 not_spec_material(const char *str, int material)
 {
     int i;
-    const char *matstr = materialnm[material];
+    const char *matstr = MAT_NAME(material);
     int matlen = strlen(matstr);
     /* is this the entire string? e.g. "gold" is actually a wish for zorkmids.
        The effect of this is that you can't just wish for a material and get a
@@ -5656,22 +5666,31 @@ readobjnam(char *bp, struct obj *no_wish)
             consume_oeaten(d.otmp, 1);
         }
     }
-    if (wizard && d.oprop && (d.otmp->oclass == WEAPON_CLASS
-                                || d.otmp->oclass == ARMOR_CLASS)) {
-        if (d.oprop < 0)
-            add_oprop_to_object(d.otmp, 0);
-        else
-            add_oprop_to_object(d.otmp, d.oprop);
+    if (d.oprop && (d.otmp->oclass == WEAPON_CLASS
+                    || d.otmp->oclass == ARMOR_CLASS)) {
+        if (wizard
+            || (!objects[d.otmp->otyp].oc_magic || d.otmp->oartifact)) {
+            if (objects[d.otmp->otyp].oc_magic)
+                pline("Note: wishes for magical items with object properites are not normally valid.");
+            if (d.oprop < 0)
+                add_oprop_to_object(d.otmp, 0);
+            else
+                add_oprop_to_object(d.otmp, d.oprop);
+        }
     }
     /* material handling */
     if (d.material > 0 && !d.otmp->oartifact
         && ((wizard && !iflags.debug_fuzzer)
             || valid_obj_material(d.otmp, d.material))) {
         if (!valid_obj_material(d.otmp, d.material)) {
-            pline("Note: material %s is not normally valid for this object.",
-                  materialnm[d.material]);
+            if (wizard) {
+                pline("Note: material %s is not normally valid for this object.",
+                    MAT_NAME(d.material));
+                force_material(d.otmp, d.material);
+            }
+        } else {
+            set_material(d.otmp, d.material);
         }
-        set_material(d.otmp, d.material);
     } else if (d.otmp->oartifact) {
         /* oname() handles the assignment of a specific material for any
          * possible artifact. Do nothing here. */
@@ -5895,6 +5914,27 @@ shirt_simple_name(struct obj *shirt UNUSED)
     return "shirt";
 }
 
+/* only used for oprops and fuzzed artifacts */
+const char *
+weapon_simple_name(struct obj *obj)
+{
+    if (is_blade(obj))
+        return "blade";
+    if (is_axe(obj))
+        return "axe";
+    if (is_pick(obj))
+        return "pick";
+    if (is_pole(obj))
+        return "polearm";
+    if (is_spear(obj))
+        return "spear";
+    if (is_flail(obj))
+        return "flail";
+    if (is_art(obj, ART_MJOLLNIR))
+        return "massive hammer";
+    return "weapon";
+}
+
 const char *
 mimic_obj_name(struct monst *mtmp)
 {
@@ -6010,7 +6050,7 @@ lookup_material_by_name(char *buf, int *l)
 {
     /* doesn't currently catch "wood" for wooden */
     for (int i = 1; i < NUM_MATERIAL_TYPES; i++) {
-        if (!strncmpi(buf, materialnm[i], *l = strlen(materialnm[i]))
+        if (!strncmpi(buf, MAT_NAME(i), *l = strlen(MAT_NAME(i)))
             && !not_spec_material(buf, i)){
             return i;
         }

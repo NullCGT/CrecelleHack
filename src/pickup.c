@@ -1141,6 +1141,7 @@ query_objlist(const char *qstr,        /* query string */
                 any.a_obj = curr;
                 tmpglyph = obj_to_glyph(curr, rn2_on_display_rng);
                 map_glyphinfo(0, 0, tmpglyph, 0U, &tmpglyphinfo);
+                tmpglyphinfo.gm.sym.color = compute_obj_glyph_color(curr);
                 add_menu(win, &tmpglyphinfo, &any,
                          (qflags & USE_INVLET) ? curr->invlet
                            : (first && curr->oclass == COIN_CLASS) ? '$' : 0,
@@ -1816,7 +1817,6 @@ pickup_object(
     long count, /* if non-zero, pick up a subset of this amount */
     boolean telekinesis) /* not picking it up directly by hand */
 {
-    unsigned save_how_lost;
     int res;
 
     if (obj->quan < count) {
@@ -1841,6 +1841,11 @@ pickup_object(
         if (fatal_corpse_mistake(obj, telekinesis)
             || rider_corpse_revival(obj, telekinesis))
             return -1;
+    } else if (has_osum(obj) && !obj->oartifact) {
+        pline("The %s vanish%s.", xname(obj),
+              (obj->quan == 1L) ? "es" : "");
+        useupf(obj, obj->quan);
+        return 1;
     } else if (obj->otyp == SCR_SCARE_MONSTER) {
         int old_wt, new_wt;
 
@@ -1873,16 +1878,12 @@ pickup_object(
         }
     }
 
-    save_how_lost = obj->how_lost;
     /* obj has either already passed autopick_testobj or we are explicitly
-       picking it off the floor, so override obj->how_lost; otherwise we
-       couldn't pick up a thrown, stolen, or dropped item that was split
-       off from a carried stack even while still carrying the rest of the
-       stack unless we have at least one free slot available */
-    obj->how_lost &= ~LOSTOVERRIDEMASK;  /* affects merge_choice() */
+       picking it off the floor, so addinv() will override obj->how_lost;
+       otherwise we couldn't pick up a thrown, stolen, or dropped item that
+       was split off from a carried stack even while still carrying the
+       rest of the stack unless we have at least one free slot available */
     res = lift_object(obj, (struct obj *) 0, &count, telekinesis);
-    obj->how_lost = save_how_lost; /* even when res > 0,
-                                    * in case we call splitobj() below */
     if (res <= 0)
         return res;
 
@@ -1892,7 +1893,6 @@ pickup_object(
     if (obj->quan != count && obj->otyp != LOADSTONE)
         obj = splitobj(obj, count);
 
-    obj->how_lost &= ~LOSTOVERRIDEMASK;
     obj = pick_obj(obj);
 
     if (uwep && uwep == obj)
@@ -2160,9 +2160,9 @@ do_loot_cont(
 
     if (Hate_material(cobj->material)) {
         char kbuf[BUFSZ];
-        pline("The %s lid %s!", materialnm[cobj->material],
+        pline("The %s lid %s!", MAT_NAME(cobj->material),
               cobj->material == SILVER ? "sears your flesh" : "hurts to touch");
-        Sprintf(kbuf, "opening a %s container", materialnm[cobj->material]);
+        Sprintf(kbuf, "opening a %s container", MAT_NAME(cobj->material));
         losehp(rnd(sear_damage(cobj->material)), kbuf, KILLED_BY);
     }
 
@@ -3877,7 +3877,7 @@ dotip(void)
                || (cobj->otyp == LANTERN && cobj->age > 1L)
                || (cobj->otyp == MAGIC_LAMP && cobj->spe != 0)) {
         spillage = "oil";
-        floor_alchemy(u.ux, u.uy, POT_OIL, NON_PM);
+        floor_spillage(u.ux, u.uy, POT_OIL, NON_PM);
         cobj->age -= 1L;
         check_unpaid_usage(cobj, FALSE);
     } else if (cobj->otyp == CAN_OF_GREASE && cobj->spe > 0) {
@@ -3915,7 +3915,7 @@ dotip(void)
         if (Levitation)
             potion_splatter(u.ux, u.uy, cobj->otyp, cobj->corpsenm);
         else
-            floor_alchemy(u.ux, u.uy, cobj->otyp, cobj->corpsenm);
+            floor_spillage(u.ux, u.uy, cobj->otyp, cobj->corpsenm);
         debottle_potion(cobj);
     } else if (cobj->oclass == POTION_CLASS) {
         You("waste the %s.", xname(cobj));

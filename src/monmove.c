@@ -333,7 +333,7 @@ mon_regen(struct monst *mon, boolean digest_meal)
 {
     if (svm.moves % 20 == 0 || regenerates(mon->data)
         || (mon->data == &mons[PM_WATER_ELEMENTAL] 
-            && IS_RAINING && !has_no_tod_cycles(&u.uz)))
+            && IS_RAINING && exposed_to_elements(&u.uz)))
         healmon(mon, 1, 0);
     /* special regen */
     if ((mon->data == &mons[PM_DUST_VORTEX])
@@ -712,22 +712,43 @@ m_everyturn_effect(struct monst *mtmp)
         (is_u && uarm && 
             (uarm->otyp == YELLOW_DRAGON_SCALES || 
                 uarm->otyp == YELLOW_DRAGON_SCALE_MAIL))) {
-        floor_alchemy(x, y, POT_ACID, NON_PM);
+        floor_spillage(x, y, POT_ACID, NON_PM);
+    } else if (mtmp->data == &mons[PM_WATER_ELEMENTAL] || 
+                mtmp->data == &mons[PM_SQUONK]) {
+        floor_spillage(x, y, POT_WATER, NON_PM);
     }
     /* oprop boots do odd things */
     if (is_u && uarmf && uarmf->oprop) {
         switch(uarmf->oprop) {
             case OPROP_BOREAL:
                 add_coating(x, y, COAT_FROST, 0);
+                uarmf->pknown = 1;
                 break;
-            case OPROP_THERMAL:
+            case OPROP_BLAZING:
                 if (has_coating(x, y, COAT_GRASS)) {
                     remove_coating(x,y, COAT_GRASS);
                     add_coating(x, y, COAT_ASHES, 0);
+                    uarmf->pknown = 1;
                 }
                 break;
             case OPROP_SANGUINE:
-                floor_alchemy(x, y, POT_BLOOD, PM_HUMAN);
+                floor_spillage(x, y, POT_BLOOD, PM_HUMAN);
+                uarmf->pknown = 1;
+                break;
+            case OPROP_ACIDIC:
+                floor_spillage(x, y, POT_ACID, 0);
+                uarmf->pknown = 1;
+                break;
+            case OPROP_HUNGRY:
+                if (has_coating(x, y, COAT_BLOOD)) {
+                    remove_coating(x, y, COAT_BLOOD);
+                    pline("%s some blood.", Yobjnam2(uarmf, "slurp"));
+                    uarmf->pknown = 1;
+                }
+                break;
+            case OPROP_BRINY:
+                floor_spillage(x, y, POT_WATER, 0);
+                uarmf->pknown = 1;
                 break;
             default:
                 break;
@@ -741,7 +762,7 @@ m_everyturn_effect(struct monst *mtmp)
             You("drip %s onto the %s.", dripbuf, surface(u.ux, u.uy));
         }
         if (u.udriptype > 0)
-            floor_alchemy(x, y, u.udriptype, NON_PM);
+            floor_spillage(x, y, u.udriptype, NON_PM);
         else add_coating(x, y, COAT_BLOOD, -1 * u.udriptype);
     } else if (is_u && uwep && is_art(uwep, ART_WRATH_OF_SANKIS) && !rn2(3)) {
         add_coating(x, y, COAT_BLOOD, PM_DWARF);
@@ -749,11 +770,11 @@ m_everyturn_effect(struct monst *mtmp)
                 && is_art(MON_WEP(mtmp), ART_WRATH_OF_SANKIS)  && !rn2(3)) {
         add_coating(x, y, COAT_BLOOD, PM_DWARF);
     } else if (!is_u && mtmp->mdripping) {
-        if (mtmp->mdriptype > 0) floor_alchemy(x, y, mtmp->mdriptype, NON_PM);
+        if (mtmp->mdriptype > 0) floor_spillage(x, y, mtmp->mdriptype, NON_PM);
         else add_coating(x, y, COAT_BLOOD, -1 * mtmp->mdriptype);
     } else if (mtmp->data == &mons[PM_ACID_BLOB] 
             || mtmp->data == &mons[PM_GELATINOUS_CUBE]) {
-        floor_alchemy(x, y, POT_ACID, NON_PM);
+        floor_spillage(x, y, POT_ACID, NON_PM);
     }
 }
 
@@ -785,18 +806,13 @@ m_postmove_effect(struct monst *mtmp)
             create_gas_cloud(x, y, 1, 0, 0);
         else
             create_bonfire(x, y, 1, rnd(4));
-    } else if (mtmp->data == &mons[PM_WATER_ELEMENTAL] || 
-                mtmp->data == &mons[PM_SQUONK]) {
-        /* enough water is produced that we just add a coating instead of alchemizing */
-        add_coating(x, y, COAT_POTION, POT_WATER);
     } else if (mtmp->data == &mons[PM_BLOOD_GOLEM]) {
         int pm = rndmonnum();
         if (touch_petrifies(&mons[pm]))
             pm = PM_ELF;
         add_coating(x, y, COAT_BLOOD, has_blood(&mons[pm]) ? pm : PM_HUMAN);
     } else if (mtmp->data == &mons[PM_SALT_GOLEM]) {
-        remove_coating(x, y, COAT_BLOOD);
-        remove_coating(x, y, COAT_POTION);
+        floor_alchemy(x, y, SALT_CRYSTAL);
     } else if (mtmp->data == &mons[PM_TORNADO]) {
         /* tornados suck up everything */
         remove_coating(x, y, COAT_ALL);
@@ -1226,9 +1242,7 @@ itsstuck(struct monst *mtmp)
 boolean
 should_displace(
     struct monst *mtmp,
-    coord *poss, /* coord poss[9] */
-    long *info,  /* long info[9] */
-    int cnt,
+    const struct mfndposdata *data,
     coordxy ggx,
     coordxy ggy)
 {
@@ -1238,11 +1252,11 @@ should_displace(
     int i, nx, ny;
     int ndist;
 
-    for (i = 0; i < cnt; i++) {
-        nx = poss[i].x;
-        ny = poss[i].y;
+    for (i = 0; i < data->cnt; i++) {
+        nx = data->poss[i].x;
+        ny = data->poss[i].y;
         ndist = dist2(nx, ny, ggx, ggy);
-        if (MON_AT(nx, ny) && (info[i] & ALLOW_MDISP) && !(info[i] & ALLOW_M)
+        if (MON_AT(nx, ny) && (data->info[i] & ALLOW_MDISP) && !(data->info[i] & ALLOW_M)
             && !undesirable_disp(mtmp, nx, ny)) {
             if (shortest_with_displacing == -1
                 || (ndist < shortest_with_displacing))
@@ -1819,6 +1833,9 @@ postmov(
     } /* mmoved==MMOVE_MOVED */
 
     if (mmoved == MMOVE_MOVED || mmoved == MMOVE_DONE) {
+        if (coateffects(mtmp->mx, mtmp->my, mtmp))
+            return MMOVE_DIED;
+        
         if (OBJ_AT(mtmp->mx, mtmp->my) && mtmp->mcanmove) {
 
             /* Maybe a rock mole just ate some metal object */
@@ -1887,7 +1904,7 @@ m_move(struct monst *mtmp, int after)
     struct permonst *ptr;
     int chi, mmoved = MMOVE_NOTHING, /* not strictly nec.: chi >= 0 will do */
         preferredrange_min = 0, preferredrange_max = 0;
-    long info[9];
+    struct mfndposdata mfp;
     long flag;
     coordxy omx = mtmp->mx, omy = mtmp->my;
 
@@ -2123,9 +2140,8 @@ m_move(struct monst *mtmp, int after)
         int jcnt, cnt;
         int ndist, nidist;
         coord *mtrk;
-        coord poss[9];
 
-        cnt = mfndpos(mtmp, poss, info, flag);
+        cnt = mfndpos(mtmp, &mfp, flag);
         if (cnt == 0 && !is_unicorn(mtmp->data)) {
             if (find_defensive(mtmp, TRUE) && use_defensive(mtmp))
                 return MMOVE_DONE;
@@ -2142,22 +2158,22 @@ m_move(struct monst *mtmp, int after)
         if (is_unicorn(ptr) && noteleport_level(mtmp)) {
             /* on noteleport levels, perhaps we cannot avoid hero */
             for (i = 0; i < cnt; i++)
-                if (!(info[i] & NOTONL))
+                if (!(mfp.info[i] & NOTONL))
                     avoid = TRUE;
         }
         better_with_displacing =
-            should_displace(mtmp, poss, info, cnt, ggx, ggy);
+            should_displace(mtmp, &mfp, ggx, ggy);
         for (i = 0; i < cnt; i++) {
-            if (avoid && (info[i] & NOTONL))
+            if (avoid && (mfp.info[i] & NOTONL))
                 continue;
-            nx = poss[i].x;
-            ny = poss[i].y;
+            nx = mfp.poss[i].x;
+            ny = mfp.poss[i].y;
 
             if (m_avoid_kicked_loc(mtmp, nx, ny))
                 continue;
 
-            if (MON_AT(nx, ny) && (info[i] & ALLOW_MDISP)
-                && !(info[i] & ALLOW_M) && !better_with_displacing)
+            if (MON_AT(nx, ny) && (mfp.info[i] & ALLOW_MDISP)
+                && !(mfp.info[i] & ALLOW_M) && !better_with_displacing)
                 continue;
             if (appr != 0) {
                 mtrk = &mtmp->mtrack[0];
@@ -2205,8 +2221,8 @@ m_move(struct monst *mtmp, int after)
          * mfndpos) has no effect for normal attacks, though it lets a
          * confused monster attack you by accident.
          */
-        assert(IndexOk(chi, info));
-        if (info[chi] & ALLOW_U) {
+        assert(IndexOk(chi, mfp.info));
+        if (mfp.info[chi] & ALLOW_U) {
             nix = mtmp->mux;
             niy = mtmp->muy;
         }
@@ -2221,11 +2237,11 @@ m_move(struct monst *mtmp, int after)
          * Pets get taken care of above and shouldn't reach this code.
          * Conflict gets handled even farther away (movemon()).
          */
-        if ((info[chi] & ALLOW_M) != 0
+        if ((mfp.info[chi] & ALLOW_M) != 0
             || (nix == mtmp->mux && niy == mtmp->muy))
             return m_move_aggress(mtmp, nix, niy);
 
-        if ((info[chi] & ALLOW_MDISP) != 0) {
+        if ((mfp.info[chi] & ALLOW_MDISP) != 0) {
             struct monst *mtmp2;
             int mstatus;
 
@@ -2242,7 +2258,7 @@ m_move(struct monst *mtmp, int after)
         if (!m_in_out_region(mtmp, nix, niy))
             return MMOVE_DONE;
 
-        if ((info[chi] & ALLOW_ROCK) && m_can_break_boulder(mtmp)) {
+        if ((mfp.info[chi] & ALLOW_ROCK) && m_can_break_boulder(mtmp)) {
             (void) m_break_boulder(mtmp, nix, niy);
             return MMOVE_DONE;
         }
@@ -2261,8 +2277,6 @@ m_move(struct monst *mtmp, int after)
             worm_move(mtmp);
 
         maybe_unhide_at(mtmp->mx, mtmp->my);
-
-        coateffects(mtmp->mx, mtmp->my, mtmp);
 
         /* Reset prone */
         if (mtmp->mprone) {

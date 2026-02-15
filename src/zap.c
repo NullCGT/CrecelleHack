@@ -26,10 +26,10 @@ staticfn void skiprange(int, int *, int *) NONNULLPTRS;
 staticfn void maybe_explode_trap(struct trap *, struct obj *,
                                boolean *) NONNULLARG3;
 staticfn void zap_map(coordxy, coordxy, struct obj *) NONNULLARG3;
+staticfn void bounce_dir(coordxy, coordxy, int *, int *, int) NO_NNARGS;
 staticfn int zap_hit(int, int);
 staticfn void disintegrate_mon(struct monst *, int, const char *) NONNULLARG1;
 staticfn int adtyp_to_prop(int);
-staticfn void backfire(struct obj *) NONNULLARG1;
 staticfn int zap_ok(struct obj *) NO_NNARGS;
 /* all callers of boxlock_invent() pass a NONNULL obj, and boxlock
  * boxlock_invent() calls boxlock() which has nonnull arg. */
@@ -225,6 +225,8 @@ bhitm(struct monst *mtmp, struct obj *otmp)
             dmg = d(2, 12);
             if (dbldam)
                 dmg *= 2;
+            if (monmaterial(mtmp->mnum) == SALT)
+                dmg = mtmp->mhp;
             hit(zap_type_text, mtmp, exclam(dmg));
             (void) resist(mtmp, otmp->oclass, dmg, TELL);
         } else {
@@ -1607,6 +1609,7 @@ create_polymon(struct obj *obj, int okind)
     case IRON:
     case METAL:
     case MITHRIL:
+    case NIGHTIRON:
         pm_index = PM_IRON_GOLEM;
         material = "metal ";
         break;
@@ -1618,16 +1621,18 @@ create_polymon(struct obj *obj, int okind)
     case PLATINUM:
     case GEMSTONE:
     case MINERAL:
+    case LODEN:
         pm_index = rn2(2) ? PM_STONE_GOLEM : PM_CLAY_GOLEM;
         material = "lithic ";
         break;
     case 0:
     case FLESH:
         /* there is no flesh type, but all food is type 0, so we use it */
-        pm_index = rn2(2) ? PM_FLESH_GOLEM : PM_SALT_GOLEM;
+        pm_index = PM_FLESH_GOLEM;
         material = "organic ";
         break;
     case WOOD:
+    case BLEAKWOOD:
         pm_index = PM_WOOD_GOLEM;
         material = "wood ";
         break;
@@ -1654,6 +1659,10 @@ create_polymon(struct obj *obj, int okind)
     case PAPER:
         pm_index = (obj->oclass != SPBOOK_CLASS) ? PM_PAPER_GOLEM : PM_SCROLEM;
         material = "paper ";
+        break;
+    case SALT:
+        pm_index = PM_SALT_GOLEM;
+        material ="salty ";
         break;
     default:
         /* if all else fails... */
@@ -1702,7 +1711,7 @@ do_osshock(struct obj *obj)
     go.obj_zapped = TRUE;
 
     if (gp.poly_zapped < 0) {
-        /* some may metamorphosize */
+        /* some may metamorphose */
         for (i = obj->quan; i; i--)
             if (!rn2(Luck + 45)) {
                 gp.poly_zapped = obj->material;
@@ -1775,7 +1784,7 @@ poly_obj(struct obj *obj, int id)
         if (obj->otyp == UNICORN_HORN && obj->degraded_horn)
             magic_obj = 0;
         /* Try up to 3 times to make the magic-or-not status of
-           the new item be the same as it was for the old one. */
+           the new item the same as the old item. */
         otmp = (struct obj *) 0;
         do {
             if (otmp)
@@ -1799,7 +1808,7 @@ poly_obj(struct obj *obj, int id)
     otmp->quan = obj->quan;
     /* remove oprop */
     otmp->oprop = 0;
-    /* preserve the shopkeepers (lack of) interest */
+    /* preserve the shopkeeper's (lack of) interest */
     otmp->no_charge = obj->no_charge;
     /* preserve inventory letter if in inventory */
     if (obj_location == OBJ_INVENT)
@@ -2063,14 +2072,15 @@ stone_to_flesh_obj(struct obj *obj) /* nonnull */
     boolean smell = FALSE, golem_xform = FALSE;
     int res = 1; /* affected object by default */
 
-    if (obj->material != MINERAL && obj->material != GEMSTONE)
+    if (obj->material != MINERAL && obj->material != GEMSTONE
+        && obj->material != LODEN)
         return 0;
     /* Heart of Ahriman usually resists; ordinary items rarely do */
     if (obj_resists(obj, 2, 98))
         return 0;
 
     (void) get_obj_location(obj, &oox, &ooy, 0);
-    /* add more if stone objects are added.. */
+    /* add more if stone objects are added... */
     switch (objects[obj->otyp].oc_class) {
     case ROCK_CLASS: /* boulders and statues */
     case TOOL_CLASS: /* figurines */
@@ -3673,7 +3683,7 @@ spell_damage_bonus(
 }
 
 /*
- * Generate the to hit bonus for a spell.  Based on the hero's skill in
+ * Generate the to-hit bonus for a spell.  Based on the hero's skill in
  * spell class and dexterity.
  */
 staticfn int
@@ -3712,6 +3722,14 @@ spell_hit_bonus(int skill)
         hit_bon += dex - 14;
 
     return hit_bon;
+}
+
+const char *
+maybe_elipses_exclam(int force, boolean resisted)
+{
+    if (resisted)
+        return "...";
+    return exclam(force);
 }
 
 const char *
@@ -3902,11 +3920,17 @@ zap_map(
                     levl[x][y].flags &= ~T_LOOTED;
                 }
             }
+            if (has_coating(x, y, COAT_FUNGUS)){
+                if (rn2(3))
+                    makemon(&mons[levl[x][y].pindex],
+                            x, y, MM_NOCOUNTBIRTH);
+                spread_mold(x, y, &mons[levl[x][y].pindex]);
+            }
         } else if (obj->otyp == WAN_AQUA_BOLT
                     || obj->otyp == SPE_AQUA_BOLT) {
             if (cansee(x, y))
                 Norep("The %s gets wet.", surface(x, y));
-            floor_alchemy(x, y, POT_WATER, 0);
+            floor_spillage(x, y, POT_WATER, 0);
             learn_it = TRUE;
         }
     } /* !u.uz */
@@ -4119,10 +4143,12 @@ bhit(
                 levl[x][y].pindex = POT_GAIN_ABILITY + rn2(POT_WATER - POT_GAIN_ABILITY);
                 newsym(x, y);
             }
-            if (has_coating(x, y, COAT_BLOOD)) {
+            if (has_coating(x, y, COAT_BLOOD)
+                || has_coating(x, y, COAT_FUNGUS)) {
                 do {
                     levl[x][y].pindex = rndmonnum();
                 } while (!has_blood(&mons[levl[x][y].pindex]));
+                newsym(x, y);
             }
         }
 
@@ -4227,7 +4253,7 @@ bhit(
                    through instead of stop so we call flash_hits_mon()
                    directly rather than returning mtmp back to caller.
                    That allows the flash to keep on going.  Note that we
-                   use mtmp->minvis not canspotmon() because it makes no
+                   use mtmp->minvis, not canspotmon(), because it makes no
                    difference whether hero can see the monster or not. */
                 if (mtmp->minvis) {
                     obj->ox = u.ux, obj->oy = u.uy;
@@ -4382,6 +4408,7 @@ boomhit(struct obj *obj, coordxy dx, coordxy dy)
     int boom; /* showsym[] index  */
     struct monst *mtmp;
     boolean counterclockwise = URIGHTY; /* ULEFTY => clockwise */
+    int nhits = (obj->spe + 1);
 
     /* counterclockwise traversal patterns, from @ to 1 then on through to 9
      *  ..........................54.................................
@@ -4416,8 +4443,12 @@ boomhit(struct obj *obj, coordxy dx, coordxy dy)
         }
         if ((mtmp = m_at(gb.bhitpos.x, gb.bhitpos.y)) != 0) {
             m_respond(mtmp);
-            tmp_at(DISP_END, 0);
-            return mtmp;
+            if (nhits-- < 0) {
+                tmp_at(DISP_END, 0);
+                return mtmp;
+            } else if (throwit_mon_hit(obj, mtmp) || !gt.thrownobj) {
+                break;
+            }
         }
         if (!ZAP_POS(levl[gb.bhitpos.x][gb.bhitpos.y].typ)
             || closed_door(gb.bhitpos.x, gb.bhitpos.y)) {
@@ -4428,7 +4459,7 @@ boomhit(struct obj *obj, coordxy dx, coordxy dy)
         if (u_at(gb.bhitpos.x, gb.bhitpos.y)) { /* ct == 9 */
             if (Fumbling || rn2(20) >= ACURR(A_DEX)) {
                 /* we hit ourselves */
-                (void) thitu(10 + obj->spe, dmgval(obj, &gy.youmonst), &obj,
+                (void) thitu(10 + obj->spe, dmgval(obj, &gy.youmonst, &gy.youmonst), &obj,
                              "boomerang");
                 endmultishot(TRUE);
                 break;
@@ -4894,6 +4925,51 @@ burn_floor_objects(
     return cnt;
 }
 
+/* which direction a ray bounces.
+   current location is sx,sy, direction is ddx, ddy.
+   bounceback is 1/n chance of bouncing back.
+   caller must ensure sx,sy is a bouncing location: !ZAP_POS or closed_door
+ */
+staticfn void
+bounce_dir(coordxy sx, coordxy sy,
+           int *ddx, int *ddy,
+           int bounceback)
+{
+    if (!*ddx || !*ddy || (bounceback > 0 && !rn2(bounceback))) {
+        *ddx = -(*ddx);
+        *ddy = -(*ddy);
+    } else {
+        uchar rmn;
+        int bounce = 0;
+        coordxy lsy = sy - *ddy;
+        coordxy lsx = sx - *ddx;
+
+        if (isok(sx, lsy) && ZAP_POS(rmn = levl[sx][lsy].typ)
+            && !closed_door(sx, lsy)
+            && (IS_ROOM(rmn) || (isok(sx + *ddx, lsy)
+                                 && ZAP_POS(levl[sx + *ddx][lsy].typ))))
+            bounce = 1;
+        if (isok(lsx, sy) && ZAP_POS(rmn = levl[lsx][sy].typ)
+            && !closed_door(lsx, sy)
+            && (IS_ROOM(rmn) || (isok(lsx, sy + *ddy)
+                                 && ZAP_POS(levl[lsx][sy + *ddy].typ))))
+            if (!bounce || rn2(2))
+                bounce = 2;
+        switch (bounce) {
+        case 0:
+            *ddx = -(*ddx);
+            FALLTHROUGH;
+            /*FALLTHRU*/
+        case 1:
+            *ddy = -(*ddy);
+            break;
+        case 2:
+            *ddx = -(*ddx);
+            break;
+        }
+    }
+}
+
 /* will zap/spell/breath attack score a hit against armor class `ac'? */
 staticfn int
 zap_hit(
@@ -4989,7 +5065,7 @@ dobuzz(
     int spell_type;
     int hdmgtype = Hallucination ? rn2(6) : damgtype;
 
-    /* if it's a Hero Spell then get its SPE_TYPE */
+    /* if it's a hero spell then get its SPE_TYPE */
     spell_type = is_hero_spell(type) ? SPE_MAGIC_MISSILE + damgtype : 0;
 
     if (u.uswallow) {
@@ -5192,14 +5268,12 @@ dobuzz(
 
         if (!ZAP_POS(levl[sx][sy].typ)
             || (closed_door(sx, sy) && range >= 0)) {
-            int bounce, bchance;
-            uchar rmn;
+            int bchance;
 
  make_bounce:
             bchance = (!isok(sx, sy) || levl[sx][sy].typ == STONE) ? 10
                       : (In_mines(&u.uz) && IS_WALL(levl[sx][sy].typ)) ? 20
                         : 75;
-            bounce = 0;
             if ((--range > 0 && isok(lsx, lsy) && cansee(lsx, lsy))
                 || fireball) {
                 if (Is_airlevel(&u.uz)) { /* nothing to bounce off of */
@@ -5215,36 +5289,8 @@ dobuzz(
                 } else
                     pline_The("%s bounces!", flash_str(fltyp, FALSE));
             }
-            if (!dx || !dy || !rn2(bchance)) {
-                dx = -dx;
-                dy = -dy;
-            } else {
-                if (isok(sx, lsy) && ZAP_POS(rmn = levl[sx][lsy].typ)
-                    && !closed_door(sx, lsy)
-                    && (IS_ROOM(rmn) || (isok(sx + dx, lsy)
-                                         && ZAP_POS(levl[sx + dx][lsy].typ))))
-                    bounce = 1;
-                if (isok(lsx, sy) && ZAP_POS(rmn = levl[lsx][sy].typ)
-                    && !closed_door(lsx, sy)
-                    && (IS_ROOM(rmn) || (isok(lsx, sy + dy)
-                                         && ZAP_POS(levl[lsx][sy + dy].typ))))
-                    if (!bounce || rn2(2))
-                        bounce = 2;
-
-                switch (bounce) {
-                case 0:
-                    dx = -dx;
-                    FALLTHROUGH;
-                    /*FALLTHRU*/
-                case 1:
-                    dy = -dy;
-                    break;
-                case 2:
-                    dx = -dx;
-                    break;
-                }
-                tmp_at(DISP_CHANGE, zapdir_to_glyph(dx, dy, hdmgtype));
-            }
+            bounce_dir(sx, sy, &dx, &dy, bchance);
+            tmp_at(DISP_CHANGE, zapdir_to_glyph(dx, dy, hdmgtype));
         }
     }
     tmp_at(DISP_END, 0);
@@ -5472,9 +5518,13 @@ zap_over_floor(
                 add_coating(x, y, COAT_ASHES, 0);
                 create_bonfire(x, y, rnd(IS_RAINING ? 2 : 10), d(2, 4));
             } else if (has_coating(x, y, COAT_FUNGUS)) {
-                remove_coating(x, y, COAT_FUNGUS);
-                add_coating(x, y, COAT_ASHES, 0);
-                create_bonfire(x, y, rnd(IS_RAINING ? 2 : 4), d(4, 4));
+                if (levl[x][y].pindex == PM_BROWN_MOLD) {
+                    spread_mold(x, y, &mons[PM_BROWN_MOLD]);
+                } else {
+                    remove_coating(x, y, COAT_FUNGUS);
+                    add_coating(x, y, COAT_ASHES, 0);
+                    create_bonfire(x, y, rnd(IS_RAINING ? 2 : 4), d(4, 4));
+                }
             }
             detonate_waste(x, y);
             if (has_coating(x, y, COAT_POTION)
@@ -5591,6 +5641,10 @@ zap_over_floor(
                 start_melt_ice_timeout(x, y, melt_time);
             }
         } else {
+            if (has_coating(x, y, COAT_FUNGUS)
+                && levl[x][y].pindex == PM_RED_MOLD) {
+                spread_mold(x, y, &mons[PM_RED_MOLD]);
+            }
             add_coating(x, y, COAT_FROST, 0);
         }
         if (IS_FOUNTAIN(lev->typ) && !FOUNTAIN_IS_FROZEN(x, y)) {
@@ -5679,7 +5733,7 @@ zap_over_floor(
         if (damgtype == ZT_LIGHTNING) {
             detonate_waste(x, y);
         } else if (damgtype == ZT_ACID) {
-            floor_alchemy(x, y, POT_ACID, 0);
+            floor_spillage(x, y, POT_ACID, 0);
         }
         break; /* ZT_ACID */
 
@@ -5941,7 +5995,7 @@ destroyable(struct obj *obj, int adtyp)
         }
         if (obj->otyp == GLOB_OF_GREEN_SLIME || obj->oclass == POTION_CLASS
             || obj->oclass == SCROLL_CLASS || obj->oclass == SPBOOK_CLASS
-            || objects[obj->otyp].oc_material == ICECRYSTAL) {
+            || (obj->material == ICECRYSTAL && !obj->oartifact)) {
             return TRUE;
         }
     } else if (adtyp == AD_COLD) {
@@ -6171,7 +6225,7 @@ maybe_destroy_item(
             break;
         }
         /* Handle ice separately */
-        if (objects[obj->otyp].oc_material == ICECRYSTAL) {
+        if (obj->material == ICECRYSTAL) {
             dindx = 7;
             dmg = 0;
             break;
@@ -6565,7 +6619,8 @@ makewish(void)
     getlin(promptbuf, buf);
 
     if (iflags.term_gone) {
-        svc.context.resume_wish = 1;
+        if (!iflags.debug_fuzzer)
+            svc.context.resume_wish = 1;
         return;
     }
 

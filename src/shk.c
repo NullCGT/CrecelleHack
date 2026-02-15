@@ -2821,36 +2821,6 @@ oid_price_adjustment(struct obj *obj, unsigned int oid)
     return res;
 }
 
-/* Relative prices for the different materials.
- * Units for this are much more poorly defined than for weights; the best
- * approximation would be something like "zorkmids per aum".
- * We only care about the ratio of two of these together. */
-static const int matprices[] = {
-     0,
-     1, /* LIQUID */
-     1, /* WAX */
-     1, /* VEGGY */
-     3, /* FLESH */
-     2, /* PAPER */
-     3, /* CLOTH */
-     5, /* LEATHER */
-     8, /* WOOD */
-    20, /* BONE */
-   200, /* DRAGON_HIDE - DSM to scale mail */
-    10, /* IRON */
-    15, /* METAL */
-    18, /* COPPER */
-    30, /* SILVER */
-    60, /* GOLD */
-    80, /* PLATINUM */
-    50, /* MITHRIL - mithril-coat to regular chain mail */
-    10, /* PLASTIC */
-    20, /* GLASS */
-     3, /* ICECRYSTAL */
-   500, /* GEMSTONE */
-    10  /* MINERAL */
-};
-
 /* calculate the value that the shk will charge for [one of] an object */
 staticfn long
 get_cost(
@@ -2923,8 +2893,15 @@ get_cost(
         }
     }
     /* adjust for different material */
-    multiplier *= matprices[obj->material];
-    divisor *= matprices[objects[obj->otyp].oc_material];
+    multiplier *= MAT_COST(obj->material);
+    divisor *= MAT_COST(objects[obj->otyp].oc_material);
+
+    /* adjust for dyed items. disabled since it could cause some
+       issues for colorblind players. */
+    #if 0
+    if (has_odye(obj))
+        multiplier *= 4L, divisor *= 3L;
+    #endif
 
     if (uarmh && uarmh->otyp == DUNCE_CAP)
         multiplier *= 4L, divisor *= 3L;
@@ -3138,8 +3115,8 @@ set_cost(struct obj *obj, struct monst *shkp)
     tmp = get_pricing_units(obj) * unit_price;
 
     /* adjust for different material */
-    multiplier *= matprices[obj->material];
-    divisor *= matprices[objects[obj->otyp].oc_material];
+    multiplier *= MAT_COST(obj->material);
+    divisor *= MAT_COST(objects[obj->otyp].oc_material);
 
     if (uarmh && uarmh->otyp == DUNCE_CAP)
         divisor *= 3L;
@@ -4019,6 +3996,7 @@ sellobj(
     if ((!saleitem && !(container && cltmp > 0L)) || eshkp->billct == BILLSZ
         || obj->oclass == BALL_CLASS || obj->oclass == CHAIN_CLASS
         || obj->oclass == BOTTLE_CLASS
+        || has_osum(obj)
         || offer == 0L || (obj->oclass == FOOD_CLASS && obj->oeaten)
         || (Is_candle(obj)
             && obj->age < 20L * (long) objects[obj->otyp].oc_cost)) {
@@ -4164,6 +4142,7 @@ sellobj(
                 obj->no_charge = 1;
             subfrombill(obj, shkp);
             pay(-offer, shkp);
+            exercise(A_CHA, TRUE);
             shk_names_obj(shkp, obj,
                           (gs.sell_how != SELL_NORMAL)
                            ? ((!ltmp && cltmp && only_partially_your_contents)

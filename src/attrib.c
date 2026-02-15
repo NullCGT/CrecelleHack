@@ -498,9 +498,8 @@ restore_attrib(void)
 void
 exercise(int i, boolean inc_or_dec)
 {
+    int alter;
     debugpline0("Exercise:");
-    if (i == A_INT || i == A_CHA)
-        return; /* can't exercise these */
 
     /* no physical exercise while polymorphed; the body's temporary */
     if (Upolyd && i != A_WIS)
@@ -516,7 +515,8 @@ exercise(int i, boolean inc_or_dec)
          *
          *      Note: *YES* ACURR is the right one to use.
          */
-        AEXE(i) += (inc_or_dec) ? (rn2(19) > ACURR(i)) : -rn2(2);
+        alter = (inc_or_dec) ? (rn2(19) > ACURR(i)) : -rn2(2);
+        AEXE(i) += use_skill(i + P_FIRST_ATTR, alter);
         debugpline3("%s, %s AEXE = %d",
                     (i == A_STR) ? "Str" : (i == A_WIS) ? "Wis" : (i == A_DEX)
                                                                       ? "Dex"
@@ -666,7 +666,7 @@ exerchk(void)
                 goto nextattrib;
 
             debugpline1("exerchk: changing %d.", i);
-            if (adjattrib(i, mod_val, -1)) {
+            if (use_skill(i + P_FIRST_ATTR, mod_val * 20)) {
                 debugpline1("exerchk: changed %d.", i);
                 /* if you actually changed an attrib - zero accumulation */
                 AEXE(i) = ax = 0;
@@ -1406,6 +1406,15 @@ uchangealign(
         u.ualign.record = 0; /* slate is wiped clean */
         retouch_equipment(0);
     }
+}
+
+const char *
+attr_name(int attr) {
+    if (attr < 0)
+        return "negativity";
+    if (attr >= A_MAX)
+        return "positivity";
+    return attrname[attr];
 }
 
 /*attrib.c*/

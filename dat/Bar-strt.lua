@@ -47,7 +47,7 @@ des.terrain({62,02}, ".")
 des.replace_terrain({ region={00,00, 79,20}, fromterrain=".", toterrain=".", coat="blood", montype="ogre", chance=7 })
 
 -- Dungeon Description
-des.region(selection.area(00,00,75,19), "lit")
+des.region(selection.area(00,00,75,19), "unlit")
 des.region(selection.area(09,05,11,05), "unlit")
 des.region(selection.area(09,07,11,07), "lit")
 des.region(selection.area(09,09,11,09), "unlit")

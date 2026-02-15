@@ -27,7 +27,7 @@ des.map([[
 
 des.replace_terrain({ region = { 0, 8, 24, 19}, fromterrain=".", toterrain="T", chance=7 })
 -- Dungeon Description
-des.region(selection.area(00,00,75,19), "lit")
+des.region(selection.area(00,00,75,19), "unlit")
 -- Stairs
 des.stair("down", 75,01)
 -- Portal arrival point

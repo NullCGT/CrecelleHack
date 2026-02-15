@@ -165,12 +165,13 @@ make_familiar(struct obj *otmp, coordxy x, coordxy y, boolean quietly)
         if (!(pm = pick_familiar_pm(otmp, quietly)))
             break;
 
-        mmflags = MM_EDOG | MM_IGNOREWATER | NO_MINVENT | MM_NOMSG;
+        mmflags = MM_EDOG | MM_IGNOREWATER | NO_MINVENT | MM_NOMSG | MM_ESUM;
         cgend = otmp ? (otmp->spe & CORPSTAT_GENDER) : 0;
         mmflags |= ((cgend == CORPSTAT_FEMALE) ? MM_FEMALE
                     : (cgend == CORPSTAT_MALE) ? MM_MALE : 0L);
 
         mtmp = makemon(pm, x, y, mmflags);
+        ESUM(mtmp)->ownermid = gy.youmonst.m_id;
         if (otmp) { /* figurine */
             if (!mtmp) {
                 /* monster has been genocided or target spot is occupied */
@@ -237,6 +238,7 @@ makedog(void)
     struct monst *mtmp;
     const char *petname;
     int pettype;
+    int petsym;
 
     if (gp.preferred_pet == 'n') {
         /* static init yields 0 (PM_GIANT_ANT); fix that up now */
@@ -245,12 +247,12 @@ makedog(void)
     }
 
     pettype = svc.context.startingpet_typ = pet_type();
-    petname = (pettype == PM_LITTLE_DOG 
-                || pettype == PM_LARGE_DOG 
-                || pettype == PM_KOBOLD) ? gd.dogname
-              : (pettype == PM_KITTEN) ? gc.catname
-                : (pettype == PM_PONY) ? gh.horsename
-                  : "";
+    petsym = mons[pettype].mlet;
+    petname = (petsym == S_DOG) ? gd.dogname
+              : (petsym == S_FELINE) ? gc.catname
+                : (petsym == S_UNICORN) ? gh.horsename
+                  : (petsym == S_KOBOLD) ? gk.koboldname
+                    : "";
 
     /* default pet names */
     if (!*petname && pettype == PM_LITTLE_DOG) {

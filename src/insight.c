@@ -283,6 +283,11 @@ cause_known(
         if ((int) objects[o->otyp].oc_oprop == propindx
             && objects[o->otyp].oc_name_known && o->dknown)
             return TRUE;
+        if (o->oprop && o->pknown) {
+            if (propindx == HUNGER && o->oprop == OPROP_HUNGRY) {
+                return TRUE;
+            }
+        }
     }
     return FALSE;
 }
@@ -642,7 +647,7 @@ background_enlightenment(int unused_mode UNUSED, int final)
         enl_msg("It ", "is ", "was  ", "daytime", "");
     }
     /* Weather */
-    if (!has_no_tod_cycles(&u.uz) && IS_RAINING) {
+    if (exposed_to_elements(&u.uz) && IS_RAINING) {
         enl_msg("It ", "is ", "was ", "raining", "");
     }
     /* other environmental factors */
@@ -1918,7 +1923,7 @@ attributes_enlightenment(
         you_can("not change from your current form", from_what(UNCHANGING));
     for (ltmp = 1; ltmp < NUM_MATERIAL_TYPES; ++ltmp) {
         if (Hate_material(ltmp)) {
-            Sprintf(buf, "harmed by %s", materialnm[ltmp]);
+            Sprintf(buf, "harmed by %s", MAT_NAME(ltmp));
             you_are(buf, "");
         }
     }
@@ -2247,6 +2252,14 @@ show_conduct(int final)
     } else if (wizard) {
         Sprintf(buf, "blessed items with holy water %ld time%s",
                 u.uconduct.holy_water, plur(u.uconduct.holy_water));
+        you_have_X(buf);
+    }
+
+    if (!u.uconduct.dyed) {
+        you_have_never("dyed an item");
+    } else if (wizard) {
+        Sprintf(buf, "dyed items %ld time%s",
+                u.uconduct.dyed, plur(u.uconduct.dyed));
         you_have_X(buf);
     }
 

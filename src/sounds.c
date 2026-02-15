@@ -799,7 +799,8 @@ domonnoise(struct monst *mtmp)
            night */
         boolean isnight = night();
         boolean kindred = (Upolyd && (u.umonnum == PM_VAMPIRE
-                                      || u.umonnum == PM_VAMPIRE_LEADER));
+                                      || u.umonnum == PM_VAMPIRE_LEADER
+                                      || u.umonnum == PM_VAMPIRE_MAGE));
         boolean nightchild = (Upolyd && (u.umonnum == PM_WOLF
                                          || u.umonnum == PM_WINTER_WOLF
                                          || u.umonnum == PM_WINTER_WOLF_CUB));
@@ -1281,6 +1282,7 @@ domonnoise(struct monst *mtmp)
             pline_msg = "is busy reading a copy of Sandman #8.";
         } else
             verbl_msg = "Who do you think you are, War?";
+        exercise(A_CHA, TRUE);
         break;
     } /* case MS_RIDER */
     } /* switch */
@@ -1514,7 +1516,7 @@ tiphat(void)
        beyond the current move is necessary */
     You("briefly doff your %s.", helm_simple_name(uarmh));
 
-    if (IS_RAINING && !has_no_tod_cycles(&u.uz)) {
+    if (IS_RAINING && exposed_to_elements(&u.uz)) {
         Your("%s gets wet.", body_part(HEAD));
     }
 

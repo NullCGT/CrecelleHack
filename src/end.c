@@ -100,7 +100,8 @@ done2(void)
         && y_n("Switch from the tutorial back to regular play?") == 'y')
         abandon_tutorial = TRUE;
 
-    if (abandon_tutorial || !paranoid_query(ParanoidQuit, "Really quit?")) {
+    if (abandon_tutorial || !paranoid_query(
+            ParanoidQuit, "Really quit without saving?")) {
 #ifndef NO_SIGNAL
         (void) signal(SIGINT, (SIG_RET_TYPE) done1);
 #endif
@@ -218,6 +219,8 @@ done_in_by(struct monst *mtmp, int how)
     (void) monhealthdescr(mtmp, TRUE, eos(buf));
     if (mtmp->minvis)
         Strcat(buf, "invisible ");
+    if (is_summoned(mtmp))
+        Strcat(buf, "summoned ");
     if (mtmp->mtraitor)
         Strcat(buf, "traitorous ");
     if (distorted)
@@ -1092,6 +1095,7 @@ done(int how)
             You("vomit ...");
         You_feel("much better!");
         pline_The("medallion crumbles to dust!");
+        add_coating(u.ux, u.uy, COAT_ASHES, 0);
         if (uamul)
             useup(uamul);
 

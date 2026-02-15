@@ -56,7 +56,7 @@ endif
 # Location of LUA
 #
 # Original source needs to be obtained from: 
-#    http://www.lua.org/ftp/lua-5.4.6.tar.gz
+#    http://www.lua.org/ftp/lua-5.4.8.tar.gz
 #
 #    This build assumes that the LUA sources are located
 #    at the specified location. If they are actually elsewhere
@@ -296,7 +296,7 @@ VOBJ22 = $(O)topl.o     $(O)topten.o   $(O)trap.o     $(O)u_init.o   $(O)uhitm.o
 VOBJ23 = $(O)utf8map.o  $(O)vault.o    $(O)track.o    $(O)vision.o   $(O)weapon.o
 VOBJ24 = $(O)were.o     $(O)wield.o    $(O)windows.o  $(O)wintty.o   $(O)wizard.o
 VOBJ25 = $(O)wizcmds.o  $(O)worm.o     $(O)worn.o     $(O)write.o    $(O)zap.o
-VOBJ26 = $(O)light.o    $(O)dlb.o      $(REGEX)
+VOBJ26 = $(O)light.o    $(O)dlb.o      $(O)iactions.o $(REGEX)
 
 SOBJ   = $(O)msdos.o    $(O)pcsys.o    $(O)tty.o	    $(O)unix.o \
 	 $(O)video.o    $(O)vidtxt.o  $(O)pckeys.o
@@ -324,7 +324,7 @@ ALLOBJ = $(VOBJ) $(SOBJ) $(TILOBJ) $(TILOBJ2) $(VVOBJ)
 
 #===============-=================================================
 # LUA library
-# Source from http://www.lua.org/ftp/lua-5.4.6.tar.gz
+# Source from http://www.lua.org/ftp/lua-5.4.8.tar.gz
 #=================================================================
 
 LUASRC   = $(LUATOP)/src
@@ -1399,6 +1399,7 @@ $(TARGETPFX)files.o: files.c $(HACK_H) ../include/dlb.h ../include/wintty.h \
 $(TARGETPFX)fountain.o: fountain.c $(HACK_H)
 $(TARGETPFX)hack.o: hack.c $(HACK_H)
 $(TARGETPFX)hacklib.o: hacklib.c $(HACK_H)
+$(TARGETPFX)iactions.o: iactions.c $(HACK_H)
 $(TARGETPFX)insight.o: insight.c $(HACK_H)
 $(TARGETPFX)invent.o: invent.c $(HACK_H)
 $(TARGETPFX)isaac64.o: isaac64.c $(CONFIG_H) ../include/isaac64.h

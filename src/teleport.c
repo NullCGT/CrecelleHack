@@ -1,4 +1,4 @@
-/* NetHack 3.7	teleport.c	$NHDT-Date: 1736129950 2025/01/05 18:19:10 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.235 $ */
+/* NetHack 3.7	teleport.c	$NHDT-Date: 1769342601 2026/01/25 04:03:21 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.239 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2011. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -466,7 +466,7 @@ teleds(coordxy nux, coordxy nuy, int teleds_flags)
      * otherwise they are teleporting, so unplacebc().
      * If they don't have to move the ball, then always "drag" whether or
      * not allow_drag is true, because we are calling that function, not
-     * to drag, but to move the chain.  *However* there are some dumb
+     * to drag, but to move the chain.  *However*, there are some dumb
      * special cases:
      *    0                          0
      *   _X  move east       ----->  X_
@@ -814,6 +814,12 @@ tele_to_rnd_pet(void)
 {
     struct monst *mtmp, *pet = (struct monst *) 0;
     int cnt = 0;
+
+    if (noteleport_level(&gy.youmonst)) {
+        impossible("%s", "attempt to teleport hero to be near a pet"
+                         " on no-teleport level");
+        return;
+    }
 
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon)
         if (!DEADMONSTER(mtmp) && mtmp->mtame && !mon_offmap(mtmp)) {
@@ -1357,7 +1363,7 @@ level_tele(void)
         d_level lsav;
 
         /* set specific death location; this also suppresses bones */
-        lsav = u.uz;   /* save current level, see below */
+        lsav = u.uz;   /* save current level; see below */
         u.uz.dnum = 0; /* main dungeon */
         u.uz.dlevel = (newlev <= -10) ? -10 : 0; /* heaven or surface */
         done(DIED);

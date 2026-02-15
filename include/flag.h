@@ -49,6 +49,8 @@ struct flag {
     boolean implicit_medium; /* maybe omit "medium" from weapon sizes */
     boolean implicit_material; /* maybe omit default material from items*/
     boolean ins_chkpt;       /* checkpoint as appropriate; INSURANCE */
+    boolean invisible_dye;   /* disable glyph changes for dyed items */
+    boolean invisible_material; /* disable glyph changes for materials */
     boolean invlet_constant; /* let objects keep their inventory symbol */
     boolean legacy;          /* print game entry "story" */
     boolean lit_corridor;    /* show a dark corr as lit if it is in sight */
@@ -306,6 +308,7 @@ struct instance_flags {
     boolean debug_overwrite_stairs; /* debug: allow overwriting stairs */
     boolean debug_mongen;  /* debug: prevent monster generation */
     boolean debug_hunger;  /* debug: prevent hunger */
+    boolean debug_prevent_pline;  /* debug: prevent pline going to UI */
     boolean mon_polycontrol; /* debug: control monster polymorphs */
     boolean mon_telecontrol; /* debug: control monster teleports */
     boolean in_dumplog;    /* doing the dumplog right now? */
@@ -497,7 +500,7 @@ struct instance_flags {
 };
 
 /*
- * Old deprecated names
+ * Old, deprecated names
  */
 #ifdef TTY_GRAPHICS
 #define eight_bit_tty wc_eight_bit_input

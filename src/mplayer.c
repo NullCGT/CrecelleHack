@@ -106,6 +106,11 @@ mk_mplayer_armor(struct monst *mon, short typ)
         curse(obj);
     if (!rn2(3))
         bless(obj);
+    /* Players love to customize things, so NPC players should be the
+       same way. */
+    if (!rn2(3)) {
+        dye_obj(obj, (mon->m_id % CLR_BRIGHT_CYAN) + 1, FALSE);
+    }
     /* Most players who get to the endgame who have cursed equipment
      * have it because the wizard or other monsters cursed it, so its
      * chances of having plusses is the same as usual....

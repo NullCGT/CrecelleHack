@@ -249,16 +249,11 @@ do_room_or_subroom(struct mkroom *croom,
         hiy = ROWNO - 2;
 
     if (lit) {
-        #if 0
-        if (depth(&u.uz) < NIGHTCRUST_SPAWN_DEPTH || 
-            (croom->rtype > THEMEROOM && croom->rtype != SWAMP)) {
-            for (x = lowx - 1; x <= hix + 1; x++) {
-                lev = &levl[x][max(lowy - 1, 0)];
-                for (y = lowy - 1; y <= hiy + 1; y++)
-                    lev++->lit = 1;
-            }
+        for (x = lowx - 1; x <= hix + 1; x++) {
+            lev = &levl[x][max(lowy - 1, 0)];
+            for (y = lowy - 1; y <= hiy + 1; y++)
+                lev++->lit = 1;
         }
-        #endif
         croom->rlit = 1;
     } else
         croom->rlit = 0;
@@ -1217,7 +1212,8 @@ coat_room(struct mkroom *croom, unsigned char coat_type) {
                 }
             }
             if ((coat_type & COAT_FUNGUS) != 0)
-                if (!rn2(max(2, abs(13 - u.uz.dlevel)))) add_coating(x, y, COAT_FUNGUS, 0);
+                if (!rn2(max(2, abs(13 - u.uz.dlevel))))
+                    add_coating(x, y, COAT_FUNGUS, PM_NIGHTCRUST);
             if ((coat_type & COAT_MUD) != 0)
                 if (!rn2(3)) add_coating(x, y, COAT_MUD, 0);
         }

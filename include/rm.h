@@ -12,8 +12,8 @@
  * building on Don G Kneller's MS-DOS implementation. See drawing.c for
  * the code that permits the user to set the contents of the symbol structure.
  *
- * The door representation was changed by Ari
- * Huttunen(ahuttune@niksula.hut.fi)
+ * The door representation was changed by
+ * Ari Huttunen(ahuttune@niksula.hut.fi).
  */
 
 /*
@@ -150,12 +150,11 @@ COAT(POTION,    "potion",   "potion-spattered ",    0x004), \
 COAT(BLOOD,     "blood",    "bloody ",              0x008), \
 COAT(FUNGUS,    "fungus",   "fungus-encrusted ",    0x010), \
 COAT(SHARDS,    "shards",   "glass-strewn ",        0x020), \
-COAT(HONEY,     "honey",    "sticky ",              0x040), \
-COAT(FROST,     "snow",     "snowy ",               0x080), \
-COAT(MUD,       "mud",      "muddy ",               0x100), \
+COAT(FROST,     "snow",     "snowy ",               0x040), \
+COAT(MUD,       "mud",      "muddy ",               0x080), \
 COAT(ALL,       "all",      "all",                  0xfff)
 
-#define NUM_COATINGS 9 /* IMPORTANT: must be incremented when coatings are addeed */
+#define NUM_COATINGS 8 /* IMPORTANT: must be incremented when coatings are addeed */
 #define COAT(id, nam, adj, val) COAT_##id = val
 enum coatings_enum { COAT_LIST };
 #undef COAT
@@ -529,7 +528,7 @@ typedef struct {
 #define fmon svl.level.monlist
 
 /*
- * Covert a trap number into the defsym graphics array.
+ * Convert a trap number into the defsym graphics array.
  * Convert a defsym number into a trap number.
  * Assumes that arrow trap will always be the first trap.
  */

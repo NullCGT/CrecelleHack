@@ -234,6 +234,7 @@ struct nhdatatypes_t readtagstypes[] = {
     { NHTYPE_COMPLEX, (char *) "engr", sizeof(struct engr) },
     { NHTYPE_COMPLEX, (char *) "epri", sizeof(struct epri) },
     { NHTYPE_COMPLEX, (char *) "eshk", sizeof(struct eshk) },
+    { NHTYPE_COMPLEX, (char *) "esum", sizeof(struct esum) },
     { NHTYPE_COMPLEX, (char *) "fakecorridor", sizeof(struct fakecorridor) },
     { NHTYPE_COMPLEX, (char *) "fe", sizeof(struct fe) },
     { NHTYPE_COMPLEX, (char *) "flag", sizeof(struct flag) },
@@ -971,7 +972,7 @@ static void output_types(FILE *fp1)
 
     for (k = 0; k < SIZE(readtagstypes); ++k) {
         if (readtagstypes[k].dtclass == NHTYPE_SIMPLE) {
-            Fprintf(fp1,"\t{NHTYPE_SIMPLE, (char *) \"%s\", sizeof(%s)},\n",
+            Fprintf(fp1,"    {NHTYPE_SIMPLE, (char *) \"%s\", sizeof(%s)},\n",
                 readtagstypes[k].dtype,
                 (strncmpi(readtagstypes[k].dtype, "Bitfield", 8) == 0) ?
                 "uint8_t" :
@@ -981,10 +982,10 @@ static void output_types(FILE *fp1)
                                 "anything" : readtagstypes[k].dtype);
 /*                dtmacro(readtagstypes[k].dtype,0)); */
 #if 0
-            Fprintf(fp2, "#define %s\t%s%d\n", dtmacro(readtagstypes[k].dtype,1),
+            Fprintf(fp2, "#define %s    %s%d\n", dtmacro(readtagstypes[k].dtype,1),
                     (strlen(readtagstypes[k].dtype) > 12) ? "" :
-                (strlen(readtagstypes[k].dtype) < 5) ? "\t\t" :
-                "\t", hcnt++);
+                (strlen(readtagstypes[k].dtype) < 5) ? "        " :
+                "    ", hcnt++);
 #endif
         }
     }
@@ -997,7 +998,7 @@ static void output_types(FILE *fp1)
             }
             if (cnt > 0)
                 Fprintf(fp1, "%s", ",\n");
-            Fprintf(fp1, "\t{NHTYPE_COMPLEX, (char *) \"%s\", sizeof(%s %s)}",
+            Fprintf(fp1, "    {NHTYPE_COMPLEX, (char *) \"%s\", sizeof(%s %s)}",
                     t->tag,
                     (t->tagtype == 's') ? "struct" : "union", t->tag);
             cnt += 1;
@@ -1005,7 +1006,7 @@ static void output_types(FILE *fp1)
         t = t->next;
     }
     Fprintf(fp1, "%s", "\n};\n\n");
-    Fprintf(fp1, "int nhdatatypes_size(void)\n{\n\treturn SIZE(nhdatatypes);\n}\n\n");
+    Fprintf(fp1, "int nhdatatypes_size(void)\n{\n    return SIZE(nhdatatypes);\n}\n\n");
 }
 
 static void generate_c_files(void)
@@ -1357,7 +1358,7 @@ static void generate_c_files(void)
                             "d_%s->%s = bitfield;\n\n",
                             readtagstypes[k].dtype, t->tag);
                     Fprintf(SFDATATMP,
-                            "\t\"%s:%s:%s\",\n",
+                            "    \"%s:%s:%s\",\n",
                             sfparent, t->tag, ft);
                 } else {
                     /**************** not a bitfield ****************/
@@ -1424,6 +1425,7 @@ static void generate_c_files(void)
                                    || !strcmp(t->ptr, "struct eshk *")
                                    || !strcmp(t->ptr, "struct emin *")
                                    || !strcmp(t->ptr, "struct ebones *")
+                                   || !strcmp(t->ptr, "struct esum *")
                                    || !strcmp(t->ptr, "struct edog *"))) {
                         Strcpy(altbuf, "genericptr");
                     } else if (isptr
@@ -1571,7 +1573,7 @@ static void generate_c_files(void)
                         strcmp(altbuf, "char") != 0 ? "" : arrbuf);
                     Fprintf(SFI_DATA, "%s", lbuf);
                     Fprintf(SFDATATMP,
-                        "\t\"%s:%s:%s\",\n",
+                        "    \"%s:%s:%s\",\n",
                         sfparent, t->tag,fieldfix(ft,ssdef));
                     kludge_sbrooms = FALSE;
                     array_of_ptrs = FALSE;
@@ -1604,7 +1606,7 @@ static void generate_c_files(void)
     }
 
     Fprintf(SFDATATMP,"};\n\n");
-    Fprintf(SFDATATMP, "int critical_members_count(void)\n{\n\treturn SIZE(critical_members);\n}\n\n");
+    Fprintf(SFDATATMP, "int critical_members_count(void)\n{\n    return SIZE(critical_members);\n}\n\n");
 
     fclose(SFO_DATA);
     fclose(SFI_DATA);
@@ -1724,7 +1726,7 @@ dtmacro(const char *str,
     } else if (strncmpi(c, "const ", 6) == 0) {
         c = buf + 6;
     } else if ((strncmpi(c, "struct ", 7) == 0) ||
-           (strncmpi(c, "struct\t", 7) == 0)) {
+           (strncmpi(c, "struct    ", 7) == 0)) {
         c = buf + 7;
     } else if (strncmpi(c, "union ", 6) == 0) {
         c = buf + 6;
@@ -1785,7 +1787,7 @@ dtfn(const char *str,
     } else if (strncmpi(c, "const ", 6) == 0) {
         c = buf + 6;
     } else if ((strncmpi(c, "struct ", 7) == 0) ||
-                   (strncmpi(c, "struct\t", 7) == 0)) {
+                   (strncmpi(c, "struct    ", 7) == 0)) {
         c = buf + 7;
     } else if (strncmpi(c, "union ", 6) == 0) {
         c = buf + 6;
@@ -1979,6 +1981,7 @@ const struct already_in_sfbase already[] = {
     { NHTYPE_COMPLEX, "Sfi_engr", "Sfi_x_engr" },
     { NHTYPE_COMPLEX, "Sfi_epri", "Sfi_x_epri" },
     { NHTYPE_COMPLEX, "Sfi_eshk", "Sfi_x_eshk" },
+    { NHTYPE_COMPLEX, "Sfi_esum", "Sfi_x_esum" },
     { NHTYPE_COMPLEX, "Sfi_fe", "Sfi_x_fe" },
     { NHTYPE_COMPLEX, "Sfi_flag", "Sfi_x_flag" },
     { NHTYPE_COMPLEX, "Sfi_fruit", "Sfi_x_fruit" },
@@ -2034,6 +2037,7 @@ const struct already_in_sfbase already[] = {
     { NHTYPE_COMPLEX, "Sfo_engr", "Sfo_x_engr" },
     { NHTYPE_COMPLEX, "Sfo_epri", "Sfo_x_epri" },
     { NHTYPE_COMPLEX, "Sfo_eshk", "Sfo_x_eshk" },
+    { NHTYPE_COMPLEX, "Sfo_esum", "Sfo_x_esum" },
     { NHTYPE_COMPLEX, "Sfo_fe", "Sfo_x_fe" },
     { NHTYPE_COMPLEX, "Sfo_flag", "Sfo_x_flag" },
     { NHTYPE_COMPLEX, "Sfo_fruit", "Sfo_x_fruit" },
@@ -2125,6 +2129,7 @@ struct nh_classification nhdatatypes[] = {
     { 0, NHTYPE_COMPLEX, "sfi_engrave_info", "sfi_engrave_info" },
     { 0, NHTYPE_COMPLEX, "sfi_epri", "sfi_epri" },
     { 0, NHTYPE_COMPLEX, "sfi_eshk", "sfi_eshk" },
+    { 0, NHTYPE_COMPLEX, "sfi_esum", "sfi_esum" },
     { 0, NHTYPE_COMPLEX, "sfi_fakecorridor", "sfi_fakecorridor" },
     { 0, NHTYPE_COMPLEX, "sfi_fe", "sfi_fe" },
     { 0, NHTYPE_COMPLEX, "sfi_flag", "sfi_flag" },
@@ -2196,6 +2201,7 @@ struct nh_classification nhdatatypes[] = {
     { 0, NHTYPE_COMPLEX, "sfo_engrave_info", "sfo_engrave_info" },
     { 0, NHTYPE_COMPLEX, "sfo_epri", "sfo_epri" },
     { 0, NHTYPE_COMPLEX, "sfo_eshk", "sfo_eshk" },
+    { 0, NHTYPE_COMPLEX, "sfo_esum", "sfo_esum" },
     { 0, NHTYPE_COMPLEX, "sfo_fakecorridor", "sfo_fakecorridor" },
     { 0, NHTYPE_COMPLEX, "sfo_fe", "sfo_fe" },
     { 0, NHTYPE_COMPLEX, "sfo_flag", "sfo_flag" },

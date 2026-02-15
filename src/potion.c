@@ -12,6 +12,9 @@ staticfn int drink_ok(struct obj *);
 staticfn void peffect_restore_ability(struct obj *);
 staticfn void peffect_hallucination(struct obj *);
 staticfn void peffect_blood(struct obj *);
+staticfn void peffect_honey(struct obj *);
+staticfn void peffect_dye(struct obj *);
+staticfn void peffect_normality(struct obj *);
 staticfn void peffect_water(struct obj *);
 staticfn void peffect_booze(struct obj *);
 staticfn void peffect_enlightenment(struct obj *);
@@ -47,6 +50,7 @@ staticfn void hold_potion(struct obj *, const char *, const char *,
 staticfn void poof(struct obj *);
 staticfn boolean dip_potion_explosion(struct obj *, int);
 staticfn int potion_dip(struct obj *obj, struct obj *potion);
+staticfn short mix_gem(struct obj *o1);
 
 
 #define COAT(id, nam, adj, val) { nam, adj, val }
@@ -766,6 +770,48 @@ peffect_blood(struct obj *otmp) {
 }
 
 staticfn void
+peffect_honey(struct obj *otmp) {
+    if (Hallucination) {
+        pline("Sweet %s, %s, that's not honey! That's ascii text!",
+                align_gname(u.ualign.type), svp.plname);
+    } else {
+        pline(otmp->cursed ? "Ugh, it's spoiled." : "Delicious!");
+        gp.potion_unkn++;
+    }
+    if (otmp->blessed && !otmp->odiluted)
+        incr_itimeout(&HRegeneration, d(3, 3));
+    u.uhunger += 20 * (2 + bcsign(otmp));
+    newuhs(FALSE);
+}
+
+staticfn void
+peffect_dye(struct obj *otmp) {
+    if (otmp->cursed)
+        urgent_pline("You dye...");
+    else
+        pline("What a colorful taste!");
+    if (has_odye(otmp))
+        pline("Your lips turn %s.", dye_to_name(otmp));
+    exercise(A_CHA, FALSE);
+    gp.potion_unkn++;
+}
+
+staticfn void
+peffect_normality(struct obj *otmp) {
+    for (int propidx = 1; propidx < PRONE; ++propidx) {
+        if (u.uprops[propidx].intrinsic) {
+            if ((!otmp->odiluted) || rn2(2))
+                set_itimeout(&u.uprops[propidx].intrinsic, 0L);
+        }
+    }
+    newsym(u.ux, u.uy);
+    You_feel("normal.");
+    if (Upolyd)
+        rehumanize();
+    gp.potion_unkn++;
+}
+
+staticfn void
 peffect_water(struct obj *otmp)
 {
     if (!otmp->blessed && !otmp->cursed) {
@@ -884,6 +930,10 @@ peffect_invisibility(struct obj *otmp)
     if (otmp->cursed) {
         pline("For some reason, you feel your presence is known.");
         aggravate();
+
+        /* doing this gives temporary invisibility, but removes permanent
+           invisibility */
+        HInvis &= ~FROMOUTSIDE;
     }
 }
 
@@ -1416,6 +1466,15 @@ peffects(struct obj *otmp)
     case POT_BLOOD:
         peffect_blood(otmp);
         break;
+    case POT_HONEY:
+        peffect_honey(otmp);
+        break;
+    case POT_DYE:
+        peffect_dye(otmp);
+        break;
+    case POT_NORMALITY:
+        peffect_normality(otmp);
+        break;
     case POT_WATER:
         peffect_water(otmp);
         break;
@@ -1715,46 +1774,52 @@ boolean
 add_coating(coordxy x, coordxy y, short coatflags, int pindex) {
     if (!IS_COATABLE(levl[x][y].typ))
         return FALSE;
-    else {
-        /* If in mklev we need to clear the coat info first. */
-        if (gi.in_mklev)
-            levl[x][y].coat_info = 0;
-        /* Mud is special*/
-        if ((coatflags & COAT_POTION) && pindex == POT_WATER
-            && levl[x][y].submask == SM_DIRT) {
-            coatflags &= ~COAT_POTION;
-            coatflags |= COAT_MUD;
-            pindex = 0;
-        }
-        levl[x][y].coat_info |= coatflags;
-        if ((coatflags & COAT_FUNGUS) != 0) {
-            levl[x][y].lit = 1;
-        }
-        if ((coatflags & COAT_FROST) != 0) {
-            remove_coating(x, y, COAT_POTION | COAT_BLOOD | COAT_ASHES | COAT_FUNGUS | COAT_GRASS);
-        }
-        if ((coatflags & COAT_MUD) != 0) {
-            remove_coating(x, y, COAT_FUNGUS | COAT_GRASS);
-        }
-        if ((coatflags & COAT_POTION) != 0) {
-            remove_coating(x, y, COAT_BLOOD | COAT_FROST);
-            levl[x][y].pindex = pindex;
-            if (pindex == POT_ACID) {
-                remove_coating(x, y, COAT_GRASS | COAT_ASHES | COAT_HONEY);
-            } else if (pindex < POT_GAIN_ABILITY || pindex > POT_WATER) {
-                impossible("coating floor at <%d,%d> with invalid tonic %d?", x, y, pindex);
-            }
-        } else if ((coatflags & COAT_BLOOD) != 0) {
-            remove_coating(x, y, COAT_POTION | COAT_FROST);
-            levl[x][y].pindex = pindex;
-            if (!ismnum(pindex)) impossible("coating floor at <%d,%d> with invalid blood %d?", x, y, pindex);
-        } else if (pindex) {
-            impossible("non-tonic pindex coating at <%d,%d>?", x, y);
-        }
-        /* Don't expose squares during mapgen*/
-        if (!gi.in_mklev)
-            newsym(x, y);
+
+    /* If in mklev we need to clear the coat info first. */
+    if (gi.in_mklev)
+        levl[x][y].coat_info = 0;
+    /* Mud is special*/
+    if ((coatflags & COAT_POTION) && pindex == POT_WATER
+        && levl[x][y].submask == SM_DIRT) {
+        coatflags &= ~COAT_POTION;
+        coatflags |= COAT_MUD;
+        pindex = 0;
     }
+    levl[x][y].coat_info |= coatflags;
+    if ((coatflags & COAT_FROST) != 0) {
+        remove_coating(x, y, COAT_POTION | COAT_BLOOD | COAT_GRASS);
+    }
+    if ((coatflags & COAT_MUD) != 0) {
+        remove_coating(x, y, COAT_FUNGUS | COAT_GRASS);
+    }
+    if ((coatflags & COAT_POTION) != 0) {
+        remove_coating(x, y, COAT_BLOOD | COAT_FROST | COAT_FUNGUS);
+        levl[x][y].pindex = pindex;
+        if (pindex == POT_ACID) {
+            remove_coating(x, y, COAT_GRASS | COAT_ASHES);
+        } else if (pindex < POT_GAIN_ABILITY || pindex > POT_WATER) {
+            impossible("coating at <%d,%d> with invalid tonic %d?", x, y, pindex);
+        }
+    } else if ((coatflags & COAT_BLOOD) != 0) {
+        remove_coating(x, y, COAT_POTION | COAT_FROST | COAT_FUNGUS);
+        levl[x][y].pindex = pindex;
+        if (!ismnum(pindex))
+            impossible("coating at <%d,%d> with invalid blood %d?", x, y, pindex);
+    } else if ((coatflags & COAT_FUNGUS) != 0) {
+        remove_coating(x, y, COAT_BLOOD | COAT_POTION);
+        levl[x][y].pindex = pindex;
+        if (!ismnum(pindex))
+            impossible("coating at <%d,%d> with invalid fungi %d?", x, y, pindex);
+        if (mons[pindex].mlet != S_FUNGUS)
+            impossible("fungal coating at <%d, %d> with non-fungal monster %d?", x, y, pindex);
+        if (pindex == PM_NIGHTCRUST)
+            levl[x][y].lit = 1;
+    } else if (pindex) {
+        impossible("abnormal coating-pindex combo at <%d,%d>?", x, y);
+    }
+    /* Don't expose squares during mapgen*/
+    if (!gi.in_mklev)
+        newsym(x, y);
     return TRUE;
 }
 
@@ -1763,13 +1828,12 @@ boolean
 remove_coating(coordxy x, coordxy y, short coatflags) {
     if (!IS_COATABLE(levl[x][y].typ))
         return FALSE;
-    if ((coatflags & COAT_FUNGUS) != 0) {
+    if ((coatflags & COAT_FUNGUS) != 0
+        && levl[x][y].pindex == PM_NIGHTCRUST) {
         levl[x][y].lit = 0;
         newsym(x, y);
     }
     levl[x][y].coat_info &= ~coatflags;
-    if ((coatflags & COAT_POTION) != 0 || (coatflags & COAT_BLOOD) != 0)
-        levl[x][y].pindex = 0;
     if ((coatflags & COAT_MUD) != 0)
         maybe_unhide_at(x, y);
     if (!gi.in_mklev)
@@ -1782,15 +1846,52 @@ boolean
 coateffects(coordxy x, coordxy y, struct monst *mon) {
     boolean isyou = (mon == &gy.youmonst);
     boolean banana_peel = svl.level.objects[x][y] && svl.level.objects[x][y]->otyp == BANANA_PEEL;
-    boolean ret = FALSE;
     char buf[BUFSZ];
-    if (is_flyer(mon->data) || is_floater(mon->data)
-        || amorphous(mon->data) || noncorporeal(mon->data))
-        return FALSE;
-    if (isyou && (Levitation || Flying))
-        return FALSE;
+    boolean stepper = !((is_flyer(mon->data) || is_floater(mon->data)
+                            || amorphous(mon->data) || noncorporeal(mon->data))
+                        || (isyou && (Levitation || Flying)));
     /* Now the actual coat effects */
-    if ((has_coating(x, y, COAT_POTION) && levl[x][y].pindex == POT_OIL) || banana_peel) {
+    if (stepper && has_coating(x, y, COAT_SHARDS)) {
+        if (isyou) {
+            if (uarmf) {
+                pline("Shards of glass crunch under your %s.",
+                    boots_simple_name(uarmf));
+            } else if (thick_skinned(mon->data)) {
+                pline("Shards of glass crunch under your %s.", makeplural(body_part(FOOT)));
+            } else {
+                Your("%s are cut by shards of glass!", makeplural(body_part(FOOT)));
+                losehp(1, "stepping on broken glass", KILLED_BY);
+                make_dripping(rnd(20), POT_BLOOD, gy.youmonst.mnum);
+                disp.botl = TRUE;
+            }
+        } else {
+            if (!which_armor(mon, W_ARMF) && !thick_skinned(mon->data)) {
+                if (canseemon(mon))
+                    pline_mon(mon, "%s steps on some broken glass.", Monnam(mon));
+                if (mon->mtame)
+                    yelp(mon);
+                else
+                    growl(mon);
+                if (mon->mhp > 1) mon->mhp--;
+                make_mdripping(mon, -1 * mon->mnum);
+            } else if (!Deaf) {
+                You_hear("a soft tinkling.");
+            }
+        }
+        remove_coating(x, y, COAT_SHARDS);
+    }
+    if (stepper && has_coating(x, y, COAT_MUD)) {
+        if (isyou && !(uarmf && objdescr_is(uarmf, "mud boots"))) {
+            You("slog through the mud.");
+            u.umovement -= 3;
+        } else if (mon) {
+            mon->movement -= 3;
+        } 
+    }
+    /* From this point onward, coating effects are mutually exclusive. */
+    if (stepper && 
+        ((has_coating(x, y, COAT_POTION)
+            && levl[x][y].pindex == POT_OIL) || banana_peel)) {
         if (banana_peel) {
             if (Blind) Sprintf(buf, "an object");
             else Sprintf(buf, "%s", an(xname(svl.level.objects[x][y])));
@@ -1814,62 +1915,25 @@ coateffects(coordxy x, coordxy y, struct monst *mon) {
             mon->mcanmove = 0;
             make_mon_prone(mon);
         }
-        ret = TRUE;
-    }
-    if (has_coating(x, y, COAT_SHARDS)) {
-        if (isyou) {
-            if (uarmf) {
-                pline("Shards of glass crunch under your %s.",
-                    boots_simple_name(uarmf));
-            } else if (thick_skinned(mon->data)) {
-                pline("Shards of glass crunch under your %s.", makeplural(body_part(FOOT)));
-            } else {
-                Your("%s are cut by shards of glass!", makeplural(body_part(FOOT)));
-                if (u.uhp > 1) losehp(1, "stepping on broken glass", KILLED_BY);
-                make_dripping(rnd(20), POT_BLOOD, gy.youmonst.mnum);
-                disp.botl = TRUE;
-            }
-        } else {
-            if (!which_armor(mon, W_ARMF) && !thick_skinned(mon->data)) {
-                if (canseemon(mon))
-                    pline_mon(mon, "%s steps on some broken glass.", Monnam(mon));
-                if (mon->mtame)
-                    yelp(mon);
-                else
-                    growl(mon);
-                if (mon->mhp > 1) mon->mhp--;
-                make_mdripping(mon, -1 * mon->mnum);
-            } else if (!Deaf) {
-                You_hear("a soft tinkling.");
-            }
-        }
-        if (!rn2(3))
-            remove_coating(x, y, COAT_SHARDS);
-    }
-    if (isyou && has_coating(x, y, COAT_HONEY)) {
+    } else if (stepper && isyou && has_coating(x, y, COAT_POTION)
+        && levl[x][y].pindex == POT_HONEY) {
         if ((!Levitation && !Flying) && !rn2(3)) {
+            potion_coating_text(buf, POT_HONEY);
             if (uarmf) {
                 struct obj *otmp;
-                pline("%s in some honey and are yanked from your %s!",
-                        Yobjnam2(uarmf, "stick"),
+                pline("%s in some %s and are yanked from your %s!",
+                        Yobjnam2(uarmf, "stick"), buf,
                         makeplural(body_part(FOOT)));
                 otmp = uarmf;
                 remove_worn_item(otmp, TRUE);
                 dropx(otmp);
             } else {
-                pline("Some honey sticks to your %s.", body_part(FOOT));
+                pline("Some %s sticks to your %s.", buf, body_part(FOOT));
             }
+            makeknown(POT_HONEY);
         }
-    }
-    if (has_coating(x, y, COAT_MUD)) {
-        if (isyou && !(uarmf && objdescr_is(uarmf, "mud boots"))) {
-            You("slog through the mud.");
-            u.umovement -= 3;
-        } else if (mon) {
-            mon->movement -= 3;
-        } 
-    }
-    if (has_coating(x, y, COAT_BLOOD) && touch_petrifies(&mons[levl[x][y].pindex])) {
+    } else if (stepper && has_coating(x, y, COAT_BLOOD)
+                && touch_petrifies(&mons[levl[x][y].pindex])) {
         if (isyou && !uarmf && !Stone_resistance) {
             You("touch %s blood with your %s.",
                 pmname(&mons[levl[x][y].pindex], MALE), body_part(FOOT));
@@ -1879,8 +1943,31 @@ coateffects(coordxy x, coordxy y, struct monst *mon) {
             minstapetrify(mon, FALSE);
         }
         remove_coating(x, y, COAT_BLOOD);
+    } else if (has_coating(x, y, COAT_FUNGUS)) {
+        return moldeffects(x, y, mon);
     }
-    return ret;
+    return DEADMONSTER(mon);
+}
+
+boolean
+moldeffects(coordxy x, coordxy y, struct monst *mon)
+{
+    boolean isyou = (mon == &gy.youmonst);
+    boolean flier = (!grounded(mon->data) || (isyou && (Levitation || Flying)));
+    struct monst fakemon = cg.zeromonst;
+
+    fakemon.mx = u.ux;
+    fakemon.my = u.uy;
+    fakemon.cham = levl[x][y].pindex;
+    set_mon_data(&fakemon, &mons[levl[x][y].pindex]);
+    if (isyou) {
+        passive(&fakemon, flier ? NULL : uarmf,
+            TRUE, TRUE, AT_KICK, FALSE);
+    } else {
+        passivemm(mon, &fakemon, TRUE, FALSE,
+                    flier ? NULL : which_armor(mon, W_ARMF));
+    }
+    return DEADMONSTER(mon);
 }
 
 /* evaporate potion puddles due to heat */
@@ -1902,18 +1989,24 @@ evaporate_potion_puddles(coordxy x, coordxy y) {
     }
 }
 
-/* potion mixes with existing potions upon the ground */
+/* Liquid spills onto the floor, creating a new coating
+   that depends on what is already there. Calls floor_alchemy()
+   in order to accomplish this. */
 void
-floor_alchemy(int x, int y, int otyp, int corpsenm) {
-    struct obj fakeobj1, fakeobj2 = cg.zeroobj;
-    struct obj *otmp, *objchain;
-    fakeobj1.otyp = otyp;
-    fakeobj1.oclass = POTION_CLASS;
-    boolean bomb = FALSE;
-    
-    if (otyp == POT_WATER) {
+floor_spillage(int x, int y, short otyp, int corpsenm) {
+    struct obj *objchain;
+    if (objects[otyp].oc_class != POTION_CLASS)
+        impossible("Trying to spill non-tonic %d on floor?", otyp);
+    if (otyp == POT_WATER || otyp == POT_ACID) {
         if ((objchain = svl.level.objects[x][y]) != 0) {
-            water_damage_chain(objchain, TRUE);
+            if (otyp == POT_WATER)
+                water_damage_chain(objchain, TRUE);
+            else if (otyp == POT_ACID) {
+                while (objchain) {
+                    acid_damage(objchain);
+                    objchain = objchain->nexthere;
+                }
+            }
         }
     }
     if (has_coating(x, y, COAT_POTION)) {
@@ -1923,29 +2016,64 @@ floor_alchemy(int x, int y, int otyp, int corpsenm) {
             if (rn2(2)) add_coating(x, y, COAT_POTION, otyp);
             return;
         }
-        if (otyp == POT_HAZARDOUS_WASTE || levl[x][y].pindex == POT_HAZARDOUS_WASTE)
-            bomb = TRUE;
-        fakeobj2.otyp = levl[x][y].pindex;
-        otyp = mixtype(&fakeobj1, &fakeobj2);
-        if (otyp == STRANGE_OBJECT) {
-            otmp = mkobj(POTION_CLASS, FALSE);
-            otyp = otmp->otyp;
-            obfree(otmp, (struct obj *) 0);
-        }
-        if (cansee(x, y)) {
-            Norep("The liquids on the ground begin to mix."); /* todo: location pline for accessability? */
-        }
-        if (bomb || !rn2(10)) {
-            remove_coating(x, y, COAT_POTION);
-            explode(x, y, PHYS_EXPL_TYPE, d(1, 10), 0, EXPL_NOXIOUS);
-            return;
-        }
-    }
-    if (otyp == POT_BLOOD) {
+        floor_alchemy(x, y, otyp);
+    } else if (otyp == POT_BLOOD) {
         add_coating(x, y, COAT_BLOOD, corpsenm);
     } else {
         add_coating(x, y, COAT_POTION, otyp);
     }
+}
+
+/* mix an otyp with the liquid on the floor. must not be called 
+   on bottled potions. */
+int
+floor_alchemy(int x, int y, short otyp) {
+    struct obj fakeobj1, fakeobj2 = cg.zeroobj;
+    struct obj *otmp;
+    fakeobj1.otyp = otyp;
+    fakeobj1.oclass = objects[otyp].oc_class;
+    boolean pot = (objects[otyp].oc_class == POTION_CLASS);
+    boolean bomb = FALSE;
+
+    /* nothing to do, bail out */
+    if (!has_coating(x, y, COAT_POTION))
+        return otyp;
+    /* Make the mix */
+    if (otyp == POT_HAZARDOUS_WASTE
+            || levl[x][y].pindex == POT_HAZARDOUS_WASTE)
+        bomb = TRUE;
+    fakeobj2.otyp = levl[x][y].pindex;
+    otyp = mixtype(&fakeobj1, &fakeobj2);
+    /* Handle odd mixes */
+    if (fakeobj1.oclass == GEM_CLASS) {
+        if (!otyp || otyp == STRANGE_OBJECT) {
+            return otyp;
+        } else if (otyp == POT_WATER) {
+            bomb = TRUE;
+        }
+    } else if (otyp == STRANGE_OBJECT) {
+        otmp = mkobj(POTION_CLASS, FALSE);
+        otyp = otmp->otyp;
+        obfree(otmp, (struct obj *) 0);
+    }
+    /* Get the results */
+    if ((fakeobj1.otyp != otyp) && cansee(x, y)) {
+        /* todo: location pline for accessability? */
+        if (pot)
+            Norep("The liquids on the ground begin to mix.");
+        else {
+            pline("The liquid on the ground changes color.");
+        }
+    }
+    if (bomb || !rn2(10)) {
+        remove_coating(x, y, COAT_POTION);
+        explode(x, y, PHYS_EXPL_TYPE, d(1, 10), 0, EXPL_NOXIOUS);
+        return 0;
+    } else {
+        /* potion coatings are handled by floor_spillage() */
+        add_coating(x, y, COAT_POTION, otyp);
+    }
+    return otyp;
 }
 
 /* potion splashes across floor, potentially mixing with extant potions */
@@ -1958,7 +2086,7 @@ potion_splatter(coordxy x, coordxy y, int otyp, int corpsenm) {
 
     for (int i = startx; i <= stopx; i++) {
         for (int j = starty; j <= stopy; j++) {
-            floor_alchemy(i, j, otyp, corpsenm);
+            floor_spillage(i, j, otyp, corpsenm);
         }
     }
 }
@@ -1969,7 +2097,7 @@ potion_fumigate(coordxy x, coordxy y, struct obj *otmp) {
     int otyp = otmp->otyp;
     /* Some potions do not produce clouds. */
     if (otyp == POT_WATER || otyp == POT_BLOOD
-        || otyp == POT_OIL)
+        || otyp == POT_OIL || otyp == POT_HONEY)
         return;
     /* Produce a cloud of potion */
     create_gas_cloud(x, y, 4, otmp, 8);
@@ -2034,6 +2162,24 @@ do_illness:
     case POT_BOOZE:
         if (!resist(mon, POTION_CLASS, 0, NOTELL))
             mon->mconf = TRUE;
+        break;
+    case POT_DYE:
+        if (has_odye(obj)) {
+            for (struct obj *otmp = mon->minvent; otmp; otmp = otmp->nobj) {
+                if (ODYE(obj))
+                    dye_obj(otmp, ODYE(obj), your_fault);
+            }
+            if (canseemon(mon)) {
+                pline("%s turns %s!", Monnam(mon), dye_to_name(obj));
+                newsym(mon->mx, mon->my);
+            }
+            mon->minvis = mon->perminvis = 0;
+        }
+        break;
+    case POT_NORMALITY:
+        mon->minvis = mon->perminvis = mon->mconf = 0;
+        mon->mspeed = mon->mblinded = mon->msleeping = 0;
+        newsym(mon->mx, mon->my);
         break;
     case POT_INVISIBILITY: {
         boolean sawit = canspotmon(mon);
@@ -2226,6 +2372,20 @@ potionhit(struct monst *mon, struct obj *obj, int how)
 
     if (isyou) {
         switch (obj->otyp) {
+        case POT_DYE:
+            if (has_odye(obj)) {
+                for (struct obj *otmp = gi.invent; otmp; otmp = otmp->nobj) {
+                    dye_obj(otmp, ODYE(obj), your_fault);
+                }
+            }
+            if (!Blind && HInvis) {
+                You("are no longer invisible.");
+            }
+            set_itimeout(&HInvis, 0);
+            break;
+        case POT_NORMALITY:
+            peffect_normality(obj);
+            break;
         case POT_OIL:
             if (obj->lamplit)
                 explode_oil(obj, u.ux, u.uy);
@@ -2404,7 +2564,15 @@ potionbreathe(struct obj *obj)
         }
         break;
     case POT_HALLUCINATION:
-        Norep("You have a momentary vision.");
+        (void) make_hallucinated(itimeout_incr(HHallucination,
+                                           rn1(5, 5)),
+                             TRUE, 0L);
+        break;
+    case POT_HONEY:
+        Norep("Something smells sweet.");
+        break;
+    case POT_DYE:
+        Norep("The air is cloying.");
         break;
     case POT_CONFUSION:
     case POT_BOOZE:
@@ -2565,6 +2733,9 @@ mpotionbreathe(struct obj *obj, struct monst *mtmp, boolean heros_fault)
     case POT_SPEED:
     case POT_TELEPORTITIS:
         potionhit_effects(mtmp, obj, heros_fault);
+        break;
+    case POT_DYE:
+        harmless = TRUE;
         break;
     case POT_HAZARDOUS_WASTE:
         harmless = FALSE; /* monsters know what this means... */
@@ -2731,6 +2902,10 @@ mixtype(struct obj *o1, struct obj *o2)
         break;
     }
 
+    /* MRKR: Extra alchemical effects. */
+
+	if (o2->otyp == POT_ACID && o1->oclass == GEM_CLASS)
+	    return mix_gem(o1);
     return STRANGE_OBJECT;
 }
 
@@ -2802,8 +2977,10 @@ dodip(void)
             at_mud = has_coating(u.ux, u.uy, COAT_MUD),
             at_puddle = (has_coating(u.ux, u.uy, COAT_POTION)
                             || has_coating(u.ux, u.uy, COAT_BLOOD)),
+            at_mold = (has_coating(u.ux, u.uy, COAT_FUNGUS)),
             at_here = (!iflags.menu_requested
-                       && (at_pool || at_fountain || at_sink || at_mud || at_puddle));
+                       && (at_pool || at_fountain || at_sink
+                            || at_mud || at_puddle || at_mold));
 
     obj = getobj("dip", at_here ? dip_hands_ok : dip_ok, GETOBJ_PROMPT);
     if (!obj)
@@ -2940,12 +3117,24 @@ dodip(void)
                     || obj->otyp == BOTTLE || obj->otyp == OIL_LAMP
                     || obj->otyp == MAGIC_LAMP || obj->otyp == LANTERN) {
                     pline("The liquid here is too thinly distributed to fill a container with.");
-                } else if (obj->otyp == AMETHYST && levl[u.ux][u.uy].pindex == POT_BOOZE) {
-                    levl[u.ux][u.uy].pindex = POT_FRUIT_JUICE;
-                    pline("The liquid changes color.");
+                } else if (obj->oclass == GEM_CLASS) {
+                    floor_alchemy(u.ux, u.uy, obj->otyp);
                 } else {
-                    pline("Interesting...");
+                    pline("The liquid here is spread to thin for things to get interesting...");
                 }
+                return ECMD_TIME;
+            }
+            ++drink_ok_extra;
+        } else if (at_mold) {
+            struct monst fakemon = cg.zeromonst;
+            Snprintf(qbuf, sizeof(qbuf), "%s%s into the fungus here?", Dip_,
+                     flags.verbose ? obuf : shortestname);
+            if (y_n(qbuf) == 'y') {
+                You("dip %s in the %s.",
+                    flags.verbose ? obuf : shortestname,
+                    pmname(&mons[levl[u.ux][u.uy].pindex], MALE));
+                set_mon_data(&fakemon, &mons[levl[u.ux][u.uy].pindex]); 
+                passive_obj(&fakemon, obj, (struct attack *) 0);
                 return ECMD_TIME;
             }
             ++drink_ok_extra;
@@ -3096,6 +3285,17 @@ potion_dip(struct obj *obj, struct obj *potion)
             }
         }
         potion->in_use = FALSE; /* didn't go poof */
+        return ECMD_TIME;
+    } else if (potion->otyp == POT_DYE) {
+        if (!objects[potion->otyp].oc_name_known) {
+            pline("Suddenly, the %s turns %s.",
+                    simpleonames(obj), dye_to_name(potion));
+        } else {
+            You("dye the %s %s.", simpleonames(obj), dye_to_name(potion));
+        }
+        dye_obj(obj, ODYE(potion), TRUE);
+        poof(potion);
+        update_inventory();
         return ECMD_TIME;
     } else if (obj->oclass == POTION_CLASS && obj->otyp != potion->otyp) {
         int amt = (int) obj->quan;
@@ -3321,7 +3521,7 @@ potion_dip(struct obj *obj, struct obj *potion)
     }
 
     potion->in_use = FALSE; /* didn't go poof */
-    if ((obj->otyp == UNICORN_HORN || obj->otyp == AMETHYST)
+    if ((obj->otyp == UNICORN_HORN || obj->oclass == GEM_CLASS)
         && (mixture = mixtype(obj, potion)) != STRANGE_OBJECT) {
         char oldbuf[BUFSZ], newbuf[BUFSZ];
         short old_otyp = potion->otyp;
@@ -3339,6 +3539,28 @@ potion_dip(struct obj *obj, struct obj *potion)
             singlepotion = splitobj(potion, 1L);
         } else
             singlepotion = potion;
+
+        /* MRKR: Gems dissolve in acid to produce new potions */
+		if (obj->oclass == GEM_CLASS && potion->otyp == POT_ACID) {
+		    struct obj *singlegem = (obj->quan > 1L ? 
+					     splitobj(obj, 1L) : obj);
+		    singlegem->in_use = TRUE;
+		    if (potion->otyp == POT_ACID && 
+                (obj->otyp == POT_WATER
+                  || potion->cursed || !rn2(10))) {
+                    if (Hallucination && obj->otyp == DILITHIUM_CRYSTAL) {
+                        /* Thanks to Robin Johnson */
+                        pline("Warning, Captain!  The warp core has been breached!");
+                    }
+                    dip_potion_explosion(potion, rnd(10));
+                    useup(singlegem);
+                    return 1;	  
+		        }
+		    pline("%s dissolves in %s.", The(xname(singlegem)), 
+			        the(xname(singlepotion)));
+		    makeknown(POT_ACID);
+		    useup(singlegem);
+		}
 
         costly_alteration(singlepotion, COST_NUTRLZ);
         singlepotion->otyp = mixture;
@@ -3522,6 +3744,127 @@ speed_up(long duration)
 
    exercise(A_DEX, TRUE);
    incr_itimeout(&HFast, duration);
+}
+
+/* dye an object a color, and track the dyed conduct. */
+void
+dye_obj(struct obj *obj, int color, boolean your_fault) {
+    if (!has_odye(obj))
+        newodye(obj);
+    ODYE(obj) = color;
+    if (your_fault)
+        u.uconduct.dyed++;
+}
+
+/* convert an object's dye index to a string */
+const char *
+dye_to_name(struct obj *obj) {
+    if (!has_odye(obj))
+        return "blurple";
+    return clr2colorname(ODYE(obj));
+}
+
+/* gem alchemy patch */
+staticfn short
+mix_gem(struct obj *o1)
+{
+    const char *potion_descr;
+    /* Note: you can't create smoky, milky or clear potions */
+    switch (o1->otyp) {
+        /* white */
+    case DILITHIUM_CRYSTAL:
+    case SALT_CRYSTAL:
+        /* explodes - special treatment in dodip */
+        /* here we just want to return something non-zero */
+        return POT_WATER;
+        break;
+    case DIAMOND:
+        /* won't dissolve */
+        potion_descr = NULL;
+        break;
+    case OPAL:
+        potion_descr = "cloudy";
+        break;
+        /* red */
+    case RUBY:
+        potion_descr = "ruby";
+        break;
+    case GARNET:
+        potion_descr = "pink";
+        break;
+    case JASPER:
+        potion_descr = "purple-red";
+        break;
+        /* orange */
+    case JACINTH:
+        potion_descr = "orange";
+        break;
+    case AGATE:
+        potion_descr = "swirly";
+        break;
+        /* yellow */
+    case CITRINE:
+        potion_descr = "yellow";
+        break;
+    case CHRYSOBERYL:
+        potion_descr = "golden";
+        break;
+        /* yellowish brown */
+    case AMBER:
+        potion_descr = "brown";
+        break;
+    case TOPAZ:
+        potion_descr = "murky";
+        break;
+        /* green */
+    case EMERALD:
+        potion_descr = "emerald";
+        break;
+    case TURQUOISE:
+        potion_descr = "sky blue";
+        break;
+    case AQUAMARINE:
+        potion_descr = "cyan";
+        break;
+    case JADE:
+        potion_descr = "dark green";
+        break;
+        /* blue */
+    case SAPPHIRE:
+        potion_descr = "brilliant blue";
+        break;
+        /* violet */
+    case AMETHYST:
+        potion_descr = "magenta";
+        break;
+    case FLUORITE:
+        potion_descr = "white";
+        break;
+        /* black */
+    case BLACK_OPAL:
+        potion_descr = "black";
+        break;
+    case JET:
+        potion_descr = "dark";
+        break;
+    case OBSIDIAN:
+        potion_descr = "effervescent";
+        break;
+    default:
+        potion_descr = NULL;
+    }
+    if (potion_descr) {
+        int typ;
+        /* find a potion that matches the description */
+        for (typ = POT_GAIN_ABILITY;
+            objects[typ].oc_class == POTION_CLASS;
+            typ++) {
+            if (strcmp(potion_descr, OBJ_DESCR(objects[typ])) == 0) {
+                return typ;
+            }
+        }
+    }
+    return STRANGE_OBJECT;
 }
 
 /*potion.c*/

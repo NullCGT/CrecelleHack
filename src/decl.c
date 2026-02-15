@@ -85,15 +85,6 @@ NEARDATA boolean has_strong_rngseed = FALSE;
 struct engr *head_engr;
 NEARDATA struct instance_flags iflags;
 NEARDATA struct accessibility_data a11y;
-/* NOTE: the order of these words exactly corresponds to the
-   order of oc_material values #define'd in objclass.h. */
-const char *materialnm[] = { "mysterious", "liquid",  "wax",        "organic",
-                             "flesh",      "paper",   "cloth",      "leather",
-                             "wooden",     "bone",    "dragonhide", "iron",
-                             "steel",      "copper",  "silver",     "gold",
-                             "platinum",   "mithril", "plastic",    "glass",
-                             "ice",
-                             "gemstone",   "stone" };
 const char quitchars[] = " \r\n\033";
 const int shield_static[SHIELD_COUNT] = {
     S_ss1, S_ss2, S_ss3, S_ss2, S_ss1, S_ss2, S_ss4, /* 7 per row */
@@ -444,6 +435,7 @@ static const struct instance_globals_k g_init_k = {
     UNDEFINED_PTR, /* kickedobj */
     /* read.c */
     UNDEFINED_VALUE, /* known */
+    DUMMY, /* koboldname */
     TRUE, /* havestate*/
 };
 
@@ -685,6 +677,7 @@ static const struct instance_globals_s g_init_s = {
     FALSE, /* saving_grace_turn */
     /* artifact.c */
     0,  /* spec_dbon_applies */
+    0,  /* spec_oprop applies */
     /* decl.c */
     UNDEFINED_PTR, /* stairs */
     DUMMY, /* smeq */

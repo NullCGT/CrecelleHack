@@ -380,14 +380,14 @@ staticfn void
 weather_effects(void)
 {
     int x, y;
-    if (has_no_tod_cycles(&u.uz)) return;
+    if (!exposed_to_elements(&u.uz)) return;
     /* Rain and acid rain */
     if (IS_RAINING) {
         if (rn2(CURR_WEATHER(WTH_DRIZZLE) ? 2 
                 : CURR_WEATHER(WTH_DOWNBURST) ? 8 : 4)) {
             x = rn2(COLNO);
             y = rn2(ROWNO);
-            floor_alchemy(x, y, CURR_WEATHER(WTH_ACIDRAIN) ? POT_ACID 
+            floor_spillage(x, y, CURR_WEATHER(WTH_ACIDRAIN) ? POT_ACID 
                                                           : POT_WATER, 0);
         }
     }
@@ -470,7 +470,8 @@ tod_string(void)
 void
 weatherchange_message(boolean rain)
 {
-    if (has_no_tod_cycles(&u.uz)) return;
+    boolean notice_it = exposed_to_elements(&u.uz);
+    boolean hear_it = !Deaf && !notice_it;
     if (rain) {
         if (u.uenvirons.curr_weather & u.uenvirons.inc_precip.def)
             return;
@@ -478,57 +479,77 @@ weatherchange_message(boolean rain)
         if (INC_PRECIP(WTH_DRIZZLE)) {
             if (CURR_WEATHER(WTHM_ALL_PRECIPS))
                 pline("The rain lessens.");
-            else
+            else if (hear_it)
+                You_hear("dripping stone.");
+            else if (notice_it)
                 pline("It starts drizzling.");
         }
         /* Rain */
         if (INC_PRECIP(WTH_RAIN) && !IS_RAINING) {
-            pline("It starts to rain.");
+            if (notice_it)
+                pline("It starts to rain.");
+            else if (hear_it)
+                You_hear("rain on the dungeon roof.");
         } else if (!INC_PRECIP(WTHM_RAINS) && IS_RAINING) {
-            pline("It stops raining.");
+            if (hear_it)
+                You("no longer hear the rain.");
+            else if (notice_it)
+                pline("It stops raining.");
         }
         /* Hail */
         if (INC_PRECIP(WTH_HAIL)) {
-            pline("It starts to hail!");
-            stop_occupation();
+            if (notice_it) {
+                pline("It starts to hail!");
+                stop_occupation();
+            } else if (hear_it)
+                You_hear("the pounding of hailstones.");
         } else if (!INC_PRECIP(WTH_HAIL) && CURR_WEATHER(WTH_HAIL)) {
             pline("It stops hailing.");
         }
         /* Weird Weather */
         if (INC_PRECIP(WTH_DOWNBURST)) {
-            pline("The sky opens up! The rain is pounding!");
+            if (hear_it)
+                You_hear("pounding rain.");
+            else
+                pline("The sky opens up! The rain is pounding!");
         }
-        if (INC_PRECIP(WTH_ACIDRAIN)) {
+        if (INC_PRECIP(WTH_ACIDRAIN) && notice_it) {
             if (IS_RAINING) {
                 pline("The rain suddenly begins to burn your %s!", body_part(NOSE));
             } else {
                 pline("It's raining acid!");
             }
             stop_occupation();
+        } else if (INC_PRECIP(WTH_ACIDRAIN)) {
+            You_hear("a distant sizzling above you.");
         }
-        if (INC_PRECIP(WTH_FIRERAIN)) {
+        if (INC_PRECIP(WTH_FIRERAIN) && notice_it) {
             pline("Fire falls from the sky!");
             stop_occupation();
         }
-        if (INC_PRECIP(WTH_ASHES)) {
+        if (INC_PRECIP(WTH_ASHES) && notice_it) {
             pline("Flakes of ash begin falling from the sky.");
         }
     } else {
         if (u.uenvirons.curr_weather & u.uenvirons.inc_wind.def)
             return;
-        if (INC_WIND(WTHM_WINDY) && !CURR_WEATHER(WTHM_WINDY)) {
+        if (INC_WIND(WTHM_WINDY)
+            && !CURR_WEATHER(WTHM_WINDY)) {
             pline("The wind picks up.");
         }
-        if (!INC_WIND(WTHM_WINDY) && CURR_WEATHER(WTHM_WINDY)) {
+        if (!INC_WIND(WTHM_WINDY)
+            && CURR_WEATHER(WTHM_WINDY)) {
             pline("The wind dies down.");
         }
         /* Twisters */
-        if (INC_WIND(WTH_TORNADO)) {
+        if (INC_WIND(WTH_TORNADO) && notice_it) {
             if (Blind)
                 pline("The air pressure begins to fluctuate!");
             else
                 urgent_pline("You see a funnel cloud touch down!");
             stop_occupation();
+        } else if (INC_WIND(WTH_TORNADO) && hear_it) {
+            You_hear("a distant sucking noise.");
         }
     }
 }
@@ -562,29 +583,39 @@ timechange_message(boolean new_game)
     }
     close_shops(TRUE);
     /* Messages */
-    if (has_no_tod_cycles(&u.uz)) return;
     if (u.uenvirons.tod == TOD_MORNING) {
-        if (Blind)
+        if (Blind && exposed_to_elements(&u.uz))
             You_feel("the warmth of the sun on your %s.", body_part(FACE));
-        pline("%s%s", new_game ? ""
-                             : Hallucination
-                                ? "The morning sun has vanquished the horrible night."
-                                : "The sun crests the edge of the dungeon.",
-                     Hallucination ? "" : " It is morning.");
+        if (!new_game)
+            pline(Hallucination ? "The morning sun has vanquished the horrible night."
+                                : "It is morning.");
     } else if (u.uenvirons.tod == TOD_EVENING) {
-        if (Blind) pline("The sun beats down atop your %s.", body_part(HEAD));
-        else pline("The sun passes the sky's zenith.");
+        if (Blind && exposed_to_elements(&u.uz))
+            pline("The sun beats down atop your %s.", body_part(HEAD));
+        else pline("It is midday.");
     } else if (u.uenvirons.tod == TOD_EARLYNIGHT) {
-        if (Blind) pline("The warmth of the sun disappears.");
-        else pline("The sun has set.");
+        if (Blind && exposed_to_elements(&u.uz))
+            pline("The warmth of the sun disappears.");
+        else
+            pline("The sun has set.");
         /* Moon messages */
-        if (flags.moonphase == FULL_MOON && !new_game) {
+        if (flags.moonphase == FULL_MOON && !new_game
+            && exposed_to_elements(&u.uz)) {
             pline("The full moon rises overhead.");
-        } else if (flags.moonphase == NEW_MOON && Hallucination && !new_game) {
+        } else if (flags.moonphase == NEW_MOON
+                    && Hallucination && !new_game) {
             pline("There is no moon.");
         }
     } else {
         pline("It is midnight.");
+    }
+    /* object messages? */
+    if (uwep && uwep->material == NIGHTIRON){
+        if (u.uenvirons.tod == TOD_MORNING) {
+            pline("%s wickedly.", Tobjnam(uwep, "gleam"));
+        } else if (u.uenvirons.tod == TOD_EARLYNIGHT) {
+            pline("%s dully.", Tobjnam(uwep, "glint"));
+        }
     }
 }
 

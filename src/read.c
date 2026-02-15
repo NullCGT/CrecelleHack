@@ -1211,12 +1211,33 @@ seffect_enchant_armor(struct obj **sobjp)
         useup(otmp);
         return;
     }
-    s = scursed ? -1
-        : (otmp->spe >= 9)
-        ? (rn2(otmp->spe) == 0)
-        : sblessed
-        ? rnd(3 - otmp->spe / 3)
-        : 1;
+    if (s < -100) s = -100; /* avoid integer overflow with very negative armor */
+
+    /* Base power of the enchantment:
+
+       2 for -1 to +0 armor;
+       1 for +1 to +2 armor;
+       0 for +3 to +4 armor, etc.
+
+       When disenchanting, everything is done with reversed signs. */
+    s = (4 - s) / 2;
+
+    /* Elven/artifact and nonmagical armor is easier to enchant;
+       blessed scrolls are more effective. */
+    if (special_armor) ++s;
+    if (!objects[otmp->otyp].oc_magic) ++s;
+    if (sblessed) ++s;
+
+    if (s <= 0) {
+        s = 0;
+        if (otmp->spe > 0 && !rn2(otmp->spe)) s = 1;
+    } else {
+        s = rnd(s);
+    }
+    if (s > 11) s = 11;    /* unlikely but possible: avoids an overflow later */
+
+    if (scursed) s = -s;
+
     if (s >= 0 && Is_dragon_scales(otmp)) {
         unsigned was_lit = otmp->lamplit;
         int old_light = artifact_light(otmp) ? arti_light_radius(otmp) : 0;
@@ -2414,7 +2435,7 @@ drop_boulder_on_player(
     if (!amorphous(gy.youmonst.data) && !Passes_walls
         && !noncorporeal(gy.youmonst.data) && !unsolid(gy.youmonst.data)) {
         You("are hit by %s!", doname(otmp2));
-        dmg = (int) (dmgval(otmp2, &gy.youmonst) * otmp2->quan);
+        dmg = (int) (dmgval(otmp2, (struct monst *) 0, &gy.youmonst) * otmp2->quan);
         if (uarmh && helmet_protects) {
             if (hard_helmet(uarmh)) {
                 pline("Fortunately, you are wearing a hard helmet.");
@@ -2466,7 +2487,7 @@ drop_boulder_on_monster(coordxy x, coordxy y, boolean confused, boolean byu)
                      s_suffix(mon_nam(mtmp)), mbodypart(mtmp, STOMACH),
                      body_part(HEAD));
 
-        mdmg = dmgval(otmp2, mtmp) * otmp2->quan;
+        mdmg = dmgval(otmp2, (struct monst *) 0, mtmp) * otmp2->quan;
         if (helmet) {
             if (hard_helmet(helmet)) {
                 if (canspotmon(mtmp))

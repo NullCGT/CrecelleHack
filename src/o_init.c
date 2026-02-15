@@ -1,4 +1,4 @@
-/* NetHack 3.7	o_init.c	$NHDT-Date: 1756520041 2025/08/29 18:14:01 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.96 $ */
+/* NetHack 3.7	o_init.c	$NHDT-Date: 1771216675 2026/02/15 20:37:55 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.101 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2011. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -194,7 +194,7 @@ init_objects(void)
        bases[class] through bases[class+1]-1 for all classes
        (except for ILLOBJ_CLASS which is separated from WEAPON_CLASS
        by generic objects); second extra entry is to prevent an
-       explained crash in doclassdisco(), where the code ended up
+       unexplained crash in doclassdisco(), where the code ended up
        attempting to process non-existent class MAXOCLASSES; the
        [MAXOCLASSES+1] element gives that non-class 0 objects
        when traversing objects[] from bases[X] through bases[X+1]-1 */
@@ -766,7 +766,8 @@ dodiscovered(void) /* free after Robert Viduya */
     for (i = dis = 0; i < SIZE(uniq_objs); i++)
         if (objects[uniq_objs[i]].oc_name_known) {
             if (!dis++)
-                putstr(tmpwin, iflags.menu_headings.attr, "Unique items");
+                putstr(tmpwin, iflags.menu_headings.attr,
+                       "Unique items or Relics");
             ++uniq_ct;
             Sprintf(buf, "  %s", OBJ_NAME(objects[uniq_objs[i]]));
             putstr(tmpwin, 0, buf);
@@ -845,20 +846,22 @@ oclass_to_name(char oclass, char *buf)
     return buf;
 }
 
-/* the #knownclass command - show discovered object types for one class */
+/* the #knownclass command - show discovered object types for one class;
+   in addition to actual object classes, supports pseudo-class 'a' for
+   discovered artifacts and 'u' (or 'r', for "relics") for unique items */
 int
 doclassdisco(void)
 {
     static NEARDATA const char
         prompt[] = "View discoveries for which sort of objects?",
         havent_discovered_any[] = "haven't discovered any %s yet.",
-        unique_items[] = "unique items",
+        unique_items[] = "unique items or relics",
         artifact_items[] = "artifacts";
     winid tmpwin = WIN_ERR;
     menu_item *pick_list = 0;
     anything any;
     char *p, *s, c, oclass, menulet, allclasses[MAXOCLASSES],
-         discosyms[2 + MAXOCLASSES + 1], buf[BUFSZ],
+         discosyms[3 + MAXOCLASSES + 1], buf[BUFSZ],
          *sorted_lines[NUM_OBJECTS]; /* overkill */
     int i, ct, dis, xtras, sorted_ct;
     boolean traditional, alphabetized, lootsort;
@@ -884,14 +887,20 @@ doclassdisco(void)
     any = cg.zeroany;
     menulet = 'a';
 
-    /* check whether we've discovered any unique objects */
+    /* check whether we've discovered any unique objects (primarily the
+       invocation items; the Guidebook calls unique items "relics" but the
+       Amulet of Yendor is unique too so we haven't made a blanket change
+       from 'u' to 'r') */
     for (i = 0; i < SIZE(uniq_objs); i++)
         if (objects[uniq_objs[i]].oc_name_known) {
             Strcat(discosyms, "u");
             if (!traditional) {
                 any.a_int = 'u';
-                add_menu(tmpwin, &nul_glyphinfo, &any, menulet++,
-                         0, ATR_NONE, clr, unique_items, MENU_ITEMFLAGS_NONE);
+                /* FIXME: having 'r' as an accelerator to provide an unseen
+                   synonym works but doesn't make much sense since the main
+                   selector is 'a' (implicit lootabc) rather than 'u' */
+                add_menu(tmpwin, &nul_glyphinfo, &any, menulet++, 'r',
+                         ATR_NONE, clr, unique_items, MENU_ITEMFLAGS_NONE);
             }
             break;
         }
@@ -901,8 +910,8 @@ doclassdisco(void)
         Strcat(discosyms, "a");
         if (!traditional) {
             any.a_int = 'a';
-            add_menu(tmpwin, &nul_glyphinfo, &any, menulet++,
-                     0, ATR_NONE, clr, artifact_items, MENU_ITEMFLAGS_NONE);
+            add_menu(tmpwin, &nul_glyphinfo, &any, menulet++, 0,
+                     ATR_NONE, clr, artifact_items, MENU_ITEMFLAGS_NONE);
         }
     }
 
@@ -942,14 +951,14 @@ doclassdisco(void)
     /* have player choose a class */
     c = '\0'; /* class not chosen yet */
     if (traditional) {
-        char allclasses_plustwo[sizeof allclasses + 2];
+        char allclasses_plustwo[sizeof allclasses + 3];
 
         /* we'll prompt even if there's only one viable class; we add all
            nonviable classes as unseen acceptable choices so player can ask
            for discoveries of any class whether it has discoveries or not */
-        Sprintf(allclasses_plustwo, "%s%c%c", allclasses, 'u', 'a');
+        Sprintf(allclasses_plustwo, "%s%c%c%c", allclasses, 'a', 'u', 'r');
         for (s = allclasses_plustwo, xtras = 0; *s; ++s) {
-            c = (*s == 'u' || *s == 'a') ? *s : def_oc_syms[(int) *s].sym;
+            c = strchr("aur", *s) ? *s : def_oc_syms[(int) *s].sym;
             if (!strchr(discosyms, c)) {
                 if (!xtras++)
                     (void) strkitten(discosyms, '\033');
@@ -988,6 +997,7 @@ doclassdisco(void)
     ct = 0;
     switch (c) {
     case 'u':
+    case 'r':
         putstr(tmpwin, iflags.menu_headings.attr,
                upstart(strcpy(buf, unique_items)));
         for (i = 0; i < SIZE(uniq_objs); i++)

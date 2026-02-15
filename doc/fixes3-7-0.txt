@@ -2208,6 +2208,7 @@ when reading a T-shirt or apron, add trailing period to the slogan unless
 when reading an engraving, suppress the addition of a trailing period if the
 	text already has one
 cursed magic whistle could teleport hero on no-teleport levels
+give a brief explanation when receving a wish for acquiring the Amulet
 
 
 Fixes to 3.7.0-x Platform and/or Interface Problems Exposed Via git Repository

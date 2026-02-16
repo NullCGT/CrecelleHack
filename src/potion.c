@@ -2321,6 +2321,7 @@ potionhit(struct monst *mon, struct obj *obj, int how)
     int tx, ty;
     struct obj *saddle = (struct obj *) 0;
     struct permonst *blood_data;
+    boolean nocall = FALSE;
     boolean hit_saddle = FALSE, your_fault = (how <= POTHIT_HERO_THROW);
 
     if (isyou) {
@@ -2417,11 +2418,14 @@ potionhit(struct monst *mon, struct obj *obj, int how)
             char buf[BUFSZ];
             blood_data = &mons[obj->corpsenm < LOW_PM ? PM_HUMAN : obj->corpsenm];
             if (touch_petrifies(blood_data) && !Stone_resistance) {
-                Sprintf(buf, "being doussed in %s blood", pmname(blood_data, MALE));
+                Sprintf(buf, "being doused in %s blood", pmname(blood_data, MALE));
                 instapetrify(buf);
             }
             break;
         }
+        default:
+            nocall = TRUE;
+            break;
         }
     } else if (hit_saddle && saddle) {
         char *mnam, buf[BUFSZ], saddle_glows[BUFSZ];
@@ -2451,7 +2455,7 @@ potionhit(struct monst *mon, struct obj *obj, int how)
     /* potions splatter */
     potion_splatter(tx, ty, obj->otyp, obj->corpsenm);
     potion_fumigate(tx, ty, obj);
-    if (obj->dknown && cansee(tx, ty))
+    if (obj->dknown && !nocall && cansee(tx, ty))
         trycall(obj);
 
     if (*u.ushops && obj->unpaid) {

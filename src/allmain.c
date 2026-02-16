@@ -73,6 +73,10 @@ moveloop_preamble(boolean resuming)
         pline("Watch out!  Bad things can happen on Friday the 13th.");
         change_luck(-1);
     }
+    flags.halloween = halloween();
+    if (flags.halloween) {
+        pline(Hallucination ? "This is Halloween! This is Halloween!" : "Happy Halloween!");
+    }
 
     if (!resuming) { /* new game */
         program_state.beyond_savefile_load = 1; /* for TTY_PERM_INVENT */

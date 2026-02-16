@@ -853,8 +853,9 @@ m_initinv(struct monst *mtmp)
             if (mac < 10 && rn2(3))
                 otmp = mongets(mtmp, HELMET);
             else if (mac < 10 && rn2(2))
-                otmp = mongets(mtmp, (svl.level.flags.temperature == -1)
-                                        ? WINTER_HAT : YENDORIAN_BASCINET);
+                otmp = mongets(mtmp, (svl.level.flags.temperature == -1) ? WINTER_HAT : 
+                                     (flags.halloween) ? JACK_O_LANTERN
+                                     : YENDORIAN_BASCINET);
             add_ac(otmp);
 
             /* round 3: shields */

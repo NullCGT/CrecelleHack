@@ -2498,6 +2498,8 @@ bhito(struct obj *obj, struct obj *otmp)
         case WAN_GROWTH:
             if (obj->otyp == EGG)
                 revive_egg(obj);
+            if (obj->otyp == PUMPKIN && cansee(obj->ox, obj->oy))
+                pline("Wow, that pumpkin deserves a blue ribbon.");
             if (obj->where == OBJ_BURIED && obj->material == VEGGY
                 && set_levltyp(obj->ox, obj->oy, TREE)) {
                 obj->where = OBJ_FLOOR;

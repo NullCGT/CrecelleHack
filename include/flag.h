@@ -41,6 +41,7 @@ struct flag {
 #define ORIENT_BISEXUAL 2
     boolean friday13;        /* it's Friday the 13th */
     boolean goldX;           /* for BUCX filtering, whether gold is X or U */
+    boolean halloween;       /* it's Halloween */
     boolean help;            /* look in data file for info about stuff */
     boolean tips;            /* show helpful hints? */
     boolean tutorial;        /* ask if player wants tutorial level? */

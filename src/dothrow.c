@@ -2641,6 +2641,7 @@ breaktest(struct obj *obj)
     case EGG:
     case CREAM_PIE:
     case MELON:
+    case PUMPKIN:
     case ACID_VENOM:
     case BLINDING_VENOM:
     case LUMP_OF_ROYAL_JELLY:
@@ -2698,6 +2699,7 @@ breakmsg(struct obj *obj, boolean in_view)
         break;
     case EGG:
     case MELON:
+    case PUMPKIN:
     case LUMP_OF_ROYAL_JELLY:
         pline("Splat!");
         break;

@@ -454,6 +454,7 @@ Helmet_on(void)
     case HELM_OF_TELEPATHY:
     case SKULL:
     case SKULL_HELM:
+    case JACK_O_LANTERN:
         break;
     case HELM_OF_CAUTION:
         see_monsters();
@@ -547,6 +548,7 @@ Helmet_off(void)
     case ORCISH_HELM:
     case SKULL:
     case SKULL_HELM:
+    case JACK_O_LANTERN:
         break;
     case DUNCE_CAP:
         disp.botl = TRUE;
@@ -2478,6 +2480,9 @@ accessory_or_armor_on(struct obj *obj)
                 }
                 return ECMD_OK;
             }
+        } else if (obj->otyp == PUMPKIN) {
+            pline("You have to carve it first...");
+            return ECMD_OK;
         } else {
             /* neither armor nor accessory */
             You_cant("wear that!");
@@ -3607,7 +3612,8 @@ wrong_size_armor(struct obj *obj, struct permonst *ptr)
 {
     int size = (ptr == gy.youmonst.data) ? USIZE : ptr->msize;
     if (!obj || obj->otyp == MUMMY_WRAPPING || is_shield(obj)
-        || obj->otyp == SKULL_HELM || obj->otyp == SKULL)
+        || obj->otyp == SKULL_HELM || obj->otyp == SKULL
+        || obj->otyp == JACK_O_LANTERN)
         return FALSE;
     if (Is_dragon_scales(obj))
         return FALSE;

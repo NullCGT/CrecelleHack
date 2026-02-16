@@ -33,6 +33,7 @@ staticfn void use_trap(struct obj *);
 staticfn int touchstone_ok(struct obj *);
 staticfn int rub_wand(struct obj *);
 staticfn int use_sympathy(struct obj *);
+staticfn int carve_pumpkin(struct obj *);
 staticfn int use_stone(struct obj *);
 staticfn int set_trap(void); /* occupation callback */
 staticfn void display_polearm_positions(boolean);
@@ -1925,7 +1926,7 @@ rub_ok(struct obj *obj)
         || obj->otyp == OIL_LAMP || obj->otyp == MAGIC_LAMP
         || obj->otyp == LANTERN || is_graystone(obj)
         || obj->otyp == LUMP_OF_ROYAL_JELLY
-        || obj->otyp == TOWEL)
+        || obj->otyp == TOWEL || obj->otyp == PUMPKIN)
         return GETOBJ_SUGGEST;
     
     if (obj->oartifact == ART_SYMPATHY)
@@ -1952,6 +1953,8 @@ dorub(void)
             return use_stone(obj);
         } else if (obj->otyp == LUMP_OF_ROYAL_JELLY) {
             return use_royal_jelly(&obj);
+        } else if (obj->otyp == PUMPKIN) {
+            return carve_pumpkin(obj);
         } else {
             pline("Sorry, I don't know how to use that.");
             return ECMD_OK;
@@ -2870,6 +2873,32 @@ use_sympathy(struct obj *symp)
     pline("%s the material of %s.", Tobjnam(symp, "mimic"), the(xname(obj)));
     force_material(symp, obj->material);
     retouch_object(&symp, !uarmg, FALSE);
+    update_inventory();
+    return ECMD_TIME;
+}
+
+/* TODO: IF we ever add a carve command call this from there instead of rub */
+staticfn int
+carve_pumpkin(struct obj *pumpkin)
+{
+    struct obj *obj;
+    if ((obj = getobj("carve the pumpkin with", any_obj_ok, GETOBJ_PROMPT)) == 0)
+        return ECMD_CANCEL;
+    if (!(objects[obj->otyp].oc_dir & PIERCE)) {
+        pline("That's not a proper carving implement.");
+        return ECMD_CANCEL;
+    }
+    if (pumpkin->quan > 1L) {
+        pumpkin = splitobj(pumpkin, 1L);
+    }
+    You("carve %s with your %s.", the(xname(pumpkin)), xname(obj));
+    if (pumpkin->quan > 1L)
+        pumpkin = splitobj(pumpkin, 1);
+    pumpkin = poly_obj(pumpkin, JACK_O_LANTERN);
+    costly_alteration(pumpkin, COST_SPLAT);
+    obj_extract_self(pumpkin); /* free from inv */
+    pumpkin = hold_another_object(pumpkin, "You bumpkin! You fumbled the pumpkin!",
+                                (const char *) 0, (const char *) 0);
     update_inventory();
     return ECMD_TIME;
 }

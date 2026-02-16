@@ -240,6 +240,13 @@ phase_of_the_moon(void) /* 0-7, with 0: new, 4: full */
 }
 
 boolean
+halloween(void)
+{
+    struct tm *lt = getlt();
+    return (boolean) (lt->tm_mon = 9 && lt->tm_mday == 31);
+}
+
+boolean
 friday_13th(void)
 {
     struct tm *lt = getlt();

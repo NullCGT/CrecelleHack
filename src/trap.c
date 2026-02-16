@@ -1525,7 +1525,7 @@ trapeffect_rocktrap(
         boolean see_it = cansee(mtmp->mx, mtmp->my);
         boolean trapkilled = FALSE;
 
-        if (trap->once && trap->tseen && !trap->ammo) {
+        if (!trap->ammo) {
             if (in_sight && see_it)
                 pline_mon(mtmp,
                       "A trap door above %s opens, but nothing falls out!",

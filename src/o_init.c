@@ -14,6 +14,7 @@ staticfn int QSORTCALLBACK discovered_cmp(const genericptr, const genericptr);
 staticfn char *sortloot_descr(int, char *);
 staticfn char *disco_typename(int);
 staticfn void disco_append_typename(char *, int);
+staticfn void disco_fmt_uniq(int, char *outbuf) NONNULLARG2;
 staticfn void disco_output_sorted(winid, char **, int, boolean);
 staticfn char *oclass_to_name(char, char *);
 
@@ -540,8 +541,11 @@ interesting_to_discover(int i)
 
 /* items that should stand out once they're known */
 static const short uniq_objs[] = {
-    AMULET_OF_YENDOR, SPE_BOOK_OF_THE_DEAD, CANDELABRUM_OF_INVOCATION,
+    AMULET_OF_YENDOR,
+    /* same order as major oracularity; alphabetical when fully IDed */
     BELL_OF_OPENING,
+    SPE_BOOK_OF_THE_DEAD,
+    CANDELABRUM_OF_INVOCATION,
 };
 
 /* discoveries qsort comparison function */
@@ -708,6 +712,22 @@ disco_append_typename(char *buf, int dis)
     }
 }
 
+/* minor fixup for Book of the Dead needed in more than one place */
+staticfn void
+disco_fmt_uniq(int uidx, char *outbuf)
+{
+    Sprintf(outbuf, "  %s", objects[uidx].oc_name_known
+                              ? OBJ_NAME(objects[uidx])
+                              : OBJ_DESCR(objects[uidx]));
+    /* in the spellbooks section of main discoveries list, encountered
+       but not fully discovered Book of the Dead is shown as
+       "spellbook (papyrus)" like other encountered but not discovered books;
+       in the unique/relics section we want "papyrus spellbook" instead */
+    if (!objects[uidx].oc_name_known
+        && objects[uidx].oc_class == SPBOOK_CLASS)
+        Strcat(outbuf, " spellbook");
+}
+
 /* sort and output sorted_lines to window and free the lines */
 staticfn void
 disco_output_sorted(
@@ -739,7 +759,7 @@ dodiscovered(void) /* free after Robert Viduya */
     char *s, *p, oclass, prev_class,
          classes[MAXOCLASSES], buf[BUFSZ],
          *sorted_lines[NUM_OBJECTS]; /* overkill */
-    int i, dis, ct, uniq_ct, arti_ct, sorted_ct;
+    int i, dis, ct, uniq_ct, arti_ct, sorted_ct, uidx;
     long sortindx;  // should be ptrdiff_t, but we don't require that exists
     boolean alphabetized, alphabyclass, lootsort;
 
@@ -760,18 +780,27 @@ dodiscovered(void) /* free after Robert Viduya */
     putstr(tmpwin, 0, buf);
     putstr(tmpwin, 0, "");
 
-    /* gather "unique objects" into a pseudo-class; note that they'll
-       also be displayed individually within their regular class */
+    /*
+     * FIXME?
+     *  relics and artifacts don't obey player's sort order even though
+     *  the header line states that they're shown in such-and-such order.
+     */
+
+    /* gather "unique objects", also called "relics", into a pseudo-class;
+       they'll also be displayed individually within their regular class */
     uniq_ct = 0;
-    for (i = dis = 0; i < SIZE(uniq_objs); i++)
-        if (objects[uniq_objs[i]].oc_name_known) {
+    for (i = dis = 0; i < SIZE(uniq_objs); i++) {
+        uidx = uniq_objs[i];
+        if (objects[uidx].oc_name_known
+            || (objects[uidx].oc_encountered && uidx != AMULET_OF_YENDOR)) {
             if (!dis++)
                 putstr(tmpwin, iflags.menu_headings.attr,
                        "Unique items or Relics");
             ++uniq_ct;
-            Sprintf(buf, "  %s", OBJ_NAME(objects[uniq_objs[i]]));
+            disco_fmt_uniq(uidx, buf);
             putstr(tmpwin, 0, buf);
         }
+    }
     /* display any known artifacts as another pseudo-class */
     arti_ct = disp_artifact_discoveries(tmpwin);
 
@@ -863,7 +892,7 @@ doclassdisco(void)
     char *p, *s, c, oclass, menulet, allclasses[MAXOCLASSES],
          discosyms[3 + MAXOCLASSES + 1], buf[BUFSZ],
          *sorted_lines[NUM_OBJECTS]; /* overkill */
-    int i, ct, dis, xtras, sorted_ct;
+    int i, ct, dis, xtras, sorted_ct, uidx;
     boolean traditional, alphabetized, lootsort;
     int clr = NO_COLOR;
 
@@ -887,12 +916,20 @@ doclassdisco(void)
     any = cg.zeroany;
     menulet = 'a';
 
+    /*
+     * FIXME?
+     *  relics and artifacts don't obey player's sort order even though
+     *  the header line states that they're shown in such-and-such order.
+     */
+
     /* check whether we've discovered any unique objects (primarily the
        invocation items; the Guidebook calls unique items "relics" but the
        Amulet of Yendor is unique too so we haven't made a blanket change
        from 'u' to 'r') */
-    for (i = 0; i < SIZE(uniq_objs); i++)
-        if (objects[uniq_objs[i]].oc_name_known) {
+    for (i = 0; i < SIZE(uniq_objs); i++) {
+        uidx = uniq_objs[i];
+        if (objects[uidx].oc_name_known
+            || (objects[uidx].oc_encountered && uidx != AMULET_OF_YENDOR)) {
             Strcat(discosyms, "u");
             if (!traditional) {
                 any.a_int = 'u';
@@ -904,6 +941,7 @@ doclassdisco(void)
             }
             break;
         }
+    }
 
     /* check whether we've discovered any artifacts */
     if (disp_artifact_discoveries(WIN_ERR) > 0) {
@@ -1000,12 +1038,16 @@ doclassdisco(void)
     case 'r':
         putstr(tmpwin, iflags.menu_headings.attr,
                upstart(strcpy(buf, unique_items)));
-        for (i = 0; i < SIZE(uniq_objs); i++)
-            if (objects[uniq_objs[i]].oc_name_known) {
+        for (i = 0; i < SIZE(uniq_objs); i++) {
+            uidx = uniq_objs[i];
+            if (objects[uidx].oc_name_known
+                || (objects[uidx].oc_encountered
+                    && uidx != AMULET_OF_YENDOR)) {
                 ++ct;
-                Sprintf(buf, "  %s", OBJ_NAME(objects[uniq_objs[i]]));
+                disco_fmt_uniq(uidx, buf);
                 putstr(tmpwin, 0, buf);
             }
+        }
         if (!ct)
             You(havent_discovered_any, unique_items);
         break;

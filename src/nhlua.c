@@ -486,7 +486,7 @@ nhl_deltrap(lua_State *L)
         struct trap *ttmp = t_at(x, y);
 
         if (ttmp)
-            deltrap(ttmp);
+            deltrap_with_ammo(ttmp, DELTRAP_DESTROY_AMMO);
     }
     return 0;
 }

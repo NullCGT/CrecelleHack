@@ -301,7 +301,7 @@ erode_obj(
             update_inventory();
 
         return ER_DAMAGED;
-    } else if (ef_flags & EF_DESTROY) {
+    } else if ((ef_flags & EF_DESTROY) && otmp->where != OBJ_DELETED) {
         otmp->in_use = 1; /* in case of hangup during message w/ --More-- */
         if (uvictim || vismon || visobj) {
             char actbuf[BUFSZ];
@@ -333,6 +333,8 @@ erode_obj(
             } else if (mcarried(otmp)) {
                 /* results in otmp->where==OBJ_FREE; delobj() doesn't care */
                 extract_from_minvent(otmp->ocarry, otmp, TRUE, FALSE);
+            } else if (otmp == uball || otmp == uchain) {
+                unpunish();
             } else { /* worn but not in hero invent or monster minvent ? */
                 impossible(
             "erode_obj(%d): destroying strangely worn item [%d, 0x%08lx: %s]",
@@ -1317,7 +1319,7 @@ trapeffect_arrow_trap(
         boolean see_it = cansee(mtmp->mx, mtmp->my);
         boolean trapkilled = FALSE;
 
-        if (trap->once && trap->tseen && !rn2(15)) {
+        if (trap->once && trap->tseen && !trap->ammo) {
             if (in_sight && see_it)
                 pline_mon(mtmp,
                       "%s triggers a trap but nothing happens.",
@@ -1497,7 +1499,7 @@ trapeffect_rocktrap(
         }
     } else if (!mtmp) {
         coordxy tx = trap->tx, ty = trap->ty;
-        if (trap->once && trap->tseen && !rn2(15)) {
+        if (trap->once && trap->tseen && !trap->ammo) {
             pline("A trap door in %s opens, but nothing falls out!",
                   the(ceiling(tx, ty)));
             deltrap(trap);
@@ -1523,7 +1525,7 @@ trapeffect_rocktrap(
         boolean see_it = cansee(mtmp->mx, mtmp->my);
         boolean trapkilled = FALSE;
 
-        if (trap->once && trap->tseen && !rn2(15)) {
+        if (trap->once && trap->tseen && !trap->ammo) {
             if (in_sight && see_it)
                 pline_mon(mtmp,
                       "A trap door above %s opens, but nothing falls out!",

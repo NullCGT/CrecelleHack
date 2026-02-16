@@ -6463,6 +6463,8 @@ erase_summons(struct monst *mtmp)
     struct monst *mtmp2;
     if (has_esum(mtmp) && !(ESUM(mtmp)->ownermid)) {
         for (mtmp2 = fmon; mtmp2; mtmp2 = mtmp2->nmon) {
+            if (DEADMONSTER(mtmp2))
+                continue;
             if (has_esum(mtmp2)
                 && (ESUM(mtmp2)->ownermid == mtmp->m_id)) {
                 if (flags.verbose && canseemon(mtmp2))

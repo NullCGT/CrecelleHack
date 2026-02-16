@@ -346,7 +346,7 @@ map_cleanup(void)
                 /* traps on liquid? */
                 if (((ttmp = t_at(x, y)) != 0)
                     && !undestroyable_trap(ttmp->ttyp))
-                    deltrap(ttmp);
+                    deltrap_with_ammo(ttmp, DELTRAP_DESTROY_AMMO);
 
                 /* engravings? */
                 if ((etmp = engr_at(x, y)) != 0)

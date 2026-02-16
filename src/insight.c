@@ -1323,10 +1323,6 @@ weapon_insight(int final)
         you_are("utilizing only one half of your weapon", "");
     }
 
-    /* Weapon attack bonus breakdown. */
-    Sprintf(buf, "+%d to-hit with your main hand (%s)", abon(uwep), (uwep && objects[uwep->otyp].oc_finesse) ? "Dex" : "Str");
-    you_have(buf, "");
-
 
     /*
      * Skill with current weapon.  Might help players who've never

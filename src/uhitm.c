@@ -377,7 +377,7 @@ find_roll_to_hit(
 
     *role_roll_penalty = 0; /* default is `none' */
 
-    tmp = 1 + abon(uwep) + find_mac(mtmp) + u.uhitinc
+    tmp = 1 + find_mac(mtmp) + u.uhitinc
           + (sgn(Luck) * ((abs(Luck) + 2) / 3))
           + maybe_polyd(gy.youmonst.data->mlevel, u.ulevel);
 

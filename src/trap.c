@@ -1727,6 +1727,9 @@ trapeffect_slp_gas_trap(
 {
     coordxy tx = trap->tx, ty = trap->ty;
     long where = ((long) tx << 16) | (long) ty;
+    if (spot_time_expires(tx, ty, GASTRAP_DELAY)) {
+        return Trap_Effect_Finished;
+    }
     if (mtmp == &gy.youmonst || !mtmp) {
         if (cansee(tx, ty))
             seetrap(trap);
@@ -1740,7 +1743,7 @@ trapeffect_slp_gas_trap(
             You_hear("a soft hiss.");
     }
     (void) start_timer((long) rn1(3, 3), TIMER_LEVEL, GASTRAP_DELAY,
-                           long_to_any(where));
+                        long_to_any(where));
     return Trap_Effect_Finished;
 }
 
@@ -2005,6 +2008,9 @@ trapeffect_spark_trap(
 {
     coordxy tx = trap->tx, ty = trap->ty;
     long where = ((long) tx << 16) | (long) ty;
+    if (spot_time_expires(tx, ty, SPARK_DELAY)) {
+        return Trap_Effect_Finished;
+    }
     if (mtmp == &gy.youmonst) {
         feeltrap(trap);
         urgent_pline("%sYou feel a gentle ticking.", Deaf ? "" : "Click!  ");
@@ -2018,8 +2024,8 @@ trapeffect_spark_trap(
         pline("%s triggers a pressure plate!", Monnam(mtmp));
         You_hear("something begin to tick.");
     }
-        (void) start_timer((long) rn1(4, 3), TIMER_LEVEL, SPARK_DELAY,
-                           long_to_any(where));
+    (void) start_timer((long) rn1(4, 3), TIMER_LEVEL, SPARK_DELAY,
+                        long_to_any(where));
     return Trap_Effect_Finished;
 }
 

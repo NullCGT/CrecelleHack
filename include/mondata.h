@@ -304,6 +304,8 @@
 #define resists_whack(ptr) (((ptr)->mflags4 & M4_RWHACK) != 0L)
 #define resists_pierce(ptr) (((ptr)->mflags4 & M4_RPIERCE) != 0L)
 #define resists_slash(ptr) (((ptr)->mflags4 & M4_RSLASH) != 0L)
+#define advanceable(ptr) (!unique_corpstat(ptr) \
+            && (!humanoid(ptr) || mindless(ptr) || is_demon(ptr)))
 
 /* monkeys are tamable via bananas but not pacifiable via food,
    otherwise their theft attack could be nullified too easily;

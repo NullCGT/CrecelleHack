@@ -168,6 +168,7 @@ struct monst {
     Bitfield(maware, 1);    /* mon is aware of you */
     Bitfield(mbaby, 1);
     Bitfield(mdripping, 1); /* mon is dripping with liquid */
+    Bitfield(madvanced, 1); /* mon is advanced beyond normal means */
 
     unsigned long mstrategy; /* for monsters with mflag3: current strategy */
 #ifdef NHSTDC

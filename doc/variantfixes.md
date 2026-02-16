@@ -105,6 +105,7 @@
 - Aleaxes appear with an identical inventory to the player. If the player
   does not have the amulet, all items are +0 and have no charges. If they
   do have the amulet? Watch out...
+- Monsters may rarely spawn as advanced, with greatly increased levels.
 ## Weather System
 - Weather and daytime visibility now only impacts first five floors of
   dungeon and outdoor levels.

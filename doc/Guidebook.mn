@@ -1,4 +1,4 @@
-.\" $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.611 $ $NHDT-Date: 1769271623 2026/01/24 08:20:23 $
+.\" $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.614 $ $NHDT-Date: 1770881338 2026/02/11 23:28:58 $
 .\"
 .\" This is an excerpt from the 'roff' man page from the 'groff' package.
 .\"+--
@@ -31,8 +31,21 @@
 .lt 70n
 .\}
 .
-.so tmac.nh \" extra macros which aren't in tmac.n
-.if !\n(nH .so doc/tmac.nh
+.\" Load extra macros that "tmac.n" doesn't define.
+.de So
+.ie \n(.g&(\n(.x=1)&(\n(.y>22) .soquiet \\$1
+.el                            .so      \\$1
+..
+.
+.So tmac.nh
+.if !\n(nH So doc/tmac.nh
+.
+.if !\n(nH \{\
+.tm fatal error: cannot locate "tmac.nh" macro package
+.ab
+.\}
+.
+.rm So
 .
 .\" building Guidebook.txt doesn't have CR font available; groff 1.23 issues
 .\" a warning each time any font can't be loaded; earlier versions silently
@@ -47,7 +60,7 @@
 .ds f0 \*(vr
 .ds f1 \" empty
 .\"DO NOT REMOVE NH_DATESUB .ds f2 Date(%B %-d, %Y)
-.ds f2 January 24, 2026
+.ds f2 February 11, 2026
 .
 .\" A note on some special characters:
 .\" \(lq = left double quote
@@ -2595,8 +2608,8 @@ Some confer defensive capabilities when wielded or have other powers that
 aren't listed here.
 .pg
 You might find them simply lying on the floor, including but not limited
-to inside shops, or be granted as a reward for \(lq#offer\(rq on an altar
-to your patron deity.
+to inside shops, or be granted as a reward for \(lq#offer\(rq on an
+altar to your patron deity.
 A few might be dropped by monsters, or might be converted from an ordinary
 object of the same type via assigning the right name.
 .\" should we mention dipping for Excalibur here?
@@ -2614,9 +2627,9 @@ These are commonly known as quest artifacts.
 All are aligned and most are non-weapons.
 They won't be found randomly.
 .pg
-The \(oq\f(CR\\\fP\(cq and \(oq\f(CR\`a\fP\(cq commands will list
-artifacts that you have fully identified (knowing the name and item type
-isn't sufficient).
+The \(oq\f(CR\\\fP\(cq and \(oq\f(CR\`a\fP\(cq commands will
+list artifacts that you have fully identified (knowing the name and item
+type isn't sufficient).
 .hn 2
 Relics
 .pg
@@ -2624,11 +2637,13 @@ There are three unique items that are named and have limited special
 powers but aren't classified as artifacts.
 Each is guarded by a particular monster and you'll need to collect all
 three for use late in the game.
+.\" The relics are listed in the same order as the Oracle's message about
+.\" them rather than in the order they need to be used for the invocation.
 They are \fIthe Bell of Opening\fP,
-\fIthe Candelabrum of Invocation\fP, and
-\fIthe Book of the Dead\fP.
+\fIthe Book of the Dead\fP, and
+\fIthe Candelabrum of Invocation\fP.
 Their corresponding descriptions when not yet identified are
-silver bell, candelabrum, and papyrus spellbook.
+silver bell, papyrus spellbook, and candelabrum.
 .hn 2
 Weapons (\(oq)\(cq)
 .pg

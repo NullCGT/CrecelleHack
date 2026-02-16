@@ -1,4 +1,4 @@
-/* NetHack 3.7	extern.h	$NHDT-Date: 1764044196 2025/11/24 20:16:36 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.1509 $ */
+/* NetHack 3.7	extern.h	$NHDT-Date: 1770949988 2026/02/12 18:33:08 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.1523 $ */
 /* Copyright (c) Steve Creps, 1988.                               */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -471,8 +471,8 @@ extern int enter_explore_mode(void);
 extern boolean bind_mousebtn(int, const char *);
 extern boolean bind_key(uchar, const char *);
 extern void dokeylist(void);
-extern int xytod(coordxy, coordxy);
-extern void dtoxy(coord *, int);
+extern int xytodir(int, int);
+extern void dirtocoord(coord *, int);
 extern int movecmd(char, int);
 extern int dxdy_moveok(void);
 extern int getdir(const char *);
@@ -4057,7 +4057,7 @@ extern int wornmask_to_armcat(long);
 extern long armcat_to_wornmask(int);
 extern long wearslot(struct obj *) NONNULLARG1;
 extern void check_wornmask_slots(void);
-extern void mon_set_minvis(struct monst *) NONNULLARG1;
+extern void mon_set_minvis(struct monst *, boolean) NONNULLARG1;
 extern void mon_adjust_speed(struct monst *, int, struct obj *) NONNULLARG1;
 extern void update_mon_extrinsics(struct monst *, struct obj *, boolean,
                                   boolean) NONNULLARG12;
@@ -4126,11 +4126,11 @@ extern const char *maybe_elipses_exclam(int force, boolean resistsed);
 extern const char *exclam(int force) NONNULL;
 extern void hit(const char *, struct monst *, const char *) NONNULLPTRS;
 extern void miss(const char *, struct monst *) NONNULLPTRS;
-extern struct monst *bhit(coordxy, coordxy, int, enum bhit_call_types,
+extern struct monst *bhit(int, int, int, enum bhit_call_types,
                           int(*)(struct monst *, struct obj *),
                           int(*)(struct obj *, struct obj *),
                           struct obj **) NONNULLARG7;
-extern struct monst *boomhit(struct obj *, coordxy, coordxy) NONNULLARG1;
+extern struct monst *boomhit(struct obj *, int, int) NONNULLARG1;
 extern int zhitm(struct monst *, int, int, struct obj **) NONNULLPTRS;
 extern int burn_floor_objects(coordxy, coordxy, boolean, boolean);
 extern void ubuzz(int, int);

@@ -1,4 +1,4 @@
-/* NetHack 3.7	makemon.c	$NHDT-Date: 1720128166 2024/07/04 21:22:46 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.249 $ */
+/* NetHack 3.7	makemon.c	$NHDT-Date: 1770949988 2026/02/12 18:33:08 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.271 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -1568,7 +1568,7 @@ makemon(
     mtmp->mpeaceful = (mmflags & MM_ANGRY) ? FALSE : peace_minded(ptr);
     mtmp->mtraitor = 0;
     if ((mmflags & MM_MINVIS) != 0) /* for ^G */
-        mon_set_minvis(mtmp); /* call after place_monster() */
+        mon_set_minvis(mtmp, FALSE); /* call after place_monster() */
         
     /* monsters spawned during the wrong time will sleep*/
     if ((night() && (ptr->geno & G_DAY))

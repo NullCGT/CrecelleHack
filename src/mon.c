@@ -1,4 +1,4 @@
-/* NetHack 3.7	mon.c	$NHDT-Date: 1753856387 2025/07/29 22:19:47 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.611 $ */
+/* NetHack 3.7	mon.c	$NHDT-Date: 1770949988 2026/02/12 18:33:08 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.621 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Derek S. Ray, 2015. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -1901,7 +1901,7 @@ mon_givit(struct monst *mtmp, struct permonst *ptr)
             char mtmpbuf[BUFSZ];
 
             Strcpy(mtmpbuf, Monnam(mtmp));
-            mon_set_minvis(mtmp);
+            mon_set_minvis(mtmp, FALSE);
             if (vis)
                 pline_mon(mtmp, "%s %s.", mtmpbuf,
                       !canspotmon(mtmp) ? "vanishes"

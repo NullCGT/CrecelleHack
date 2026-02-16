@@ -70,34 +70,38 @@ NROFF = mandoc
 MAN2TXTPRE = -T ascii
 MAN2TXTPOST= | col -b
 else
-#detection of groff
-NROFFISGROFF := $(shell echo `nroff --version | grep "GNU groff version"`)
+#
+# Detect groff.
+NROFFISGROFF := $(shell echo `nroff --version | grep -c 'GNU.*groff.*version'`)
 #$(info NROFFISGROFF=$(NROFFISGROFF))
-ifneq "$(NROFFISGROFF)" ""
-# get the version of groff and flag if it is gt or eq to 1.23
-GROFFGE123 := $(shell expr `echo $(NROFFISGROFF) | cut -f2 -d.` \>= 23)
-# or less than 1.24
-GROFFLT124 := $(shell expr `echo $(NROFFISGROFF) | cut -f2 -d.` \< 24)
-# -Wtab -Wrange are for the sake of tmac.n.
-NROFF_FLAGS := -wall -Wtab -Wrange
-ifneq "$(GROFFLT124)" ""
-NROFF_FLAGS += -Wel -Wscale
-endif
-endif  # NROFFISGROFF
+ifneq "$(NROFFISGROFF)" "0"
+# Gather groff's minor version number (register `.y`).
+GROFFMINORVERSION := $(shell printf '.tm \\n[.y]\n' | nroff 2>&1)
+#$(info GROFFMINORVERSION=$(GROFFMINORVERSION))
+# Silence warnings produced by tmac.n, which NetHack does not modify.
+NROFF_FLAGS := -wall -Wrange -Wscale -Wtab
+# groff <= 1.23 also supported an "el" warning category that was buggy.
+GROFFLE123 := $(shell expr $(GROFFMINORVERSION) \<= 23)
+#$(info GROFFLE123=$(GROFFLE123))
+ifeq "$(GROFFLE123)" "1"
+NROFF_FLAGS += -Wel
+endif  # end groff less than 1.23
+endif  # end NROFFISGROFF
+# $(info NROFF_FLAGS=$(NROFF_FLAGS))
 
 ifneq "$(NROFFISGROFF)" ""   # It's groff
 # add the -Tascii flag used by groff
 MAN2TXTPRE += -Tascii
-ifneq "$(GROFFGE123)" ""   # It's groff 1.23 or greater
-#$(info GROFFGE123=$(GROFFGE123))
 # nroff in groff 1.23 supports the -P option to pass arguments to the
 # output driver.  -cbou are flags to grotty(1).
+GROFFGE123 := $(shell expr $(GROFFMINORVERSION) \>= 23)
+#$(info GROFFGE123=$(GROFFGE123))
+ifeq "$(GROFFGE123)" "1"
 MAN2TXTPRE += -P -cbou
 MAN2TXTPOST=
 else
 MAN2TXTPRE += -c
-# groff less than 1.23
-endif
+endif  # end groff less than 1.23
 endif  # end groff-specific
 endif  # not USE_MANDOC
 

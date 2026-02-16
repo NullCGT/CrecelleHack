@@ -1277,7 +1277,7 @@ use_pick_axe2(struct obj *obj)
                        && (trap_with_u = t_at(u.ux, u.uy))
                        && is_pit(trap->ttyp)
                        && !conjoined_pits(trap, trap_with_u, FALSE)) {
-                int idx = xytod(u.dx, u.dy);
+                int idx = xytodir(u.dx, u.dy);
 
                 if (idx != DIR_ERR) {
                     int adjidx = DIR_180(idx);
@@ -1638,7 +1638,7 @@ zap_dig(void)
     if (u.utrap && u.utraptype == TT_PIT
         && (trap_with_u = t_at(u.ux, u.uy))) {
         pitdig = TRUE;
-        diridx = xytod(u.dx, u.dy);
+        diridx = xytodir(u.dx, u.dy);
     }
     digdepth = rn1(18, 8);
     tmp_at(DISP_BEAM, cmap_to_glyph(S_digbeam));

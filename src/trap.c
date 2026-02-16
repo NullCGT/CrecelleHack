@@ -6838,7 +6838,7 @@ conjoined_pits(
         return FALSE;
     dx = sgn(trap2->tx - trap1->tx);
     dy = sgn(trap2->ty - trap1->ty);
-    diridx = xytod(dx, dy);
+    diridx = xytodir(dx, dy);
     if (diridx != DIR_ERR) {
         adjidx = DIR_180(diridx);
         if ((trap1->conjoined & (1 << diridx))
@@ -6879,7 +6879,7 @@ adj_nonconjoined_pit(struct trap *adjtrap)
 
     if (trap_with_u && adjtrap && u.utrap && u.utraptype == TT_PIT
         && is_pit(trap_with_u->ttyp) && is_pit(adjtrap->ttyp)) {
-        if (xytod(u.dx, u.dy) != DIR_ERR)
+        if (xytodir(u.dx, u.dy) != DIR_ERR)
             return TRUE;
     }
     return FALSE;

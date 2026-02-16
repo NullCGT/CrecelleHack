@@ -26,6 +26,7 @@ staticfn void hmon_hitmon_barehands(struct _hitmon_data *,
                              struct monst *) NONNULLARG12;
 staticfn void hmon_hitmon_weapon_ranged(struct _hitmon_data *, struct monst *,
                              struct obj *) NONNULLARG123;
+staticfn boolean backstabbable(struct monst *) NONNULLARG1;
 staticfn void hmon_hitmon_weapon_melee(struct _hitmon_data *, struct monst *,
                              struct obj *) NONNULLARG123;
 staticfn void hmon_hitmon_weapon(struct _hitmon_data *, struct monst *,
@@ -688,7 +689,7 @@ hitum_cleave(
     int count, umort, x = u.ux, y = u.uy;
 
     /* find the direction toward primary target */
-    i = xytod(u.dx, u.dy);
+    i = xytodir(u.dx, u.dy);
     if (i == DIR_ERR) {
         impossible("hitum_cleave: unknown target direction [%d,%d,%d]?",
                    u.dx, u.dy, u.dz);
@@ -953,6 +954,20 @@ hmon_hitmon_weapon_ranged(
     }
 }
 
+/* can monster be stabbed in the back? */
+staticfn boolean
+backstabbable(struct monst *mon)
+{
+    return !amorphous(mon->data)
+        && !is_whirly(mon->data)
+        && !noncorporeal(mon->data)
+        && mon->data->mlet != S_BLOB
+        && mon->data->mlet != S_EYE
+        && mon->data->mlet != S_FUNGUS
+        && canseemon(mon)
+        && (mon->mflee || helpless(mon));
+}
+
 staticfn void
 hmon_hitmon_weapon_melee(
     struct _hitmon_data *hmd,
@@ -967,13 +982,20 @@ hmon_hitmon_weapon_melee(
     hmd->dmg = dmgval(obj, &gy.youmonst, mon);
     /* a minimal hit doesn't exercise proficiency */
     hmd->train_weapon_skill = (hmd->dmg > 1);
+
+    /* Healer with anatomy knowledge */
+    if (Role_if(PM_HEALER) && hmd->hand_to_hand
+        && obj->oclass == WEAPON_CLASS
+        && objects[obj->otyp].oc_skill == P_KNIFE)
+        hmd->dmg += min(3, svm.mvitals[monsndx(mon->data)].died / 6);
+
     /* special attack actions */
     if (!hmd->train_weapon_skill || mon == u.ustuck || u.twoweap
         /* Cleaver can hit up to three targets at once so don't
            let it also hit from behind or shatter foes' weapons */
         || (hmd->hand_to_hand && is_art(obj, ART_CLEAVER))) {
         ; /* no special bonuses */
-    } else if (mon->mflee && Role_if(PM_ROGUE) && !Upolyd
+    } else if (Role_if(PM_ROGUE) && backstabbable(mon) && !Upolyd
                /* multi-shot throwing is too powerful here */
                && hmd->hand_to_hand) {
         You("strike %s from behind!", mon_nam(mon));

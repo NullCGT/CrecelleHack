@@ -2514,7 +2514,8 @@ mon_avoiding_this_attack(struct monst *mtmp, int attkidx)
  *     ranged_attk_assessed(mtmp, mon_avoiding_this_attack)
  * but without the added assessment function call overhead.
  */
-boolean ranged_attk_available(struct monst *mtmp)
+boolean
+ranged_attk_available(struct monst *mtmp)
 {
     int i, typ = -1;
     struct permonst *ptr = mtmp->data;

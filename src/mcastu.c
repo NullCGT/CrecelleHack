@@ -1,4 +1,4 @@
-/* NetHack 3.7	mcastu.c	$NHDT-Date: 1726168598 2024/09/12 19:16:38 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.105 $ */
+/* NetHack 3.7	mcastu.c	$NHDT-Date: 1770949988 2026/02/12 18:33:08 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.111 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2011. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -703,7 +703,7 @@ cast_monster_spell(struct monst *mtmp, int dmg, int spellnum)
             if (canseemon(mtmp))
                 pline_mon(mtmp, "%s suddenly %s!", Monnam(mtmp),
                       !See_invisible ? "disappears" : "becomes transparent");
-            mon_set_minvis(mtmp);
+            mon_set_minvis(mtmp, FALSE);
             if (cansee(mtmp->mx, mtmp->my) && !canspotmon(mtmp))
                 map_invisible(mtmp->mx, mtmp->my);
             dmg = 0;

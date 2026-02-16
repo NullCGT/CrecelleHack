@@ -1577,6 +1577,10 @@ the "totally digested" instadeath timer is much faster
 slow monster effects are more effective against faster enemies
 light-spell is clerical, if playing a priest
 boomerang can hit multiple monsters
+the "bustling town" minetown has more peacefuls
+healers may get tiny damage increase when attacking with knives
+allow rogues to also backstab sleeping or paralyzed monsters
+rogues cannot backstab monsters that have no backside
 
 
 Fixes to 3.7.0-x General Problems Exposed Via git Repository
@@ -2204,6 +2208,7 @@ when reading a T-shirt or apron, add trailing period to the slogan unless
 when reading an engraving, suppress the addition of a trailing period if the
 	text already has one
 cursed magic whistle could teleport hero on no-teleport levels
+give a brief explanation when receving a wish for acquiring the Amulet
 
 
 Fixes to 3.7.0-x Platform and/or Interface Problems Exposed Via git Repository

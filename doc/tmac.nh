@@ -29,7 +29,7 @@
 .\" labeled paragraph label (and first line)
 .de PL
 .br
-\\h'|-\\n(PYu'\\$1\\h'|-\\n(PXu'\ -\ \\c \" back up, output the label, then
+\\h'|-\\n(PYu'\\$1\\h'|-\\n(PXu'\ -\ \\c\" back up, output the label, then
 .					\" skip to width-of(" - ") before the
 .					\" normal indentation, output the " - "
 .					\" then attach the next line (the

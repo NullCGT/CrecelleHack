@@ -301,7 +301,8 @@ glyph_find_core(
 */
 
 
-void fill_glyphid_cache(void)
+void
+fill_glyphid_cache(void)
 {
     int reslt = 0;
 
@@ -352,7 +353,8 @@ init_glyph_cache(void)
     }
 }
 
-void free_glyphid_cache(void)
+void
+free_glyphid_cache(void)
 {
     size_t idx;
 
@@ -1186,7 +1188,8 @@ clear_all_glyphmap_colors(void)
     }
 }
 
-void reset_customcolors(void)
+void
+reset_customcolors(void)
 {
     clear_all_glyphmap_colors();
     apply_customizations(gc.currentgraphics, do_custom_colors);

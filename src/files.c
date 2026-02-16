@@ -2176,13 +2176,15 @@ doconvert_file(const char *filename, int sfstatus, boolean unconvert)
 }
 
 /* convert file */
-void nh_sfconvert(const char *filename)
+void
+nh_sfconvert(const char *filename)
 {
     (void) doconvert_file(filename, 0, FALSE);
 }
 
 /* unconvert file if it exists */
-void nh_sfunconvert(const char *filename)
+void
+nh_sfunconvert(const char *filename)
 {
     (void) doconvert_file(filename, 0, TRUE);
 }
@@ -2270,7 +2272,8 @@ delete_convertedfile(const char *basefilename)
     return 0;
 }
 
-void free_convert_filenames(void)
+void
+free_convert_filenames(void)
 {
     if (converted_filename)
         free((genericptr_t) converted_filename), converted_filename = 0;

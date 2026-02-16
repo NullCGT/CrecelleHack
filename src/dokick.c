@@ -2240,7 +2240,7 @@ dograpple(void)
     if (touched) {
         use_skill(P_GRAPPLING, 1);
         if (touch_petrifies(target->data)) {
-            Sprintf(kbuf, "hugging %s", mon_nam(target));
+            Sprintf(kbuf, "hugging %s", noit_mon_nam(target));
             instapetrify(kbuf);
         }
     }

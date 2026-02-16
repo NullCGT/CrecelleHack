@@ -1993,6 +1993,12 @@ skill_init(const struct def_skill *class_skill)
     if (Role_if(PM_HEALER) && svc.context.startingpet_typ != NON_PM)
         P_SKILL(P_PET_HANDLING) = P_BASIC;
 
+    /* Kobolds start with dart knowledge */
+    if (Race_if(PM_KOBOLD) && !u.uroleplay.pauper
+        && P_MAX_SKILL(P_MISSILES) < P_BASIC) {
+        P_MAX_SKILL(P_MISSILES) = P_BASIC;
+    }
+
     /* Roles that start with a horse know how to ride it */
     if (can_saddle(&mons[gu.urole.petnum])) 
         P_SKILL(P_RIDING) = P_BASIC;

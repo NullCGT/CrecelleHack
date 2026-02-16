@@ -59,6 +59,7 @@
   - Briny
 - Many adjustments to existing oprops.
 - Potions weigh half as much.
+- All objects can be destroyed by erosion, as in EvilHack.
 - Tame monsters follow you more closely if you wield a shepherd's crook.
 - Shepherd's crooks can be used for grappling as a grappling hook might be.
 - You can transfer one wand's charges into another by rubbing the wands together.

@@ -3444,7 +3444,7 @@ potion_dip(struct obj *obj, struct obj *potion)
     }
 
     if (potion->otyp == POT_ACID) {
-        if (erode_obj(obj, 0, ERODE_CORRODE, EF_GREASE) != ER_NOTHING) {
+        if (erode_obj(obj, 0, ERODE_CORRODE, EF_GREASE | EF_DESTROY) != ER_NOTHING) {
             poof(potion);
             return ECMD_TIME;
         }

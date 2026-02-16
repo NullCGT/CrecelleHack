@@ -4853,7 +4853,7 @@ acid_damage(struct obj *obj)
         obj->spe = 0;
         obj->dknown = 0;
     } else
-        erode_obj(obj, (char *) 0, ERODE_CORRODE, EF_GREASE | EF_VERBOSE);
+        erode_obj(obj, (char *) 0, ERODE_CORRODE, EF_GREASE | EF_DESTROY);
 }
 
 staticfn void
@@ -5064,7 +5064,7 @@ water_damage(
             return ER_DAMAGED;
         }
     } else {
-        return erode_obj(obj, ostr, ERODE_RUST, EF_NONE);
+        return erode_obj(obj, ostr, ERODE_RUST, EF_DESTROY);
     }
     return ER_NOTHING;
 }

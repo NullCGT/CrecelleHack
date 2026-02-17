@@ -592,7 +592,7 @@ static struct istat_s initblstats[MAXBLSTATS] = {
        available mostly for screenshots or someone looking over shoulder;
        blstat[][BL_VERS] is actually an int copy of flags.versinfo (0...7) */
     INIT_BLSTAT("version", " %s", ANY_STR, MAXVALWIDTH, BL_VERS),
-    INIT_BLSTAT("time", " %s", ANY_STR, 20, BL_TOD)
+    INIT_BLSTAT("time", "%s", ANY_STR, MAXVALWIDTH, BL_TOD)
 };
 
 #undef INIT_BLSTATP
@@ -821,7 +821,7 @@ bot_via_windowport(void)
                                                : "Lawful");
 
     /* Weather */
-    Strcpy(gb.blstats[idx][BL_TOD].val, tod_string());
+    Sprintf(gb.blstats[idx][BL_TOD].val, " %s", tod_string());
 
     /* Score */
     gb.blstats[idx][BL_SCORE].a.a_long =
@@ -1983,6 +1983,7 @@ static const struct fieldid_t {
     { "hp",       BL_HP },
     { "hp-max",   BL_HPMAX },
     { "dgn",      BL_LEVELDESC },
+    { "tod",      BL_TOD },
     { "xp",       BL_EXP },
     { "exp",      BL_EXP },
     { "flags",    BL_CONDITION },

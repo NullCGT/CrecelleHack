@@ -1529,6 +1529,7 @@ extern int bagotricks(struct obj *, boolean, int *);
 extern boolean propagate(int, boolean, boolean);
 extern void summon_furies(int);
 extern void dump_mongen(void);
+extern void advance_monster(struct monst *);
 
 /* ### mcastu.c ### */
 

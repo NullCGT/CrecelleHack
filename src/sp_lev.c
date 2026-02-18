@@ -2145,8 +2145,9 @@ create_monster(monster *m, struct mkroom *croom)
             mtmp->mstun = 1;
         if (m->confused)
             mtmp->mconf = 1;
-        if (m->advanced)
-            mtmp->madvanced = 1;
+        if (m->advanced) {
+            advance_monster(mtmp);
+        }
         if (m->invis) {
             mtmp->minvis = mtmp->perminvis = 1;
         }

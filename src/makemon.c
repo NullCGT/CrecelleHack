@@ -29,7 +29,6 @@ staticfn void m_initinv(struct monst *);
 staticfn xint8 hd_size(struct permonst *);
 staticfn boolean makemon_rnd_goodpos(struct monst *, mmflags_nht, coord *);
 staticfn void init_mextra(struct mextra *);
-staticfn void advance_monster(struct monst *);
 
 #define m_initsgrp(mtmp, x, y, mmf) m_initgrp(mtmp, x, y, 3, mmf)
 #define m_initlgrp(mtmp, x, y, mmf) m_initgrp(mtmp, x, y, 10, mmf)

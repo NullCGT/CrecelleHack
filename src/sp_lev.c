@@ -2145,6 +2145,8 @@ create_monster(monster *m, struct mkroom *croom)
             mtmp->mstun = 1;
         if (m->confused)
             mtmp->mconf = 1;
+        if (m->advanced)
+            mtmp->madvanced = 1;
         if (m->invis) {
             mtmp->minvis = mtmp->perminvis = 1;
         }
@@ -3262,6 +3264,7 @@ lspo_monster(lua_State *L)
     tmpmons.paralyzed = 0;
     tmpmons.stunned = 0;
     tmpmons.confused = 0;
+    tmpmons.advanced = 0;
     tmpmons.seentraps = 0;
     tmpmons.has_invent = DEFAULT_INVENT;
     tmpmons.waiting = 0;
@@ -3330,6 +3333,7 @@ lspo_monster(lua_State *L)
         tmpmons.paralyzed = get_table_int_opt(L, "paralyzed", 0);
         tmpmons.stunned = get_table_boolean_opt(L, "stunned", FALSE);
         tmpmons.confused = get_table_boolean_opt(L, "confused", FALSE);
+        tmpmons.advanced = get_table_boolean_opt(L, "advanced", FALSE);
         tmpmons.waiting = get_table_boolean_opt(L, "waiting", FALSE);
         tmpmons.seentraps = 0; /* TODO: list of trap names to bitfield */
         keep_default_invent =

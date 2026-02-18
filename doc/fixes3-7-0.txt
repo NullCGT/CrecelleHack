@@ -3097,6 +3097,8 @@ applied several source comment spelling or grammar fixes that were linked
 	to an old rec.games.roguelike.nethack post from May 2006
 	by Arthur J. O'Dwyer
 modernize code of LaTeX Guidebook (pr #1473 by Daniel Clow)
+restore ability for a characteristic also resets exercise/abuse for that
+	characteristic (pr #1403 by greg-kennedy)
 
 
 Code Cleanup and Reorganization

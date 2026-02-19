@@ -930,8 +930,7 @@ to_the_mines(void)
         newlevel.dnum = mines_dnum;
         newlevel.dlevel = 1;
         /* move gnomes into gnomish mines */
-        schedule_goto(&newlevel, UTOTYPE_NONE,
-                        wizard ? "Entering the mines." : "", (char *) 0);
+        schedule_goto(&newlevel, UTOTYPE_NONE, (char *) 0, (char *) 0);
         deferred_goto();
         u_on_upstairs();
         vision_reset();
@@ -982,9 +981,6 @@ welcome(boolean new_game) /* false => restoring an old game */
           Hello((struct monst *) 0), svp.plname, buf);
 
     if (new_game) {
-        /* gnomes get cheered on */
-        if (Race_if(PM_GNOME))
-            You_hear("your gnomish colleagues cheering for you!");
         /* guarantee that 'major' event category is never empty */
         livelog_printf(LL_ACHIEVE, "%s the%s entered the dungeon",
                        svp.plname, buf);

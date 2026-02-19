@@ -2003,8 +2003,10 @@ goto_level(
         }
     }
 
-    temperature_change_msg(prev_temperature);
-    exposure_change_msg(prev_exposure);
+    if (svm.moves) {
+        temperature_change_msg(prev_temperature);
+        exposure_change_msg(prev_exposure);
+    }
 
     /* this was originally done earlier; moved here to be logged after
        any achievement related to entering a dungeon branch

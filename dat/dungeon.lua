@@ -24,6 +24,11 @@ dungeon = {
             direction = "up"
          },
          {
+            name = "Temple of Moloch",
+            base = 5,
+            range = 20
+         },
+         {
             name = "The Quest",
             chainlevel = "oracle",
             base = 6,
@@ -349,5 +354,19 @@ dungeon = {
             base = 2,
          }
       }
-   }
+   },
+   {
+      name = "Temple of Moloch",
+      base = 1,
+      bonetag = "Z",
+      flags = { "mazelike" },
+      alignment = "unaligned",
+      levels = {
+         {
+            name = "mtemple",
+            bonetag = "Z",
+            base = 1
+         }
+      }
+   },
 }

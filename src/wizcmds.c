@@ -206,8 +206,8 @@ wiz_biome(void)
     int newbiome = 0;
     int ret;
 
-    if (y_n("Regenerate all biomes?") == 'y') {
-        init_biomes();
+    if (y_n("Regenerate all biomes in current dungeon?") == 'y') {
+        init_biomes(u.uz.dnum);
         pline("Regenerated the biomes of the current dungeon.");
         return ECMD_OK;
     }
@@ -225,7 +225,7 @@ wiz_biome(void)
         return ECMD_OK;
     }
     if (newbiome >= BIOME_MAX || newbiome < 0) {
-        pline("Invalid biome; biome must be less than %d", DGN_BIOMES);
+        pline("Invalid biome; biome must be less than %d", BIOME_MAX);
         return ECMD_OK;
     }
     for (int i = 0; i < DGN_BIOMES; i++) {
@@ -233,7 +233,7 @@ wiz_biome(void)
             svd.dungeons[u.uz.dnum].biome_ids[i] = newbiome;
     }
     svl.level.flags.biome = newbiome;
-    pline("Set biome to %d.", newbiome);
+    pline("Set biome to %d.", svl.level.flags.biome);
     return ECMD_OK;
 }
 

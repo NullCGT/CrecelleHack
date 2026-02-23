@@ -950,7 +950,7 @@ extern void recbranch_mapseen(d_level *, d_level *) NONNULLPTRS;
 extern void overview_stats(winid, const char *, long *, long *) NONNULLPTRS;
 extern void remdun_mapseen(int);
 extern const char *endgamelevelname(char *, int);
-extern void init_biomes(void);
+extern void init_biomes(int);
 
 /* ### eat.c ### */
 
@@ -1321,6 +1321,7 @@ extern char *size_str(int);
 extern char *piousness(boolean, const char *);
 extern void mstatusline(struct monst *) NONNULLARG1;
 extern void ustatusline(void);
+extern const char *snowkoban(void);
 
 /* ### invent.c ### */
 

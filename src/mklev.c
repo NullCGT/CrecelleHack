@@ -51,6 +51,7 @@ staticfn boolean good_rm_wall_doorpos(coordxy, coordxy, int, struct mkroom *);
 staticfn boolean finddpos_shift(coordxy *, coordxy *, int, struct mkroom *);
 
 staticfn boolean finddpos(coord *, int, struct mkroom *);
+staticfn void apply_biome_to_level(void);
 
 #define create_vault() create_room(-1, -1, 2, 2, -1, -1, VAULT, TRUE)
 #define init_vault() gv.vault_x = -1
@@ -1211,9 +1212,6 @@ coat_room(struct mkroom *croom, unsigned char coat_type) {
                     levl[x][y].submask = SM_DIRT;
                 }
             }
-            if ((coat_type & COAT_FUNGUS) != 0)
-                if (!rn2(max(2, abs(13 - u.uz.dlevel))))
-                    add_coating(x, y, COAT_FUNGUS, PM_NIGHTCRUST);
             if ((coat_type & COAT_MUD) != 0)
                 if (!rn2(3)) add_coating(x, y, COAT_MUD, 0);
         }
@@ -1313,17 +1311,7 @@ makelevel(void)
     }
     oinit(); /* assign level dependent obj probabilities */
     clear_level_structures();
-
-    /* Assign the biome */
-    if (!Is_rogue_level(&u.uz)) {
-        for (i = 0; i < DGN_BIOMES; i++) {
-            if (svd.dungeons[u.uz.dnum].biome_cutoff[i] > u.uz.dlevel)
-                break;
-        }
-        svl.level.flags.biome = svd.dungeons[u.uz.dnum].biome_ids[i];
-    } else {
-        svl.level.flags.biome = BIOME_ODUNGEON;
-    }
+    apply_biome_to_level();
 
     slev = Is_special(&u.uz);
     /* check for special levels */
@@ -1360,13 +1348,6 @@ makelevel(void)
         }
         assert(svn.nroom > 0);
         sort_rooms();
-
-        /* Set biome temperature. Must be done here, since initializing
-           the level coder will clobber the temperature flag. */
-        if (IS_BIOME(BIOME_SNOWY)) {
-            svl.level.flags.temperature = -1;
-        } else if (IS_BIOME(BIOME_TROPICAL))
-            svl.level.flags.temperature = 1;
 
         generate_stairs(); /* up and down stairs */
 
@@ -1495,6 +1476,8 @@ makelevel(void)
         nhl_pcall_handle(gl.luacore, 1, 0, "makelevel", NHLpa_panic);
         lua_settop(gl.luacore, 0);
     }
+    /* apply the biome again, since it's clobbered by the level coder */
+    apply_biome_to_level();
 }
 
 /* return TRUE if water location at (x,y) should have kelp. */
@@ -1627,6 +1610,9 @@ coat_floors(void)
                 add_coating(x, y,  COAT_GRASS, 0);
             if (IS_BIOME(BIOME_SNOWY))
                 add_coating(x, y, COAT_FROST, 0);
+            if (IS_BIOME(BIOME_FUNGAL))
+                if (!rn2(max(2, abs(13 - u.uz.dlevel))))
+                    add_coating(x, y, COAT_FUNGUS, PM_NIGHTCRUST);
         }
     }
 }
@@ -1639,7 +1625,7 @@ level_finalize_topology(void)
 
     bound_digging();
     mineralize(-1, -1, -1, -1, FALSE);
-    if (!In_endgame(&u.uz) && !In_hell(&u.uz) && !In_sokoban(&u.uz))
+    if (!In_endgame(&u.uz) && !In_hell(&u.uz))
         coat_floors();
     gi.in_mklev = FALSE;
     /* avoid coordinates in future lua-loads for this level being thrown off
@@ -2777,6 +2763,26 @@ mk_knox_portal(coordxy x, coordxy y)
 
     debugpline0("Made knox portal.");
     place_branch(br, x, y);
+}
+
+staticfn void
+apply_biome_to_level(void)
+{
+    int i;
+    if (!Is_rogue_level(&u.uz)) {
+        for (i = 0; i < DGN_BIOMES; i++) {
+            if (svd.dungeons[u.uz.dnum].biome_cutoff[i] > u.uz.dlevel)
+                break;
+        }
+        svl.level.flags.biome = svd.dungeons[u.uz.dnum].biome_ids[i];
+    } else {
+        svl.level.flags.biome = BIOME_ODUNGEON;
+    }
+    /* Set up the temperature. */
+    if (IS_BIOME(BIOME_SNOWY)) {
+        svl.level.flags.temperature = -1;
+    } else if (IS_BIOME(BIOME_TROPICAL))
+        svl.level.flags.temperature = 1;
 }
 
 /*mklev.c*/

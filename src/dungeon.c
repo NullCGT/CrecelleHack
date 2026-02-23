@@ -1168,6 +1168,7 @@ fixup_level_locations(void)
     tower_dnum = dname_to_dnum("Vlad's Tower");
     tutorial_dnum = dname_to_dnum("The Tutorial");
     maze_dnum = dname_to_dnum("The Maze");
+    mtemple_dnum = dname_to_dnum("Temple of Moloch");
 
     /* one special fixup for dummy surface level */
     if ((x = find_level("dummy")) != 0) {
@@ -3733,20 +3734,23 @@ print_mapseen(
 
 /* Initialize the biomes of the dungeon */
 void
-init_biomes(void)
+init_biomes(int dnum)
 {
+    int biome, i;
+    struct branch *br;
+    struct dungeon *branchptr;
+    struct dungeon *dptr = &svd.dungeons[dnum];
     int cutoff = 0;
-    int biome;
-    for (int i = 0; i < DGN_BIOMES; i++) {
+    for (i = 0; i < DGN_BIOMES; i++) {
         /* Set the cutoff */
         cutoff += rn1(3, 3);
-        svd.dungeons[u.uz.dnum].biome_cutoff[i] = cutoff;
+        dptr->biome_cutoff[i] = cutoff;
         /* Character choice changes*/
         if (!i) {
             if (Role_if(PM_VALKYRIE))
-                svd.dungeons[u.uz.dnum].biome_ids[0] = BIOME_SNOWY;
+                dptr->biome_ids[0] = BIOME_SNOWY;
             else if (Race_if(PM_ELF))
-                svd.dungeons[u.uz.dnum].biome_ids[0] = BIOME_WOODLAND;
+                dptr->biome_ids[0] = BIOME_WOODLAND;
             continue;
         }
         /* Randomize the biome */
@@ -3754,12 +3758,26 @@ init_biomes(void)
         else biome = rn2(BIOME_MAX);
         /* Don't flip between opposite temps */
         if ((i - 1 < 0) && biome == BIOME_TROPICAL
-            && svd.dungeons[u.uz.dnum].biome_ids[i - 1] == BIOME_SNOWY)
+            && dptr->biome_ids[i - 1] == BIOME_SNOWY)
             biome = BIOME_SNOWY;
         if ((i - 1 < 0) && biome == BIOME_SNOWY
-            && svd.dungeons[u.uz.dnum].biome_ids[i - 1] == BIOME_TROPICAL)
+            && dptr->biome_ids[i - 1] == BIOME_TROPICAL)
             biome = BIOME_TROPICAL;
-        svd.dungeons[u.uz.dnum].biome_ids[i] = biome;
+        dptr->biome_ids[i] = biome;
+    }
+    /* Branches take on the biome of the level that they branched from. */
+    for (br = svb.branches; br; br = br->next) {
+        if (br->type != BR_STAIR || (br->end1.dnum != dnum))
+            continue;
+        /* pline("Biome set: %s", svd.dungeons[br->end2.dnum].dname); */
+        branchptr = &svd.dungeons[br->end2.dnum];
+        for (i = 0; i < DGN_BIOMES; i++) {
+            if (br->end1.dlevel < dptr->biome_cutoff[i])
+                break;
+        }
+        /* Ugly hack, but it works */
+        branchptr->biome_cutoff[0] = branchptr->num_dunlevs + 1;
+        branchptr->biome_ids[0] = dptr->biome_ids[i];
     }
 }
 #endif /* !SFCTOOL */

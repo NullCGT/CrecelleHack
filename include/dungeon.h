@@ -146,6 +146,7 @@ typedef struct branch {
 #define In_endgame(x) ((x)->dnum == astral_level.dnum)
 #define In_tutorial(x) ((x)->dnum == tutorial_dnum)
 #define In_magicmaze(x) ((x)->dnum == maze_dnum)
+#define In_mtemple(x) ((x)->dnum == mtemple_dnum)
 
 #define within_bounded_area(X, Y, LX, LY, HX, HY) \
     ((X) >= (LX) && (X) <= (HX) && (Y) >= (LY) && (Y) <= (HY))

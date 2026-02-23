@@ -844,7 +844,7 @@ newgame(void)
     init_dungeons();  /* must be before u_init() to avoid rndmonst()
                        * creating odd monsters for any tins and eggs
                        * in hero's initial inventory */
-    init_biomes();    /* should come after init_dungeons() but before mklev() */
+    init_biomes(0);    /* should come after init_dungeons() but before mklev() */
     init_artifacts(); /* before u_init() in case $WIZKIT specifies
                        * any artifacts */
     u_init_misc();

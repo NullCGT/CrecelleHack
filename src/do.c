@@ -1977,8 +1977,10 @@ goto_level(
         if (newdungeon)
             record_achievement(ACH_MINE);
     } else if (In_sokoban(&u.uz)) {
-        if (newdungeon)
+        if (newdungeon) {
             record_achievement(ACH_SOKO);
+            livelog_printf(LL_MINORAC, "entered %s", snowkoban());
+        }
     } else {
         if (new && Is_rogue_level(&u.uz)) {
             You("enter what seems to be an older, more primitive world.");

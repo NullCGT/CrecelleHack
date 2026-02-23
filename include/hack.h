@@ -382,6 +382,7 @@ struct dgn_topology { /* special dungeon levels for speed */
     xint16 d_mines_dnum, d_quest_dnum;
     xint16 d_tutorial_dnum;
     xint16 d_maze_dnum;
+    xint16 d_mtemple_dnum;
     d_level d_qstart_level, d_qlocate_level, d_nemesis_level;
     d_level d_knox_level, d_maze_level;
     d_level d_mineend_level;
@@ -416,6 +417,7 @@ struct dgn_topology { /* special dungeon levels for speed */
 #define quest_dnum              (svd.dungeon_topology.d_quest_dnum)
 #define tutorial_dnum           (svd.dungeon_topology.d_tutorial_dnum)
 #define maze_dnum               (svd.dungeon_topology.d_maze_dnum)
+#define mtemple_dnum            (svd.dungeon_topology.d_mtemple_dnum)
 #define qstart_level            (svd.dungeon_topology.d_qstart_level)
 #define qlocate_level           (svd.dungeon_topology.d_qlocate_level)
 #define nemesis_level           (svd.dungeon_topology.d_nemesis_level)

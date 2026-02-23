@@ -81,8 +81,9 @@ static struct ll_achieve_msg achieve_msg [] = {
     { LL_MINORAC, "entered a temple" },
     { LL_ACHIEVE, "consulted the Oracle" }, /* minor, but rare enough */
     { LL_MINORAC | LL_DUMP, "read a Discworld novel" }, /* even more so */
-    { LL_ACHIEVE, "entered Sokoban" }, /* keep as major for turn comparison
-                                        * with completed sokoban */
+    { LL_ACHIEVE, "" }, /* keep as major for turn comparison
+                                        * with completed sokoban. Blank
+                                        * for snowkoban purposes. */
     { LL_ACHIEVE, "entered the Bigroom" },
     /* The following 8 are for advancing through the ranks
        and messages differ by role so are created on the fly;
@@ -2415,7 +2416,8 @@ show_achievements(
             you_have_X("read from a Discworld novel");
             break;
         case ACH_SOKO:
-            you_have_X("entered Sokoban");
+            Sprintf(buf, "entered %s", snowkoban());
+            you_have_X(buf);
             break;
         case ACH_SOKO_PRIZE: /* hard to reach guaranteed bag or amulet */
             you_have_X("completed Sokoban");
@@ -3607,6 +3609,14 @@ ustatusline(void)
           piousness(FALSE, align_str(u.ualign.type)),
           Upolyd ? mons[u.umonnum].mlevel : u.ulevel, Upolyd ? u.mh : u.uhp,
           Upolyd ? u.mhmax : u.uhpmax, u.uac, info);
+}
+
+const char *
+snowkoban(void)
+{
+    if (svd.dungeons[svd.dungeon_topology.d_sokoban_dnum].biome_ids[0] == BIOME_SNOWY)
+        return "Snowkoban";
+    return "Sokoban";
 }
 
 /* for 'onefile' processing where end of this file isn't necessarily the

@@ -769,11 +769,11 @@ makeniche(int trap_type)
             dosdoor(xx, yy, aroom, SDOOR);
         } else {
             rm->typ = CORR;
-            if (rn2(7)) {
+            if (rn2(7) && !IS_BIOME(BIOME_SEWER)) {
                 dosdoor(xx, yy, aroom, rn2(5) ? SDOOR : DOOR);
             } else {
                 /* inaccessible niches occasionally have iron bars */
-                if (!rn2(5) && IS_WALL(levl[xx][yy].typ)) {
+                if ((!rn2(5) || IS_BIOME(BIOME_SEWER)) && IS_WALL(levl[xx][yy].typ)) {
                     (void) set_levltyp(xx, yy, IRONBARS);
                     if (rn2(3))
                         (void) mkcorpstat(CORPSE, (struct monst *) 0,
@@ -1610,6 +1610,12 @@ coat_floors(void)
                 add_coating(x, y,  COAT_GRASS, 0);
             if (IS_BIOME(BIOME_SNOWY))
                 add_coating(x, y, COAT_FROST, 0);
+            if (IS_BIOME(BIOME_SEWER)) {
+                if (!rn2(10))
+                    add_coating(x, y, COAT_FUNGUS, PM_GREEN_MOLD);
+                else if (!rn2(4))
+                    add_coating(x, y, COAT_POTION, POT_WATER);
+            }
             if (IS_BIOME(BIOME_FUNGAL))
                 if (!rn2(max(2, abs(13 - u.uz.dlevel))))
                     add_coating(x, y, COAT_FUNGUS, PM_NIGHTCRUST);

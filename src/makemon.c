@@ -1982,6 +1982,11 @@ biome_shift(struct permonst *ptr)
         if (ptr->mflags4 & M4_BST_ICE)
             ret += 2;
         break;
+    case BIOME_SEWER:
+        if (ptr->mlet == S_RODENT
+            || poisonous(ptr) || acidic(ptr))
+            ret += 2;
+        break;
     case BIOME_ODUNGEON:
     default:
         ret = 0;

@@ -270,7 +270,8 @@ enum bioime_types {
     BIOME_FUNGAL = 2,     /* Full of fungi */
     BIOME_TROPICAL = 3,   /* Full of sand and such */
     BIOME_SNOWY = 4,      /* Snowy */
-    BIOME_MAX = 5
+    BIOME_SEWER = 5,      /* Fungi, water, etc. */
+    BIOME_MAX = 6
 };
 
 #define IS_BIOME(x) (svl.level.flags.biome == x)

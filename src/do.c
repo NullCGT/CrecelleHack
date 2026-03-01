@@ -21,6 +21,7 @@ staticfn void familiar_level_msg(void);
 staticfn void final_level(void);
 staticfn void temperature_change_msg(schar);
 staticfn void exposure_change_msg(schar);
+staticfn void biome_change_msg(schar);
 staticfn boolean better_not_try_to_drop_that(struct obj *);
 
     /* static boolean badspot(coordxy,coordxy); */
@@ -1561,7 +1562,8 @@ goto_level(
     int dist = depth(newlevel) - depth(&u.uz);
     boolean do_fall_dmg = FALSE;
     schar prev_temperature = svl.level.flags.temperature;
-    boolean prev_exposure = exposed_to_elements(&u.uz);
+    schar prev_exposure = exposed_to_elements(&u.uz);
+    schar prev_biome = svl.level.flags.biome;
 
     if (dunlev(newlevel) > dunlevs_in_dungeon(newlevel))
         newlevel->dlevel = dunlevs_in_dungeon(newlevel);
@@ -2008,6 +2010,7 @@ goto_level(
     if (svm.moves) {
         temperature_change_msg(prev_temperature);
         exposure_change_msg(prev_exposure);
+        biome_change_msg(prev_biome);
     }
 
     /* this was originally done earlier; moved here to be logged after
@@ -2098,7 +2101,7 @@ temperature_change_msg(schar prev_temperature)
 
 /* give a message when exposed to elements */
 staticfn void
-exposure_change_msg(boolean prev_exposure)
+exposure_change_msg(schar prev_exposure)
 {
     if (prev_exposure != exposed_to_elements(&u.uz)) {
         if (prev_exposure)
@@ -2106,6 +2109,15 @@ exposure_change_msg(boolean prev_exposure)
         else if (!Blind)
             You("can see the sky above you.");
     }
+}
+
+staticfn void
+biome_change_msg(schar prev_biome)
+{
+    if (prev_biome == svl.level.flags.biome)
+        return;
+    if (IS_BIOME(BIOME_SEWER))
+        pline("It smells like a sewer down here.");
 }
 
 /* usually called from goto_level(); might be called from Sting_effects() */

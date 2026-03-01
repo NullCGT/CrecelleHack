@@ -1,3 +1,16 @@
+# 1.4.2
+## Monsters
+- Frostwurms are far more dangerous but only appear in snowy areas.
+
+## New Monsters
+- Orange Fungus
+- Moldering Husk
+  - Only appear in fungal biomes.
+
+## Dungeon
+- Ported Temple of Moloch (originally from SLASH'EM)
+- Biomes now extend into branches.
+
 # 1.4.1
 ## Combat
 - Combined several redundant weapon skills to prevent the skill list

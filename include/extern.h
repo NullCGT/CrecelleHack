@@ -1643,6 +1643,7 @@ extern void mktrap(int, unsigned, struct mkroom *, coord *) NO_NNARGS;
 extern void mkstairs(coordxy, coordxy, char, struct mkroom *, boolean);
 extern void mkinvokearea(void);
 extern void mineralize(int, int, int, int, boolean);
+extern void apply_biome_to_level(void);
 
 /* ### mkmap.c ### */
 

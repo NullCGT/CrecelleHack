@@ -51,7 +51,6 @@ staticfn boolean good_rm_wall_doorpos(coordxy, coordxy, int, struct mkroom *);
 staticfn boolean finddpos_shift(coordxy *, coordxy *, int, struct mkroom *);
 
 staticfn boolean finddpos(coord *, int, struct mkroom *);
-staticfn void apply_biome_to_level(void);
 
 #define create_vault() create_room(-1, -1, 2, 2, -1, -1, VAULT, TRUE)
 #define init_vault() gv.vault_x = -1

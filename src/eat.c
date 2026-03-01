@@ -1324,7 +1324,7 @@ cpostfx(int pm)
         struct permonst *ptr = &mons[pm];
 
         if (dmgtype(ptr, AD_STUN) || dmgtype(ptr, AD_HALU)
-            || pm == PM_VIOLET_FUNGUS) {
+            || pm == PM_VIOLET_FUNGUS || pm == PM_ORANGE_FUNGUS) {
             pline("Oh wow!  Great stuff!");
             (void) make_hallucinated((HHallucination & TIMEOUT) + 200L, FALSE,
                                      0L);

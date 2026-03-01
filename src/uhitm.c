@@ -6369,6 +6369,12 @@ passive(
             learn_it = TRUE;
             spread_mold(mon->mx, mon->my, mon->data);
             break;
+        case AD_HALU: /* orange fungus */
+            if (!Hallucination)
+                (void) make_hallucinated(HHallucination + rn1(tmp, 10), TRUE, 0L);
+            learn_it = TRUE;
+            spread_mold(mon->mx, mon->my, mon->data);
+            break;
         case AD_FIRE:
             if (monnear(mon, u.ux, u.uy)) {
                 if (Fire_immunity) {

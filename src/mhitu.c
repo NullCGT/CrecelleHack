@@ -2718,7 +2718,15 @@ passiveum(
             floor_spillage(u.ux, u.uy, POT_HONEY, NON_PM);
             tmp = 0;
             break;
-        case AD_DISE:
+        case AD_HALU: /* orange fungus */
+            if (!mtmp->mconf) {
+                mtmp->mconf = 1;
+                pline_mon(mtmp, "%s %s.", Monnam(mtmp),
+                      makeplural(stagger(mtmp->data, "stagger")));
+            }
+            tmp = 0;
+            break;
+        case AD_DISE: /* gray fungus */
             if (canseemon(mtmp)) {
                 pline("%s is covered with tiny spores!", Monnam(mtmp));
             }

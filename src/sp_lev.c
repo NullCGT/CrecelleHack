@@ -3870,6 +3870,9 @@ lspo_level_flags(lua_State *L)
         }
     }
 
+    /* Apply the biome since at this point it has been clobbered. */
+    apply_biome_to_level();
+
     return 0;
 }
 

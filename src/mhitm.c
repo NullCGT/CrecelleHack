@@ -1453,6 +1453,15 @@ passivemm(
             }
             tmp = 0;
             break;
+        case AD_HALU:
+            if (!magr->mconf) {
+                magr->mconf = 1;
+                if (canseemon(magr))
+                    pline_mon(magr, "%s %s...", Monnam(magr),
+                          makeplural(stagger(magr->data, "stagger")));
+            }
+            tmp = 0;
+            break;
         case AD_FIRE:
             if (resists_fire(magr)) {
                 if (canseemon(magr)) {

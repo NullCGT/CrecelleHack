@@ -333,6 +333,9 @@ done_in_by(struct monst *mtmp, int how)
         u.ugrave_arise = PM_GHOUL;
     else if (how == DROWNING && rn2(2))
         u.ugrave_arise = PM_SODDEN_ONE;
+    else if (mptr == &mons[PM_MOLDERING_HUSK]
+            || (has_coating(u.ux, u.uy, COAT_FUNGUS) && levl[u.ux][u.uy].pindex == PM_ORANGE_FUNGUS))
+        u.ugrave_arise = PM_MOLDERING_HUSK;
     else if (mptr == &mons[PM_SPECTRE] || u.ulevel > 22)
         u.ugrave_arise = PM_SPECTRE;
     /* this could happen if a high-end vampire kills the hero
@@ -1367,7 +1370,8 @@ really_done(int how)
            so that its presence or absence doesn't tip off the player to
            new bones or their lack; it might be a lie if makemon fails */
         Your("%s as %s...",
-             (u.ugrave_arise != PM_GREEN_SLIME)
+             (u.ugrave_arise != PM_GREEN_SLIME
+                && u.ugrave_arise != PM_MOLDERING_HUSK)
                  ? "body rises from the dead"
                  : "revenant persists",
              an(pmname(&mons[u.ugrave_arise], Ugender)));

@@ -1999,6 +1999,7 @@ fruit
 fruitname
 	They say this is edible.  Some adventurers have strange tastes.
 *fung*
+~orange fungus
 	Fungi, division of simple plants that lack chlorophyll, true
 	stems, roots, and leaves.  Unlike algae, fungi cannot
 	photosynthesize, and live as parasites or saprophytes.  The
@@ -4162,6 +4163,15 @@ pear
 	can't find out what it is like unless you can get to that
 	country and taste it for yourself.
 		[ The Last Battle, by C.S. Lewis ]
+orange fungus
+moldering husk
+	There's a fungus that infects insects. Gets inside an ant, for
+	example, travels through its circulatory system to the ant's
+	brain, and then floods it with hallucinogens, thus bending the
+	ant's mind to its will. The fungus starts to direct the ant's
+	behavior, telling it where to go, what to do, like a puppeteer
+	with a marionette. And it gets worse.
+		[ Dr. Neuman, The Last of Us ]
 *orb of detection
 	This Orb is a crystal ball of exceptional powers.  When
 	carried, it grants ESP, limits damage done by spells, and

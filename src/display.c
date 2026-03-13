@@ -3855,7 +3855,8 @@ int compute_obj_glyph_color(struct obj *otmp)
             mon_color(otmp->corpsenm);
             return color;
         } else if (!flags.invisible_material) {
-            if (otmp->material == GEMSTONE) {
+            if (otmp->material == GEMSTONE
+                && otmp->material != objects[otmp->otyp].oc_material) {
                 return objects[otmp->gemtype].oc_color;
             } else if (otmp->material != objects[otmp->otyp].oc_material) {
                 return materials[otmp->material].clr;

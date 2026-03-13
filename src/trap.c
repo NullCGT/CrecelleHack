@@ -1499,7 +1499,7 @@ trapeffect_rocktrap(
         }
     } else if (!mtmp) {
         coordxy tx = trap->tx, ty = trap->ty;
-        if (trap->once && trap->tseen && !trap->ammo) {
+        if (!trap->ammo) {
             pline("A trap door in %s opens, but nothing falls out!",
                   the(ceiling(tx, ty)));
             deltrap(trap);

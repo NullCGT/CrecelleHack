@@ -1967,7 +1967,7 @@ dotakeoff(void)
 
 /* 'i' or 'I[' followed by <invlet> and then 'T';
    plain dotakeoff() would not give any feedback when picking suit
-   covered by cloak or shirt covered by suit and/or cloak due to the
+   covered by cloak, or shirt covered by suit and/or cloak, due to the
    default behavior of equip_ok() (skipping inaccessible items) */
 int
 ia_dotakeoff(void)

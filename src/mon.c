@@ -2903,20 +2903,6 @@ mon_leaving_level(struct monst *mon)
 #endif
     }
     if (onmap) {
-        /* gulpmm() tries to deal with this, but without this extra
-           place_monster() the messages for exploding engulfed gas spore
-           are delivered without the engulfer being shown on the map */
-        if (gm.mswallower && gm.mswallower != mon) {
-            if (gm.mswallower != &gy.youmonst) {
-                place_monster(gm.mswallower,
-                              gm.mswallower->mx, gm.mswallower->my);
-            } else {
-                u_on_newpos(u.ux, u.uy);
-                if (canspotself())
-                    display_self();
-            }
-        }
-
         mon->mundetected = 0; /* for migration; doesn't matter for death */
         /* unhide mimic in case its shape has been blocking line of sight
            or it is accompanying the hero to another level */
@@ -3722,6 +3708,7 @@ unstuck(struct monst *mtmp)
         set_ustuck((struct monst *) 0);
 
         if (swallowed) {
+            gm.mswallower = (struct monst *) 0;
             u.ux = mtmp->mx;
             u.uy = mtmp->my;
             if (Punished && uchain->where != OBJ_FLOOR)

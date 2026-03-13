@@ -1,4 +1,4 @@
-/* NetHack 3.7	pickup.c	$NHDT-Date: 1720074481 2024/07/04 06:28:01 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.374 $ */
+/* NetHack 3.7	pickup.c	$NHDT-Date: 1773373633 2026/03/12 19:47:13 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.386 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -3118,6 +3118,9 @@ observe_quantum_cat(struct obj *box, boolean makecat, boolean givemsg)
         }
     } else {
         box->spe = 0; /* now an ordinary box (with a cat corpse inside) */
+        if (givemsg)
+            pline_The("%s inside the box is dead!",
+                      Hallucination ? rndmonnam((char *) 0) : "housecat");
         if (deadcat) {
             /* set_corpsenm() will start the rot timer that was removed
                when makemon() created SchroedingersBox; start it from
@@ -3125,10 +3128,14 @@ observe_quantum_cat(struct obj *box, boolean makecat, boolean givemsg)
             deadcat->age = svm.moves;
             set_corpsenm(deadcat, PM_HOUSECAT);
             deadcat = oname(deadcat, sc, ONAME_NO_FLAGS);
+
+            if (!svc.context.mon_moving) {
+                /* give experience points for the death of the cat since
+                   that has been finalized by the hero opening the box */
+                more_experienced(20, 10); /* 20:current exp; 10:score bonus */
+                newexplevel();
+            }
         }
-        if (givemsg)
-            pline_The("%s inside the box is dead!",
-                      Hallucination ? rndmonnam((char *) 0) : "housecat");
     }
     nhUse(deadcat);
     return;

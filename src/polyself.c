@@ -1,4 +1,4 @@
-/* NetHack 3.7	polyself.c	$NHDT-Date: 1740534595 2025/02/25 17:49:55 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.223 $ */
+/* NetHack 3.7	polyself.c	$NHDT-Date: 1772101811 2026/02/26 02:30:11 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.227 $ */
 /*      Copyright (C) 1987, 1988, 1989 by Ken Arromdee */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -201,7 +201,8 @@ polyman(const char *fmt, const char *arg)
 {
     boolean sticking = (sticks(gy.youmonst.data) && u.ustuck && !u.uswallow),
             was_mimicking = (U_AP_TYPE != M_AP_NOTHING);
-    boolean was_blind = !!Blind;
+    boolean was_blind = !!Blind,
+            had_see_invis = !!See_invisible;
 
     if (Upolyd) {
         u.acurr = u.macurr; /* restore old attribs */
@@ -244,6 +245,9 @@ polyman(const char *fmt, const char *arg)
         dealloc_killer(kptr);
         done(GENOCIDED);
     }
+
+    if (!!See_invisible ^ had_see_invis)
+        set_mimic_blocking(); /* See_invisible just toggled */
 
     if (u.twoweap && !could_twoweap(gy.youmonst.data))
         untwoweapon();

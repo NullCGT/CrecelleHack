@@ -935,7 +935,6 @@ to_the_mines(void)
                 levl[x][y].glyph = GLYPH_UNEXPLORED;
                 svl.lastseentyp[x][y] = 0;
             }
-        rm_mapseen(ledger_no(&u.uz));
         newlevel.dnum = mines_dnum;
         newlevel.dlevel = 1;
         /* move gnomes into gnomish mines */

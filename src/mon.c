@@ -1232,7 +1232,7 @@ mcalcmove(
     if (mon->mspeed == MSLOW) {
         /* slow-monster effects work better against faster monsters: they
            lose 1/3 of their speed below 12 but 2/3 of their speed above */
-        if (mmove < 12)
+        if (mmove < NORMAL_SPEED)
             mmove = (2 * mmove + 1) / 3;
         else
             mmove = 4 + (mmove / 3);
@@ -2322,8 +2322,6 @@ mfndpos(
     poolok = ((!Is_waterlevel(&u.uz) && m_in_air(mon))
               || (is_swimmer(mdat) && !wantpool)
               || can_wwalk(mon));
-    /* note: floating eye is the only is_floater() so this could be
-       simplified, but then adding another floater would be error prone */
     lavaok = (m_in_air(mon) || likes_lava(mdat));
     if (mdat == &mons[PM_FLOATING_EYE]) /* prefers to avoid heat */
         lavaok = FALSE;
@@ -3760,10 +3758,10 @@ xkilled(
     iflags.sad_feeling = FALSE;
 
     mtmp->mhp = 0; /* caller will usually have already done this */
-    if (!noconduct) /* KMH, conduct */
+    if (!noconduct) { /* KMH, conduct */
         if (!u.uconduct.killer++)
             livelog_printf(LL_CONDUCT, "killed for the first time");
-
+    }
     if (!nomsg) {
         boolean namedpet = has_mgivenname(mtmp) && !Hallucination;
 

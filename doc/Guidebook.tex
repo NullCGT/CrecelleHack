@@ -1827,6 +1827,21 @@ floor container menu.
 %.lp ""
 Autocompletes. Default key is `\texttt{M-T}'.
 %.lp
+\item[\#toggle]
+Toggle a boolean option on or off.
+Requires a parameter in parenthesis, the name of the option to toggle.
+The option must be settable in-game.
+
+%.lp ""
+For example:
+%.sd
+\begin{verbatim}
+    BIND=':toggle(price_quotes)
+    BIND=@:toggle(autopickup)
+\end{verbatim}
+%.ed
+
+%.lp
 \item[\#travel]
 Travel to a specific location on the map.
 Default key is `\texttt{\textunderscore }'.

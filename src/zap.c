@@ -2690,6 +2690,11 @@ zapnodir(struct obj *obj)
         known = !!obj->dknown;
         (void) findit();
         break;
+    case WAN_STASIS:
+        /* no immediately obvious effect, and no message so that it isn't
+           distinguishable from other NODIR wands that produce no message */
+        svl.level.flags.stasis_until = svm.moves + rn1(21, 10);
+        break;
     case WAN_CREATE_MONSTER:
         /* create_critters() returns True iff hero sees a new monster appear */
         if (create_critters(rn2(23) ? 1 : rn1(7, 2),
@@ -4743,21 +4748,21 @@ zhitu(
             monstunseesu(M_SEEN_DISINT);
             if (uarms) {
                 /* destroy shield; other possessions are safe */
-                (void) destroy_arm(uarms);
+                (void) disintegrate_arm(uarms);
                 break;
             } else if (uarm) {
                 /* destroy suit; if present, cloak goes too */
                 if (uarmc)
-                    (void) destroy_arm(uarmc);
-                (void) destroy_arm(uarm);
+                    (void) disintegrate_arm(uarmc);
+                (void) disintegrate_arm(uarm);
                 break;
             }
             /* no shield or suit, you're dead; wipe out cloak
                and/or shirt in case of life-saving or bones */
             if (uarmc)
-                (void) destroy_arm(uarmc);
+                (void) disintegrate_arm(uarmc);
             if (uarmu)
-                (void) destroy_arm(uarmu);
+                (void) disintegrate_arm(uarmu);
         } else if (nonliving(gy.youmonst.data) || is_demon(gy.youmonst.data)) {
             shieldeff(sx, sy);
             You("seem unaffected.");
@@ -5030,13 +5035,13 @@ disintegrate_mon(
 void
 ubuzz(int type, int nd)
 {
-    dobuzz(type, nd, u.ux, u.uy, u.dx, u.dy, TRUE, FALSE);
+    dobuzz(type, nd, u.ux, u.uy, u.dx, u.dy, TRUE, FALSE, FALSE);
 }
 
 void
 buzz(int type, int nd, coordxy sx, coordxy sy, int dx, int dy)
 {
-    dobuzz(type, nd, sx, sy, dx, dy, TRUE, FALSE);
+    dobuzz(type, nd, sx, sy, dx, dy, TRUE, FALSE, FALSE);
 }
 
 /*
@@ -5054,7 +5059,8 @@ dobuzz(
     int nd,                 /* damage strength ('number of dice') */
     coordxy sx, coordxy sy, /* starting point */
     int dx, int dy,         /* direction delta */
-    boolean sayhit, boolean saymiss) /* report out of sight hit/miss events */
+    boolean sayhit, boolean saymiss, /* report out of sight hit/miss events */
+    boolean forcemiss)
 {
     int range, fltyp = zaptype(type), damgtype = fltyp % 10;
     coordxy lsx, lsy;
@@ -5140,7 +5146,7 @@ dobuzz(
  buzzmonst:
             gn.notonhead = (mon->mx != gb.bhitpos.x
                             || mon->my != gb.bhitpos.y);
-            if (zap_hit(find_mac(mon), spell_type)) {
+            if (!forcemiss && zap_hit(find_mac(mon), spell_type)) {
                 if (mon_reflects(mon, (char *) 0)) {
                     if (cansee(mon->mx, mon->my)) {
                         hit(flash_str(fltyp, FALSE), mon, exclam(0));
@@ -5232,7 +5238,7 @@ dobuzz(
             if (u.usteed && !rn2(3) && !mon_reflects(u.usteed, (char *) 0)) {
                 mon = u.usteed;
                 goto buzzmonst;
-            } else if (zap_hit((int) u.uac, 0)) {
+            } else if (!forcemiss && zap_hit((int) u.uac, 0)) {
                 range -= 2;
                 pline_dir(xytodir(-dx, -dy), "%s hits you!",
                           The(flash_str(fltyp, FALSE)));
@@ -5703,7 +5709,7 @@ zap_over_floor(
                         pline_The("water conducts the %s!", flash_str(zaptype(type), FALSE));
                 }
                 rangemod -= 7;
-                dobuzz(type, 1, x, y, dx, dy, FALSE, FALSE);
+                dobuzz(type, 1, x, y, dx, dy, FALSE, FALSE, FALSE);
             }
         }
     }

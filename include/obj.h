@@ -487,6 +487,7 @@ struct obj {
 #define BURIED_TOO 0x2
 
 /* object erosion types */
+#define ERODE_NONE -1
 #define ERODE_BURN 0
 #define ERODE_RUST 1
 #define ERODE_ROT 2

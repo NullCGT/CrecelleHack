@@ -660,15 +660,15 @@ god_zaps_you(aligntyp resp_god)
          */
         if (uarms && !(EReflecting & W_ARMS)
             && !(EDisint_resistance & W_ARMS))
-            (void) destroy_arm(uarms);
+            (void) disintegrate_arm(uarms);
         if (uarmc && !(EReflecting & W_ARMC)
             && !(EDisint_resistance & W_ARMC))
-            (void) destroy_arm(uarmc);
+            (void) disintegrate_arm(uarmc);
         if (uarm && !(EReflecting & W_ARM) && !(EDisint_resistance & W_ARM)
             && !uarmc)
-            (void) destroy_arm(uarm);
+            (void) disintegrate_arm(uarm);
         if (uarmu && !uarm && !uarmc)
-            (void) destroy_arm(uarmu);
+            (void) disintegrate_arm(uarmu);
         if (!Disint_resistance) {
             fry_by_god(resp_god, TRUE);
             monstunseesu(M_SEEN_DISINT);

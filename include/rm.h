@@ -506,6 +506,7 @@ struct levelflags {
     Bitfield(outdoors, 1);      /* is the level outdoors */
 
     schar temperature;         /* +1 == hot, -1 == cold */
+    long stasis_until;         /* wand of stasis effect lasts until when? */
 };
 
 typedef struct {

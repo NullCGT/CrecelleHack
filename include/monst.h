@@ -169,6 +169,8 @@ struct monst {
     Bitfield(mbaby, 1);
     Bitfield(mdripping, 1); /* mon is dripping with liquid */
     Bitfield(madvanced, 1); /* mon is advanced beyond normal means */
+    Bitfield(mwandexp, 1);  /* mon has experience with wands */
+    /* 0 spare bits */
 
     unsigned long mstrategy; /* for monsters with mflag3: current strategy */
 #ifdef NHSTDC

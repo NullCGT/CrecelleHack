@@ -674,6 +674,9 @@ regen_pw(int wtcap)
                                       || (on_loved_terrain() && !rn2(3)))) {
         int upper = (int) (ACURR(A_WIS) + ACURR(A_INT)) / 15 + 1;
 
+        if (EMagical_breathing)
+            upper += 2;
+
         u.uen += rn1(upper, 1);
         if (u.uen > u.uenmax)
             u.uen = u.uenmax;

@@ -1280,7 +1280,7 @@ slept_monst(struct monst *mon)
 void
 rustm(struct monst *mdef, struct obj *obj)
 {
-    int dmgtyp = -1, chance = 1;
+    int dmgtyp = ERODE_NONE, chance = 1;
 
     if (!mdef || !obj)
         return; /* just in case */
@@ -1296,7 +1296,7 @@ rustm(struct monst *mdef, struct obj *obj)
         chance = 6;
     }
 
-    if (dmgtyp >= 0 && !rn2(chance))
+    if (dmgtyp != ERODE_NONE && !rn2(chance))
         (void) erode_obj(obj, (char *) 0, dmgtyp, EF_GREASE | EF_VERBOSE | EF_DESTROY);
 }
 

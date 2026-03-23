@@ -1,3 +1,7 @@
+# 1.5.0
+## Dungeon
+- Rotting corpses rot more slowly in cold levels.
+
 # 1.4.2
 ## Monsters
 - Frostwurms are far more dangerous but only appear in snowy areas.

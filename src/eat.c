@@ -1915,6 +1915,8 @@ eatcorpse(struct obj *otmp)
             rotted += 2L;
         else if (otmp->blessed)
             rotted -= 2L;
+        else if (svl.level.flags.temperature == -1)
+            rotted -= 10L;
     }
 
     /* 3.7: globs don't become tainted, they shrink away */

@@ -128,6 +128,7 @@ _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);*/
 
     choose_windows(DEFAULT_WINDOW_SYS);
 
+
 #if !defined(AMIGA) && !defined(GNUDOS)
     /* Save current directory and make sure it gets restored when
      * the game is exited.
@@ -146,6 +147,10 @@ _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);*/
 #ifdef EXEPATH
     if (dir == (char *) 0)
         dir = exepath(argv[0]);
+#endif
+#if defined(AMIGA) && defined(HACKDIR)
+    if (dir == (char *) 0)
+        dir = HACKDIR;
 #endif
 #ifdef _MSC_VER
     if (IsDebuggerPresent()) {

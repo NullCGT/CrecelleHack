@@ -112,7 +112,7 @@ CLIPPING must be defined for the AMIGA version
 #endif
 
 #define WINVERS_AMII (strcmp("amii", windowprocs.name) == 0)
-#define WINVERS_AMIV (strcmp("amitile", windowprocs.name) == 0)
+#define WINVERS_AMIV (strcmp("amiv", windowprocs.name) == 0)
 #define WINVERS_AMIT (strcmp("amitty", windowprocs.name) == 0)
 
 /* cw->data[x] contains 2 characters worth of special information.  These
@@ -196,3 +196,4 @@ struct PDAT
 
 #undef MAXCOLORS
 #define MAXCOLORS 256
+

@@ -3121,6 +3121,7 @@ applied several source comment spelling or grammar fixes that were linked
 modernize code of LaTeX Guidebook (pr #1473 by Daniel Clow)
 restore ability for a characteristic also resets exercise/abuse for that
 	characteristic (pr #1403 by greg-kennedy)
+cross-compilation for the Amiga on Linux (pr #1494 by ingpaschke)
 
 
 Code Cleanup and Reorganization

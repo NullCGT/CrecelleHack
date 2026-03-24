@@ -23,18 +23,20 @@ static struct Message *GetFMsg(struct MsgPort *);
 #endif
 
 static int BufferGetchar(void);
-static void ProcessMessage(register struct IntuiMessage *message);
+static void ProcessMessage(struct IntuiMessage *message);
 
 #define BufferQueueChar(ch) (KbdBuffer[KbdBuffered++] = (ch))
-#ifndef CROSS_TO_AMIGA
-struct Library *ConsoleDevice;
-#else
-struct Device *
-# ifdef __CONSTLIBBASEDECL__
-     __CONSTLIBBASEDECL__
-# endif /* __CONSTLIBBASEDECL__ */
-       ConsoleDevice;
-#endif
+
+struct Device *ConsoleDevice = NULL;
+
+/* Library bases - opened by amii_init_nhwindows, closed by amii_cleanup.
+   DOSBase is provided by newlib's startup code.
+   The rest must be defined here. */
+struct IntuitionBase *IntuitionBase = NULL;
+struct GfxBase *GfxBase = NULL;
+struct Library *GadToolsBase = NULL;
+struct Library *LayersBase = NULL;
+struct Library *AslBase = NULL;
 
 #ifndef CROSS_TO_AMIGA
 #include "NH:sys/amiga/amimenu.c"
@@ -44,7 +46,6 @@ struct Device *
 
 /* Now our own variables */
 
-struct IntuitionBase *IntuitionBase;
 struct Screen *HackScreen;
 struct Window *pr_WindowPtr;
 struct MsgPort *HackPort;
@@ -55,7 +56,6 @@ char Initialized = 0;
 WEVENT lastevent;
 
 #ifdef HACKFONT
-struct GfxBase *GfxBase;
 struct Library *DiskfontBase;
 #endif
 
@@ -100,11 +100,10 @@ static enum { NoAction, CloseOver } delayed_key_action = NoAction;
  */
 
 struct Window *
-OpenShWindow(nw)
-struct NewWindow *nw;
+OpenShWindow(struct NewWindow *nw)
 {
-    register struct Window *win;
-    register ULONG idcmpflags;
+    struct Window *win;
+    ULONG idcmpflags;
 
     if (!HackPort) /* Sanity check */
         return (struct Window *) 0;
@@ -126,12 +125,10 @@ struct NewWindow *nw;
  * Close a window that shared the HackPort IDCMP port.
  */
 
-void CloseShWindow(struct Window *);
 void
-CloseShWindow(win)
-struct Window *win;
+CloseShWindow(struct Window *win)
 {
-    register struct IntuiMessage *msg;
+    struct IntuiMessage *msg;
 
     if (!HackPort)
         panic("HackPort NULL in CloseShWindow");
@@ -152,9 +149,9 @@ struct Window *win;
 }
 
 static int
-BufferGetchar()
+BufferGetchar(void)
 {
-    register int c;
+    int c;
 
     if (KbdBuffered > 0) {
         c = KbdBuffer[0];
@@ -180,8 +177,7 @@ BufferGetchar()
  */
 
 int
-ConvertKey(message)
-register struct IntuiMessage *message;
+ConvertKey(struct IntuiMessage *message)
 {
     static struct InputEvent theEvent;
     static char numpad[] = "bjnh.lyku";
@@ -190,8 +186,8 @@ register struct IntuiMessage *message;
 
     unsigned char buffer[10];
     struct Window *w = message->IDCMPWindow;
-    register int length;
-    register ULONG qualifier;
+    int length;
+    ULONG qualifier;
     char numeric_pad, shift, control, alt;
 
     if (amii_wins[WIN_MAP])
@@ -355,10 +351,7 @@ register struct IntuiMessage *message;
                 return (-1);
             }
         }
-        printf("Unrecognized key: %d ", (int) buffer[0]);
-        for (i = 1; i < length; ++i)
-            printf("%d ", (int) buffer[i]);
-        printf("\n");
+        /* unrecognized key — silently ignore */
     }
     return (-1);
 }
@@ -373,8 +366,7 @@ register struct IntuiMessage *message;
  */
 
 static void
-ProcessMessage(message)
-register struct IntuiMessage *message;
+ProcessMessage(struct IntuiMessage *message)
 {
     int c;
     int cnt;
@@ -385,15 +377,7 @@ register struct IntuiMessage *message;
 
     switch (message->Class) {
     case ACTIVEWINDOW:
-        if (alwaysinvent && WIN_INVEN != WIN_ERR
-            && w == amii_wins[WIN_INVEN]->win) {
-            cnt = DoMenuScroll(WIN_INVEN, 0, PICK_NONE, &mip);
-        } else if (scrollmsg && WIN_MESSAGE != WIN_ERR
-                   && w == amii_wins[WIN_MESSAGE]->win) {
-            cnt = DoMenuScroll(WIN_MESSAGE, 0, PICK_NONE, &mip);
-        } else {
-            skip_mouse = 1;
-        }
+        skip_mouse = 1;
         break;
 
     case MOUSEBUTTONS: {
@@ -429,12 +413,8 @@ register struct IntuiMessage *message;
         }
     } break;
 
-    case REFRESHWINDOW: {
-        if (scrollmsg && amii_wins[WIN_MESSAGE]
-            && w == amii_wins[WIN_MESSAGE]->win) {
-            cnt = DoMenuScroll(WIN_MESSAGE, 0, PICK_NONE, &mip);
-        }
-    } break;
+    case REFRESHWINDOW:
+        break;
 
     case CLOSEWINDOW:
         if (WIN_INVEN != WIN_ERR && w == amii_wins[WIN_INVEN]->win) {
@@ -458,11 +438,6 @@ register struct IntuiMessage *message;
         break;
 
     case GADGETDOWN:
-        if (WIN_MESSAGE != WIN_ERR && w == amii_wins[WIN_MESSAGE]->win) {
-            cnt = DoMenuScroll(WIN_MESSAGE, 0, PICK_NONE, &mip);
-        } else if (WIN_INVEN != WIN_ERR && w == amii_wins[WIN_INVEN]->win) {
-            cnt = DoMenuScroll(WIN_INVEN, 0, PICK_NONE, &mip);
-        }
         break;
 
     case NEWSIZE:
@@ -481,7 +456,17 @@ register struct IntuiMessage *message;
             ReDisplayData(WIN_INVEN);
         } else if (WINVERS_AMIV && (WIN_OVER != WIN_ERR
                                     && w == amii_wins[WIN_OVER]->win)) {
-            BufferQueueChar('R' - 64);
+            {
+                int i, have_redraw = 0;
+                for (i = 0; i < KbdBuffered; i++) {
+                    if (KbdBuffer[i] == 'R' - 64) {
+                        have_redraw = 1;
+                        break;
+                    }
+                }
+                if (!have_redraw)
+                    BufferQueueChar('R' - 64);
+            }
         } else if (WIN_MAP != WIN_ERR && w == amii_wins[WIN_MAP]->win) {
 #ifdef CLIPPING
             CO = (w->Width - w->BorderLeft - w->BorderRight) / mxsize;
@@ -494,7 +479,17 @@ register struct IntuiMessage *message;
                 clipping = FALSE;
                 clipx = clipy = 0;
             }
-            BufferQueueChar('R' - 64);
+            {
+                int i, have_redraw = 0;
+                for (i = 0; i < KbdBuffered; i++) {
+                    if (KbdBuffer[i] == 'R' - 64) {
+                        have_redraw = 1;
+                        break;
+                    }
+                }
+                if (!have_redraw)
+                    BufferQueueChar('R' - 64);
+            }
 #endif
         }
         break;
@@ -506,8 +501,9 @@ register struct IntuiMessage *message;
         amii_destroy_nhwindow(WIN_OVER);
         WIN_OVER = WIN_ERR;
         delayed_key_action = NoAction;
+        break;
     case NoAction:
-        ; /* null */
+        break;
     }
 }
 
@@ -522,13 +518,13 @@ register struct IntuiMessage *message;
 
 #if defined(TTY_GRAPHICS) && !defined(AMII_GRAPHICS)
 int
-kbhit()
+kbhit(void)
 {
     return 0;
 }
 #else
 int
-kbhit()
+kbhit(void)
 {
     int c;
 #ifdef TTY_GRAPHICS
@@ -547,9 +543,9 @@ kbhit()
 #ifdef AMII_GRAPHICS
 
 int
-amikbhit()
+amikbhit(void)
 {
-    register struct IntuiMessage *message;
+    struct IntuiMessage *message;
     while (KbdBuffered < KBDBUFFER / 2) {
 #ifdef AMIFLUSH
         message = (struct IntuiMessage *) GetFMsg(HackPort);
@@ -572,7 +568,7 @@ amikbhit()
  */
 
 int
-WindowGetchar()
+WindowGetchar(void)
 {
     while ((lastevent.type = WEUNK), amikbhit() <= 0) {
         WaitPort(HackPort);
@@ -581,7 +577,7 @@ WindowGetchar()
 }
 
 WETYPE
-WindowGetevent()
+WindowGetevent(void)
 {
     lastevent.type = WEUNK;
     while (amikbhit() == 0) {
@@ -601,9 +597,9 @@ WindowGetevent()
  */
 
 void
-amii_cleanup()
+amii_cleanup(void)
 {
-    register struct IntuiMessage *msg;
+    struct IntuiMessage *msg;
 
     /* Close things up */
     if (HackPort) {
@@ -713,8 +709,7 @@ amii_cleanup()
 
 #ifndef SHAREDLIB
 void
-Abort(rc)
-long rc;
+Abort(long rc)
 {
     int fault = 1;
 #ifdef CHDIR
@@ -765,7 +760,7 @@ long rc;
 }
 
 void
-CleanUp()
+CleanUp(void)
 {
     amii_cleanup();
 }
@@ -776,8 +771,7 @@ CleanUp()
 #ifdef AMIFLUSH
 /* This routine adapted from AmigaMail IV-37 by Michael Sinz */
 static struct Message *
-GetFMsg(port)
-struct MsgPort *port;
+GetFMsg(struct MsgPort *port)
 {
     struct IntuiMessage *msg, *succ, *succ1;
 
@@ -803,8 +797,7 @@ struct MsgPort *port;
 #endif
 
 struct NewWindow *
-DupNewWindow(win)
-struct NewWindow *win;
+DupNewWindow(struct NewWindow *win)
 {
     struct NewWindow *nwin;
     struct Gadget *ngd, *gd, *pgd = NULL;
@@ -845,11 +838,10 @@ struct NewWindow *win;
 }
 
 void
-FreeNewWindow(win)
-struct NewWindow *win;
+FreeNewWindow(struct NewWindow *win)
 {
-    register struct Gadget *gd, *pgd;
-    register struct StringInfo *sip;
+    struct Gadget *gd, *pgd;
+    struct StringInfo *sip;
 
     for (gd = win->FirstGadget; gd; gd = pgd) {
         pgd = gd->NextGadget;
@@ -868,7 +860,7 @@ struct NewWindow *win;
 }
 
 void
-bell()
+bell(void)
 {
     if (flags.silent)
         return;
@@ -876,15 +868,14 @@ bell()
 }
 
 void
-amii_delay_output()
+amii_delay_output(void)
 {
     /* delay 50 ms */
     Delay(2L);
 }
 
 void
-amii_number_pad(state)
-int state;
+amii_number_pad(int state)
 {
 }
 #endif /* AMII_GRAPHICS */

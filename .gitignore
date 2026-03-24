@@ -97,3 +97,4 @@ util/*.lib
 util/*.exp
 submodules/CHKSUMS.tmp
 crecellehack
+sys/amiga/regex/

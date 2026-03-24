@@ -812,7 +812,7 @@ tags: $(CSOURCES)
 clean:
 	-rm -f *.o $(HACK_H) $(CONFIG_H)
 	-rm -f monstr.c vis_tab.c ../include/vis_tab.h #obsolete generated files
-	true; $(CLEANMORE)
+	-true; $(CLEANMORE)
 	true; $(CLEAN_CC_RESPONSEFILE) $(CLEAN_CXX_RESPONSEFILE)
 
 spotless: clean

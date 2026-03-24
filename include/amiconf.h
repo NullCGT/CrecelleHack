@@ -48,13 +48,9 @@ typedef long off_t;
 #define PATHLEN 130
 
 /* data librarian defs */
-#ifndef NOCWD_ASSUMPTIONS
-#define DLBFILE "NetHack:nhdat"   /* main library */
-#define DLBFILE2 "NetHack:nhsdat" /* sound library */
-#else
 #define DLBFILE "nhdat"   /* main library */
-#define DLBFILE2 "nhsdat" /* sound library */
-#endif
+/* nhsdat sound library not used in 3.7 */
+#undef DLBFILE2
 
 #ifndef CROSS_TO_AMIGA
 #define FILENAME_CMP stricmp /* case insensitive */

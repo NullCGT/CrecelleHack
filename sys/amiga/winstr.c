@@ -14,10 +14,7 @@
 /* Put a string into the indicated window using the indicated attribute */
 
 void
-amii_putstr(window, attr, str)
-winid window;
-int attr;
-const char *str;
+amii_putstr(winid window, int attr, const char *str)
 {
     int fudge;
     int len;
@@ -26,6 +23,7 @@ const char *str;
     char *ob;
     int i, j, n0, bottom, totalvis, wheight;
     static int wrapping = 0;
+
 
     /* Always try to avoid a panic when there is no window */
     if (window == WIN_ERR) {
@@ -101,13 +99,13 @@ const char *str;
             memcpy(cw->data, &cw->data[1],
                    (iflags.msg_history - 1) * sizeof(char *));
             cw->data[iflags.msg_history - 1] =
-                (char *) alloc(strlen(gt.toplines) + 5);
+                (char *) alloc(strlen(gt.toplines) + SOFF + 4);
             strcpy(cw->data[i = iflags.msg_history - 1] + SOFF
                        + (scrollmsg != 0),
                    gt.toplines);
         } else {
             /* Otherwise, allocate a new one and copy the line in */
-            cw->data[cw->maxrow] = (char *) alloc(strlen(gt.toplines) + 5);
+            cw->data[cw->maxrow] = (char *) alloc(strlen(gt.toplines) + SOFF + 4);
             strcpy(cw->data[i = cw->maxrow++] + SOFF + (scrollmsg != 0),
                    gt.toplines);
         }
@@ -196,7 +194,10 @@ const char *str;
 
         /* Display when beam at top to avoid flicker... */
         WaitTOF();
-        Text(w->RPort, (char *) str, strlen((char *) str));
+        {   int slen = strlen((char *) str);
+            if (slen > cw->cols) slen = cw->cols;
+            Text(w->RPort, (char *) str, slen);
+        }
         if (cw->cols > strlen(str))
             TextSpaces(w->RPort, cw->cols - strlen(str));
 
@@ -286,9 +287,7 @@ const char *str;
 }
 
 void
-amii_scrollmsg(w, cw)
-register struct Window *w;
-register struct amii_WinDesc *cw;
+amii_scrollmsg(struct Window *w, struct amii_WinDesc *cw)
 {
     int bottom, wheight;
 
@@ -311,8 +310,7 @@ register struct amii_WinDesc *cw;
 }
 
 int
-amii_msgborder(w)
-struct Window *w;
+amii_msgborder(struct Window *w)
 {
     register int bottom;
 
@@ -325,8 +323,7 @@ struct Window *w;
 }
 
 void
-outmore(cw)
-register struct amii_WinDesc *cw;
+outmore(struct amii_WinDesc *cw)
 {
     struct Window *w = cw->win;
 
@@ -359,11 +356,7 @@ register struct amii_WinDesc *cw;
 }
 
 void
-outsubstr(cw, str, len, fudge)
-register struct amii_WinDesc *cw;
-char *str;
-int len;
-int fudge;
+outsubstr(struct amii_WinDesc *cw, char *str, int len, int fudge)
 {
     struct Window *w = cw->win;
 
@@ -387,10 +380,7 @@ int fudge;
 /* Put a graphics character onto the screen */
 
 void
-amii_putsym(st, i, y, c)
-winid st;
-int i, y;
-CHAR_P c;
+amii_putsym(winid st, int i, int y, CHAR_P c)
 {
     amii_curs(st, i, y);
     Text(amii_wins[st]->win->RPort, &c, 1);
@@ -399,8 +389,7 @@ CHAR_P c;
 /* Add to the last line in the message window */
 
 void
-amii_addtopl(s)
-const char *s;
+amii_addtopl(const char *s)
 {
     register struct amii_WinDesc *cw = amii_wins[WIN_MESSAGE];
 
@@ -413,9 +402,7 @@ const char *s;
 }
 
 void
-TextSpaces(rp, nr)
-struct RastPort *rp;
-int nr;
+TextSpaces(struct RastPort *rp, int nr)
 {
     if (nr < 1)
         return;
@@ -429,7 +416,7 @@ int nr;
 }
 
 void
-amii_remember_topl()
+amii_remember_topl(void)
 {
     /* ignore for now.  I think this will be done automatically by
      * the code writing to the message window, but I could be wrong.
@@ -437,11 +424,12 @@ amii_remember_topl()
 }
 
 int
-amii_doprev_message()
+amii_doprev_message(void)
 {
     struct amii_WinDesc *cw;
     struct Window *w;
     char *str;
+
 
     if (WIN_MESSAGE == WIN_ERR || (cw = amii_wins[WIN_MESSAGE]) == NULL
         || (w = cw->win) == NULL) {

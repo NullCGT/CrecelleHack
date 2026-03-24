@@ -9,6 +9,7 @@
 
 #include "hack.h"
 #include "winami.h"
+#include "windefs.h"
 
 /* Defined in config.h, let's undefine it here (static function below) */
 #undef strcmpi
@@ -18,9 +19,15 @@
 #include <intuition/intuition.h>
 
 #undef COUNT
+
 #if defined(__SASC_60) || defined(__GNUC__)
 #include <proto/exec.h>
 #include <proto/dos.h>
+#endif
+
+/* POSIX stubs needed by libnix (-noixemul) */
+#ifdef __noixemul__
+int getpid(void) { return (int)FindTask(NULL); }
 #endif
 
 #ifdef AZTEC_50
@@ -34,10 +41,11 @@
 #include "NH:sys/amiga/winami.p"
 #include "NH:sys/amiga/amidos.p"
 #else
-#include "winami.p"
+#include "amiwind.p"
 #include "winami.p"
 #include "amidos.p"
 #endif
+
 
 extern char Initialized;
 extern struct window_procs amii_procs;
@@ -54,13 +62,14 @@ char PATH[PATHLEN] = "NetHack:";
 static boolean record_exists(void);
 
 void
-flushout()
+flushout(void)
 {
     (void) fflush(stdout);
 }
 
 #ifndef getuid
-getuid()
+int
+getuid(void)
 {
     return 1;
 }
@@ -68,26 +77,19 @@ getuid()
 
 #ifndef getlogin
 char *
-getlogin()
+getlogin(void)
 {
     return ((char *) NULL);
 }
 #endif
 
-#ifndef AZTEC_50
-int
-abs(x)
-int x;
-{
-    return x < 0 ? -x : x;
-}
-#endif
+/* abs() provided by libnix/stdlib */
 
 #ifdef SHELL
 int
-dosh()
+dosh(void)
 {
-    int i;
+    int i = 0;
     char buf[BUFSZ];
     extern struct ExecBase *SysBase;
 
@@ -121,8 +123,7 @@ dosh()
  */
 /* TODO: update this for FFS */
 long
-freediskspace(path)
-char *path;
+freediskspace(char *path)
 {
 #ifdef UNTESTED
     /* these changes from Patric Mueller <bhaak@gmx.net> for AROS to
@@ -131,9 +132,9 @@ char *path;
      */
     unsigned long long freeBytes = 0;
 #else
-    register long freeBytes = 0;
+    long freeBytes = 0;
 #endif
-    register struct InfoData *infoData; /* Remember... longword aligned */
+    struct InfoData *infoData; /* Remember... longword aligned */
     char fileName[32];
 
     /*
@@ -145,7 +146,7 @@ char *path;
      *  so must be on the current device, so "" is enough...
      */
     {
-        register char *colon;
+        char *colon;
 
         strncpy(fileName, path, sizeof(fileName) - 1);
         fileName[31] = 0;
@@ -191,12 +192,11 @@ char *path;
 }
 
 long
-filesize(file)
-char *file;
+filesize(char *file)
 {
-    register BPTR fileLock;
-    register struct FileInfoBlock *fileInfoBlock;
-    register long size = 0;
+    BPTR fileLock;
+    struct FileInfoBlock *fileInfoBlock;
+    long size = 0;
 
     fileInfoBlock =
         (struct FileInfoBlock *) alloc(sizeof(struct FileInfoBlock));
@@ -212,8 +212,8 @@ char *file;
 
 #if 0
 void
-eraseall(path, files)
-const char *path, *files;
+void
+eraseall(const char *path, const char *files)
 {
     BPTR dirLock, dirLock2;
     struct FileInfoBlock *fibp;
@@ -248,12 +248,11 @@ const char *path, *files;
 #if 0 /* Unused */
 #define COPYSIZE 4096
 
-char *CopyFile(from, to)
-const char *from, *to;
+char *CopyFile(const char *from, const char *to)
 {
-    register BPTR fromFile, toFile;
-    register char *buffer;
-    register long size;
+    BPTR fromFile, toFile;
+    char *buffer;
+    long size;
     char *error = NULL;
 
     buffer = (char *) alloc(COPYSIZE);
@@ -282,7 +281,8 @@ const char *from, *to;
 
 #ifdef MFLOPPY
 /* this should be replaced */
-saveDiskPrompt(start)
+int
+saveDiskPrompt(int start)
 {
     char buf[BUFSIZ], *bp;
     BPTR fileLock;
@@ -338,7 +338,7 @@ saveDiskPrompt(start)
 
 /* Return 1 if the record file was found */
 static boolean
-record_exists()
+record_exists(void)
 {
     FILE *file;
 
@@ -355,7 +355,7 @@ record_exists()
  * For Amiga: do nothing, but called from restore.c
  */
 void
-gameDiskPrompt()
+gameDiskPrompt(void)
 {
 }
 #endif
@@ -365,8 +365,7 @@ gameDiskPrompt()
  * be room for the /.
  */
 void
-append_slash(name)
-char *name;
+append_slash(char *name)
 {
     char *ptr;
 
@@ -381,8 +380,7 @@ char *name;
 }
 
 void
-getreturn(str)
-const char *str;
+getreturn(const char *str)
 {
     int ch;
 
@@ -396,12 +394,11 @@ const char *str;
 #define PATHSEP ';'
 
 FILE *
-fopenp(name, mode)
-register const char *name, *mode;
+fopenp(const char *name, const char *mode)
 {
-    register char *bp, *pp, lastch;
-    register FILE *fp;
-    register BPTR theLock;
+    char *bp, *pp, lastch = 0;
+    FILE *fp;
+    BPTR theLock;
     char buf[BUFSIZ];
 
     /* Try the default directory first.  Then look along PATH.
@@ -452,7 +449,8 @@ register const char *name, *mode;
 
 static BPTR OrgDirLock = NO_LOCK;
 
-chdir(dir) char *dir;
+int
+chdir(char *dir)
 {
     extern char orgdir[];
 
@@ -489,7 +487,7 @@ chdir(dir) char *dir;
  */
 #undef exit
 void
-nethack_exit(code)
+nethack_exit(int code)
 {
 #ifdef CHDIR
     extern char orgdir[];
@@ -506,10 +504,10 @@ nethack_exit(code)
     exit(code);
 }
 
-void regularize(s) /* normalize file name - we don't like :'s or /'s */
-register char *s;
+void
+regularize(char *s) /* normalize file name - we don't like :'s or /'s */
 {
-    register char *lp;
+    char *lp;
 
     while ((lp = strchr(s, ':')) || (lp = strchr(s, '/')))
         *lp = '_';

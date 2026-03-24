@@ -10,7 +10,7 @@
 
 #if defined(TTY_GRAPHICS) || defined(X11_GRAPHICS) || defined(GEM_GRAPHICS) \
     || defined(DUMPLOG) || defined(DUMPHTML) || defined(CURSES_GRAPHICS) \
-    || defined(SHIM_GRAPHICS)
+    || defined(SHIM_GRAPHICS) || defined(AMII_GRAPHICS)
 #define TEXT_TOMBSTONE
 #endif
 #if defined(mac) || defined(__BEOS__)

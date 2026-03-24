@@ -3278,6 +3278,7 @@ lspo_monster(lua_State *L)
     tmpmons.has_invent = DEFAULT_INVENT;
     tmpmons.waiting = 0;
     tmpmons.mm_flags = NO_MM_FLAGS;
+    tmpmons.m_lev_adj = 0;
 
     if (argc == 1 && lua_type(L, 1) == LUA_TSTRING) {
         const char *paramstr = luaL_checkstring(L, 1);

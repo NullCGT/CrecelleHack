@@ -229,6 +229,113 @@ mipspkg: dodata $(GAMEBIN) $(TARGETPFX)recover
 	@echo MIPS package zip file $(TARGETPFX)nh370mips.zip
 endif  # CROSS_TO_MIPS
 
+
+ifdef CROSS_TO_AMIGA
+$(TARGETPFX)amidos.o : ../sys/amiga/amidos.c $(HACK_H)
+$(TARGETPFX)amigst.o : ../sys/amiga/amigst.c $(HACK_H)
+$(TARGETPFX)amirip.o : ../sys/amiga/amirip.c $(HACK_H)
+$(TARGETPFX)amistack.o : ../sys/amiga/amistack.c $(HACK_H)
+$(TARGETPFX)amitty.o : ../sys/amiga/amitty.c $(HACK_H)
+$(TARGETPFX)amiwind.o : ../sys/amiga/amiwind.c \
+		../sys/amiga/amimenu.c $(HACK_H)
+$(TARGETPFX)winami.o : ../sys/amiga/winami.c $(HACK_H)
+$(TARGETPFX)winchar.o : ../sys/amiga/winchar.c tile.c $(HACK_H)
+$(TARGETPFX)winfuncs.o : ../sys/amiga/winfuncs.c $(HACK_H)
+$(TARGETPFX)winkey.o : ../sys/amiga/winkey.c $(HACK_H)
+$(TARGETPFX)winamenu.o : ../sys/amiga/winamenu.c $(HACK_H)
+$(TARGETPFX)winreq.o : ../sys/amiga/winreq.c \
+		../sys/amiga/colorwin.c \
+		../sys/amiga/clipwin.c $(HACK_H)
+$(TARGETPFX)winstr.o : ../sys/amiga/winstr.c $(HACK_H)
+$(GAMEBIN) : $(HOBJ) $(LUACROSSLIB)
+	$(TARGET_LINK) $(TARGET_LFLAGS) -o $(GAMEBIN) \
+	$(HOBJ) $(WINLIB) $(TARGET_LIBS)
+#
+# Host-side IFF tile conversion tools (run on Linux, produce Amiga IFF files)
+#
+AMISRC = ../sys/amiga
+
+$(TARGETPFX)xpm2iff_host: $(AMISRC)/xpm2iff_host.c
+	$(CC) $(CFLAGS) -o $@ $<
+$(TARGETPFX)tomb.iff: $(AMISRC)/grave16.xpm $(TARGETPFX)xpm2iff_host
+	$(TARGETPFX)xpm2iff_host $(AMISRC)/grave16.xpm $@
+
+$(TARGETPFX)bmp2iff_host: $(AMISRC)/bmp2iff_host.c
+	$(CC) $(CFLAGS) -o $@ $<
+$(TARGETPFX)tiles16.iff: ../dat/nhtiles.bmp $(TARGETPFX)bmp2iff_host
+	$(TARGETPFX)bmp2iff_host -planes 4 ../dat/nhtiles.bmp $@
+$(TARGETPFX)tiles32.iff: ../dat/nhtiles.bmp $(TARGETPFX)bmp2iff_host
+	$(TARGETPFX)bmp2iff_host -planes 5 ../dat/nhtiles.bmp $@
+
+AMITILES = $(TARGETPFX)tiles16.iff $(TARGETPFX)tiles32.iff $(TARGETPFX)tomb.iff
+
+AMIREGEX_URL = https://github.com/garyhouston/regex.git
+AMIREGEX_SRCDIR = $(AMISRC)/regex
+
+.PHONY: fetch-regex amigapkg amitiles
+
+fetch-regex:
+	@DSTDIR=sys/amiga/regex; \
+	if [ ! -d src ]; then DSTDIR=../$$DSTDIR; fi; \
+	if [ -f $$DSTDIR/regcomp.c ]; then \
+	  echo "BSD regex already present"; \
+	else \
+	  echo "Fetching BSD regex from $(AMIREGEX_URL)"; \
+	  tmpdir=$$(mktemp -d) && \
+	  git clone --depth 1 $(AMIREGEX_URL) $$tmpdir && \
+	  cd $$tmpdir && \
+	  sh ./mkh -p regcomp.c > regcomp.ih && \
+	  sh ./mkh -p engine.c > engine.ih && \
+	  sh ./mkh -p regexec.c > regexec.ih && \
+	  sh ./mkh -p regerror.c > regerror.ih && \
+	  sh ./mkh -i _REGEX_H_ regex2.h regcomp.c \
+	    regexec.c regerror.c regfree.c > regex.h && \
+	  cd - > /dev/null && \
+	  mkdir -p $$DSTDIR && \
+	  for f in regcomp.c regexec.c regerror.c regfree.c \
+	    engine.c regex.h regex2.h cclass.h cname.h \
+	    utils.h regcomp.ih engine.ih regexec.ih \
+	    regerror.ih \
+	    COPYRIGHT; do \
+	    cp $$tmpdir/$$f $$DSTDIR/; \
+	  done && \
+	  rm -rf $$tmpdir && \
+	  echo "BSD regex installed in $$DSTDIR"; \
+	fi
+amitiles: $(AMITILES)
+
+UUDECODE = ../util/uudecode
+
+../util/uudecode: ../sys/share/uudecode.c
+	$(CC) $(CFLAGS) -o $@ $<
+
+amigapkg: $(AMITILES) ../util/uudecode
+	mkdir -p $(TARGETPFX)pkg/tiles $(TARGETPFX)pkg/hack
+	cp $(GAMEBIN) $(TARGETPFX)pkg/nethack
+	cp ../dat/nhdat $(TARGETPFX)pkg/nhdat
+	cp ../dat/license $(TARGETPFX)pkg/license
+	cp ../dat/symbols $(TARGETPFX)pkg/symbols
+	cp $(TARGETPFX)tiles16.iff $(TARGETPFX)pkg/tiles/tiles16.iff
+	cp $(TARGETPFX)tiles32.iff $(TARGETPFX)pkg/tiles/tiles32.iff
+	cp $(TARGETPFX)tomb.iff $(TARGETPFX)pkg/tomb.iff
+	cp ../sys/msdos/sysconf $(TARGETPFX)pkg/sysconf
+	cp ../doc/nethack.txt $(TARGETPFX)pkg/nethack.txt
+	( cd $(TARGETPFX)pkg && ../../../util/uudecode ../../../sys/amiga/amifont8.uu && mv 8 hack/8 )
+	( cd $(TARGETPFX)pkg && ../../../util/uudecode ../../../sys/amiga/amifont.uu )
+	cp $(AMISRC)/nethack.cnf $(TARGETPFX)pkg/nethack.cnf
+	-( cd $(TARGETPFX)pkg && test -f ../../../sys/amiga/dflticon.uu && \
+		../../../util/uudecode ../../../sys/amiga/dflticon.uu )
+	-( cd $(TARGETPFX)pkg && test -f ../../../sys/amiga/NHinfo.uu && \
+		../../../util/uudecode ../../../sys/amiga/NHinfo.uu )
+	-( cd $(TARGETPFX)pkg && test -f ../../../sys/amiga/NewGame.uu && \
+		../../../util/uudecode ../../../sys/amiga/NewGame.uu )
+	-( cd $(TARGETPFX)pkg && test -f ../../../sys/amiga/HackWB.uu && \
+		../../../util/uudecode ../../../sys/amiga/HackWB.uu )
+	touch $(TARGETPFX)pkg/record
+	( cd $(TARGETPFX)pkg && zip -9r ../NH370AMI.ZIP * )
+	@echo amiga package zip file $(TARGETPFX)NH370AMI.ZIP
+endif  # CROSS_TO_AMIGA
+
 ifdef CROSS_SHARED
 # shared file dependencies
 $(TARGETPFX)pcmain.o : ../sys/share/pcmain.c $(HACK_H)

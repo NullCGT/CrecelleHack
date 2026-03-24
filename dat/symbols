@@ -903,4 +903,82 @@ start: Enhanced1
 	G_trwall_mines: U+251C/113-126-142
 finish
 
+start: AmigaFont
+	Description: Amiga hack.font line-drawing and effect characters
+	# Dungeon features
+	S_stone: \x20
+	S_vwall: \xc0
+	S_hwall: \xc1
+	S_tlcorn: \xc2
+	S_trcorn: \xc3
+	S_blcorn: \xc4
+	S_brcorn: \xc5
+	S_crwall: \xc6
+	S_tuwall: \xd8
+	S_tdwall: \xd6
+	S_tlwall: \xd7
+	S_trwall: \xd5
+	S_ndoor: \xd9
+	S_vodoor: \x91
+	S_hodoor: \x92
+	S_vcdoor: \x93
+	S_hcdoor: \x94
+	S_bars: '#'
+	S_tree: '#'
+	S_room: '.'
+	S_darkroom: \x20
+	S_corr: \xe5
+	S_litcorr: \xe5
+	S_upstair: '<'
+	S_dnstair: '>'
+	S_upladder: '<'
+	S_dnladder: '>'
+	S_altar: '_'
+	S_grave: \x5c
+	S_throne: '#'
+	S_sink: '{'
+	S_fountain: '}'
+	S_pool: '*'
+	S_ice: '}'
+	S_lava: '*'
+	S_vodbridge: '*'
+	S_hodbridge: '#'
+	S_vcdbridge: '#'
+	S_hcdbridge: '.'
+	S_air: '#'
+	S_cloud: '}'
+	# Traps: all default to '^' except web
+	S_web: '"'
+	# Effects
+	S_vbeam: \xf1
+	S_hbeam: \xf0
+	S_lslant: \xf2
+	S_rslant: \xf3
+	S_digbeam: '*'
+	S_flashbeam: '!'
+	S_boomleft: '{'
+	S_boomright: '}'
+	S_ss1: '@'
+	S_ss2: '&'
+	S_ss3: '*'
+	S_ss4: '#'
+	S_sw_tl: \xf4
+	S_sw_tc: \xf5
+	S_sw_tr: \xf6
+	S_sw_ml: \xf7
+	S_sw_mr: \xef
+	S_sw_bl: \xf8
+	S_sw_bc: \xf9
+	S_sw_br: \xfa
+	S_explode1: \xe6
+	S_explode2: \xea
+	S_explode3: \xe7
+	S_explode4: \xec
+	S_explode5: \xd4
+	S_explode6: \xed
+	S_explode7: \xe8
+	S_explode8: \xeb
+	S_explode9: \xe9
+finish
+
 # symbols EOF

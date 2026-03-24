@@ -460,6 +460,97 @@ NCURSES_PLATFORM=MIPS
 endif  # CROSS_TO_MIPS
 #=================================================================
 
+#=================================================================
+
+ifdef CROSS_TO_AMIGA
+#===============-=================================================
+# AmigaOS m68k cross-compile recipe
+#===============-=================================================
+# Uses an Amiga M68K cross-compiler on linux or macOS.
+#
+# Cross-compiler: https://franke.ms/git/bebbo/amiga-gcc
+# Install to /opt/amiga, then:
+#     sys/unix/setup.sh sys/unix/hints/linux.370
+#     make fetch-lua
+#     make CROSS_TO_AMIGA=1 fetch-regex
+#     make CROSS_TO_AMIGA=1 all
+#     make CROSS_TO_AMIGA=1 package
+#=================================================================
+
+CFLAGS += -DCROSSCOMPILE
+
+#
+# Override the build tools and some obj files to
+# reflect the amiga-gcc cross-compiler.
+#
+TOOLTOP = /opt/amiga/bin
+TOOLARCH = -m68000
+override REGEXOBJ = $(TARGETPFX)posixregex.o
+AMIREGEXOBJ = $(TARGETPFX)regcomp.o $(TARGETPFX)regexec.o \
+	$(TARGETPFX)regerror.o $(TARGETPFX)regfree.o
+override TARGET_CC = $(TOOLTOP)/m68k-amigaos-gcc
+override TARGET_CXX = $(TOOLTOP)/m68k-amigaos-c++
+override TARGET_AR = $(TOOLTOP)/m68k-amigaos-ar
+override TARGET_STUBEDIT=
+override TARGET_CFLAGS = -c -O2 -noixemul $(TOOLARCH) \
+	-include sys/types.h \
+	-I../include \
+	-I../sys/amiga -I../win/share \
+	$(LUAINCL) -DAMIGA -DNOTTYGRAPHICS -DNO_TERMS -DNO_SIGNAL \
+	-DTILES_IN_GLYPHMAP $(PDCURSESDEF) \
+	-DCROSSCOMPILE -DCROSSCOMPILE_TARGET -DCROSS_TO_AMIGA \
+	-DAMIGA_VERSION_STRING=\""VER: NetHack 3.7.0"\"
+override TARGET_CXXFLAGS = $(TARGET_CFLAGS)
+LUA_TARGET_CFLAGS = $(TARGET_CFLAGS)
+ifeq "$(REGEXOBJ)" "$(TARGETPFX)cppregex.o"
+override TARGET_LINK = $(TARGET_CXX)
+else
+override TARGET_LINK = $(TARGET_CC)
+endif
+override TARGET_LFLAGS= $(TOOLARCH) -noixemul -Wl,--allow-multiple-definition
+override TARGET_LIBS += $(LIBLM)
+VARDATND += nhtiles.bmp
+override SYSSRC = ../sys/amiga/amidos.c ../sys/amiga/amigst.c \
+		../sys/amiga/amimenu.c ../sys/amiga/amirip.c \
+		../sys/amiga/amistack.c ../sys/amiga/amitty.c \
+		../sys/amiga/amiwind.c ../sys/amiga/clipwin.c \
+		../sys/amiga/colorwin.c \
+		../sys/amiga/winami.c ../sys/amiga/winchar.c \
+		../sys/amiga/winfuncs.c ../sys/amiga/winkey.c \
+		../sys/amiga/winamenu.c ../sys/amiga/winreq.c \
+		../sys/amiga/winstr.c ../sys/share/pcmain.c \
+		../win/share/bmptiles.c ../win/share/giftiles.c \
+		../win/share/tileset.c
+override SYSOBJ = $(TARGETPFX)amidos.o $(TARGETPFX)amigst.o \
+		$(TARGETPFX)amirip.o $(TARGETPFX)amistack.o \
+		$(TARGETPFX)amitty.o $(TARGETPFX)amiwind.o \
+		$(TARGETPFX)winami.o $(TARGETPFX)winchar.o \
+		$(TARGETPFX)winfuncs.o $(TARGETPFX)winkey.o \
+		$(TARGETPFX)winamenu.o $(TARGETPFX)winreq.o \
+		$(TARGETPFX)winstr.o $(TARGETPFX)pcmain.o \
+		$(TARGETPFX)bmptiles.o $(TARGETPFX)giftiles.o \
+		$(TARGETPFX)tileset.o \
+		$(AMIREGEXOBJ)
+override WINLIB=
+override LUALIB=
+override LUALIBS=
+override TOPLUALIB=
+override DLLIB=
+override WINOBJ=
+override GAMEBIN = $(TARGETPFX)nethack
+override PACKAGE = amigapkg
+override PREGAME += mkdir -p $(TARGETDIR) ;
+override CLEANMORE += rm -r $(TARGETDIR) ;
+#
+# Rule for files in sys/amiga
+$(TARGETPFX)%.o : ../sys/amiga/%.c
+	$(TARGET_CC) $(TARGET_CFLAGS) -o$@ $<
+# Rule for BSD regex in sys/amiga/regex
+$(TARGETPFX)%.o : ../sys/amiga/regex/%.c
+	$(TARGET_CC) $(TARGET_CFLAGS) -I../sys/amiga/regex -o$@ $<
+endif  # CROSS_TO_AMIGA
+#=================================================================
+
 ifdef WANT_WIN_CURSES
 ifdef BUILD_PDCURSES
 # Rules for PDCurses files

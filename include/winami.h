@@ -22,6 +22,7 @@ typedef struct amii_mi {
     char gselector;      /* Group selector */
     char canselect;      /* Can user select this entry. */
     char attr;           /* Attribute for the line. */
+    int color;           /* Color for the line (from menucolors). */
     char *str;           /* The text of the item. */
 } amii_menu_item;
 

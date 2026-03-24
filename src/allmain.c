@@ -13,6 +13,7 @@
 
 staticfn void moveloop_preamble(boolean);
 staticfn void u_calc_moveamt(int);
+
 staticfn void maybe_do_tutorial(void);
 #ifdef POSITIONBAR
 staticfn void do_positionbar(void);
@@ -577,11 +578,6 @@ moveloop_core(void)
         return;
     }
 
-#ifdef CLIPPING
-    /* just before rhack */
-    cliparound(u.ux, u.uy);
-#endif
-
     u.umoved = FALSE;
 
     if (gm.multi > 0) {
@@ -612,6 +608,11 @@ moveloop_core(void)
 
     if (gv.vision_full_recalc)
         vision_recalc(0); /* vision! */
+#ifdef CLIPPING
+    /* after rhack() and vision_recalc() so that the map is redrawn
+       once with correct vision data, not twice (overshoot+correct) */
+    cliparound(u.ux, u.uy);
+#endif
     /* when running in non-tport mode, this gets done through domove() */
     if ((!svc.context.run || flags.runmode == RUN_TPORT)
         && (gm.multi && (!svc.context.travel ? !(gm.multi % 7)

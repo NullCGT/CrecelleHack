@@ -1586,6 +1586,9 @@ priest donation amounts are explicitly stated, randomized slightly, based on
        peak rather than current level, and allow for bulk donations (buying
        larger amounts of clairvoyance/protection) if you have a lot of gold
 amulet of magical breathing increases power regeneration
+change some command keys, 'v' is now chronicle, 'V' is versionshort,
+	m-prefix 'V' is longer version, remove key binding of #history
+one orc-town shaman has a higher level, affecting spellcasting
 
 
 Fixes to 3.7.0-x General Problems Exposed Via git Repository

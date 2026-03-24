@@ -15,7 +15,7 @@
                        Original version - Eric S. Raymond
      (Edited and expanded for NetHack 3.7.0 by Mike Stephenson and others)
 
-                               February 11, 2026
+                                 March 21, 2026
 
 
 
@@ -126,7 +126,7 @@
      employ to great advantage.
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -192,7 +192,7 @@
      NetHack continues this fine tradition.  Unlike  text  adventure  games
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -258,7 +258,7 @@
 
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -324,7 +324,7 @@
 
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -390,7 +390,7 @@
 
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -456,7 +456,7 @@
           The number of turns elapsed so far, displayed  if  you  have  the
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -522,7 +522,7 @@
 
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -588,7 +588,7 @@
 
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -654,7 +654,7 @@
 
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -720,7 +720,7 @@
           instead.   Only  these  one-step  movement  commands cause you to
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -786,7 +786,7 @@
           ing <Control>. ^<key> is  used  as  shorthand  elsewhere  in  the
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -852,7 +852,7 @@
 
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -918,7 +918,7 @@
 
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -984,7 +984,7 @@
 
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -1050,7 +1050,7 @@
           at an adjacent "remembered, unseen monster" marker.
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -1116,7 +1116,7 @@
 
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -1182,7 +1182,7 @@
      (R)UNIX is a registered trademark of The Open Group.
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -1248,7 +1248,7 @@
           menu_next_page,  and  menu_last_page  keys (`^', `<', `>', `|' by
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -1314,7 +1314,7 @@
           doesn't and give that name to the result, while splitting  (count
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -1367,7 +1367,7 @@
           Talk to someone.  Default key is `M-c'.
 
      #chronicle
-          Show a list of important game events.
+          Show a list of important game events.  Default key is `v'.
 
      #close
           Close a door.  Default key is `c'.
@@ -1380,7 +1380,7 @@
 
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -1446,7 +1446,7 @@
           extinct.
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -1486,7 +1486,7 @@
           command.
 
      #history
-          Show long version and game history.  Default key is `V'.
+          Show long version and game history.
 
      #inventory
           Show your inventory.  Default key is `i'.
@@ -1512,7 +1512,7 @@
 
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -1578,7 +1578,7 @@
 
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -1644,7 +1644,7 @@
           right  away.)   Since  using  this  command by accident can cause
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -1710,7 +1710,7 @@
           Default key is `M-R'.
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -1776,7 +1776,7 @@
           (worn blindfold or towel or lenses, lit lamp(s) and/or candle(s),
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -1842,7 +1842,7 @@
 
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -1900,15 +1900,15 @@
 
           Autocompletes.  Default key is `M-T'.
 
-     #travel
-          Travel to a specific location on the map.  Default  key  is  `_'.
-          Using  the "request menu" prefix shows a menu of interesting tar-
-          gets in sight without asking to move the cursor.  When picking  a
-          target  with  cursor  and  the autodescribe option is on, the top
-          line will show "(no travel path)" if your character does not know
+     #toggle
+          Toggle a boolean option on  or  off.   Requires  a  parameter  in
+          parenthesis,  the  name of the option to toggle.  The option must
+          be settable in-game.
 
 
-     NetHack 3.7.0                                        February 11, 2026
+
+
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -1918,6 +1918,17 @@
 
 
 
+          For example:
+
+               BIND=':toggle(price_quotes)
+               BIND=@:toggle(autopickup)
+
+     #travel
+          Travel to a specific location on the map.  Default  key  is  `_'.
+          Using  the "request menu" prefix shows a menu of interesting tar-
+          gets in sight without asking to move the cursor.  When picking  a
+          target  with  cursor  and  the autodescribe option is on, the top
+          line will show "(no travel path)" if your character does not know
           of a path to that location.  See also #retravel.
 
      #turn
@@ -1960,6 +1971,19 @@
           quished  monsters answering `a' will let you choose from the sort
           menu.
 
+
+
+
+     NetHack 3.7.0                                           March 21, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   31
+
+
+
           Autocompletes.  Default key is `M-V'.
 
      #version
@@ -1972,22 +1996,10 @@
 
           Autocompletes.  Default key is `M-v'.
 
-
-
-     NetHack 3.7.0                                        February 11, 2026
-
-
-
-
-
-     NetHack Guidebook                                                   31
-
-
-
      #versionshort
           Show  the  program's  version number, plus the date and time that
           the running copy  was  built  from  sources  (not  the  version's
-          release date).  Default key is `v'.
+          release date).  Default key is `V'.
 
      #vision
           Show vision array.  Autocompletes.  Debug mode only.
@@ -2026,6 +2038,18 @@
      #wizdetect
           Reveal  hidden  things (secret doors or traps or unseen monsters)
           within a modest radius.  No time elapses.  Autocompletes.   Debug
+
+
+     NetHack 3.7.0                                           March 21, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   32
+
+
+
           mode only.  Default key is `^E'.
 
      #wizgenesis
@@ -2038,18 +2062,6 @@
 
      #wizintrinsic
           Set one or more intrinsic attributes.  Autocompletes.  Debug mode
-
-
-     NetHack 3.7.0                                        February 11, 2026
-
-
-
-
-
-     NetHack Guidebook                                                   32
-
-
-
           only.
 
      #wizkill
@@ -2093,6 +2105,17 @@
      #wmode
           Show wall modes.  Autocompletes.  Debug mode only.
 
+
+     NetHack 3.7.0                                           March 21, 2026
+
+
+
+
+
+     NetHack Guidebook                                                   33
+
+
+
      #zap
           Zap a wand.  Default key is `z'.
 
@@ -2104,18 +2127,6 @@
           If your keyboard has a meta key (which, when pressed in  combina-
      tion  with  another  key,  modifies  it by setting the "meta" [8th, or
      "high"] bit), you can invoke many extended commands  by  meta-ing  the
-
-
-     NetHack 3.7.0                                        February 11, 2026
-
-
-
-
-
-     NetHack Guidebook                                                   33
-
-
-
      first letter of the command.
 
           On Windows and MS-DOS, the "Alt" key can be used in this fashion.
@@ -2161,18 +2172,7 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -2238,7 +2238,7 @@
 
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -2304,7 +2304,7 @@
 
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -2370,7 +2370,7 @@
      them).  Some monsters who can open doors can also use unlocking tools.
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -2436,7 +2436,7 @@
      been nullified, giving access to whatever  is  beyond  them.   In  the
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -2502,7 +2502,7 @@
      play.
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -2568,7 +2568,7 @@
 
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -2634,7 +2634,7 @@
      attack,  when guessing where an unseen monster is or when deliberately
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -2700,7 +2700,7 @@
      noid_confirmation:attack   option  to  require  a  response  of  "yes"
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -2766,7 +2766,7 @@
 
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -2832,7 +2832,7 @@
      are encumbered, one of the conditions  Burdened,  Stressed,  Strained,
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -2898,7 +2898,7 @@
 
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -2964,7 +2964,7 @@
 
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -3030,7 +3030,7 @@
      aklys, lucern hammer, and bec-de-corbin) are defined in an appendix to
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -3096,7 +3096,7 @@
      you'll just end up shooting the same number (3, here) as if  no  limit
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -3162,7 +3162,7 @@
      for that matter--wielding two weapons at once.  The  primary  is  your
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -3228,7 +3228,7 @@
      unenchanted  but all cloaks offer some protection against rust or cor-
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -3294,7 +3294,7 @@
      (except for blank ones, without magic spells on them).
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -3360,7 +3360,7 @@
      may be recharged by using suitable magic, but doing so runs  the  risk
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -3426,7 +3426,7 @@
      with your naked mind.  Some of the magical energy released comes  from
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -3492,7 +3492,7 @@
      tool of this sort can be opened with the "#loot" extended command when
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -3558,7 +3558,7 @@
 
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -3624,7 +3624,7 @@
 
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -3690,7 +3690,7 @@
      items  listed above, they may eat any kind of pudding (`P') other than
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -3756,7 +3756,7 @@
      spellbooks  (and  knowledge  of  spells) in your starting inventory is
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -3822,7 +3822,7 @@
 
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -3888,7 +3888,7 @@
 
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -3954,7 +3954,7 @@
      (the  closing  `]' can be followed by whitespace and then an arbitrary
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -4020,7 +4020,7 @@
        problems is kept. Defaults to HACKDIR, must be writable.
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -4086,7 +4086,7 @@
        Custom symbols for the rogue level's symbol set.  See SYMBOLS below.
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -4152,7 +4152,7 @@
      values  for  the  various options.  Some can only be turned on or off.
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -4218,7 +4218,7 @@
        align:chaotic).   You may specify just the first letter.  Many roles
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -4284,7 +4284,7 @@
                    untrap  and  you omit apply-key or you lack a key or you
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -4350,7 +4350,7 @@
        Start the character permanently deaf (default false).  Persistent.
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -4416,7 +4416,7 @@
 
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -4482,7 +4482,7 @@
 
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -4548,7 +4548,7 @@
        above the name and title with a hard-coded  color  scheme.   (As  of
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -4614,7 +4614,7 @@
        Enable coloring menu lines (default  off).   See  "Configuring  Menu
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -4680,7 +4680,7 @@
        display symbol for the individual item in each menu  entry.   For  a
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -4746,7 +4746,7 @@
 
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -4812,7 +4812,7 @@
        Send padding nulls to the terminal (default on).  Persistent.
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -4878,7 +4878,7 @@
        trap        - require `y' to confirm an attempt to move into or onto
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -4944,7 +4944,7 @@
 
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -5010,7 +5010,7 @@
        unintentionally pick such up.
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -5076,7 +5076,7 @@
 
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -5142,7 +5142,7 @@
        run      - update the map after every seven or so steps;
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -5208,7 +5208,7 @@
        lines.  Persistent.
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -5274,7 +5274,7 @@
 
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -5340,7 +5340,7 @@
 
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -5406,7 +5406,7 @@
 
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -5472,7 +5472,7 @@
 
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -5538,7 +5538,7 @@
        If NetHack can, it should try to display on the entire screen rather
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -5604,7 +5604,7 @@
        shows  status  conditions  on  their own line.  A display capable of
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -5670,7 +5670,7 @@
        in the message window.
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -5736,7 +5736,7 @@
 
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -5802,7 +5802,7 @@
        Set the video mode used (PC NetHack only).  Values are "autodetect",
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -5868,7 +5868,7 @@
        the first character in the pattern, specifically:
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -5934,7 +5934,7 @@
 
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -6000,7 +6000,7 @@
 
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -6066,7 +6066,7 @@
 
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -6132,7 +6132,7 @@
        placed <something>." is not shown at all.
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -6198,7 +6198,7 @@
 
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -6264,7 +6264,7 @@
      (That example is actually specifying  red&normal  for  <=30%  and  no-
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -6330,7 +6330,7 @@
        tion.
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -6396,7 +6396,7 @@
 
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -6462,7 +6462,7 @@
 
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -6530,7 +6530,7 @@
 
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -6597,7 +6597,7 @@
 
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -6663,7 +6663,7 @@
 
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -6729,7 +6729,7 @@
      playing  UTF-8  character sequences and explicit red-green-blue colors
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -6795,7 +6795,7 @@
 
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -6861,7 +6861,7 @@
 
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -6927,7 +6927,7 @@
 
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -6993,7 +6993,7 @@
      machine, depending on how it is set up.   In  the  latter  case,  each
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -7059,7 +7059,7 @@
 
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -7125,7 +7125,7 @@
      for  PC  NetHack 3.0.  Johnny Lee ported NetHack 3.0 to the Macintosh.
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -7191,7 +7191,7 @@
      quently  been  picked up by various other games.  NetHack's tiles sup-
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -7257,7 +7257,7 @@
      names in the current game.)
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -7323,7 +7323,7 @@
 
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -7389,7 +7389,7 @@
 
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -7455,7 +7455,7 @@
 
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -7521,7 +7521,7 @@
      sends  a  particularly  intriguing  modification  to help out with the
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -7587,7 +7587,7 @@
 
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -7653,7 +7653,7 @@
 
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 
@@ -7719,7 +7719,7 @@
 
 
 
-     NetHack 3.7.0                                        February 11, 2026
+     NetHack 3.7.0                                           March 21, 2026
 
 
 

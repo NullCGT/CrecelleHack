@@ -2464,7 +2464,8 @@ do_supplemental_item_info(struct obj *otmp)
     Sprintf(buf, "Material: %s (usually %s)", MAT_NAME(otmp->material),
                                                 MAT_NAME(objects[otmp->otyp].oc_material));
     add_menu_str(datawin, buf);
-    Sprintf(buf, "Rarity: %s, %s", objects[otmp->otyp].oc_unique ? "unique" : "common",
+    Sprintf(buf, "Rarity: %s, %s", objects[otmp->otyp].oc_unique ? "unique" :
+                                        !(objects[otmp->otyp].oc_prob) ? "rare" : "common",
                                     objects[otmp->otyp].oc_nowish ? "unwishable" : "wishable");
     add_menu_str(datawin, buf);
     if (otmp->oprop) {

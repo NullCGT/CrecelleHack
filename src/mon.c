@@ -668,7 +668,7 @@ make_corpse(struct monst *mtmp, unsigned int corpseflags)
     case PM_COLOSSUS:
         num = d(2, 6);
         while (num--)
-            obj = mksobj_at(BRONZE_PLATE_MAIL, x, y, TRUE, FALSE);
+            obj = mksobj_at(ARCHAIC_PLATE_MAIL, x, y, TRUE, FALSE);
         free_mgivenname(mtmp);
         break;
         /*FALLTHRU*/

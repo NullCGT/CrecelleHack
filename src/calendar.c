@@ -243,7 +243,7 @@ boolean
 halloween(void)
 {
     struct tm *lt = getlt();
-    return (boolean) (lt->tm_mon = 9 && lt->tm_mday == 31);
+    return (boolean) (lt->tm_mon == 9 && lt->tm_mday == 31);
 }
 
 boolean

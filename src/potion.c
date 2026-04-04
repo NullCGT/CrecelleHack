@@ -966,7 +966,7 @@ peffect_see_invisible(struct obj *otmp)
          */
         make_blinded(0L, TRUE);
     }
-    if (otmp->blessed)
+    if (otmp->blessed && !rn2(10))
         HSee_invisible |= FROMOUTSIDE;
     else
         incr_itimeout(&HSee_invisible, rn1(100, 750));

@@ -135,6 +135,7 @@
     <ClCompile Include="$(SrcDir)do_wear.c" />
     <ClCompile Include="$(SrcDir)drawing.c" />
     <ClCompile Include="$(SrcDir)dungeon.c" />
+    <ClCompile Include="$(SrcDir)earlyarg.c" />
     <ClCompile Include="$(SrcDir)eat.c" />
     <ClCompile Include="$(SrcDir)end.c" />
     <ClCompile Include="$(SrcDir)engrave.c" />
@@ -327,6 +328,7 @@
     <ClInclude Include="$(IncDir)lint.h" />
     <ClInclude Include="$(IncDir)load_img.h" />
     <ClInclude Include="$(IncDir)mail.h" />
+    <ClInclude Include="$(IncDir)mcastu.h" />
     <ClInclude Include="$(IncDir)mextra.h" />
     <ClInclude Include="$(IncDir)mfndpos.h" />
     <ClInclude Include="$(IncDir)micro.h" />

@@ -1836,8 +1836,8 @@ handle_tip(int tip)
     if (!flags.tips)
         return FALSE;
 
-    if (tip >= 0 && tip < NUM_TIPS && !svc.context.tips[tip]) {
-        svc.context.tips[tip] = TRUE;
+    if (tip >= 0 && tip < NUM_TIPS && !(svc.context.tips & (1 << tip))) {
+        svc.context.tips |= (1 << tip);
         /* the "Tip:" prefix is a hint to use of OPTIONS=!tips to suppress */
         switch (tip) {
         case TIP_ENHANCE:
@@ -1895,7 +1895,7 @@ swim_move_danger(coordxy x, coordxy y)
             || liquid_wall) {
             if (svc.context.nopick) {
                 /* moving with m-prefix */
-                svc.context.tips[TIP_SWIM] = TRUE;
+                svc.context.tips |= (1 << TIP_SWIM);
                 return FALSE;
             } else if (ParanoidSwim || liquid_wall) {
                 You("avoid %s into the %s.",

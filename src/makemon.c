@@ -1574,6 +1574,7 @@ makemon(
 
     place_monster(mtmp, x, y);
     mtmp->mcansee = mtmp->mcanmove = TRUE;
+    mtmp->mgenmklev = gi.in_mklev;
     mtmp->seen_resistance = M_SEEN_NOTHING;
     mtmp->mpeaceful = (mmflags & MM_ANGRY) ? FALSE : peace_minded(ptr);
     mtmp->mtraitor = 0;
@@ -2597,7 +2598,6 @@ mongets(struct monst *mtmp, int otyp)
            because the owner bit has not yet been set. */
         if (has_esum(mtmp)) {
             newosum(otmp);
-            pline("KABOOM");
         }
 
         /* powerful monsters have a good chance of getting

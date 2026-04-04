@@ -450,7 +450,11 @@ fopenp(const char *name, const char *mode)
 static BPTR OrgDirLock = NO_LOCK;
 
 int
-chdir(char *dir)
+chdir(
+#ifdef CROSS_TO_AMIGA
+      const
+#endif
+      char *dir)
 {
     extern char orgdir[];
 

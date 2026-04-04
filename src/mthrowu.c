@@ -8,6 +8,7 @@
 staticfn int monmulti(struct monst *, struct obj *, struct obj *);
 staticfn void monshoot(struct monst *, struct obj *, struct obj *);
 staticfn boolean ucatchgem(struct obj *, struct monst *);
+staticfn boolean u_catch_thrown_obj(struct obj *);
 staticfn const char *breathwep_name(int);
 staticfn boolean drop_throw(struct obj *, boolean, coordxy, coordxy);
 staticfn boolean blocking_terrain(coordxy, coordxy);
@@ -526,6 +527,27 @@ ucatchgem(
     return FALSE;
 }
 
+/* hero may catch thrown obj. it is added to inventory, if possible */
+staticfn boolean
+u_catch_thrown_obj(struct obj *otmp)
+{
+    int catch_chance = 100 - ACURR(A_DEX)
+                       - ((Role_if(PM_MONK) || Role_if(PM_ROGUE)) ? 20 : 0);
+
+    if (!Blind && !Confusion && !Stunned && !Fumbling
+        && otmp->oclass != VENOM_CLASS
+        && !nohands(gy.youmonst.data) && freehand()
+        && calc_capacity(otmp->owt) <= SLT_ENCUMBER && !rn2(catch_chance)) {
+        char buf[BUFSZ];
+
+        Snprintf(buf, BUFSZ, "You catch the %s!", simpleonames(otmp));
+        (void) hold_another_object(otmp, "You catch, but drop, the %s.",
+                                   simpleonames(otmp), buf);
+        return TRUE;
+    }
+    return FALSE;
+}
+
 #define MT_FLIGHTCHECK(pre,forcehit) \
     (/* missile hits edge of screen */                                 \
      !isok(gb.bhitpos.x + dx, gb.bhitpos.y + dy)                       \
@@ -665,13 +687,16 @@ m_throw(
             if (gm.multi)
                 nomul(0);
 
+            /* hero might be poly'd into a unicorn */
+            if (singleobj->oclass == GEM_CLASS && ucatchgem(singleobj, mon))
+                break;
+
+            if (!tethered_weapon && u_catch_thrown_obj(singleobj))
+                break;
+
             if (singleobj->oclass == POTION_CLASS) {
                 potionhit(&gy.youmonst, singleobj, POTHIT_MONST_THROW);
                 break;
-            } else if (singleobj->oclass == GEM_CLASS) {
-                /* hero might be poly'd into a unicorn */
-                if (ucatchgem(singleobj, mon))
-                    break;
             }
             oldumort = u.umortality;
 

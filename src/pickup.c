@@ -3115,6 +3115,13 @@ observe_quantum_cat(struct obj *box, boolean makecat, boolean givemsg)
             }
             box->owt = weight(box);
             box->spe = 0;
+
+            if (!svc.context.mon_moving) {
+                /* give experience points for releasing live cat; slightly
+                   different amount from what is given for "killing" it */
+                more_experienced(10, 20); /* 10:current exp; 20:score bonus */
+                newexplevel();
+            }
         }
     } else {
         box->spe = 0; /* now an ordinary box (with a cat corpse inside) */

@@ -5,99 +5,68 @@
 
 #include "hack.h"
 
-#define MAX_MON_SPELLS 12
-#define MSPEL_LIST MSPEL("psi bolt", 1, PSI_BOLT), \
-    MSPEL("open wounds", 1, OPEN_WOUNDS), \
-    MSPEL("disguise self", 1, DISGUISE), \
-    MSPEL("cure self", 2, CURE_SELF), \
-    MSPEL("darkness", 2, DARKNESS), \
-    MSPEL("grease", 2, GREASE), \
-    MSPEL("blood rain", 2, BLOOD_RAIN), \
-    MSPEL("confusion", 3, CONFUSE_YOU), \
-    MSPEL("mirror image", 3, MIRROR_IMAGE), \
-    MSPEL("haste self", 3, HASTE_SELF), \
-    MSPEL("bloodrush", 4, BLOODRUSH), \
-    MSPEL("stunning force", 4, STUN_YOU), \
-    MSPEL("sleepel", 4, SLEEP_YOU), \
-    MSPEL("hold", 5, PARALYZE), \
-    MSPEL("invisibility", 5, DISAPPEAR), \
-    MSPEL("blind", 6, BLIND_YOU), \
-    MSPEL("strength of newt", 7, WEAKEN_YOU), \
-    MSPEL("summon vermin", 9, INSECTS), \
-    MSPEL("destroy armor", 9, DESTRY_ARMR), \
-    MSPEL("bloody pierce", 9, BLOOD_SPEAR), \
-    MSPEL("raise dead", 10, RAISE_DEAD), \
-    MSPEL("levitation", 10, LEVITATE_YOU), \
-    MSPEL("curse", 10, CURSE_ITEMS), \
-    MSPEL("force field", 10, FORCE_FIELD), \
-    MSPEL("chaos rain", 10, CHAOS_RAIN), \
-    MSPEL("lightning bolt", 12, LIGHTNING), \
-    MSPEL("divine wrath", 13, FIRE_PILLAR), \
-    MSPEL("aggravate monsters", 14, AGGRAVATION), \
-    MSPEL("teleport", 16, TELEPORT), \
-    MSPEL("summon nasties", 16, SUMMON_MONS), \
-    MSPEL("geyser", 14, GEYSER), \
-    MSPEL("gravity wave", 15, GRAVITY), \
-    MSPEL("simulacrum", 19, CLONE_WIZ), \
-    MSPEL("blood bind", 27, BLOOD_BIND), \
-    MSPEL("a forbidden spell", 21, DEATH_TOUCH), 
-#define MSPEL(nam, lev, id) MCAST_##id
-enum mcastu_spells { MSPEL_LIST };
-#undef MSPEL
-#define MSPEL(nam, lev, id) { nam, lev }
-struct mspel {
-    const char *name;
-    unsigned lev;
+#define MCASTU_ENUM
+enum mcast_spells {
+    #include "mcastu.h"
 };
-struct mspel mon_all_spells[] = { MSPEL_LIST };
-#undef MSPEL
-#undef MSPEL_LIST
+#undef MCASTU_ENUM
 
-DISABLE_WARNING_FORMAT_NONLITERAL
+struct _mcast_data {
+    const char *name;
+    int level;
+    int flags;
+};
 
-int mon_mage_spells[MAX_MON_SPELLS] = { MCAST_PSI_BOLT, MCAST_CURE_SELF, MCAST_HASTE_SELF,
+#define MCASTU_INIT
+static struct _mcast_data mcast_data[] = {
+    #include "mcastu.h"
+};
+#undef MCASTU_INIT
+
+/* spell lists for specific monster casters */
+/* the spells in the list should be in ascending level order */
+static int mon_wizard_spells[] = { MCAST_PSI_BOLT, MCAST_CURE_SELF, MCAST_HASTE_SELF,
                                         MCAST_STUN_YOU, MCAST_DISAPPEAR, MCAST_WEAKEN_YOU,
                                         MCAST_DESTRY_ARMR, MCAST_CURSE_ITEMS, MCAST_AGGRAVATION,
                                         MCAST_SUMMON_MONS, MCAST_CLONE_WIZ, MCAST_DEATH_TOUCH};
-int mon_shadow_mage_spells[MAX_MON_SPELLS] = { MCAST_PSI_BOLT, MCAST_DARKNESS, MCAST_HASTE_SELF,
+static int mon_shadow_mage_spells[] = { MCAST_PSI_BOLT, MCAST_DARKNESS, MCAST_HASTE_SELF,
                                         MCAST_STUN_YOU, MCAST_DISAPPEAR, MCAST_WEAKEN_YOU,
                                         MCAST_DESTRY_ARMR, MCAST_CURSE_ITEMS, MCAST_SLEEP_YOU,
                                         MCAST_SUMMON_MONS, MCAST_MIRROR_IMAGE, MCAST_DEATH_TOUCH};
-int mon_vamp_spells[MAX_MON_SPELLS] = { MCAST_OPEN_WOUNDS, MCAST_CURE_SELF, MCAST_BLOODRUSH,
+static int mon_vamp_spells[] = { MCAST_OPEN_WOUNDS, MCAST_CURE_SELF, MCAST_BLOODRUSH,
                                         MCAST_DISAPPEAR, MCAST_CURSE_ITEMS, MCAST_BLOOD_SPEAR,
-                                        MCAST_BLOOD_RAIN, MCAST_BLOOD_BIND, -1, -1, -1, -1};
-int mon_cleric_spells[MAX_MON_SPELLS] = { MCAST_OPEN_WOUNDS, MCAST_CURE_SELF, MCAST_CONFUSE_YOU,
+                                        MCAST_BLOOD_RAIN, MCAST_BLOOD_BIND };
+static int mon_cleric_spells[] = { MCAST_OPEN_WOUNDS, MCAST_CURE_SELF, MCAST_CONFUSE_YOU,
                                           MCAST_PARALYZE, MCAST_BLIND_YOU, MCAST_INSECTS,
                                           MCAST_CURSE_ITEMS, MCAST_LIGHTNING, MCAST_FIRE_PILLAR,
-                                          MCAST_GEYSER, -1, -1 };
-int mon_law_cleric_spells[MAX_MON_SPELLS] = { MCAST_OPEN_WOUNDS, MCAST_CURE_SELF, MCAST_CONFUSE_YOU,
+                                          MCAST_GEYSER };
+static int mon_law_cleric_spells[] = { MCAST_OPEN_WOUNDS, MCAST_CURE_SELF, MCAST_CONFUSE_YOU,
                                           MCAST_PARALYZE, MCAST_BLIND_YOU, MCAST_FORCE_FIELD,
                                           MCAST_CURSE_ITEMS, MCAST_LIGHTNING, MCAST_FIRE_PILLAR,
-                                          MCAST_GEYSER, -1, -1 };
-int mon_chaos_cleric_spells[MAX_MON_SPELLS] = { MCAST_OPEN_WOUNDS, MCAST_CURE_SELF, MCAST_CONFUSE_YOU,
+                                          MCAST_GEYSER };
+static int mon_chaos_cleric_spells[] = { MCAST_OPEN_WOUNDS, MCAST_CURE_SELF, MCAST_CONFUSE_YOU,
                                           MCAST_PARALYZE, MCAST_BLIND_YOU, MCAST_CHAOS_RAIN,
                                           MCAST_CURSE_ITEMS, MCAST_LIGHTNING, MCAST_FIRE_PILLAR,
-                                          MCAST_GEYSER, -1, -1 };
-int mon_undead_spells[MAX_MON_SPELLS] = { MCAST_HASTE_SELF, MCAST_STUN_YOU, MCAST_WEAKEN_YOU,
+                                          MCAST_GEYSER };
+static int mon_undead_spells[] = { MCAST_HASTE_SELF, MCAST_STUN_YOU, MCAST_WEAKEN_YOU,
                                           MCAST_SLEEP_YOU, MCAST_CURSE_ITEMS,
                                           MCAST_CURSE_ITEMS, MCAST_AGGRAVATION, MCAST_RAISE_DEAD,
                                           MCAST_DEATH_TOUCH, MCAST_MIRROR_IMAGE, MCAST_DISAPPEAR,
                                           MCAST_TELEPORT };
-int mon_demo_spells[MAX_MON_SPELLS] = { MCAST_PSI_BOLT, MCAST_OPEN_WOUNDS, MCAST_CURE_SELF, 
+static int mon_demo_spells[] = { MCAST_PSI_BOLT, MCAST_OPEN_WOUNDS, MCAST_CURE_SELF, 
                                         MCAST_HASTE_SELF, MCAST_STUN_YOU, MCAST_WEAKEN_YOU,
                                         MCAST_DESTRY_ARMR, MCAST_CURSE_ITEMS, MCAST_AGGRAVATION,
                                         MCAST_SUMMON_MONS, MCAST_CHAOS_RAIN, MCAST_DEATH_TOUCH};
-int mon_trickster_spells[MAX_MON_SPELLS] = { MCAST_PSI_BOLT, MCAST_HASTE_SELF, MCAST_DISAPPEAR,
+static int mon_trickster_spells[] = { MCAST_PSI_BOLT, MCAST_HASTE_SELF, MCAST_DISAPPEAR,
                                              MCAST_LEVITATE_YOU,
                                              MCAST_AGGRAVATION, MCAST_MIRROR_IMAGE, MCAST_CONFUSE_YOU,
                                              MCAST_GREASE, MCAST_DISGUISE, MCAST_CURSE_ITEMS, MCAST_SUMMON_MONS, 
                                              MCAST_TELEPORT };
 
+DISABLE_WARNING_FORMAT_NONLITERAL
+
 staticfn void cursetxt(struct monst *, boolean);
-staticfn int choose_magic_spell(struct monst *mtmp);
-staticfn int choose_clerical_spell(struct monst *mtmp);
 staticfn int choose_monster_spell(struct monst *, int);
-staticfn int m_cure_self(struct monst *, int);
 staticfn int m_cure_self(struct monst *, int);
 staticfn void mcast_death_touch(struct monst *);
 staticfn void mcast_clone_wiz(struct monst *);
@@ -164,147 +133,72 @@ cursetxt(struct monst *mtmp, boolean undirected)
     }
 }
 
-
+/* choose a spell for monster to cast */
 staticfn int
-choose_monster_spell(struct monst *mtmp, int adtyp) {
-    int n;
-    int spellval;
-    int spell;
+choose_monster_spell(struct monst *mtmp, int adtyp)
+{
+    int *list = NULL;
+    int i, spellval, len = 0;
+    int maxlev;
     int a;
 
     a = mon_aligntyp(mtmp);
+    /* Randomly determine the alignment of unaligned casters. */
     if (a == A_NONE)
         a = aligns[(mtmp->m_id % 3)].value;
-    do {
-        n = rn2(MAX_MON_SPELLS);
-        if (mtmp->data->mlet == S_VAMPIRE
-            || mtmp->data == &mons[PM_BLOOD_IMP])
-            spell = mon_vamp_spells[n];
-        else if (mtmp->data == &mons[PM_DEMOGORGON])
-            spell = mon_demo_spells[n];
-        else if (mtmp->data == &mons[PM_DARK_ONE])
-            spell = mon_shadow_mage_spells[n];
-        else if (is_undead(mtmp->data) || mtmp->data == &mons[PM_ORCUS])
-            spell = mon_undead_spells[n];
-        else if (mtmp->data->mlet == S_GNOME || mtmp->data->mlet == S_KOBOLD
-                 || mtmp->data == &mons[PM_DISPATER])
-            spell = mon_trickster_spells[n];
-        else if (adtyp == AD_CLRC) {
-            if (a == A_LAWFUL)
-                spell = mon_law_cleric_spells[n];
-            else if (a == A_CHAOTIC)
-                spell = mon_chaos_cleric_spells[n];
-            else if (a == A_NONE) {
 
-            } else
-                spell = mon_cleric_spells[n];
-        } else
-            spell = mon_mage_spells[n];
-        spellval = mon_all_spells[spell].lev;
-    } while (spell == -1 || spellval > mtmp->m_lev );
-    return spell;
-}
-/* convert a level-based random selection into a specific mage spell;
-   inappropriate choices will be screened out by spell_would_be_useless() */
-staticfn int
-choose_magic_spell(struct monst *mtmp)
-{
-    int spellval = rn2(mtmp->m_lev);
-
-    /* for 3.4.3 and earlier, val greater than 22 selected default spell */
-    while (spellval > 24 && rn2(25))
-        spellval = rn2(spellval);
-
-    switch (spellval) {
-    case 24:
-    case 23:
-        if (Antimagic || Hallucination)
-            return MCAST_PSI_BOLT;
-        FALLTHROUGH;
-        /*FALLTHRU*/
-    case 22:
-    case 21:
-    case 20:
-        return MCAST_DEATH_TOUCH;
-    case 19:
-    case 18:
-        return MCAST_CLONE_WIZ;
-    case 17:
-    case 16:
-    case 15:
-        return MCAST_SUMMON_MONS;
-    case 14:
-    case 13:
-        return MCAST_AGGRAVATION;
-    case 12:
-    case 11:
-    case 10:
-        return MCAST_CURSE_ITEMS;
-    case 9:
-    case 8:
-        return MCAST_DESTRY_ARMR;
-    case 7:
-    case 6:
-        return MCAST_WEAKEN_YOU;
-    case 5:
-    case 4:
-        return MCAST_DISAPPEAR;
-    case 3:
-        return MCAST_STUN_YOU;
-    case 2:
-        return MCAST_HASTE_SELF;
-    case 1:
-        return MCAST_CURE_SELF;
-    case 0:
-    default:
+    /* which spell list to use? */
+    if (mtmp->data->mlet == S_VAMPIRE
+        || mtmp->data == &mons[PM_BLOOD_IMP]) {
+        list = mon_vamp_spells;
+        len = SIZE(mon_vamp_spells);
+    } else if (mtmp->data == &mons[PM_DEMOGORGON]) {
+        list = mon_demo_spells;
+        len = SIZE(mon_demo_spells);
+    } else if (mtmp->data == &mons[PM_DARK_ONE]) {
+        list = mon_shadow_mage_spells;
+        len = SIZE(mon_shadow_mage_spells);
+    } else if (is_undead(mtmp->data) || mtmp->data == &mons[PM_ORCUS]) {
+        list = mon_undead_spells;
+        len = SIZE(mon_undead_spells);
+    } else if (mtmp->data->mlet == S_GNOME || mtmp->data->mlet == S_KOBOLD
+                || mtmp->data == &mons[PM_DISPATER]) {
+        list = mon_trickster_spells;
+        len = SIZE(mon_trickster_spells);
+    } else if (adtyp == AD_CLRC) {
+        if (a == A_LAWFUL) {
+            list = mon_law_cleric_spells;
+            len = SIZE(mon_law_cleric_spells);
+        } else if (a == A_CHAOTIC) {
+            list = mon_chaos_cleric_spells;
+            len = SIZE(mon_chaos_cleric_spells);
+        } else {
+            list = mon_cleric_spells;
+            len = SIZE(mon_cleric_spells);
+        }
+    } else {
+        list = mon_wizard_spells;
+        len = SIZE(mon_wizard_spells);
+    }
+    if (!list || len < 1)
         return MCAST_PSI_BOLT;
-    }
-}
 
-/* convert a level-based random selection into a specific cleric spell */
-staticfn int
-choose_clerical_spell(struct monst *mtmp)
-{
-    int spellnum = rn2(mtmp->m_lev);
+    /* max spell level in this monster spell list */
+    maxlev = mcast_data[list[len - 1]].level;
 
-    /* for 3.4.3 and earlier, num greater than 13 selected the default spell
-     */
-    while (spellnum > 15 && rn2(16))
-        spellnum = rn2(spellnum);
+    /* which level spell to cast? */
+    spellval = rn2(mtmp->m_lev);
+    if (spellval > maxlev && rn2(maxlev))
+        spellval = rn2(maxlev);
 
-    switch (spellnum) {
-    case 15:
-    case 14:
-        if (rn2(3))
-            return MCAST_OPEN_WOUNDS;
-        FALLTHROUGH;
-        /*FALLTHRU*/
-    case 13:
-        return MCAST_GEYSER;
-    case 12:
-        return MCAST_FIRE_PILLAR;
-    case 11:
-        return MCAST_LIGHTNING;
-    case 10:
-    case 9:
-        return MCAST_CURSE_ITEMS;
-    case 8:
-        return MCAST_INSECTS;
-    case 7:
-    case 6:
-        return MCAST_BLIND_YOU;
-    case 5:
-    case 4:
-        return MCAST_PARALYZE;
-    case 3:
-    case 2:
-        return MCAST_CONFUSE_YOU;
-    case 1:
-        return MCAST_CURE_SELF;
-    case 0:
-    default:
-        return MCAST_OPEN_WOUNDS;
-    }
+    /* find the highest spell in the list we could cast */
+    for (i = len-1; i >= 0; i--)
+        if (mcast_data[list[i]].level <= spellval
+            && !spell_would_be_useless(mtmp, list[i]))
+            return list[i];
+
+    /* or return the first spell in the list */
+    return list[0];
 }
 
 /* return values:
@@ -385,7 +279,7 @@ castmu(
         pline_mon(mtmp, "%s casts %s at %s!",
                  ((Role_if(PM_WIZARD) && mattk->adtyp == AD_SPEL)
                     || (Role_if(PM_CLERIC) && mattk->adtyp == AD_CLRC))
-                        ? mon_all_spells[spellnum].name : "a spell",
+                        ? mcast_data[spellnum].name : "a spell",
                  canseemon(mtmp) ? Monnam(mtmp) : "Something",
                  is_waterwall(mtmp->mux, mtmp->muy) ? "empty water"
                                                     : "thin air");
@@ -406,7 +300,7 @@ castmu(
                  canspotmon(mtmp) ? Monnam(mtmp) : "Something",
                  ((Role_if(PM_WIZARD) && mattk->adtyp == AD_SPEL)
                     || (Role_if(PM_CLERIC) && mattk->adtyp == AD_CLRC))
-                        ? mon_all_spells[spellnum].name : "a spell",
+                        ? mcast_data[spellnum].name : "a spell",
                  is_undirected_spell(spellnum) ? ""
                  : (Invis && !perceives(mtmp->data)
                     && !u_at(mtmp->mux, mtmp->muy))
@@ -1265,30 +1159,8 @@ mcast_spell(struct monst *mtmp, int dmg, int spellnum)
 staticfn boolean
 is_undirected_spell(int spellnum)
 {
-    switch (spellnum) {
-    case MCAST_CLONE_WIZ:
-    case MCAST_SUMMON_MONS:
-    case MCAST_AGGRAVATION:
-    case MCAST_DISAPPEAR:
-    case MCAST_HASTE_SELF:
-    case MCAST_BLOODRUSH:
-    case MCAST_RAISE_DEAD:
-    case MCAST_GRAVITY:
-    case MCAST_INSECTS:
-    case MCAST_CHAOS_RAIN:
-    case MCAST_FORCE_FIELD:
-    case MCAST_CURE_SELF:
-    case MCAST_MIRROR_IMAGE:
-    case MCAST_DISGUISE:
-    case MCAST_TELEPORT:
-    case MCAST_BLOOD_SPEAR:
-    case MCAST_BLOOD_RAIN:
-    case MCAST_BLOOD_BIND:
-    case MCAST_DARKNESS:
+    if ((mcast_data[spellnum].flags & MCF_INDIRECT) != 0)
         return TRUE;
-    default:
-        break;
-    }
     return FALSE;
 }
 
@@ -1302,15 +1174,34 @@ spell_would_be_useless(struct monst *mtmp, int spellnum)
      * This check isn't quite right because it always uses your real position.
      * We really want something like "if the monster could see mux, muy".
      */
-    boolean mcouldseeu = couldsee(mtmp->mx, mtmp->my);
     NhRegion *ff;
 
+    /* spell is only cast by hostile monsters */
+    if ((mcast_data[spellnum].flags & MCF_HOSTILE) != 0) {
+        if (mtmp->mpeaceful)
+            return TRUE;
+    }
+
+    /* spell needs the monster to see hero */
+    if ((mcast_data[spellnum].flags & MCF_SIGHT) != 0) {
+        boolean mcouldseeu = couldsee(mtmp->mx, mtmp->my);
+
+        if (!mcouldseeu)
+            return TRUE;
+    }
+
     switch (spellnum) {
+    case MCAST_DEATH_TOUCH:
+        if ((Antimagic || Hallucination) && !rn2(2))
+            return TRUE;
+        break;
+    case MCAST_GEYSER:
+        if (!rn2(5))
+            return TRUE;
+        break;
     case MCAST_CLONE_WIZ:
         /* only the Wizard is allowed to clone himself */
         if (!mtmp->iswiz || svc.context.no_of_wizards > 1)
-            return TRUE;
-        if (!mcouldseeu)
             return TRUE;
         break;
     case MCAST_TELEPORT:
@@ -1321,22 +1212,7 @@ spell_would_be_useless(struct monst *mtmp, int spellnum)
         if (!(Levitation || Flying || Punished))
             return TRUE;
         break;
-    case MCAST_RAISE_DEAD:
-    case MCAST_GRAVITY:
-    case MCAST_CHAOS_RAIN:
-    case MCAST_BLOOD_RAIN:
-    case MCAST_BLOOD_SPEAR:
-    case MCAST_BLOOD_BIND:
-    case MCAST_DARKNESS:
-    case MCAST_SUMMON_MONS:
-        /* don't summon monsters if it doesn't think you're around */
-        if (!mcouldseeu || mtmp->mpeaceful)
-            return TRUE;
-        break;
     case MCAST_AGGRAVATION:
-        /* aggravate monsters, etc. won't be cast by peaceful monsters */
-        if (!mcouldseeu || mtmp->mpeaceful)
-            return TRUE;
         /* aggravation (global wakeup) when everyone is already active */
         /* if nothing needs to be awakened then this spell is useless
            but caster might not realize that [chance to pick it then
@@ -1370,11 +1246,6 @@ spell_would_be_useless(struct monst *mtmp, int spellnum)
         if (mtmp->mhp == mtmp->mhpmax)
             return TRUE;
         break;
-    case MCAST_INSECTS:
-        /* summon insects/sticks to snakes won't be cast by peaceful monsters */
-        if (!mcouldseeu || mtmp->mpeaceful)
-            return TRUE;
-        break;
     case MCAST_BLIND_YOU:
         if (Blinded)
             return TRUE;
@@ -1387,7 +1258,7 @@ spell_would_be_useless(struct monst *mtmp, int spellnum)
         && (spellnum == MCAST_DISGUISE || spellnum == MCAST_MIRROR_IMAGE))
         return TRUE;
     if (spellnum == MCAST_FORCE_FIELD &&
-        (mtmp->mpeaceful || !mcouldseeu || distu(mtmp->mx, mtmp->my) <= 4
+        (mtmp->mpeaceful || distu(mtmp->mx, mtmp->my) <= 4
         || (((ff = visible_region_at(u.ux, u.uy)) != 0)
             && ff->glyph == S_force_field)))
         return TRUE;
@@ -1395,8 +1266,7 @@ spell_would_be_useless(struct monst *mtmp, int spellnum)
     if (mtmp->mhp == mtmp->mhpmax && spellnum == MCAST_CURE_SELF)
         return TRUE;
     /* don't summon insects if it doesn't think you're around */
-    if (!mcouldseeu &&
-        (spellnum == MCAST_INSECTS || spellnum == MCAST_CHAOS_RAIN
+    if ((spellnum == MCAST_INSECTS || spellnum == MCAST_CHAOS_RAIN
          || spellnum == MCAST_BLOOD_RAIN || spellnum == MCAST_BLOOD_SPEAR
          || spellnum == MCAST_BLOOD_BIND))
         return TRUE;

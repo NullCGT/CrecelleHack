@@ -1430,8 +1430,9 @@ get_level_extends(
     *bottom = ymax;
 }
 
-/* put a non-diggable boundary around the initial portion of a level map.
- * assumes that no level will initially put things beyond the isok() range.
+/* put a non-diggable/non-phaseable boundary around the initial portion
+ * of a level map. assumes that no level will initially put things
+ * beyond the isok() range.
  *
  * we can't bound unconditionally on the last line with something in it,
  * because that something might be a niche which was already reachable,
@@ -1453,9 +1454,14 @@ bound_digging(void)
 
     for (x = 0; x < COLNO; x++)
         for (y = 0; y < ROWNO; y++)
-            if (IS_STWALL(levl[x][y].typ)
-                && (y <= ymin || y >= ymax || x <= xmin || x >= xmax))
-                levl[x][y].wall_info |= W_NONDIGGABLE;
+            if (IS_STWALL(levl[x][y].typ)) {
+                /* undiggable walls at edges, ... */
+                if (y <= ymin || y >= ymax || x <= xmin || x >= xmax)
+                    levl[x][y].wall_info |= W_NONDIGGABLE;
+                /* one tile past that, everything is also unphaseable */
+                if (y < ymin || y > ymax || x < xmin || x > xmax)
+                    levl[x][y].wall_info |= W_NONPASSWALL;
+            }
 }
 
 void

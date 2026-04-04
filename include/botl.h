@@ -27,6 +27,9 @@ Astral Plane \GXXXXNNNN:123456 HP:1234(1234) Pw:1234(1234) AC:-127
 #define MAXCO (COLNO + 40)
 #endif
 
+/* limit of the player's name in the status window */
+#define BOTL_NSIZ 16
+
 struct condmap {
     const char *id;
     unsigned long bitmask;

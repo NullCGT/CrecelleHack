@@ -308,6 +308,10 @@ add_room(coordxy lowx, coordxy lowy, coordxy hix, coordxy hiy,
 {
     struct mkroom *croom;
 
+#ifdef DEBUG
+    if (svn.nroom >= MAXNROFROOMS)
+        panic("level has too many rooms");
+#endif /*DEBUG*/
     croom = &svr.rooms[svn.nroom];
     do_room_or_subroom(croom, lowx, lowy, hix, hiy, lit, rtype, special,
                        (boolean) TRUE);
@@ -324,6 +328,12 @@ add_subroom(struct mkroom *proom,
 {
     struct mkroom *croom;
 
+#ifdef DEBUG
+    if (gn.nsubroom >= MAXNROFROOMS)
+        panic("level has too many subrooms");
+    if (proom->nsubrooms >= MAX_SUBROOMS)
+        panic("room has too many subrooms");
+#endif /*DEBUG*/
     croom = &gs.subrooms[gn.nsubroom];
     do_room_or_subroom(croom, lowx, lowy, hix, hiy, lit, rtype, special,
                        (boolean) FALSE);

@@ -110,9 +110,13 @@ enum optchoice { opt_in, opt_out};
 typedef uchar nhsym;
 
 #ifndef STRNCMPI
-#ifndef __SASC_60 /* SAS/C already shifts to stricmp */
+/* SAS/C already shifts to stricmp */
+#if !defined(__SASC_60) && !defined(CROSS_TO_AMIGA)
 #define strcmpi(a, b) strncmpi((a), (b), -1)
 #endif
+#endif
+#ifdef CROSS_TO_AMIGA
+#define strcmpi(a, b) stricmp(a, b)
 #endif
 
 /* #define SPECIALIZATION */ /* do "specialized" version of new topology */

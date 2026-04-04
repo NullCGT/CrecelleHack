@@ -2504,7 +2504,7 @@ doorder(void)
     skill_level = P_SKILL(P_PET_HANDLING);
 
     /* No longer need the #order tip */
-    svc.context.tips[TIP_ORDER] = TRUE;
+    svc.context.tips |= (1 << TIP_ORDER);
     /* Build order menu */
     win = create_nhwindow(NHW_MENU);
     start_menu(win, MENU_BEHAVE_STANDARD);

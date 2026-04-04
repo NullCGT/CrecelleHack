@@ -394,8 +394,10 @@ $(TARGETPFX)sf-version.o: ../src/version.c $(HACK_H)
 $(TARGETPFX)sf-worm.o: ../src/worm.c $(HACK_H)
 	$(TARGET_CC) $(TARGET_CFLAGS) $(SFFLAGS) -o $@ -c ../src/worm.c
 
-sftags: sftags.o $(HACKLIB)
-	$(CLINK) $(LFLAGS) -o $@ sftags.o $(HACKLIB) $(LIBS)
+sftags: sftags.o $(HACKLIB) $(TARGETPFX)sf-alloc.o $(TARGETPFX)panic.o
+	$(CLINK) $(LFLAGS) -o $@ sftags.o \
+		$(TARGETPFX)sf-alloc.o $(TARGETPFX)panic.o \
+		$(HACKLIB) $(LIBS)
 sftags.o: sftags.c $(HACK_H)
 	$(CC) $(CFLAGS) -c sftags.c
 ../include/sfproto.h: sf.tags sftags

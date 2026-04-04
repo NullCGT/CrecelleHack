@@ -2324,7 +2324,8 @@ the(const char *str)
         insert_the = TRUE;
     } else {
         /* Probably a proper name, might not need an article */
-        char *tmp, *named, *called;
+        char *named, *called;
+        const char *tmp;
         int l;
 
         /* some objects have capitalized adjectives in their names */

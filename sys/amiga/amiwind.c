@@ -891,6 +891,10 @@ amii_loadlib(void)
 {
 }
 
+#ifdef CROSS_TO_AMIGA
+extern void Abort(long) NORETURN;
+#endif
+
 /* fatal error */
 /*VARARGS1*/
 void error

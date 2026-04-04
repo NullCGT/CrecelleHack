@@ -1589,6 +1589,10 @@ amulet of magical breathing increases power regeneration
 change some command keys, 'v' is now chronicle, 'V' is versionshort,
 	m-prefix 'V' is longer version, remove key binding of #history
 one orc-town shaman has a higher level, affecting spellcasting
+hero has a small chance of catching items thrown at them
+wizard mode: history menu for #wizwish and WIZKIT
+monster priests and wizards did not cast spells
+prevent phaseable monsters hiding deep inside nondiggable walls
 
 
 Fixes to 3.7.0-x General Problems Exposed Via git Repository

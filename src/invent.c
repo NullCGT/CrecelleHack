@@ -159,7 +159,7 @@ loot_classify(Loot *sort_item, struct obj *obj)
     };
     static char armcat[8];
     const char *classorder;
-    char *p;
+    const char *p;
     int k, otyp = obj->otyp, oclass = obj->oclass;
     boolean seen, discovered = objects[otyp].oc_name_known ? TRUE : FALSE;
 

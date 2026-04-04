@@ -794,6 +794,7 @@ HACK_H = $(CONFIG_H) ../include/align.h ../include/artilist.h \
 	../include/decl.h ../include/defsym.h ../include/display.h \
 	../include/dungeon.h ../include/engrave.h ../include/flag.h \
 	../include/hack.h ../include/lint.h ../include/mextra.h \
+	../include/mcastu.h \
 	../include/mkroom.h ../include/monattk.h ../include/mondata.h \
 	../include/monflag.h ../include/monst.h ../include/monsters.h \
 	../include/nhlua.h ../include/obj.h ../include/objclass.h \
@@ -1231,7 +1232,7 @@ COREOBJS = $(addsuffix .o, allmain alloc apply artifact attrib ball bones botl \
 	   calendar cfgfiles cmd coloratt cppregex \
 	   dbridge decl detect dig display dlb do do_name do_wear \
 	   dog dogmove dokick dothrow drawing dungeon \
-	   eat end engrave exper explode extralev files fountain \
+	   earlyarg eat end engrave exper explode extralev files fountain \
 	   getpos glyphs hack iactions insight invent isaac64 light lock \
 	   mail makemon mcastu mdlib mhitm mhitu minion mklev mkmap mkmaze mkobj mkroom \
 	   mon mondata monmove monst mplayer mthrowu muse music \

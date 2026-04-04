@@ -2702,7 +2702,7 @@ const int altarcolors[] = {
     altar_color_unaligned, altar_color_chaotic, altar_color_neutral,
     altar_color_lawful, altar_color_other
 };
-const int explodecolors[7] = {
+const int explodecolors[EXPL_MAX] = {
     explode_color_dark,   explode_color_noxious, explode_color_muddy,
     explode_color_wet,    explode_color_magical, explode_color_fiery,
     explode_color_frosty,

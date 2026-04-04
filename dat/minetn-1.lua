@@ -91,7 +91,7 @@ des.object({ id = "corpse", montype="watchman" })
 des.object({ id = "corpse", montype="watch captain" })
 
 -- Rubble!
-for i=1,9 + math.random(2 - 1,2*5) do
+for i = 1, math.random(10,19) do
   if percent(90) then
     des.object("boulder")
   end
@@ -121,7 +121,7 @@ des.object({ id = "wand of magic missile", coord = place[5], buc="uncursed", spe
 local inside = selection.floodfill(18,8)
 local near_temple = selection.area(17,8, 23,14) & inside
 
-for i=1,5 + math.random(1 - 1,1*10) do
+for i = 1, math.random(5,15) do
    if percent(50) then
       des.monster({ id = "orc-captain", coord = inside:rndcoord(1), peaceful=0 });
    else
@@ -134,13 +134,13 @@ for i=1,5 + math.random(1 - 1,1*10) do
 end
 -- shamans can be hanging out in/near the temple
 -- one of the shamans is higher level
-for i=1,math.random(1,6) do
+for i = 1, math.random(1,6) do
    des.monster({ id = "orc shaman", coord = near_temple:rndcoord(0), peaceful=0,
                  m_lev_adj = (i == 1) and 3 or 0 });
 end
 -- these are not such a big deal
 -- to run into outside the bars
-for i=1,9 + math.random(2 - 1,2*5) do
+for i = 1, math.random(10,19) do
    if percent(90) then
       des.monster({ id = "hill orc", peaceful = 0 })
    else

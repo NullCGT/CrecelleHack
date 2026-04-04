@@ -2016,7 +2016,7 @@ struct ext_func_tab extcmdlist[] = {
     { '\0',   "wizwhere", "show locations of special levels",
               wiz_where, IFBURIED | AUTOCOMPLETE | WIZMODECMD, NULL },
     { C('w'), "wizwish", "wish for something",
-              wiz_wish, IFBURIED | WIZMODECMD, NULL },
+              wiz_wish, IFBURIED | CMD_M_PREFIX | WIZMODECMD, NULL },
     { '\0',   "wmode", "show wall modes",
               wiz_show_wmodes, IFBURIED | AUTOCOMPLETE | WIZMODECMD, NULL },
     { 'z',    "zap", "zap a wand",

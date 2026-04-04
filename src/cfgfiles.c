@@ -34,7 +34,7 @@ staticfn void free_config_sections(void);
 staticfn char *is_config_section(char *);
 staticfn boolean handle_config_section(char *);
 boolean parse_config_line(char *);
-staticfn char *find_optparam(const char *);
+staticfn char *find_optparam(char *);
 #ifndef SFCTOOL
 staticfn boolean cnf_line_OPTIONS(char *);
 staticfn boolean cnf_line_AUTOPICKUP_EXCEPTION(char *);
@@ -585,7 +585,7 @@ handle_config_section(char *buf)
 
 /* find the '=' or ':' */
 staticfn char *
-find_optparam(const char *buf)
+find_optparam(char *buf)
 {
     char *bufp, *altp;
 

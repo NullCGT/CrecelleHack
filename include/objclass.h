@@ -152,7 +152,7 @@ struct objclass {
     uchar oc_color; /* color of the object */
 
     short oc_prob;            /* probability, used in mkobj() */
-    unsigned short oc_weight; /* encumbrance (1 cn = 0.1 lb.) */
+    unsigned oc_weight;       /* encumbrance (1 cn = 0.1 lb.) */
     short oc_cost;            /* base cost in shops */
     /* We no longer use the AD&D rules! :) */
     /* for weapons, and tools, rocks, and gems useful as weapons */

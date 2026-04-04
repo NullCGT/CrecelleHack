@@ -105,7 +105,6 @@ extern void stop_occupation(void);
 extern void init_sound_disp_gamewindows(void);
 extern void newgame(void);
 extern void welcome(boolean);
-extern int argcheck(int, char **, enum earlyarg);
 extern long timet_to_seconds(time_t);
 extern long timet_delta(time_t, time_t);
 
@@ -956,6 +955,10 @@ extern void overview_stats(winid, const char *, long *, long *) NONNULLPTRS;
 extern void remdun_mapseen(int);
 extern const char *endgamelevelname(char *, int);
 extern void init_biomes(int);
+
+/* ### earlyarg.c ### */
+
+extern int argcheck(int, char **, enum earlyarg);
 
 /* ### eat.c ### */
 
@@ -4164,6 +4167,8 @@ extern boolean inventory_resistance_check(int);
 extern char *item_what(int);
 extern int destroy_items(struct monst *, int, int) NONNULLARG1;
 extern int resist(struct monst *, char, int, int) NONNULLARG1;
+extern void wish_history_add(char *);
+extern void wish_history_flush(void);
 extern void makewish(void);
 extern const char *flash_str(int, boolean) NONNULL;
 

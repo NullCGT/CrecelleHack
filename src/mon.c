@@ -2587,6 +2587,8 @@ mm_2way_aggression(struct monst *magr, struct monst *mdef)
        them waking up early (e.g. because a zombie decided to attack the
        Wizard of Yendor). */
     if (zombie_maker(magr) && zombie_form(mdef->data) != NON_PM) {
+        if (magr->mgenmklev && mdef->mgenmklev)
+            return 0L;
         if (!Is_stronghold(&u.uz)
             && !unique_corpstat(magr->data) && !unique_corpstat(mdef->data))
             return (ALLOW_M | ALLOW_TM);

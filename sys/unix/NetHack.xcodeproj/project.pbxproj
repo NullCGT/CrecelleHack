@@ -209,6 +209,7 @@
 		F5857AA22DED026700A8CB4F /* version.c in Sources */ = {isa = PBXBuildFile; fileRef = 31B8A32721A238010055BD01 /* version.c */; };
 		F5857AA42DED032D00A8CB4F /* cfgfiles.c in Sources */ = {isa = PBXBuildFile; fileRef = F5857AA32DED032C00A8CB4F /* cfgfiles.c */; };
 		F5857AA62DED03BB00A8CB4F /* sfbase.c in Sources */ = {isa = PBXBuildFile; fileRef = F5857AA52DED03BB00A8CB4F /* sfbase.c */; };
+		F5E66A222F7D4B30000E30B7 /* earlyarg.c in Sources */ = {isa = PBXBuildFile; fileRef = F5E66A212F7D4B30000E30B7 /* earlyarg.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -634,6 +635,7 @@
 		F54C1AE42E43D22A006CAA8E /* sfprocs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = sfprocs.h; path = ../../include/include/sfprocs.h; sourceTree = "<group>"; };
 		F5857AA32DED032C00A8CB4F /* cfgfiles.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = cfgfiles.c; path = ../../src/cfgfiles.c; sourceTree = "<group>"; };
 		F5857AA52DED03BB00A8CB4F /* sfbase.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = sfbase.c; path = ../../src/sfbase.c; sourceTree = "<group>"; };
+		F5E66A212F7D4B30000E30B7 /* earlyarg.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = earlyarg.c; path = ../../src/earlyarg.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -693,6 +695,7 @@
 		3189576821A1FCC100FB2ABE = {
 			isa = PBXGroup;
 			children = (
+				F5E66A212F7D4B30000E30B7 /* earlyarg.c */,
 				F50818302F6F564300D2AAFA /* iactions.c */,
 				F515A73B2DED0B47006E1F63 /* hacklib.c */,
 				F5457B202DED146B00039D83 /* hacklib.c */,
@@ -1876,6 +1879,7 @@
 				31B8A41321A23F650055BD01 /* version.c in Sources */,
 				31B8A3BB21A238060055BD01 /* allmain.c in Sources */,
 				31B8A39521A238060055BD01 /* windows.c in Sources */,
+				F5E66A222F7D4B30000E30B7 /* earlyarg.c in Sources */,
 				31B8A38621A238060055BD01 /* mondata.c in Sources */,
 				31B8A41921A244940055BD01 /* objects.c in Sources */,
 				31B8A3AA21A238060055BD01 /* wizard.c in Sources */,

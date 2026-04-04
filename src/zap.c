@@ -40,6 +40,7 @@ staticfn boolean destroyable(struct obj *, int);
 staticfn boolean elemental_shift(struct monst *, int);
 
 staticfn void wishcmdassist(int);
+staticfn void wish_history_menu(char *);
 
 #define ZT_MAGIC_MISSILE (AD_MAGM - 1)
 #define ZT_FIRE (AD_FIRE - 1)
@@ -6602,6 +6603,96 @@ wishcmdassist(int triesleft)
     destroy_nhwindow(win);
 }
 
+#define MAX_WISH_HISTORY 20
+static char *wish_history[MAX_WISH_HISTORY] = { NULL };
+static int wish_history_idx = 0;
+
+/* add string to wish history list */
+void
+wish_history_add(char *buf)
+{
+#ifdef DEBUG
+    int i;
+
+    if (!wizard)
+        return;
+
+    for (i = 0; i < MAX_WISH_HISTORY; i++) {
+        int idx = (wish_history_idx + i) % MAX_WISH_HISTORY;
+
+        if (!wish_history[idx])
+            continue;
+        if (!strncmpi(wish_history[idx], buf, strlen(wish_history[idx])))
+            break;
+
+    }
+
+    if (i == MAX_WISH_HISTORY) {
+        int idx = (wish_history_idx + i) % MAX_WISH_HISTORY;
+
+        if (wish_history[idx])
+            free(wish_history[idx]);
+        wish_history[idx] = (char *) alloc(strlen(buf) + 1);
+        strcpy(wish_history[idx], buf);
+        wish_history_idx = (wish_history_idx + 1) % MAX_WISH_HISTORY;
+    }
+#endif /* DEBUG */
+}
+
+/* release any old wish text; called from freedynamicdata(save.c) */
+void
+wish_history_flush(void)
+{
+#ifdef DEBUG
+    int idx;
+
+    for (idx = 0; idx < MAX_WISH_HISTORY; ++idx) {
+        if (wish_history[idx])
+            free((genericptr_t) wish_history[idx]), wish_history[idx] = NULL;
+    }
+    wish_history_idx = 0;
+#endif
+}
+
+/* shows menu of previous wishes, copies selected into buf, max BUFSZ len.
+   buf is not modified, if nothing was selected. */
+staticfn void
+wish_history_menu(char *buf)
+{
+#ifdef DEBUG
+    winid win;
+    anything any;
+    int i = 0, npick;
+    menu_item *picks = (menu_item *) 0;
+    int idx;
+
+    win = create_nhwindow(NHW_MENU);
+    start_menu(win, MENU_BEHAVE_STANDARD);
+    any = cg.zeroany;
+
+    for (i = MAX_WISH_HISTORY-1; i >= 0; i--) {
+        idx = (wish_history_idx + i) % MAX_WISH_HISTORY;
+        if (wish_history[idx]) {
+            any.a_int = (i + 1);
+            add_menu(win, &nul_glyphinfo, &any, '\0', 0, ATR_NONE, NO_COLOR,
+                     wish_history[idx], MENU_ITEMFLAGS_NONE);
+        }
+    }
+
+    end_menu(win, "Wish what?");
+    npick = select_menu(win, PICK_ONE, &picks);
+    destroy_nhwindow(win);
+    if (npick > 0) {
+        i = picks->item.a_int;
+        i--;
+        idx = (wish_history_idx + i) % MAX_WISH_HISTORY;
+
+        if (wish_history[idx])
+            strcpy(buf, wish_history[idx]);
+    }
+#endif /* DEBUG */
+}
+
 RESTORE_WARNING_FORMAT_NONLITERAL
 
 void
@@ -6624,7 +6715,11 @@ makewish(void)
     if (iflags.cmdassist && tries > 0)
         Strcat(promptbuf, " (enter 'help' for assistance)");
     Strcat(promptbuf, "?");
-    getlin(promptbuf, buf);
+
+    if (iflags.menu_requested && wish_history[0] && (tries == 0))
+        wish_history_menu(buf);
+    else
+        getlin(promptbuf, buf);
 
     if (iflags.term_gone) {
         if (!iflags.debug_fuzzer)
@@ -6662,9 +6757,11 @@ makewish(void)
         livelog_printf(LL_WISH, "declined to make a wish");
         return;
     } else if (otmp == &hands_obj) {
+        wish_history_add(bufcpy);
         /* wizard mode terrain wish: skip livelogging, etc */
         return;
     }
+    wish_history_add(bufcpy);
 
     if (otmp->oartifact) {
         /* update artifact bookkeeping; doesn't produce a livelog event */

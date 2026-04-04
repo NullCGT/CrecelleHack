@@ -31,10 +31,10 @@ void getreturn(const char *);
 #ifndef msmsg
 void msmsg( const char *, ... );
 #endif
-#if !defined(__SASC_60) && !defined(_DCC)
+#if !defined(__SASC_60) && !defined(_DCC) && !defined(CROSS_TO_AMIGA)
 int chdir(char *);
 #endif
-#ifndef	strcmpi
+#ifndef        strcmpi
 int strcmpi(char * , char *);
 #endif
 #if !defined(memcmp) && !defined(AZTEC_C) && !defined(_DCC) && !defined(__GNUC__)

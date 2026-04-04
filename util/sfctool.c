@@ -96,7 +96,7 @@ int util_strncmpi(const char *s1, const char *s2, size_t sz);
 #ifdef UNIX
 #define nethack_exit exit
 ATTRNORETURN void nh_terminate(int) NORETURN;   /* bwrite() calls this */
-static void chdirx(const char *);
+static void chdirx(const char *, boolean);
 #else
 ATTRNORETURN extern void nethack_exit(int) NORETURN;
 #ifdef WIN32
@@ -184,7 +184,7 @@ main(int argc, char *argv[])
     folderbuf[1] = '/';
     folderbuf[2] = '\0';
 #ifdef CHDIR
-    chdirx(HACKDIR);
+    chdirx(HACKDIR, FALSE);
 #endif
 #endif
 #ifdef UNIX
@@ -809,8 +809,8 @@ nethack_exit(int code)
 
 #ifdef UNIX
 #ifdef CHDIR
-static void
-chdirx(const char *dir)
+void
+chdirx(const char *dir, boolean wr UNUSED)
 {
     if (dir) {
 #ifdef SECURE

@@ -768,9 +768,10 @@ int
 dodiscovered(void) /* free after Robert Viduya */
 {
     winid tmpwin;
-    char *s, *p, oclass, prev_class,
+    char *s, oclass, prev_class,
          classes[MAXOCLASSES], buf[BUFSZ],
          *sorted_lines[NUM_OBJECTS]; /* overkill */
+    const char *p;
     int i, dis, ct, uniq_ct, arti_ct, sorted_ct, uidx;
     long sortindx;  // should be ptrdiff_t, but we don't require that exists
     boolean alphabetized, alphabyclass, lootsort;
@@ -901,9 +902,10 @@ doclassdisco(void)
     winid tmpwin = WIN_ERR;
     menu_item *pick_list = 0;
     anything any;
-    char *p, *s, c, oclass, menulet, allclasses[MAXOCLASSES],
+    char *s, c, oclass, menulet, allclasses[MAXOCLASSES],
          discosyms[3 + MAXOCLASSES + 1], buf[BUFSZ],
          *sorted_lines[NUM_OBJECTS]; /* overkill */
+    const char *p;
     int i, ct, dis, xtras, sorted_ct, uidx;
     boolean traditional, alphabetized, lootsort;
     int clr = NO_COLOR;
@@ -1109,12 +1111,14 @@ doclassdisco(void)
         } else if (sorted_ct) {
             qsort(sorted_lines, sorted_ct, sizeof (char *), discovered_cmp);
             for (i = 0; i < sorted_ct; ++i) {
-                p = sorted_lines[i];
+                char *sl;
+
+                sl = sorted_lines[i];
                 if (lootsort) {
-                    p[6] = p[0]; /* '*' or ' ' */
-                    p += 6;
+                    sl[6] = sl[0]; /* '*' or ' ' */
+                    sl += 6;
                 }
-                putstr(tmpwin, 0, p);
+                putstr(tmpwin, 0, sl);
                 free(sorted_lines[i]), sorted_lines[i] = 0;
             }
         }

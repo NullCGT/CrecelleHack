@@ -9,7 +9,7 @@
 #
 #       Visual Studio Compilers Tested:
 #            - Microsoft Visual Studio Community 2022 v 17.14.29
-#            - Microsoft Visual Studio Community 2026 v 18.4.1
+#            - Microsoft Visual Studio Community 2026 v 18.4.2
 #
 #==============================================================================
 #   This is used for building two distinct executables of NetHack:
@@ -650,65 +650,64 @@ PDCINCLCON=
 # windowing-system specific
 
 HACKCSRC = \
-	$(SRC)allmain.c  $(SRC)alloc.c   $(SRC)apply.c    $(SRC)artifact.c \
-	$(SRC)attrib.c   $(SRC)ball.c    $(SRC)bones.c    $(SRC)botl.c \
-	$(SRC)calendar.c $(SRC)cmd.c     $(SRC)coloratt.c $(SRC)dbridge.c \
-	$(SRC)decl.c     $(SRC)detect.c  $(SRC)dig.c      $(SRC)display.c \
-	$(SRC)dlb.c      $(SRC)do.c      $(SRC)do_name.c  $(SRC)do_wear.c \
-	$(SRC)dog.c      $(SRC)dogmove.c $(SRC)dokick.c   $(SRC)dothrow.c \
-	$(SRC)drawing.c  $(SRC)dungeon.c $(SRC)eat.c      $(SRC)end.c \
-	$(SRC)engrave.c  $(SRC)exper.c   $(SRC)explode.c  $(SRC)files.c \
-	$(SRC)fountain.c $(SRC)getpos.c  $(SRC)glyphs.c   $(SRC)hack.c \
-	$(SRC)iactions.c \
-	$(SRC)insight.c  $(SRC)invent.c  $(SRC)isaac64.c  $(SRC)light.c \
-	$(SRC)lock.c     $(SRC)mail.c    $(SRC)makemon.c  $(SRC)mcastu.c \
-	$(SRC)mdlib.c    $(SRC)mhitm.c   $(SRC)mhitu.c    $(SRC)minion.c \
-	$(SRC)mklev.c    $(SRC)mkmap.c   $(SRC)mkmaze.c   $(SRC)mkobj.c \
-	$(SRC)mkroom.c   $(SRC)mon.c     $(SRC)mondata.c  $(SRC)monmove.c \
-	$(SRC)monst.c    $(SRC)mplayer.c $(SRC)mthrowu.c  $(SRC)muse.c \
-	$(SRC)music.c    $(SRC)nhlua.c   $(SRC)nhlsel.c   $(SRC)nhlobj.c \
-	$(SRC)o_init.c   $(SRC)objects.c $(SRC)objnam.c   $(SRC)options.c \
-	$(SRC)pager.c    $(SRC)pickup.c  $(SRC)pline.c    $(SRC)polyself.c \
-	$(SRC)potion.c   $(SRC)pray.c    $(SRC)priest.c   $(SRC)quest.c \
-	$(SRC)questpgr.c $(SRC)read.c    $(SRC)rect.c     $(SRC)region.c \
-	$(SRC)restore.c  $(SRC)rip.c     $(SRC)rnd.c      $(SRC)role.c \
-	$(SRC)rumors.c   $(SRC)save.c    $(SRC)selvar.c\
-	$(SRC)sfbase.c   $(SRC)sfstruct.c \
-	$(SRC)shk.c      $(SRC)shknam.c  $(SRC)sit.c      $(SRC)sounds.c \
-	$(SRC)sp_lev.c   $(SRC)spell.c   $(SRC)stairs.c   $(SRC)steal.c \
-	$(SRC)steed.c    $(SRC)symbols.c $(SRC)sys.c      $(SRC)teleport.c \
-	$(SRC)timeout.c  $(SRC)topten.c  $(SRC)track.c    $(SRC)trap.c \
-	$(SRC)u_init.c   $(SRC)uhitm.c   $(SRC)utf8map.c  $(SRC)vault.c \
-	$(SRC)version.c  $(SRC)vision.c  $(SRC)weapon.c   $(SRC)were.c \
-	$(SRC)wield.c    $(SRC)windows.c $(SRC)wizard.c   $(SRC)worm.c \
-	$(SRC)worn.c     $(SRC)write.c   $(SRC)zap.c
+	$(SRC)allmain.c  $(SRC)alloc.c    $(SRC)apply.c    $(SRC)artifact.c \
+	$(SRC)attrib.c   $(SRC)ball.c     $(SRC)bones.c    $(SRC)botl.c \
+	$(SRC)calendar.c $(SRC)cmd.c      $(SRC)coloratt.c $(SRC)dbridge.c \
+	$(SRC)decl.c     $(SRC)detect.c   $(SRC)dig.c      $(SRC)display.c \
+	$(SRC)dlb.c      $(SRC)do.c       $(SRC)do_name.c  $(SRC)do_wear.c \
+	$(SRC)dog.c      $(SRC)dogmove.c  $(SRC)dokick.c   $(SRC)dothrow.c \
+	$(SRC)drawing.c  $(SRC)dungeon.c  $(SRC)earlyarg.c $(SRC)eat.c \
+	$(SRC)end.c      $(SRC)engrave.c  $(SRC)exper.c    $(SRC)explode.c \
+	$(SRC)files.c    $(SRC)fountain.c $(SRC)getpos.c   $(SRC)glyphs.c \
+	$(SRC)hack.c     $(SRC)iactions.c $(SRC)insight.c  $(SRC)invent.c \
+	$(SRC)isaac64.c  $(SRC)light.c    $(SRC)lock.c     $(SRC)mail.c \
+	$(SRC)makemon.c  $(SRC)mcastu.c   $(SRC)mdlib.c    $(SRC)mhitm.c \
+	$(SRC)mhitu.c    $(SRC)minion.c   $(SRC)mklev.c    $(SRC)mkmap.c \
+	$(SRC)mkmaze.c   $(SRC)mkobj.c    $(SRC)mkroom.c   $(SRC)mon.c \
+	$(SRC)mondata.c  $(SRC)monmove.c  $(SRC)monst.c    $(SRC)mplayer.c \
+	$(SRC)mthrowu.c  $(SRC)muse.c     $(SRC)music.c    $(SRC)nhlua.c \
+	$(SRC)nhlsel.c   $(SRC)nhlobj.c   $(SRC)o_init.c   $(SRC)objects.c \
+	$(SRC)objnam.c   $(SRC)options.c  $(SRC)pager.c    $(SRC)pickup.c \
+	$(SRC)pline.c    $(SRC)polyself.c $(SRC)potion.c   $(SRC)pray.c \
+	$(SRC)priest.c   $(SRC)quest.c    $(SRC)questpgr.c $(SRC)read.c \
+	$(SRC)rect.c     $(SRC)region.c   $(SRC)restore.c  $(SRC)rip.c \
+	$(SRC)rnd.c      $(SRC)role.c     $(SRC)rumors.c   $(SRC)save.c \
+	$(SRC)selvar.c   $(SRC)sfbase.c   $(SRC)sfstruct.c $(SRC)shk.c \
+	$(SRC)shknam.c   $(SRC)sit.c      $(SRC)sounds.c   $(SRC)sp_lev.c \
+	$(SRC)spell.c    $(SRC)stairs.c   $(SRC)steal.c    $(SRC)steed.c \
+	$(SRC)symbols.c  $(SRC)sys.c      $(SRC)teleport.c $(SRC)timeout.c \
+	$(SRC)topten.c   $(SRC)track.c    $(SRC)trap.c     $(SRC)u_init.c \
+	$(SRC)uhitm.c    $(SRC)utf8map.c  $(SRC)vault.c    $(SRC)version.c \
+	$(SRC)vision.c   $(SRC)weapon.c   $(SRC)were.c     $(SRC)wield.c \
+	$(SRC)windows.c  $(SRC)wizard.c   $(SRC)worm.c     $(SRC)worn.c \
+	$(SRC)write.c    $(SRC)zap.c
 
 # all .h files except date.h
 HACKINCL = \
-	$(INCL)align.h      $(INCL)artifact.h $(INCL)artilist.h \
-	$(INCL)attrib.h     $(INCL)botl.h     $(INCL)color.h \
-	$(INCL)config.h     $(INCL)config1.h  $(INCL)context.h \
-	$(INCL)coord.h      $(INCL)cstd.h     $(INCL)decl.h \
-	$(INCL)defsym.h     $(INCL)display.h  $(INCL)dlb.h \
-	$(INCL)dungeon.h    $(INCL)engrave.h  $(INCL)extern.h \
-	$(INCL)flag.h       $(INCL)fnamesiz.h $(INCL)func_tab.h \
-	$(INCL)global.h     $(INCL)warnings.h $(INCL)hack.h \
-	$(INCL)lint.h       $(INCL)mextra.h   $(INCL)micro.h \
-	$(INCL)mfndpos.h    $(INCL)mkroom.h   $(INCL)monattk.h \
-	$(INCL)mondata.h    $(INCL)monflag.h  $(INCL)monst.h \
-	$(INCL)monsters.h   $(INCL)nhmd4.h    $(INCL)obj.h \
-	$(INCL)objects.h    $(INCL)objclass.h $(INCL)optlist.h \
-	$(INCL)patchlevel.h $(INCL)pcconf.h   $(INCL)permonst.h \
-	$(INCL)prop.h       $(INCL)rect.h     $(INCL)region.h \
-	$(INCL)savefile.h   $(INCL)selvar.h   $(INCL)sfprocs.h \
-	$(INCL)sym.h        $(INCL)rm.h       $(INCL)sp_lev.h \
-	$(INCL)spell.h      $(INCL)sndprocs.h $(INCL)seffects.h \
-	$(INCL)stairs.h     $(INCL)sys.h      $(INCL)tcap.h \
-	$(INCL)timeout.h    $(INCL)tradstdc.h $(INCL)trap.h \
-	$(INCL)unixconf.h   $(INCL)vision.h   $(INCL)vmsconf.h \
-	$(INCL)wintty.h     $(INCL)wincurs.h  $(INCL)winX.h \
-	$(INCL)winprocs.h   $(INCL)wintype.h  $(INCL)you.h \
-	$(INCL)youprop.h    $(INCL)weight.h
+	$(INCL)align.h    $(INCL)artifact.h   $(INCL)artilist.h \
+	$(INCL)attrib.h   $(INCL)botl.h       $(INCL)color.h \
+	$(INCL)config.h   $(INCL)config1.h    $(INCL)context.h \
+	$(INCL)coord.h    $(INCL)cstd.h       $(INCL)decl.h \
+	$(INCL)defsym.h   $(INCL)display.h    $(INCL)dlb.h \
+	$(INCL)dungeon.h  $(INCL)engrave.h    $(INCL)extern.h \
+	$(INCL)flag.h     $(INCL)fnamesiz.h   $(INCL)func_tab.h \
+	$(INCL)global.h   $(INCL)warnings.h   $(INCL)hack.h \
+	$(INCL)lint.h     $(INCL)mextra.h     $(INCL)micro.h \
+	$(INCL)mcastu.h   $(INCL)mfndpos.h    $(INCL)mkroom.h \
+	$(INCL)monattk.h  $(INCL)mondata.h    $(INCL)monflag.h \
+	$(INCL)monst.h    $(INCL)monsters.h   $(INCL)nhmd4.h \
+	$(INCL)obj.h      $(INCL)objects.h    $(INCL)objclass.h \
+	$(INCL)optlist.h  $(INCL)patchlevel.h $(INCL)pcconf.h \
+	$(INCL)permonst.h $(INCL)prop.h       $(INCL)rect.h \
+	$(INCL)region.h   $(INCL)savefile.h   $(INCL)selvar.h \
+	$(INCL)sfprocs.h  $(INCL)sym.h        $(INCL)rm.h \
+	$(INCL)sp_lev.h   $(INCL)spell.h      $(INCL)sndprocs.h \
+	$(INCL)seffects.h $(INCL)stairs.h     $(INCL)sys.h \
+	$(INCL)tcap.h     $(INCL)timeout.h    $(INCL)tradstdc.h \
+	$(INCL)trap.h     $(INCL)unixconf.h   $(INCL)vision.h \
+	$(INCL)vmsconf.h  $(INCL)wintty.h     $(INCL)wincurs.h \
+	$(INCL)winX.h     $(INCL)winprocs.h   $(INCL)wintype.h \
+	$(INCL)you.h      $(INCL)youprop.h  $(INCL)weight.h
 
 LUA_FILES = $(DAT)asmodeus.lua $(DAT)baalz.lua $(DAT)bigrm-1.lua \
 	$(DAT)bigrm-10.lua $(DAT)bigrm-11.lua $(DAT)bigrm-12.lua \
@@ -861,31 +860,31 @@ COREOBJTTY = \
 	$(OTTY)dbridge.o  $(OTTY)decl.o     $(OTTY)detect.o   $(OTTY)dig.o \
 	$(OTTY)display.o  $(OTTY)do.o       $(OTTY)do_name.o  $(OTTY)do_wear.o \
 	$(OTTY)dog.o      $(OTTY)dogmove.o  $(OTTY)dokick.o   $(OTTY)dothrow.o \
-	$(OTTY)drawing.o  $(OTTY)dungeon.o  $(OTTY)eat.o      $(OTTY)end.o \
-	$(OTTY)engrave.o  $(OTTY)exper.o    $(OTTY)explode.o  $(OTTY)extralev.o \
-	$(OTTY)files.o    $(OTTY)fountain.o $(OTTY)getpos.o   $(OTTY)glyphs.o \
-	$(OTTY)iactions.o \
-	$(OTTY)hack.o     $(OTTY)insight.o  $(OTTY)invent.o   $(OTTY)isaac64.o \
-	$(OTTY)light.o    $(OTTY)lock.o     $(OTTY)mail.o     $(OTTY)makemon.o \
-	$(OTTY)mcastu.o   $(OTTY)mhitm.o    $(OTTY)mhitu.o    $(OTTY)minion.o \
-	$(OTTY)mklev.o    $(OTTY)mkmap.o    $(OTTY)mkmaze.o   $(OTTY)mkobj.o \
-	$(OTTY)mkroom.o   $(OTTY)mon.o      $(OTTY)mondata.o  $(OTTY)monmove.o \
-	$(OTTY)monst.o    $(OTTY)mplayer.o  $(OTTY)mthrowu.o  $(OTTY)muse.o \
-	$(OTTY)music.o    $(OTTY)o_init.o   $(OTTY)objects.o  $(OTTY)objnam.o \
-	$(OTTY)options.o  $(OTTY)pager.o    $(OTTY)pickup.o   $(OTTY)pline.o \
-	$(OTTY)polyself.o $(OTTY)potion.o   $(OTTY)pray.o     $(OTTY)priest.o \
-	$(OTTY)quest.o    $(OTTY)questpgr.o $(OTTY)read.o     $(OTTY)rect.o \
-	$(OTTY)region.o   $(OTTY)report.o   $(OTTY)restore.o  $(OTTY)rip.o \
-	$(OTTY)rnd.o      $(OTTY)role.o     $(OTTY)rumors.o   $(OTTY)save.o \
-	$(OTTY)selvar.o   $(OTTY)sfbase.o   $(OTTY)sfstruct.o $(OTTY)shk.o \
-	$(OTTY)shknam.o   $(OTTY)sit.o      $(OTTY)sounds.o   $(OTTY)sp_lev.o \
-	$(OTTY)spell.o    $(OTTY)stairs.o   $(OTTY)steal.o    $(OTTY)steed.o \
-	$(OTTY)strutil.o  $(OTTY)symbols.o  $(OTTY)sys.o      $(OTTY)teleport.o \
-	$(OTTY)timeout.o  $(OTTY)topten.o   $(OTTY)track.o    $(OTTY)trap.o \
-	$(OTTY)u_init.o   $(OTTY)uhitm.o    $(OTTY)utf8map.o  $(OTTY)vault.o \
-	$(OTTY)vision.o   $(OTTY)weapon.o   $(OTTY)were.o     $(OTTY)wield.o \
-	$(OTTY)windows.o  $(OTTY)wizard.o   $(OTTY)wizcmds.o  $(OTTY)worm.o \
-	$(OTTY)worn.o     $(OTTY)write.o    $(OTTY)zap.o
+	$(OTTY)drawing.o  $(OTTY)dungeon.o  $(OTTY)earlyarg.o $(OTTY)eat.o \
+	$(OTTY)end.o      $(OTTY)engrave.o  $(OTTY)exper.o    $(OTTY)explode.o \
+	$(OTTY)extralev.o $(OTTY)files.o    $(OTTY)fountain.o $(OTTY)getpos.o \
+	$(OTTY)glyphs.o   $(OTTY)iactions.o $(OTTY)hack.o     $(OTTY)insight.o \
+	$(OTTY)invent.o   $(OTTY)isaac64.o  $(OTTY)light.o    $(OTTY)lock.o \
+	$(OTTY)mail.o     $(OTTY)makemon.o  $(OTTY)mcastu.o   $(OTTY)mhitm.o \
+	$(OTTY)mhitu.o    $(OTTY)minion.o   $(OTTY)mklev.o    $(OTTY)mkmap.o \
+	$(OTTY)mkmaze.o   $(OTTY)mkobj.o    $(OTTY)mkroom.o   $(OTTY)mon.o \
+	$(OTTY)mondata.o  $(OTTY)monmove.o  $(OTTY)monst.o    $(OTTY)mplayer.o \
+	$(OTTY)mthrowu.o  $(OTTY)muse.o     $(OTTY)music.o    $(OTTY)o_init.o \
+	$(OTTY)objects.o  $(OTTY)objnam.o   $(OTTY)options.o  $(OTTY)pager.o \
+	$(OTTY)pickup.o   $(OTTY)pline.o    $(OTTY)polyself.o $(OTTY)potion.o \
+	$(OTTY)pray.o     $(OTTY)priest.o   $(OTTY)quest.o    $(OTTY)questpgr.o \
+	$(OTTY)read.o     $(OTTY)rect.o     $(OTTY)region.o   $(OTTY)report.o \
+	$(OTTY)restore.o  $(OTTY)rip.o      $(OTTY)rnd.o      $(OTTY)role.o \
+	$(OTTY)rumors.o   $(OTTY)save.o     $(OTTY)selvar.o   $(OTTY)sfbase.o \
+	$(OTTY)sfstruct.o $(OTTY)shk.o      $(OTTY)shknam.o   $(OTTY)sit.o \
+	$(OTTY)sounds.o   $(OTTY)sp_lev.o   $(OTTY)spell.o    $(OTTY)stairs.o \
+	$(OTTY)steal.o    $(OTTY)steed.o    $(OTTY)strutil.o  $(OTTY)symbols.o \
+	$(OTTY)sys.o      $(OTTY)teleport.o $(OTTY)timeout.o  $(OTTY)topten.o \
+	$(OTTY)track.o    $(OTTY)trap.o     $(OTTY)u_init.o   $(OTTY)uhitm.o \
+	$(OTTY)utf8map.o  $(OTTY)vault.o    $(OTTY)vision.o   $(OTTY)weapon.o \
+	$(OTTY)were.o     $(OTTY)wield.o    $(OTTY)windows.o  $(OTTY)wizard.o \
+	$(OTTY)wizcmds.o  $(OTTY)worm.o     $(OTTY)worn.o     $(OTTY)write.o \
+	$(OTTY)zap.o
 
 OBJSTTY = $(MDLIBTTY) $(COREOBJTTY) $(REGEXTTY) $(RANDOMTTY)
 
@@ -925,31 +924,31 @@ COREOBJGUI = \
 	$(OGUI)dbridge.o  $(OGUI)decl.o     $(OGUI)detect.o   $(OGUI)dig.o \
 	$(OGUI)display.o  $(OGUI)do.o       $(OGUI)do_name.o  $(OGUI)do_wear.o \
 	$(OGUI)dog.o      $(OGUI)dogmove.o  $(OGUI)dokick.o   $(OGUI)dothrow.o \
-	$(OGUI)drawing.o  $(OGUI)dungeon.o  $(OGUI)eat.o      $(OGUI)end.o \
-	$(OGUI)engrave.o  $(OGUI)exper.o    $(OGUI)explode.o  $(OGUI)extralev.o \
-	$(OGUI)files.o    $(OGUI)fountain.o $(OGUI)getpos.o   $(OGUI)glyphs.o \
-	$(OGUI)iactions.o \
-	$(OGUI)hack.o     $(OGUI)insight.o  $(OGUI)invent.o   $(OGUI)isaac64.o \
-	$(OGUI)light.o    $(OGUI)lock.o     $(OGUI)mail.o     $(OGUI)makemon.o \
-	$(OGUI)mcastu.o   $(OGUI)mhitm.o    $(OGUI)mhitu.o    $(OGUI)minion.o \
-	$(OGUI)mklev.o    $(OGUI)mkmap.o    $(OGUI)mkmaze.o   $(OGUI)mkobj.o \
-	$(OGUI)mkroom.o   $(OGUI)mon.o      $(OGUI)mondata.o  $(OGUI)monmove.o \
-	$(OGUI)monst.o    $(OGUI)mplayer.o  $(OGUI)mthrowu.o  $(OGUI)muse.o \
-	$(OGUI)music.o    $(OGUI)o_init.o   $(OGUI)objects.o  $(OGUI)objnam.o \
-	$(OGUI)options.o  $(OGUI)pager.o    $(OGUI)pickup.o   $(OGUI)pline.o \
-	$(OGUI)polyself.o $(OGUI)potion.o   $(OGUI)pray.o     $(OGUI)priest.o \
-	$(OGUI)quest.o    $(OGUI)questpgr.o $(OGUI)read.o     $(OGUI)rect.o \
-	$(OGUI)region.o   $(OGUI)report.o   $(OGUI)restore.o  $(OGUI)rip.o \
-	$(OGUI)rnd.o      $(OGUI)role.o     $(OGUI)rumors.o   $(OGUI)save.o \
-	$(OGUI)selvar.o   $(OGUI)sfbase.o   $(OGUI)sfstruct.o $(OGUI)shk.o \
-	$(OGUI)shknam.o   $(OGUI)sit.o      $(OGUI)sounds.o   $(OGUI)sp_lev.o \
-	$(OGUI)spell.o    $(OGUI)stairs.o   $(OGUI)steal.o    $(OGUI)steed.o \
-	$(OGUI)strutil.o  $(OGUI)symbols.o  $(OGUI)sys.o      $(OGUI)teleport.o \
-	$(OGUI)timeout.o  $(OGUI)topten.o   $(OGUI)track.o    $(OGUI)trap.o \
-	$(OGUI)u_init.o   $(OGUI)uhitm.o    $(OGUI)utf8map.o  $(OGUI)vault.o \
-	$(OGUI)vision.o   $(OGUI)weapon.o   $(OGUI)were.o     $(OGUI)wield.o \
-	$(OGUI)windows.o  $(OGUI)wizard.o   $(OGUI)wizcmds.o  $(OGUI)worm.o \
-	$(OGUI)worn.o     $(OGUI)write.o    $(OGUI)zap.o
+	$(OGUI)drawing.o  $(OGUI)dungeon.o  $(OGUI)earlyarg.o $(OGUI)eat.o \
+	$(OGUI)end.o      $(OGUI)engrave.o  $(OGUI)exper.o    $(OGUI)explode.o \
+	$(OGUI)extralev.o $(OGUI)files.o    $(OGUI)fountain.o $(OGUI)getpos.o \
+	$(OGUI)glyphs.o   $(OGUI)iactions.o $(OGUI)hack.o     $(OGUI)insight.o \
+	$(OGUI)invent.o   $(OGUI)isaac64.o  $(OGUI)light.o    $(OGUI)lock.o \
+	$(OGUI)mail.o     $(OGUI)makemon.o  $(OGUI)mcastu.o   $(OGUI)mhitm.o \
+	$(OGUI)mhitu.o    $(OGUI)minion.o   $(OGUI)mklev.o    $(OGUI)mkmap.o \
+	$(OGUI)mkmaze.o   $(OGUI)mkobj.o    $(OGUI)mkroom.o   $(OGUI)mon.o \
+	$(OGUI)mondata.o  $(OGUI)monmove.o  $(OGUI)monst.o    $(OGUI)mplayer.o \
+	$(OGUI)mthrowu.o  $(OGUI)muse.o     $(OGUI)music.o    $(OGUI)o_init.o \
+	$(OGUI)objects.o  $(OGUI)objnam.o   $(OGUI)options.o  $(OGUI)pager.o \
+	$(OGUI)pickup.o   $(OGUI)pline.o    $(OGUI)polyself.o $(OGUI)potion.o \
+	$(OGUI)pray.o     $(OGUI)priest.o   $(OGUI)quest.o    $(OGUI)questpgr.o \
+	$(OGUI)read.o     $(OGUI)rect.o     $(OGUI)region.o   $(OGUI)report.o \
+	$(OGUI)restore.o  $(OGUI)rip.o      $(OGUI)rnd.o      $(OGUI)role.o \
+	$(OGUI)rumors.o   $(OGUI)save.o     $(OGUI)selvar.o   $(OGUI)sfbase.o \
+	$(OGUI)sfstruct.o $(OGUI)shk.o      $(OGUI)shknam.o   $(OGUI)sit.o \
+	$(OGUI)sounds.o   $(OGUI)sp_lev.o   $(OGUI)spell.o    $(OGUI)stairs.o \
+	$(OGUI)steal.o    $(OGUI)steed.o    $(OGUI)strutil.o  $(OGUI)symbols.o \
+	$(OGUI)sys.o      $(OGUI)teleport.o $(OGUI)timeout.o  $(OGUI)topten.o \
+	$(OGUI)track.o    $(OGUI)trap.o     $(OGUI)u_init.o   $(OGUI)uhitm.o \
+	$(OGUI)utf8map.o  $(OGUI)vault.o    $(OGUI)vision.o   $(OGUI)weapon.o \
+	$(OGUI)were.o     $(OGUI)wield.o    $(OGUI)windows.o  $(OGUI)wizard.o \
+	$(OGUI)wizcmds.o  $(OGUI)worm.o     $(OGUI)worn.o     $(OGUI)write.o \
+	$(OGUI)zap.o
 
 OBJSGUI   = $(MDLIBGUI) $(COREOBJGUI) $(REGEXGUI) $(RANDOMGUI)
 
@@ -1132,6 +1131,7 @@ HACK_H = $(CONFIG_H) $(INCL)align.h $(INCL)artilist.h \
 	$(INCL)decl.h $(INCL)defsym.h $(INCL)display.h \
 	$(INCL)dungeon.h $(INCL)engrave.h $(INCL)flag.h \
 	$(INCL)hack.h $(INCL)lint.h $(INCL)mextra.h \
+	$(INCL)mcastu.h \
 	$(INCL)mkroom.h $(INCL)monattk.h $(INCL)mondata.h \
 	$(INCL)monflag.h $(INCL)monst.h $(INCL)monsters.h \
 	$(INCL)nhlua.h $(INCL)obj.h $(INCL)objclass.h \
@@ -1190,8 +1190,7 @@ rc=Rc.exe
 #
 # Recently tested versions:
 TESTEDVS2022 = 14.44.35222.0
-TESTEDVS2026 = 14.50.35726.0
-TESTEDVS2026 = 14.50.35727.0
+TESTEDVS2026 = 14.50.35728.0
 
 VS20261ST = 1450000000
 VS2026CUR = $(TESTEDVS2026:.=)
@@ -2029,7 +2028,7 @@ cpu.tag:
 !	IF "$(TARGET_CPU)"=="x64"
 	@echo Windows x64 64-bit target build
 !	ELSE
-!          IF "$(TARGET_CPU)"=="arm64" 
+!          IF "$(TARGET_CPU)"=="arm64"
 	@echo Windows arm64 64-bit target build
 !          ELSE
 	@echo Windows x86 32-bit target build
@@ -2651,8 +2650,10 @@ $(OUTL)sf-sys.o: $(SRC)sys.c $(HACK_H)
 $(OUTL)sf-windsys.o: $(MSWSYS)windsys.c $(HACK_H)
 	$(Q)$(CC) $(CFLAGS) $(SFFLAGS) -Fo$@ -c $(MSWSYS)windsys.c
 
-$(UTIL)sftags.exe: $(OUTL)sftags.o $(OUTLHACKLIB)
-	$(link) $(LFLAGS) /OUT:$@ $(OUTL)sftags.o $(OUTLHACKLIB)
+$(UTIL)sftags.exe: $(OUTL)sftags.o $(OUTL)sf-alloc.o $(OUTL)panic.o $(OUTLHACKLIB)
+	$(link) $(LFLAGS) /OUT:$@ $(OUTL)sftags.o \
+		$(OUTL)sf-alloc.o $(OUTL)panic.o \
+		$(OUTLHACKLIB)
 $(OUTL)sftags.o: $(UTIL)sftags.c $(HACK_H)
 	$(Q)$(CC) $(CFLAGS) -Fo$@ -c $(UTIL)sftags.c
 $(INCL)sfproto.h: $(UTIL)sftags.exe $(UTIL)sf.tags
@@ -2665,7 +2666,7 @@ CTAGDEP = $(INCL)align.h  $(INCL)artifact.h $(INCL)artilist.h \
 	  $(INCL)attrib.h $(INCL)context.h  $(INCL)coord.h    \
 	  $(INCL)decl.h   $(INCL)dungeon.h  $(INCL)engrave.h  \
 	  $(INCL)flag.h   $(INCL)func_tab.h $(INCL)global.h   \
-	  $(INCL)hack.h   $(INCL)mextra.h   \
+	  $(INCL)hack.h   $(INCL)mextra.h   $(INCL)mcastu.h   \
 	  $(INCL)mkroom.h $(INCL)monst.h    \
 	  $(INCL)obj.h    $(INCL)objclass.h $(INCL)prop.h     \
 	  $(INCL)quest.h  $(INCL)rect.h     $(INCL)region.h   \
@@ -2695,6 +2696,7 @@ $(UTIL)sf.tags: $(CTAGSCMD) $(CTAGDEP)
 	$(CTAGSCMD) $(CTAGSOPT) -a -f $@ $(INCL)global.h
 	$(CTAGSCMD) $(CTAGSOPT) -a -f $@ $(INCL)hack.h
 	$(CTAGSCMD) $(CTAGSOPT) -a -f $@ $(INCL)mextra.h
+	$(CTAGSCMD) $(CTAGSOPT) -a -f $@ $(INCL)mcastu.h
 	$(CTAGSCMD) $(CTAGSOPT) -a -f $@ $(INCL)mkroom.h
 	$(CTAGSCMD) $(CTAGSOPT) -a -f $@ $(INCL)monst.h
 	$(CTAGSCMD) $(CTAGSOPT) -a -f $@ $(INCL)defsym.h
@@ -3249,6 +3251,7 @@ $(OTTY)drawing.o: drawing.c $(CONFIG_H) $(INCL)defsym.h \
 		$(INCL)sym.h $(INCL)wintype.h
 $(OTTY)dungeon.o: dungeon.c $(HACK_H) $(INCL)dgn_file.h \
 		$(INCL)dlb.h
+$(OTTY)earlyarg.o: earlyarg.c $(HACK_H)
 $(OTTY)eat.o: eat.c $(HACK_H)
 $(OTTY)end.o: end.c $(HACK_H) $(INCL)dlb.h
 $(OTTY)engrave.o: engrave.c $(HACK_H)
@@ -3270,7 +3273,7 @@ $(OTTY)light.o: light.c $(HACK_H)
 $(OTTY)lock.o: lock.c $(HACK_H)
 $(OTTY)mail.o: mail.c $(HACK_H) $(INCL)mail.h
 $(OTTY)makemon.o: makemon.c $(HACK_H)
-$(OTTY)mcastu.o: mcastu.c $(HACK_H)
+$(OTTY)mcastu.o: mcastu.c $(HACK_H) $(INCL)mcastu.h
 $(OTTY)mdlib.o: mdlib.c $(CONFIG_H) $(INCL)align.h \
 		$(INCL)artilist.h $(INCL)attrib.h \
 		$(INCL)context.h $(INCL)defsym.h $(INCL)dlb.h \
@@ -3629,6 +3632,7 @@ $(OGUI)drawing.o: drawing.c $(CONFIG_H) $(INCL)defsym.h \
 		$(INCL)sym.h $(INCL)wintype.h
 $(OGUI)dungeon.o: dungeon.c $(HACK_H) $(INCL)dgn_file.h \
 		$(INCL)dlb.h
+$(OGUI)earlyarg.o: earlyarg.c $(HACK_H)
 $(OGUI)eat.o: eat.c $(HACK_H)
 $(OGUI)end.o: end.c $(HACK_H) $(INCL)dlb.h
 $(OGUI)engrave.o: engrave.c $(HACK_H)

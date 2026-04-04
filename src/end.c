@@ -478,7 +478,8 @@ staticfn boolean
 should_query_disclose_option(int category, char *defquery)
 {
     int idx;
-    char disclose, *dop;
+    char disclose;
+    const char *dop;
 
     *defquery = 'n';
     if ((dop = strchr(disclosure_options, category)) != 0) {

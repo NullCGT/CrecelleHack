@@ -944,6 +944,7 @@ staticfn void
 peffect_see_invisible(struct obj *otmp)
 {
     int msg = Invisible && !Blind;
+    int permchance = 10 - (HInvis ? 3 : 0) - (HSee_invisible ? 6 : 0);
 
     gp.potion_unkn++;
     if (otmp->cursed)
@@ -966,7 +967,7 @@ peffect_see_invisible(struct obj *otmp)
          */
         make_blinded(0L, TRUE);
     }
-    if (otmp->blessed && !rn2(10))
+    if (otmp->blessed && !rn2(permchance))
         HSee_invisible |= FROMOUTSIDE;
     else
         incr_itimeout(&HSee_invisible, rn1(100, 750));

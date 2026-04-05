@@ -824,11 +824,14 @@ mcast_insects(struct monst *mtmp)
         if (!enexto(&bypos, mtmp->mux, mtmp->muy, mtmp->data))
             return;
         if ((pm = mkclass(let, 0)) != 0
-            && (mtmp2 = makemon(pm, bypos.x, bypos.y, MM_ANGRY | MM_NOMSG))
+            && (mtmp2 = makemon(pm, bypos.x, bypos.y, MM_ANGRY | MM_NOMSG | MM_ESUM))
             != 0) {
             success = TRUE;
             mtmp2->msleeping = mtmp2->mpeaceful = mtmp2->mtame = 0;
             set_malign(mtmp2);
+            if (!has_esum(mtmp))
+                newesum(mtmp);
+            ESUM(mtmp2)->ownermid = mtmp->m_id;
         }
     }
     newseen = monster_census(TRUE);
@@ -1264,11 +1267,6 @@ spell_would_be_useless(struct monst *mtmp, int spellnum)
         return TRUE;
     /* healing when already healed */
     if (mtmp->mhp == mtmp->mhpmax && spellnum == MCAST_CURE_SELF)
-        return TRUE;
-    /* don't summon insects if it doesn't think you're around */
-    if ((spellnum == MCAST_INSECTS || spellnum == MCAST_CHAOS_RAIN
-         || spellnum == MCAST_BLOOD_RAIN || spellnum == MCAST_BLOOD_SPEAR
-         || spellnum == MCAST_BLOOD_BIND))
         return TRUE;
     /* blindness spell on blinded player */
     if (Blinded && spellnum == MCAST_BLIND_YOU)

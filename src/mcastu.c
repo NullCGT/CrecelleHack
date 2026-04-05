@@ -1230,8 +1230,6 @@ spell_would_be_useless(struct monst *mtmp, int spellnum)
         if (mtmp->permspeed == MFAST)
             return TRUE;
         break;
-    case MCAST_MIRROR_IMAGE:
-        return !iflags.debug_fuzzer;
     case MCAST_DISAPPEAR:
         /* invisibility when already invisible */
         if (mtmp->minvis || mtmp->invis_blkd)
@@ -1253,32 +1251,29 @@ spell_would_be_useless(struct monst *mtmp, int spellnum)
         if (Blinded)
             return TRUE;
         break;
+    case MCAST_DISGUISE:
+    case MCAST_MIRROR_IMAGE:
+        if (Protection_from_shape_changers || iflags.debug_fuzzer)
+            return TRUE;
+        break;
+    case MCAST_FORCE_FIELD:
+        if ((distu(mtmp->mx, mtmp->my) <= 4)
+            || (((ff = visible_region_at(u.ux, u.uy)) != 0)
+            && ff->glyph == S_force_field))
+            return TRUE;
+        break;
+    case MCAST_BLOOD_SPEAR:
+    case MCAST_BLOOD_BIND:
+        if (!has_coating(u.ux, u.uy, COAT_BLOOD))
+            return TRUE;
+        break;
+    case MCAST_BLOOD_RAIN:
+        if (has_coating(u.ux, u.uy, COAT_BLOOD))
+            return TRUE;
+        break;
     default:
         break;
     }
-    /* Cannot disguise if protected */
-    if ((Protection_from_shape_changers || mtmp->mpeaceful)
-        && (spellnum == MCAST_DISGUISE || spellnum == MCAST_MIRROR_IMAGE))
-        return TRUE;
-    if (spellnum == MCAST_FORCE_FIELD &&
-        (mtmp->mpeaceful || distu(mtmp->mx, mtmp->my) <= 4
-        || (((ff = visible_region_at(u.ux, u.uy)) != 0)
-            && ff->glyph == S_force_field)))
-        return TRUE;
-    /* healing when already healed */
-    if (mtmp->mhp == mtmp->mhpmax && spellnum == MCAST_CURE_SELF)
-        return TRUE;
-    /* blindness spell on blinded player */
-    if (Blinded && spellnum == MCAST_BLIND_YOU)
-        return TRUE;
-    /* blood spear when player not on blood */
-    if ((spellnum == MCAST_BLOOD_SPEAR || spellnum == MCAST_BLOOD_BIND)
-        && (!has_coating(u.ux, u.uy, COAT_BLOOD)))
-        return TRUE;
-    /* blood rain if already bloody */
-    if (spellnum == MCAST_BLOOD_RAIN
-        && has_coating(u.ux, u.uy, COAT_BLOOD))
-        return TRUE;
     return FALSE;
 }
 

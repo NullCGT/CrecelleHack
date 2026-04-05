@@ -186,17 +186,16 @@ choose_monster_spell(struct monst *mtmp, int adtyp)
     /* max spell level in this monster spell list */
     maxlev = mcast_data[list[len - 1]].level;
 
-    /* which level spell to cast? */
-    spellval = rn2(mtmp->m_lev);
-    if (spellval > maxlev && rn2(maxlev))
-        spellval = rn2(maxlev);
-
-    /* find the highest spell in the list we could cast */
-    for (i = len-1; i >= 0; i--)
-        if (mcast_data[list[i]].level <= spellval
-            && !spell_would_be_useless(mtmp, list[i]))
-            return list[i];
-
+    /* randomly determine the spell. we can't do it the vanilla way because 
+       many monsters have multiple spells of the same level now. */
+    for (i = 0; i < len; i++) {
+        if (mcast_data[list[i]].level > maxlev) {
+            break;   
+        }
+    }
+    if (i > 1) {
+        return list[rn2(i)];
+    }
     /* or return the first spell in the list */
     return list[0];
 }

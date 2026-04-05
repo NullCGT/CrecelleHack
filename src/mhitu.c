@@ -2888,6 +2888,10 @@ adjust_damage(struct monst *mon, int *dmgptr, int adtyp)
         if (is_u ? Disint_resistance : resists_disint(mon))
             halved = TRUE;
         break;
+    case AD_ACID:
+        if (is_u ? Acid_resistance : resists_acid(mon))
+            halved = TRUE;
+        break;
 /* Half physical damage is handled elsewhere. */
 #if 0
     case AD_PHYS:

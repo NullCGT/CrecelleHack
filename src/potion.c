@@ -2671,11 +2671,15 @@ potionbreathe(struct obj *obj)
     case POT_POLYMORPH:
         peffect_polymorph(obj);
         break;
-    case POT_ACID:
-        /* Not all forms have noses, maybe check if humanoid? */
-        Norep("Your nose burns.");
-        exercise(A_CON, FALSE);
+    case POT_ACID: {
+        int dmg = rnd(8);
+        if (!Acid_immunity) {
+            You("are dissolving!");
+            adjust_damage(&gy.youmonst, &dmg, AD_ACID);
+            losehp(dmg, "acidic vapors", KILLED_BY);
+        }
         break;
+    }
     case POT_FRUIT_JUICE:
     case POT_SEE_INVISIBLE:
         if (olfaction(gy.youmonst.data))
@@ -2759,9 +2763,12 @@ mpotionbreathe(struct obj *obj, struct monst *mtmp, boolean heros_fault)
         harmless = FALSE; /* monsters know what this means... */
         break;
     case POT_ACID:
-        harmless = FALSE;
-        if (cansee)
-            Norep("%s looks uncomfortable.", Monnam(mtmp));
+        if (!resists_acid(mtmp)) {
+            harmless = FALSE;
+            mtmp->mhp -= rnd(8);
+            if (mtmp->mhp <= 0)
+                monkilled(mtmp, "", AD_ACID);
+        }
         break;
     case POT_GAIN_ENERGY:
         if (cansee)

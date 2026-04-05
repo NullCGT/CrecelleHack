@@ -1593,6 +1593,8 @@ attributes_enlightenment(
                 "acid resistant");
         you_are(buf, from_what(ACID_RES));
     }
+    if (Acid_immunity)
+        you_are("immune to acid", from_what_item(ACID_RES));
     item_resistance_message(AD_ACID, " protected from acid", final);
     if (Drain_resistance)
         you_are("level-drain resistant", from_what(DRAIN_RES));

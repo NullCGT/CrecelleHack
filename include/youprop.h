@@ -65,6 +65,7 @@
 #define HAcid_resistance u.uprops[ACID_RES].intrinsic
 #define EAcid_resistance u.uprops[ACID_RES].extrinsic
 #define Acid_resistance (HAcid_resistance || EAcid_resistance)
+#define Acid_immunity (HAcid_resistance && EAcid_resistance)
 
 #define HStone_resistance u.uprops[STONE_RES].intrinsic
 #define EStone_resistance u.uprops[STONE_RES].extrinsic

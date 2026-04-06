@@ -3714,7 +3714,7 @@ lspo_object(lua_State *L)
 
     if (tmpobj.id == STATUE || tmpobj.id == EGG
         || tmpobj.id == CORPSE || tmpobj.id == TIN
-        || tmpobj.id == POT_BLOOD
+        || tmpobj.id == POT_BLOOD || tmpobj.id == FOSSIL
         || tmpobj.id == FIGURINE) {
         struct permonst *pm = NULL;
         boolean nonpmobj = FALSE;
@@ -3752,7 +3752,7 @@ lspo_object(lua_State *L)
             else if (!nonpmobj)
                 nhl_error(L, "Unknown montype");
         }
-        if (tmpobj.id == STATUE || tmpobj.id == CORPSE) {
+        if (tmpobj.id == STATUE || tmpobj.id == CORPSE || tmpobj.id == FOSSIL) {
             int lflags = 0;
 
             if (get_table_boolean_opt(L, "historic", 0))

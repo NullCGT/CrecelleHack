@@ -134,7 +134,7 @@ resetobjs(struct obj *ochain, boolean restore)
                discarding player notes attached to statues.] */
             if (has_oname(otmp)
                 && !(otmp->oartifact || otmp->otyp == STATUE
-                     || otmp->otyp == SPE_NOVEL
+                     || otmp->otyp == SPE_NOVEL || otmp->otyp == FOSSIL
                      || (otmp->otyp == CORPSE
                          && otmp->corpsenm >= SPECIAL_PM))) {
                 free_oname(otmp);
@@ -156,7 +156,7 @@ resetobjs(struct obj *ochain, boolean restore)
                 if (ismnum(otmp->corpsenm)
                     && unique_corpstat(&mons[otmp->corpsenm]))
                     otmp->corpsenm = NON_PM;
-            } else if (otmp->otyp == CORPSE || otmp->otyp == STATUE) {
+            } else if (otmp->otyp == CORPSE || otmp->otyp == STATUE || otmp->otyp == FOSSIL) {
                 int mnum = otmp->corpsenm;
 
                 /* Discard incarnation details of unique monsters

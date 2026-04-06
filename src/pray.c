@@ -2194,7 +2194,7 @@ pray_revive(void)
     struct obj *otmp;
 
     for (otmp = svl.level.objects[u.ux][u.uy]; otmp; otmp = otmp->nexthere)
-        if ((otmp->otyp == CORPSE || otmp->otyp == STATUE)
+        if ((otmp->otyp == CORPSE || otmp->otyp == STATUE || otmp->otyp == FOSSIL)
             && has_omonst(otmp)
             && OMONST(otmp)->mtame && !OMONST(otmp)->isminion)
             break;

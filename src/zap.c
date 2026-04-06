@@ -928,7 +928,8 @@ revive(struct obj *corpse, boolean by_hero)
     int montype, cgend, container_nesting = 0;
     boolean is_zomb;
 
-    if (corpse->otyp != CORPSE && corpse->otyp != SKELETON) {
+    if (corpse->otyp != CORPSE && corpse->otyp != SKELETON
+        && corpse->otyp != FOSSIL) {
         impossible("Attempting to revive %s?", xname(corpse));
         return (struct monst *) 0;
     }
@@ -1503,7 +1504,7 @@ obj_resists(struct obj *obj,
         return TRUE;
     } else if ((obj->otyp == SKULL
                 || obj->otyp == SKULL_HELM
-                || obj->otyp == SKELETON)
+                || obj->otyp == SKELETON || obj->otyp == FOSSIL)
                 && (obj->corpsenm == PM_BLACK_DRAGON 
                     || obj->corpsenm == PM_BABY_BLACK_DRAGON)) {
         return TRUE;
@@ -1798,7 +1799,7 @@ poly_obj(struct obj *obj, int id)
         otmp = mksobj(id, FALSE, FALSE);
 /* Actually more things use corpsenm but they polymorph differently */
 #define USES_CORPSENM(typ) \
-    ((typ) == CORPSE || (typ) == STATUE || (typ) == FIGURINE)
+    ((typ) == CORPSE || (typ) == STATUE || (typ) == FIGURINE || (typ) == FOSSIL)
 
         if (USES_CORPSENM(obj->otyp) && USES_CORPSENM(id))
             set_corpsenm(otmp, obj->corpsenm);
@@ -2428,7 +2429,8 @@ bhito(struct obj *obj, struct obj *otmp)
         case SPE_TURN_UNDEAD:
             if (obj->otyp == EGG) {
                 revive_egg(obj);
-            } else if (obj->otyp == CORPSE || obj->otyp == SKELETON) {
+            } else if (obj->otyp == CORPSE || obj->otyp == SKELETON
+                        || obj->otyp == FOSSIL) {
                 struct monst *mtmp;
                 coordxy ox, oy;
                 unsigned save_norevive;

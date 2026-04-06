@@ -1348,6 +1348,7 @@ mksobj(int otyp, boolean init, boolean artif)
         /*FALLTHRU*/
     case STATUE:
     case FIGURINE:
+    case FOSSIL: /* TODO: ACTUAL FOSSIL CHOICE */
         if (otmp->corpsenm == NON_PM)
             otmp->corpsenm = rndmonnum();
         if (otmp->corpsenm != NON_PM
@@ -1410,7 +1411,7 @@ stone_object_type(unsigned mappearance)
 
     /* we exclude wands, rings, and gems even though some qualify as stone;
        there aren't any weapons or armor classified as made out of stone */
-    return (otyp == BOULDER || otyp == STATUE || otyp == FIGURINE);
+    return (otyp == BOULDER || otyp == STATUE || otyp == FIGURINE || otyp == FOSSIL);
 }
 
 /* possible mimic shapes that are affected by stone-to-flesh;
@@ -2133,6 +2134,9 @@ weight(struct obj *obj)
         if (obj->oeaten)
             wt = eaten_stat(wt, obj);
         return wt;
+    } else if (obj->otyp == FOSSIL && obj->corpsenm >= LOW_PM) {
+		    wt = (int)obj->quan *
+			        ((int)mons[obj->corpsenm].cwt * 1 / 2);
     } else if ((obj->otyp == SKULL || obj->otyp == SKULL_HELM) && ismnum(obj->corpsenm)) {
         /* Yuck */
         return max(obj->otyp == SKULL ? 1 : 10, mons[obj->corpsenm].cwt / 50);

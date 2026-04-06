@@ -1516,6 +1516,7 @@ mineralize(int kelp_pool, int kelp_moat, int goldprob, int gemprob,
     struct obj *otmp;
     coordxy x, y;
     int cnt;
+    int fossilprob;
 
     if (kelp_pool < 0)
         kelp_pool = 10;
@@ -1544,15 +1545,19 @@ mineralize(int kelp_pool, int kelp_moat, int goldprob, int gemprob,
         goldprob = 20 + depth(&u.uz) / 3;
     if (gemprob < 0)
         gemprob = goldprob / 4;
+    fossilprob = gemprob / 2;
 
     /* mines have ***MORE*** goodies - otherwise why mine? */
     if (!skip_lvl_checks) {
         if (In_mines(&u.uz)) {
             goldprob *= 2;
             gemprob *= 3;
+            fossilprob *= 2;
         } else if (In_quest(&u.uz)) {
             goldprob /= 4;
             gemprob /= 6;
+            if (Role_if(PM_CAVE_DWELLER))
+                fossilprob *= 5;
         }
     }
 
@@ -1599,6 +1604,15 @@ mineralize(int kelp_pool, int kelp_moat, int goldprob, int gemprob,
                                     place_object(otmp, x, y);
                             }
                         }
+                }
+                if (depth(&u.uz) > 14 && rn2(1000) < fossilprob) {
+                    if ((otmp = mksobj(FOSSIL, TRUE, FALSE)) != 0) {
+                        otmp->quan = 1L;
+                        otmp->owt = weight(otmp);
+                        otmp->ox = x,  otmp->oy = y;
+                        if (!rn2(3)) add_to_buried(otmp);
+                        else place_object(otmp, x, y);
+                    }
                 }
             }
 }

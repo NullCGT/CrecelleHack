@@ -854,7 +854,7 @@ xname_flags(
         Strcpy(buf, actualn);
         break;
     case ROCK_CLASS:
-        if (typ == STATUE && omndx != NON_PM) {
+        if ((typ == STATUE || typ == FOSSIL) && omndx != NON_PM) {
             char anbuf[10];
             const char *statue_pmname = obj_pmname(obj);
 
@@ -1667,7 +1667,7 @@ doname_base(
     }
 
     if ((obj->otyp == STATUE || obj->otyp == CORPSE || obj->otyp == FIGURINE 
-        || obj->otyp == SKELETON)
+        || obj->otyp == SKELETON || obj->otyp == FOSSIL)
         && wizard && iflags.wizmgender) {
         int cgend = (obj->spe & CORPSTAT_GENDER),
             mgend = ((cgend == CORPSTAT_MALE) ? MALE
@@ -2026,6 +2026,8 @@ corpse_xname(
     } else if (!omit_corpse) {
         if (otmp->otyp == CORPSE)
             Strcat(nambuf, " corpse");
+        else if (otmp->otyp == FOSSIL)
+            Strcat(nambuf, " fossil");
         else
            Strcat(nambuf, " skeleton");
         /* makeplural(nambuf) => append "s" to "corpse" */
@@ -4326,6 +4328,7 @@ readobjnam_preparse(struct _readobjnam_data *d)
          */
         } else if ((!strncmpi(d->bp, "corpse ", l = 7)
                     || !strncmpi(d->bp, "skull ", l = 6)
+                    || !strncmpi(d->bp, "fossil ", l = 7)
                     || !strncmpi(d->bp, "statue ", l = 7)
                     || !strncmpi(d->bp, "figurine ", l = 9))
                    && !strncmpi(d->bp + l, "of ", more_l = 3)) {
@@ -5411,6 +5414,7 @@ readobjnam(char *bp, struct obj *no_wish)
     case STATUE: /* otmp->cobj already done in mksobj() */
     case FIGURINE:
     case SKELETON:
+    case FOSSIL:
     case CORPSE: {
         struct permonst *P = (ismnum(d.mntmp)) ? &mons[d.mntmp] : 0;
 
@@ -5514,6 +5518,9 @@ readobjnam(char *bp, struct obj *no_wish)
             d.otmp->corpsenm = d.mntmp;
             if (Has_contents(d.otmp) && verysmall(&mons[d.mntmp]))
                 delete_contents(d.otmp); /* no spellbook */
+            break;
+        case FOSSIL:
+            d.otmp->corpsenm = d.mntmp;
             break;
         case SCALE_MAIL:
             /* Dragon mail - depends on the order of objects & dragons. */

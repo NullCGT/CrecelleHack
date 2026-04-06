@@ -2858,7 +2858,7 @@ set_mimic_sym(struct monst *mtmp)
     } else if (rt == DELPHI) {
         if (rn2(2)) {
             ap_type = M_AP_OBJECT;
-            appear = STATUE;
+            appear = rn2(3) ? STATUE : FOSSIL;
         } else {
             ap_type = M_AP_FURNITURE;
             appear = S_fountain;
@@ -2921,7 +2921,7 @@ set_mimic_sym(struct monst *mtmp)
     mtmp->mappearance = appear;
     /* when appearing as an object based on a monster type, pick a shape */
     if (ap_type == M_AP_OBJECT
-        && (appear == STATUE || appear == FIGURINE
+        && (appear == STATUE || appear == FIGURINE || appear == FOSSIL
             || appear == CORPSE || appear == EGG || appear == TIN
             || appear == POT_BLOOD)) {
         int mndx = rndmonnum(),

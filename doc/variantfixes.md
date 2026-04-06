@@ -1,6 +1,13 @@
 # 1.5.0
 ## Dungeon
 - Rotting corpses rot more slowly in cold levels.
+- Fossils generate in the dungeon.
+  - These are from dNetHack, with some changes to bring them in line
+    with 3.7. Most notable are the following:
+      - Fossils appear very frequently in the caveman quest.
+      - Mimics sometimes mimic fossils.
+      - Fossils do not become skeletal monsters when raised due to the
+        current lack of templates.
 
 # 1.4.2
 ## Monsters

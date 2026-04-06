@@ -275,7 +275,7 @@ l_obj_to_table(lua_State *L)
     if (obj->otyp == STATUE)
         nhl_add_table_entry_int(L, "historic",
                                 (obj->spe & CORPSTAT_HISTORIC) != 0);
-    if (obj->otyp == CORPSE || obj->otyp == STATUE) {
+    if (obj->otyp == CORPSE || obj->otyp == STATUE || obj->otyp == FOSSIL) {
         nhl_add_table_entry_int(L, "male",
                                 (obj->spe & CORPSTAT_MALE) != 0);
         nhl_add_table_entry_int(L, "female",
@@ -326,7 +326,7 @@ l_obj_to_table(lua_State *L)
     nhl_add_table_entry_int(L, "corpsenm", obj->corpsenm);
     if (obj->corpsenm != NON_PM
         && (obj->otyp == TIN || obj->otyp == CORPSE || obj->otyp == EGG
-            || obj->otyp == FIGURINE || obj->otyp == STATUE))
+            || obj->otyp == FIGURINE || obj->otyp == STATUE || obj->otyp == FOSSIL))
         nhl_add_table_entry_str(L, "corpsenm_name",
                                 mons[obj->corpsenm].pmnames[NEUTRAL]);
     /* TODO: leashmon, fromsink, novelidx, record_achieve_special */

@@ -2448,7 +2448,7 @@ do_supplemental_item_info(struct obj *otmp)
     }
     /* Armor stats */
     if (otmp->oclass == ARMOR_CLASS) {
-        Sprintf(buf, "AC: %d%s", (objects[otmp->otyp].a_ac + (otmp->known ? otmp->spe : 0)),
+        Sprintf(buf, "AC: %d%s", (ARM_BONUS(otmp) - (otmp->known ? 0 : otmp->spe)),
                                 otmp->known ? "" : "?");
         add_menu_str(datawin, buf);
         Sprintf(buf, "MC: %d%%%s", max(0, (objects[otmp->otyp].a_can) - (otmp->known ? otmp->spe : 0)),

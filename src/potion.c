@@ -2669,7 +2669,8 @@ potionbreathe(struct obj *obj)
         }
         break;
     case POT_POLYMORPH:
-        peffect_polymorph(obj);
+        if (!Antimagic)
+            peffect_polymorph(obj);
         break;
     case POT_ACID: {
         int dmg = rnd(8);

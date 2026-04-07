@@ -640,6 +640,13 @@ floor_descr(coordxy x, coordxy y, short symidx) {
         } else {
             return defsyms[symidx].explanation;
         }
+    } else if (symidx == S_ndoor) {
+        if (is_drawbridge_wall(x, y) >= 0)
+            return "open drawbridge portcullis";
+        else if ((levl[x][y].doormask & ~D_TRAPPED) == D_BROKEN)
+           return "broken door";
+        else
+            return "doorway";
     } else {
         return defsyms[symidx].explanation;
     }
@@ -858,15 +865,7 @@ lookat(coordxy x, coordxy y, char *buf, char *monbuf)
             }
             Sprintf(buf, "%s vapors", OBJ_DESCR(objects[reg->arg.otyp]));
             break;
-        } case S_ndoor:
-            if (is_drawbridge_wall(x, y) >= 0)
-                Strcpy(buf, "open drawbridge portcullis");
-            else if ((levl[x][y].doormask & ~D_TRAPPED) == D_BROKEN)
-                Strcpy(buf, "broken door");
-            else
-                Strcpy(buf, "doorway");
-            break;
-        case S_cloud:
+        } case S_cloud:
             Strcpy(buf,
                    Is_airlevel(&u.uz) ? "cloudy area" : "fog/vapor cloud");
             break;
@@ -2452,7 +2451,7 @@ do_supplemental_item_info(struct obj *otmp)
     }
     /* Armor stats */
     if (otmp->oclass == ARMOR_CLASS) {
-        Sprintf(buf, "AC: %d%s", (objects[otmp->otyp].a_ac + (otmp->known ? otmp->spe : 0)),
+        Sprintf(buf, "AC: %d%s", (ARM_BONUS(otmp) - (otmp->known ? 0 : otmp->spe)),
                                 otmp->known ? "" : "?");
         add_menu_str(datawin, buf);
         Sprintf(buf, "MC: %d%%%s", max(0, (objects[otmp->otyp].a_can) - (otmp->known ? otmp->spe : 0)),

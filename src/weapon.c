@@ -328,7 +328,6 @@ dmgval(struct obj *otmp, struct monst *magr, struct monst *mdef)
 {
     int tmp = 0, otyp = otmp->otyp;
     struct permonst *ptr = mdef->data;
-    boolean Is_weapon = (otmp->oclass == WEAPON_CLASS || is_weptool(otmp));
 
     if (otyp == CREAM_PIE)
         return 0;
@@ -360,8 +359,7 @@ dmgval(struct obj *otmp, struct monst *magr, struct monst *mdef)
     }
 
     /* Put weapon vs. monster type damage bonuses in below: */
-    if (Is_weapon || otmp->oclass == GEM_CLASS || otmp->oclass == BALL_CLASS
-        || otmp->oclass == CHAIN_CLASS || otmp->oclass == BOTTLE_CLASS) {
+    {
         int bonus = 0;
 
         if (otmp->blessed && mon_hates_blessings(mdef))
@@ -405,7 +403,6 @@ special_dmgval(struct monst *magr, struct monst *mdef,
 {
     boolean youattack = (magr == &gy.youmonst);
     const int magr_material = monmaterial(monsndx(magr->data));
-    int i;
     int bonus = 0;
     int tmpbonus = 0;
     boolean try_body = FALSE;
@@ -419,25 +416,9 @@ special_dmgval(struct monst *magr, struct monst *mdef,
                *leftring  = (youattack ? uleft : which_armor(magr, W_RINGL)),
                *rightring = (youattack ? uright : which_armor(magr, W_RINGR));
 
-    /* The order of armor slots in this array doesn't really matter because we
-     * roll for everything that applies and take the highest damage. */
-    struct {
-        long mask;
-        struct obj **obj;
-    } array[9] = {
-        { W_ARMG, &gloves },
-        { W_ARMH, &helm   },
-        { W_ARMS, &shield },
-        { W_ARMF, &boots  },
-        { W_ARM,  &armor  },
-        { W_ARMC, &cloak  },
-        { W_ARMU, &shirt  },
-        { W_RINGL, &leftring },
-        { W_RINGR, &rightring }
-    };
-
-    if (hated_obj)
+    if (hated_obj) {
         *hated_obj = 0;
+    }
 
     /* Simple exclusions where we ignore a certain type of armor because it is
      * covered by some other equipment. */
@@ -467,12 +448,32 @@ special_dmgval(struct monst *magr, struct monst *mdef,
     if (try_body && mon_hates_material(mdef, magr_material)) {
         bonus = sear_damage(magr_material);
         if (hated_obj)
-            *hated_obj = (struct obj *) &cg.zeroobj;
+            *hated_obj = &hands_obj;
     }
 
+    /* The order of armor slots in this array doesn't really matter because we
+     * roll for everything that applies and take the highest damage. */
+    struct {
+        long mask;
+        struct obj* obj;
+    } array[9] = {
+        { W_ARMG, gloves },
+        { W_ARMH, helm   },
+        { W_ARMS, shield },
+        { W_ARMF, boots  },
+        { W_ARM,  armor  },
+        { W_ARMC, cloak  },
+        { W_ARMU, shirt  },
+        { W_RINGL, leftring },
+        { W_RINGR, rightring }
+    };
+
+    int i;
     for (i = 0; i < 9; ++i) {
-        if (*array[i].obj && (armask & array[i].mask)) {
-            tmpbonus = dmgval(*array[i].obj, magr, mdef);
+        if (array[i].obj && (armask & array[i].mask)) {
+            /* note: dmgval contains blessed-vs-undead interaction, so there is
+             * no need to handle it separately in this function */
+            tmpbonus = dmgval(array[i].obj, magr, mdef);
             if (tmpbonus > bonus) {
                 bonus = tmpbonus;
                 if (hated_obj) {
@@ -486,11 +487,11 @@ special_dmgval(struct monst *magr, struct monst *mdef,
                      * one, so that searmsg will get called with the most
                      * appropriate message.
                      */
-                    if (mon_hates_material(mdef, (*array[i].obj)->material)
+                    if (mon_hates_material(mdef, array[i].obj->material)
                         && (*hated_obj == NULL
-                            || (sear_damage((*array[i].obj)->material)
+                            || (sear_damage(array[i].obj->material)
                                 > sear_damage((*hated_obj)->material)))) {
-                        *hated_obj = *array[i].obj;
+                        *hated_obj = array[i].obj;
                     }
                 }
             }

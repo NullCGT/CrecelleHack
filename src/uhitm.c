@@ -6806,6 +6806,7 @@ oprop_effects_pre(struct monst *magr, struct monst *mdef)
         if (weapon->oprop == OPROP_BOREAL && icy) {
             (void) linedup(x, y, dx, dy, 0); /* set up gt.tbx and gt.tby */
             otmp = mksobj(ICICLE, FALSE, FALSE);
+            otmp->spe = 1;
             m_throw(magr, x, y, sgn(gt.tbx), sgn(gt.tby),
                     distmin(x, y, dx, dy), otmp);
             weapon->pknown = 1;

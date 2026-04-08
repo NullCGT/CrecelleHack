@@ -6795,7 +6795,7 @@ oprop_effects_pre(struct monst *magr, struct monst *mdef)
             throwit(otmp, 0L, FALSE, (struct obj *) 0);
             weapon->pknown = 1;
         } else if (weapon->oprop == OPROP_CRACKLING && rn2(2)) {
-            if (cansee(dx, dy))
+            if (cansee(dx, dy) && flags.verbose)
                 pline("Lightning arcs from the %s!", simpleonames(weapon));
             gc.current_wand = weapon;
             ubuzz(BZ_U_WAND(BZ_OFS_AD(AD_ELEC)), 1);

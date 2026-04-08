@@ -318,7 +318,7 @@
 
 ## Options
 - implicit_material: quash default material names.
-- shorten_buc: shortens full buc name to [B][U][C].
+- shorten_buc: shortens full buc name to +/-.
 - no_flipped_soko: stop sokoban levels from being flipped.
 - koboldname: Default name of starting pet if it is a kobold.
 

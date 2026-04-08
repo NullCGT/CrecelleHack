@@ -698,7 +698,7 @@ static int optfn_##a(int, int, boolean, char *, char *);
            (char *)0)
     NHOPTB(shorten_buc, Variant, 0, opt_in, set_in_game,
            Off, Yes, No, No, NoAlias, &flags.shorten_buc, Term_False,
-           "shorten full buc text to [B][U][C]")
+           "shorten full buc text to +/-")
     NHOPTB(showdamage, Advanced, 0, opt_in, set_in_game,
            Off, Yes, No, No, NoAlias, &iflags.showdamage, Term_False,
            "show damage hero takes in message line")

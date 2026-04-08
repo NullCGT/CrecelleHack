@@ -8,6 +8,8 @@
       - Mimics sometimes mimic fossils.
       - Fossils do not become skeletal monsters when raised due to the
         current lack of templates.
+## Misc
+- Allow players to joust if in centuar or quadruped form.
 
 # 1.4.2
 ## Monsters

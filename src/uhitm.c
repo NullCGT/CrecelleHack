@@ -1080,7 +1080,8 @@ hmon_hitmon_weapon_melee(
     if (artifact_light(obj) && obj->lamplit
         && mon_hates_light(mon))
         hmd->lightobj = TRUE;
-    if (u.usteed && !hmd->thrown && hmd->dmg > 0
+    if ((is_jouster(gy.youmonst.data) || u.usteed)
+        && !hmd->thrown && hmd->dmg > 0
         && weapon_type(obj) == P_LANCE && mon != u.ustuck) {
         hmd->jousting = joust(mon, obj);
         /* exercise skill even for minimal damage hits */
@@ -1123,8 +1124,8 @@ hmon_hitmon_weapon(
         /* or strike with a missile in your hand... */
         || (!hmd->thrown && (is_missile(obj) || is_ammo(obj)))
         /* or use a pole at short range and not mounted... */
-        || (!hmd->thrown && !u.usteed && is_pole(obj)
-            && !is_art(obj,ART_SNICKERSNEE))
+        || (!hmd->thrown && !(u.usteed || is_jouster(gy.youmonst.data))
+            && is_pole(obj) && !is_art(obj,ART_SNICKERSNEE))
         /* or throw a missile without the proper bow... */
         || (is_ammo(obj) && (hmd->thrown != HMON_THROWN
                              || !ammo_and_launcher(obj, uwep)))) {

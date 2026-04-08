@@ -306,6 +306,8 @@
 #define resists_slash(ptr) (((ptr)->mflags4 & M4_RSLASH) != 0L)
 #define advanceable(ptr) (!unique_corpstat(ptr) \
             && (!humanoid(ptr) || mindless(ptr) || is_demon(ptr)))
+#define is_jouster(ptr) ((ptr)->mlet == S_CENTAUR \
+                            || (ptr)->mlet == S_QUADRUPED || is_rider(ptr))
 
 /* monkeys are tamable via bananas but not pacifiable via food,
    otherwise their theft attack could be nullified too easily;

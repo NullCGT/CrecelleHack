@@ -672,7 +672,7 @@ nhusage(void)
 
 #ifdef CHDIR
 void
-chdirx(char *dir, boolean wr)
+chdirx(const char *dir, boolean wr)
 {
 #ifdef AMIGA
     static char thisdir[] = "";

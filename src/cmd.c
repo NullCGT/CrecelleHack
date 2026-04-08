@@ -2317,7 +2317,6 @@ handler_rebind_keys_add(boolean keyfirst)
     char buf2[QBUFSZ];
     uchar key = '\0';
     int clr = NO_COLOR;
-    struct Cmd_bind *bind;
 
     if (keyfirst) {
         pline("Bind which key? ");
@@ -2332,8 +2331,9 @@ handler_rebind_keys_add(boolean keyfirst)
     any = cg.zeroany;
 
     if (key) {
-        bind = cmdbind_get(key);
-        if (bind) {
+        struct Cmd_bind *bind = cmdbind_get(key);
+
+        if (bind && bind->cmd) {
             Sprintf(buf, "Key '%s' is currently bound to \"%s\".",
                     key2txt(key, buf2), bind->cmd->ef_txt);
         } else {

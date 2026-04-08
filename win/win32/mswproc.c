@@ -734,9 +734,6 @@ mswin_exit_nhwindows(const char *str)
     /* Write Window settings to the registry */
     mswin_write_reg();
 
-    /* set things back to failsafes */
-    windowprocs = *get_safe_procs(0);
-
     /* and make sure there is still a way to communicate something */
     windowprocs.win_raw_print = mswin_raw_print;
     windowprocs.win_raw_print_bold = mswin_raw_print_bold;

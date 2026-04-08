@@ -714,22 +714,6 @@ enum nhcb_calls {
     NUM_NHCB
 };
 
-/*
- * option setting restrictions
- */
-
-enum optset_restrictions {
-    set_in_sysconf = 0, /* system config file option only */
-    set_in_config  = 1, /* config file option only */
-    set_viaprog    = 2, /* may be set via extern program, not seen in game */
-    set_gameview   = 3, /* may be set via extern program, displayed in game */
-    set_in_game    = 4, /* may be set via extern program or set in the game */
-    set_wizonly    = 5, /* may be set in the game if wizmode */
-    set_wiznofuz   = 6, /* wizard-mode only, but not by fuzzer */
-    set_hidden     = 7  /* placeholder for prefixed entries, never show it  */
-};
-#define SET__IS_VALUE_VALID(s) ((s < set_in_sysconf) || (s > set_wiznofuz))
-
 struct plinemsg_type {
     xint16 msgtype;  /* one of MSGTYP_foo */
     struct nhregex *regex;
@@ -830,6 +814,7 @@ struct sinfo {
        interface to suppress menu commands in similar conditions;
        readchar() always resets it to 'otherInp' prior to returning */
     int input_state; /* whether next key pressed will be entering a command */
+    int early_options; /* inside early_options processing */
 #ifdef TTY_GRAPHICS
     /* resize_pending only matters when handling a SIGWINCH signal for tty;
        getting_char is used along with that and also separately for UNIX;

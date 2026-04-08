@@ -56,21 +56,13 @@ NEARDATA struct accessibility_data a11y;
 #include "optlist.h"
 #undef NHOPT_PROTO
 
-#define NHOPT_ENUM
-enum opt {
-    opt_prefix_only = -1,
-#include "optlist.h"
-    OPTCOUNT
-};
-#undef NHOPT_ENUM
-
 #define NHOPT_PARSE
 static struct allopt_t allopt_init[] = {
 #include "optlist.h"
     {(const char *) 0, OptS_Advanced, 0, 0, 0, set_in_sysconf, BoolOpt,
      No, No, No, No, Term_False, 0, (boolean *) 0,
      (int (*)(int, int, boolean, char *, char *)) 0,
-     (char *) 0, (const char *) 0, (const char *) 0, 0, 0, 0 }
+     (char *) 0, (const char *) 0, (const char *) 0, 0, 0, 0, TRUE }
 };
 #undef NHOPT_PARSE
 
@@ -93,16 +85,6 @@ enum optn_result {
 };
 enum requests {
     do_nothing, do_init, do_set, do_handler, get_val, get_cnf_val
-};
-/* these aren't the same as set_xxx in optlist.h */
-enum option_phases {
-    builtin_opt=1,/* compiled-in default value of an option */
-    syscf_opt,    /* sysconf setting of an option, overrides builtin */
-    rc_file_opt,  /* player's run-time config file setting, overrides syscf */
-    environ_opt,  /* player's environment NETHACKOPTIONS, overrides rc_file */
-    cmdline_opt,  /* program invocation command-line, overrides environ */
-    play_opt,     /* 'O' command, interactively set so overrides all */
-    num_opt_phases
 };
 
 static struct allopt_t allopt[SIZE(allopt_init)];
@@ -610,7 +592,7 @@ parseoptions(
          * placed that number into each option's allopt[n].minmatch.
          *
          */
-        if (!got_match)
+        if (!got_match && allopt[i].name)
             got_match = match_optname(opts, allopt[i].name,
                                       allopt[i].minmatch, TRUE);
         if (got_match) {
@@ -649,7 +631,8 @@ parseoptions(
     /* allow optfn's to test whether they were called from parseoptions() */
     program_state.in_parseoptions++;
 
-    if (got_match && matchidx >= 0) {
+    if (got_match && (matchidx >= 0 && matchidx < OPTCOUNT)
+                      && !allopt[matchidx].disregarded) {
         duplicate = duplicate_opt_detection(matchidx);
         if (duplicate && !allopt[matchidx].dupeok)
             complain_about_duplicate(matchidx);
@@ -699,7 +682,9 @@ parseoptions(
         }
     }
 
-    if (optresult == optn_silenterr)
+    if (optresult == optn_silenterr
+        || (got_match && allopt[matchidx].disregarded)
+            || (!got_match && config_unmatched_ignored()))
         return FALSE;
     if (pfx_match && optresult == optn_err) {
         char pfxbuf[BUFSZ], *pfxp;
@@ -5062,17 +5047,20 @@ optfn_windowtype(
          * _end_ because comma-separated option strings are processed from
          * right to left.
          */
-        if (iflags.windowtype_locked)
-            return optn_ok;
+        if (!iflags.window_inited) {
+            if (iflags.windowtype_locked)
+                return optn_ok;
 
-        if ((op = string_for_env_opt(allopt[optidx].name, opts, FALSE))
-            != empty_optstr) {
-            nmcpy(gc.chosen_windowtype, op, WINTYPELEN);
-            if (!iflags.windowtype_deferred) {
-                choose_windows(gc.chosen_windowtype);
+            if ((op = string_for_env_opt(allopt[optidx].name, opts, FALSE))
+                != empty_optstr) {
+                nmcpy(gc.chosen_windowtype, op, WINTYPELEN);
+                if (!iflags.windowtype_deferred) {
+                    choose_windows(gc.chosen_windowtype);
+                }
+            } else {
+                return optn_err;
             }
-        } else
-            return optn_err;
+        }
         return optn_ok;
     }
     if (req == get_val || req == get_cnf_val) {
@@ -5284,7 +5272,7 @@ pfxfn_IBM_(int optidx UNUSED, int req, boolean negated UNUSED,
  *    (Use optidx to reference the specific option)
  */
 
-staticfn int
+int
 optfn_boolean(
     int optidx, int req, boolean negated,
     char *opts, char *op)
@@ -7170,29 +7158,14 @@ txt2key(char *txt)
 void
 initoptions(void)
 {
-    int i;
-
     /*
      * Most places that call initoptions_init()/initoptions() would
      * have the calls next to each other, so instead of adding
      * initoptions_init() everywhere, just add it where it's needed in
      * a non-adjacent place and call it here for all the other cases.
      */
-    if(go.opt_phase != builtin_opt)
+    if (go.opt_phase != builtin_opt)
          initoptions_init();
-
-    /*
-     * Call each option function with an init flag and give it a chance
-     * to make any preparations that it might require.  We do this
-     * whether or not the option itself is ever specified; that's
-     * irrelevant for the init call.  Doing this allows the prep code for
-     * option settings to remain adjacent to, and in the same function as,
-     * the code that processes those options.
-     */
-    for (i = 0; i < OPTCOUNT; ++i) {
-        if (allopt[i].optfn)
-            (*allopt[i].optfn)(i, do_init, FALSE, empty_optstr, empty_optstr);
-    }
 #ifdef SYSCF
 /* someday there may be other SYSCF alternatives besides text file */
 #ifdef SYSCF_FILE
@@ -7234,9 +7207,7 @@ initoptions_init(void)
     go.opt_phase = builtin_opt;    /* Did I need to move this here? */
     /* initialize the function pointers for saving the game */
     sf_init();
-    memcpy(allopt, allopt_init, sizeof(allopt));
-    determine_ambiguities();
-
+    allopt_array_init();
     /* if windowtype has been specified on the command line, set it up
        early so windowtype-specific options use it as their base */
     if (gc.cmdline_windowsys) {
@@ -7391,6 +7362,27 @@ initoptions_init(void)
     /* since this is done before init_objects(), do partial init here */
     objects[SLIME_MOLD].oc_name_idx = SLIME_MOLD;
     nmcpy(svp.pl_fruit, OBJ_NAME(objects[SLIME_MOLD]), PL_FSIZ);
+
+#ifdef SYSCF
+/* someday there may be other SYSCF alternatives besides text file */
+#ifdef SYSCF_FILE
+    /* If SYSCF_FILE is specified, it _must_ exist... */
+    assure_syscf_file();
+    config_error_init(TRUE, SYSCF_FILE, FALSE);
+
+    /* ... and _must_ parse correctly. */
+    go.opt_phase = syscf_opt;
+    if (!read_config_file(SYSCF_FILE, set_in_sysconf)) {
+        if (config_error_done() && !iflags.initoptions_noterminate)
+            nh_terminate(EXIT_FAILURE);
+    }
+    config_error_done();
+    /*
+     * TODO [maybe]: parse the sysopt entries which are space-separated
+     * lists of usernames into arrays with one name per element.
+     */
+#endif
+#endif /* SYSCF */
 }
 
 /*
@@ -7411,71 +7403,9 @@ initoptions_init(void)
  */
 void
 initoptions_finish(void)
-{
-    nhsym sym = 0;
-    char *opts = 0, *xtraopts = 0;
-#ifndef MAC
-    const char *envname, *namesrc, *nameval;
+{   nhsym sym = 0;
 
-    /* getenv() instead of nhgetenv(): let total length of options be long;
-       parseoptions() will check each individually */
-    envname = "NETHACKOPTIONS";
-    opts = getenv(envname);
-    if (!opts) {
-        /* fall back to original name; discouraged */
-        envname = "HACKOPTIONS";
-        opts = getenv(envname);
-    }
-
-    if (gc.cmdline_rcfile) {
-        namesrc = "command line";
-        nameval = gc.cmdline_rcfile;
-        xtraopts = opts;
-        if (opts && (*opts == '/' || *opts == '\\' || *opts == '@'))
-            xtraopts = 0; /* NETHACKOPTIONS is a file name; ignore it */
-    } else if (opts && (*opts == '/' || *opts == '\\' || *opts == '@')) {
-        /* NETHACKOPTIONS is a file name; use that instead of the default */
-        if (*opts == '@')
-            ++opts; /* @filename */
-        namesrc = envname;
-        nameval = opts;
-        xtraopts = 0;
-    } else
-#endif /* !MAC */
-    /*else*/ {
-        /* either no NETHACKOPTIONS or it wasn't a file name;
-           read the default configuration file */
-        nameval = namesrc = 0;
-        xtraopts = opts;
-    }
-
-    /* seemingly arbitrary name length restriction is to prevent error
-       messages, if any were to be delivered while accessing the file,
-       from potentially overflowing buffers */
-    if (nameval && (int) strlen(nameval) >= BUFSZ / 2) {
-        go.opt_phase = rc_file_opt;
-        config_error_init(TRUE, namesrc, FALSE);
-        config_error_add(
-                   "crecellehackrc file name \"%.40s\"... too long; using default",
-                         nameval);
-        config_error_done();
-        nameval = namesrc = 0; /* revert to default crecellehackrc */
-    }
-
-    config_error_init(TRUE, nameval, nameval ? CONFIG_ERROR_SECURE : FALSE);
-    (void) read_config_file(nameval, set_in_config);
-    config_error_done();
-    if (xtraopts) {
-        /* NETHACKOPTIONS is present and not a file name */
-        go.opt_phase = environ_opt;
-        config_error_init(FALSE, envname, FALSE);
-        (void) parseoptions(xtraopts, TRUE, FALSE);
-        config_error_done();
-    }
-
-    if (gc.cmdline_rcfile)
-        free((genericptr_t) gc.cmdline_rcfile), gc.cmdline_rcfile = 0;
-    /*[end of crecellehackrc handling]*/
+    rcfile();
 
     (void) fruitadd(svp.pl_fruit, (struct fruit *) 0);
     /*
@@ -7526,18 +7456,16 @@ initoptions_finish(void)
              && wc_supported("tiled_map"))
         iflags.wc_ascii_map = FALSE, iflags.wc_tiled_map = TRUE;
 
-    if (iflags.wc_tiled_map && !opt_set_in_config[opt_color])
-        iflags.wc_color = TRUE;
-    if (iflags.wc_ascii_map && !iflags.wc_color
-        && !opt_set_in_config[opt_bgcolors])
-        iflags.bgcolors = FALSE;
-
+#ifdef ENHANCED_SYMBOLS
     if (glyphid_cache_status())
         free_glyphid_cache();
-    apply_customizations(gc.currentgraphics,
-                        (do_custom_colors | do_custom_symbols));
+    apply_customizations(gc.currentgraphics, do_custom_symbols);
+#endif
     go.opt_initial = FALSE;
+    return;
+}
 
+#if 0
     /*
      * Do these after clearing the 'opt_initial' flag.
      */
@@ -7552,7 +7480,38 @@ initoptions_finish(void)
         if (can_set_perm_invent())
             iflags.perm_invent = TRUE;
     }
-    return;
+}
+#endif
+
+void
+allopt_array_init(void)
+{
+    int i;
+    static boolean options_array_inited_already = FALSE;
+
+    if (!options_array_inited_already) {
+        memcpy(allopt, allopt_init, sizeof(allopt));
+        determine_ambiguities();
+        for (i = 0; allopt[i].name; i++) {
+            if (allopt[i].addr)
+                *(allopt[i].addr) = allopt[i].initval;
+        }
+        heed_all_options();
+        /*
+         * Call each option function with an init flag and give it a chance
+         * to make any preparations that it might require.  We do this
+         * whether or not the option itself is ever specified; that's
+         * irrelevant for the init call.  Doing this allows the prep code for
+         * option settings to remain adjacent to, and in the same function as,
+         * the code that processes those options.
+         */
+        for (i = 0; i < OPTCOUNT; ++i) {
+            if (allopt[i].optfn)
+                (*allopt[i].optfn)(i, do_init, FALSE, empty_optstr,
+                                   empty_optstr);
+        }
+        options_array_inited_already = TRUE;
+    }
 }
 
 /*
@@ -9072,6 +9031,7 @@ doset(void) /* changing options via menu by Per Liboriussen */
             if (opt_indx < -1)
                 opt_indx++; /* -1 offset for select_menu() */
             opt_indx -= indexoffset;
+            assert(IndexOk(opt_indx, allopt));
             if (allopt[opt_indx].opttyp == BoolOpt) {
                 /* boolean option */
                 Sprintf(buf, "%s%s", *allopt[opt_indx].addr ? "!" : "",
@@ -10325,6 +10285,39 @@ enhance_menu_text(
 #endif
     return;
 }
+
+void
+heed_all_options(void)
+{
+    int i;
+
+    for (i = 0; i < OPTCOUNT; i++)
+        allopt[i].disregarded = FALSE;
+}
+
+void
+disregard_all_options(void)
+{
+    int i;
+
+    for (i = 0; i < OPTCOUNT ; i++)
+        allopt[i].disregarded = TRUE;
+}
+
+void
+heed_this_option(enum opt optidx)
+{
+    if (optidx >= 0 && optidx < (enum opt) OPTCOUNT)
+         allopt[optidx].disregarded = FALSE;
+}
+void
+disregard_this_option(enum opt optidx)
+{
+    if (optidx >= 0 && optidx < (enum opt) OPTCOUNT)
+        allopt[optidx].disregarded = TRUE;
+}
+
+
 
 #undef OPTIONS_HEADING
 #undef CONFIG_SLOT

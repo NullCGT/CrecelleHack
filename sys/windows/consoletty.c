@@ -156,7 +156,6 @@ static boolean check_font_widths(void);
 #endif
 static void set_known_good_console_font(void);
 static void restore_original_console_font(void);
-extern void safe_routines(void);
 void tty_ibmgraphics_fixup(void);
 #ifdef VIRTUAL_TERMINAL_SEQUENCES
 extern void (*ibmgraphics_mode_callback)(void);  /* symbols.c */
@@ -1189,8 +1188,6 @@ consoletty_open(int mode UNUSED)
 void
 consoletty_exit(void)
 {
-    /* go back to using the safe routines */
-    safe_routines();
     free_custom_colors();
     free((genericptr_t) console.front_buffer);
     free((genericptr_t) console.back_buffer);
@@ -2546,9 +2543,13 @@ void early_raw_print(const char *s)
 
 void nethack_enter_consoletty(void)
 {
+    int width;
 #ifdef VIRTUAL_TERMINAL_SEQUENCES
     char buf[BUFSZ], *bp, *localestr;
     BOOL apisuccess;
+//    DWORD unused;
+//    int i = 0;
+
 #endif /* VIRTUAL_TERMINAL_SEQUENCES */
 #if 0
     /* set up state needed by early_raw_print() */
@@ -2562,13 +2563,41 @@ void nethack_enter_consoletty(void)
                   GetWindowLong(console.hWnd, GWL_STYLE)
                      & ~WS_MAXIMIZEBOX & ~WS_SIZEBOX);
 #endif
+
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    if (GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi)) {
+        /* srWindow identifies the visible area; dwSize identifies the buffer
+         */
+        width = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+#ifdef DEBUG
+        if (NH_DEVEL_STATUS != NH_STATUS_RELEASED)
+            fprintf(stdout, "width = %d\n", width);
+#endif
+    }
+
     console.hConOut = GetStdHandle(STD_OUTPUT_HANDLE);
     nhassert(console.hConOut != NULL); // NOTE: this assert will not print
+    GetConsoleScreenBufferInfo(console.hConOut, &console.orig_csbi);
+    //COORD screencheck = GetLargestConsoleWindowSize(console.hConOut);
+
+    GetConsoleMode(console.hConOut, &console.orig_out_cmode);
+    console.out_cmode = console.orig_out_cmode;
+    console.out_cmode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+    SetConsoleMode(console.hConOut, console.out_cmode);
+#if 0
+    /* tests */
+    WriteConsoleA(console.hConOut, "\033[8;;133t",9, &unused, NULL);
+    for (i = 0; i < 13; ++i) {
+        WriteConsoleA(console.hConOut, "0123456789", 10, &unused, NULL);
+    }
+    WriteConsoleA(console.hConOut, "\033[3;133ftest", 12, &unused, NULL);
     GetConsoleScreenBufferInfo(console.hConOut, &console.orig_csbi);
     /* Testing of widths != COLNO has not turned up any problems.  Need
      * to do a bit more testing and then we are likely to enable having
      * console width match window width.
      */
+#endif
+
 #if 0
     console.width = console.orig_csbi.srWindow.Right -
                      console.orig_csbi.srWindow.Left + 1;
@@ -2590,19 +2619,19 @@ void nethack_enter_consoletty(void)
 
 
     /* clear the entire console buffer */
-    int size = console.orig_csbi.dwSize.X * console.orig_csbi.dwSize.Y;
-    DWORD unused;
-    set_console_cursor(0, 0);
-    FillConsoleOutputAttribute(
-        console.hConOut, CONSOLE_CLEAR_ATTRIBUTE,
-        size, console.cursor, &unused);
+    //int size = console.orig_csbi.dwSize.X * console.orig_csbi.dwSize.Y;
+    //DWORD unused;
+    //set_console_cursor(0, 0);
+  //  FillConsoleOutputAttribute(
+  //      console.hConOut, CONSOLE_CLEAR_ATTRIBUTE,
+  //      size, console.cursor, &unused);
 
-    FillConsoleOutputCharacter(
-        console.hConOut, CONSOLE_CLEAR_CHARACTER,
-        size, console.cursor, &unused);
+  //  FillConsoleOutputCharacter(
+  //      console.hConOut, CONSOLE_CLEAR_CHARACTER,
+  //      size, console.cursor, &unused);
 
-    set_console_cursor(1, 0);
-    SetConsoleCursorPosition(console.hConOut, console.cursor);
+    //set_console_cursor(1, 0);
+    //SetConsoleCursorPosition(console.hConOut, console.cursor);
 
     /* At this point early_raw_print will work */
 
@@ -2757,7 +2786,7 @@ VA_DECL(const char *, fmt)
     VA_START(fmt);
     VA_INIT(fmt, const char *);
     (void) vsnprintf(buf, sizeof buf, fmt, VA_ARGS);
-    if (redirect_stdout)
+    if (redirect_stdout || program_state.early_options)
         fprintf(stdout, "%s", buf);
     else {
 #ifdef TTY_GRAPHICS

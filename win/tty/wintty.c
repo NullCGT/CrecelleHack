@@ -3559,8 +3559,9 @@ assesstty(
     short *offx, short *offy, long *rows, long *cols,
     long *maxcol, long *minrow, long *maxrow)
 {
-    boolean inuse_only = (invmode & InvInUse) != 0,
-            show_gold = (invmode & InvShowGold) != 0 && !inuse_only;
+    boolean inuse_only = (invmode & (int) InvInUse) != 0,
+            show_gold = (invmode & (int) InvShowGold) != 0
+                            && !inuse_only;
     int perminv_minrow = tty_perminv_minrow + (show_gold ? 1 : 0);
 
     if (!ttyDisplay) {

@@ -593,7 +593,7 @@ static const struct instance_globals_o g_init_o = {
     /* o_init.c */
     DUMMY, /* oclass_prob_totals */
     /* options.c */
-    0, /* opt_phase */
+    phase_not_set, /* opt_phase */
     FALSE, /* opt_initial */
     FALSE, /* opt_from_file */
     FALSE, /* opt_need_redraw */

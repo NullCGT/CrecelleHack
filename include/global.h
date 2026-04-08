@@ -102,8 +102,6 @@ typedef unsigned readLenType;
 #endif
 #define BOOL_RANDOM (-1)
 
-enum optchoice { opt_in, opt_out};
-
 /*
  * type nhsym: loadable symbols go into this type
  */
@@ -576,6 +574,45 @@ typedef enum NHL_pcall_action {
     NHLpa_panic,
     NHLpa_impossible
 } NHL_pcall_action;
+
+enum optchoice { opt_in, opt_out};
+/*
+ * option setting restrictions
+ */
+enum optset_restrictions {
+    set_in_sysconf = 0, /* system config file option only */
+    set_in_config = 1,  /* config file option only */
+    set_viaprog = 2,    /* may be set via extern program, not seen in game */
+    set_gameview = 3,   /* may be set via extern program, displayed in game */
+    set_in_game = 4,    /* may be set via extern program or set in the game */
+    set_wizonly = 5,    /* may be set in the game if wizmode */
+    set_wiznofuz = 6,   /* wizard-mode only, but not by fuzzer */
+    set_hidden = 7      /* placeholder for prefixed entries, never show it  */
+};
+
+/* these aren't the same as set_xxx */
+enum option_phases {
+    phase_not_set = 0,
+    builtin_opt = 1, /* compiled-in default value of an option */
+    syscf_opt,       /* sysconf setting of an option, overrides builtin */
+    rc_file_opt, /* player's run-time config file setting, overrides syscf */
+    environ_opt, /* player's environment NETHACKOPTIONS, overrides rc_file */
+    cmdline_opt, /* program invocation command-line, overrides environ */
+    play_opt,    /* 'O' command, interactively set so overrides all */
+    num_opt_phases
+};
+
+#define SET__IS_VALUE_VALID(s) ((s < set_in_sysconf) || (s > set_wiznofuz))
+#include "optlist.h"
+enum opt {
+    opt_prefix_only = -1,
+#define NHOPT_ENUM
+#include "optlist.h"
+#undef NHOPT_ENUM
+    OPTCOUNT
+};
+
+
 
 #define SFCTOOL_BIT (1UL << 30)
 

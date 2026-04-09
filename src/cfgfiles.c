@@ -112,7 +112,8 @@ staticfn void parse_conf_buf(struct _cnf_parser_state *parser,
                            boolean (*proc)(char *arg));
 /* next one is in extern.h; why here too? */
 boolean parse_conf_str(const char *str, boolean (*proc)(char *arg));
-static boolean ignore_errors_on_unmatched = FALSE;
+static boolean ignore_errors_on_unmatched = FALSE,
+               ignore_statement_errors = FALSE;
 
 #ifdef SFCTOOL
 #ifdef wait_synch
@@ -1435,7 +1436,8 @@ parse_config_line(char *origbuf)
     /* find the '=' or ':' */
     bufp = find_optparam(buf);
     if (!bufp) {
-        config_error_add("Not a config statement, missing '='");
+        if (!ignore_statement_errors)
+            config_error_add("Not a config statement, missing '='");
         return FALSE;
     }
     /* skip past '=', then space between it and value, if any */
@@ -1988,12 +1990,14 @@ rcfile_interface_options(void)
     heed_this_option(opt_windowtype);
     heed_this_option(opt_soundlib);
     set_ignore_errors_on_unmatched();
+    ignore_statement_errors = TRUE;
     rcfile();
     heed_all_config_statements();
     heed_all_options();
     disregard_this_option(opt_windowtype);
     disregard_this_option(opt_soundlib);
     clear_ignore_errors_on_unmatched();
+    ignore_statement_errors = FALSE;
 }
 
 void

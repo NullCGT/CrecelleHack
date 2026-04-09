@@ -238,6 +238,8 @@ _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);*/
         windowtype); /* sets all the window port function pointers */
 
     init_nhwindows(&argc, argv);
+    /* if (GUILaunched || IsDebuggerPresent()) */
+    getreturn_enabled = TRUE;
 
 #if defined(CHDIR) && !defined(NOCWD_ASSUMPTIONS)
     /* Save current directory and make sure it gets restored when
@@ -261,8 +263,7 @@ _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);*/
     chdir(gf.fqn_prefix[HACKPREFIX]);
 #endif
 
-    /* if (GUILaunched || IsDebuggerPresent()) */
-    getreturn_enabled = TRUE;
+
 
     check_recordfile((char *) 0);
     /* did something earlier flag a need to exit without starting a game? */

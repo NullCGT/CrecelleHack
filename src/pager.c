@@ -2419,11 +2419,15 @@ do_supplemental_item_info(struct obj *otmp)
             Sprintf(buf, "Its damage scales with your %s.",
                     attr_name(get_scaling_type(otmp)));
             add_menu_str(datawin, buf);
+        } else {
+            add_menu_str(datawin, "Its damage does not scale.");
         }
         if (get_hitbon_type(otmp) >= A_STR) {
             Sprintf(buf, "Its accuracy scales with your %s.",
                     attr_name(get_hitbon_type(otmp)));
             add_menu_str(datawin, buf);
+        } else {
+            add_menu_str(datawin, "Its accuracy does not scale.");
         }
     }
     add_menu_str(datawin, "");
@@ -2432,8 +2436,6 @@ do_supplemental_item_info(struct obj *otmp)
     if (otmp->oclass == WEAPON_CLASS || is_weptool(otmp)) {
         Sprintf(buf, "Type: %s%sweapon", objects[otmp->otyp].oc_bimanual ? "two-handed " : "one-handed ",
                                  objects[otmp->otyp].oc_finesse ? "finesse " : "");
-        add_menu_str(datawin, buf);
-        stringify_dmgval(buf, (struct monst *) 0, otmp);
         add_menu_str(datawin, buf);
         stringify_dmgval(buf, &gy.youmonst, otmp);
         add_menu_str(datawin, buf);

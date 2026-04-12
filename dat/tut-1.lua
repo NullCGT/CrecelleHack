@@ -149,7 +149,7 @@ des.engraving({ coord = { 40, 10 }, type = "engrave", text = "In CrecelleHack, y
 des.object({ coord = { 40, 12 }, id = "athame", buc = "not-cursed" });
 des.engraving({ coord = { 40, 12 }, type = "engrave", text = "Try examining this athame.", degrade = false });
 des.engraving({ coord = { 40, 14 }, type = "engrave", text = "Note how the weapon's stats scale with your ability scores.", degrade = false });
-des.engraving({ coord = { 40, 16 }, type = "engrave", text = "For every two points of an ability score, the number of damage dice rolled increases by one.", degrade = false });
+des.engraving({ coord = { 40, 16 }, type = "engrave", text = "For every two points of a relevant ability score, you receive a +1 damage or accuracy bonus.", degrade = false });
 des.door({ coord = { 39, 16 }, state = "closed" });
 des.engraving({ coord = { 37, 09 }, type = "engrave", text = "Basic weapon skill allows you to wield weapons of that type without using an action.", degrade = false });
 des.object({ coord = { 38, 09 }, id = "statue", montype = "gnome", historic = true });

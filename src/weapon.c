@@ -199,14 +199,10 @@ hitval(struct obj *otmp, struct monst *mon)
 
 /* Helper for dmgval(). Calculates the number of dice rolled for an attack.*/
 int
-dmgval_ndice(struct obj *otmp, struct monst *magr)
+dmgval_ndice(struct obj *otmp)
 {
     int otyp = otmp->otyp;
     int tmp = objects[otyp].oc_wndam;
-    int scaler = get_scaling_type(otmp);
-    if (magr == &gy.youmonst && scaler >= A_STR) {
-        tmp += AMOD(scaler);
-    }
     if (tmp < 1)
         tmp = 1;
     return tmp;
@@ -229,9 +225,10 @@ dmgval_nsides(struct obj *otmp)
 }
 
 int
-dmgval_dbonus(struct obj *otmp)
+dmgval_dbonus(struct obj *otmp, struct monst *magr)
 {
     int tmp = 0;
+    int scaler = get_scaling_type(otmp);
     if (otmp->oclass == WEAPON_CLASS || is_weptool(otmp))
         tmp += otmp->spe;
     /* It's debatable whether a rusted blunt instrument
@@ -240,6 +237,10 @@ dmgval_dbonus(struct obj *otmp)
         there ought to some penalty for using damaged gear
         so always subtract erosion even for blunt weapons. */
     tmp -= greatest_erosion(otmp);
+    /* adjust for scaling attribute */
+    if (magr == &gy.youmonst && scaler >= A_STR) {
+        tmp += AMOD(scaler);
+    }
     /* adjust for various materials */
     if ((otmp->material == GLASS || otmp->material == GEMSTONE
         || otmp->material == SALT)
@@ -282,9 +283,9 @@ dmgval_dbonus(struct obj *otmp)
 char *
 stringify_dmgval(char *buf, struct monst *mon, struct obj *otmp)
 {
-    int ndice = dmgval_ndice(otmp, mon);
+    int ndice = dmgval_ndice(otmp);
     int nsides = dmgval_nsides(otmp);
-    int bonus = dmgval_dbonus(otmp);
+    int bonus = dmgval_dbonus(otmp, mon);
     if (!otmp->known && (otmp->oclass == WEAPON_CLASS || is_weptool(otmp)))
         bonus -= otmp->spe;
     Sprintf(buf, "%s Damage: %dd%d%s%d%s%s%s",
@@ -333,8 +334,8 @@ dmgval(struct obj *otmp, struct monst *magr, struct monst *mdef)
         return 0;
 
     if (objects[otyp].oc_wndam && objects[otyp].oc_wddam)
-        tmp = d(dmgval_ndice(otmp, magr), dmgval_nsides(otmp));
-    tmp += dmgval_dbonus(otmp);
+        tmp = d(dmgval_ndice(otmp), dmgval_nsides(otmp));
+    tmp += dmgval_dbonus(otmp, magr);
 
     /* negative modifiers mustn't produce negative damage */
     if (tmp < 0)

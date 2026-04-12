@@ -3849,9 +3849,9 @@ extern int vms_get_saved_games(const char *, char ***);
 
 extern const char *weapon_descr(struct obj *) NONNULLARG1;
 extern int hitval(struct obj *, struct monst *) NONNULLARG12;
-extern int dmgval_ndice(struct obj *, struct monst*) NONNULLARG1;
+extern int dmgval_ndice(struct obj *) NONNULLARG1;
 extern int dmgval_nsides(struct obj *) NONNULLARG1;
-extern int dmgval_dbonus(struct obj *) NONNULLARG1;
+extern int dmgval_dbonus(struct obj *, struct monst *) NONNULLARG1;
 extern int dmgval(struct obj *, struct monst *, struct monst *) NONNULLARG13;
 extern char *stringify_dmgval(char *, struct monst *, struct obj*) NONNULLARG13;
 extern int special_dmgval(struct monst *, struct monst *, long, struct obj **) NONNULLARG12;

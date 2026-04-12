@@ -1318,6 +1318,7 @@ extern int itemactions(struct obj *otmp) NONNULLARG1;
 /* ### insight.c ### */
 
 extern int doattributes(void);
+extern void enlightenment_dnh(int);
 extern void enlightenment(int, int);
 extern void youhiding(boolean, int);
 extern char *trap_predicament(char *, int, boolean) NONNULLARG1;

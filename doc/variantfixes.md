@@ -10,6 +10,10 @@
         current lack of templates.
 ## Misc
 - Allow players to joust if in centuar or quadruped form.
+## Options
+- Added dnh_enlightenment. This changes the attributes menu to a pick
+  list, as used in dnethack. Should be helpful for the extremely
+  lengthy statuses that can occur.
 
 # 1.4.2
 ## Monsters

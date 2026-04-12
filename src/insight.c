@@ -31,6 +31,7 @@ staticfn void one_characteristic(int, int, int);
 staticfn void status_enlightenment(int, int);
 staticfn void weapon_insight(int);
 staticfn void attributes_enlightenment(int, int);
+staticfn void misc_enlightenment(int, int);
 staticfn void show_achievements(int);
 staticfn int QSORTCALLBACK vanqsort_cmp(const genericptr, const genericptr);
 staticfn int num_extinct(void);
@@ -369,6 +370,74 @@ fmt_elapsed_time(char *outbuf, int final)
 }
 
 void
+enlightenment_dnh(int mode)
+{
+    menu_item *pick_list = (menu_item *) 0;
+    anything any = cg.zeroany;
+    int i, n;
+    
+    ge.en_win = create_nhwindow(NHW_MENU);
+    ge.en_via_menu = TRUE;
+    start_menu(ge.en_win, MENU_BEHAVE_STANDARD);
+    if (mode & BASICENLIGHTENMENT) {
+        any.a_char = 'g';
+        add_menu(ge.en_win, &nul_glyphinfo, &any, any.a_char, 0, ATR_NONE,
+                    NO_COLOR, "Background", MENU_ITEMFLAGS_NONE);
+        any.a_char = 'b';
+        add_menu(ge.en_win, &nul_glyphinfo, &any, any.a_char, 0, ATR_NONE,
+                    NO_COLOR, "Basics", MENU_ITEMFLAGS_NONE);
+        any.a_char = 'c';
+        add_menu(ge.en_win, &nul_glyphinfo, &any, any.a_char, 0, ATR_NONE,
+                    NO_COLOR, "Characteristics", MENU_ITEMFLAGS_NONE);
+    }
+    any.a_char = 's';
+    add_menu(ge.en_win, &nul_glyphinfo, &any, any.a_char, 0, ATR_NONE,
+                NO_COLOR, "Status", MENU_ITEMFLAGS_NONE);
+    if (mode & MAGICENLIGHTENMENT) {
+        any.a_char = 'a';
+        add_menu(ge.en_win, &nul_glyphinfo, &any, any.a_char, 0, ATR_NONE,
+                    NO_COLOR, "Attributes", MENU_ITEMFLAGS_NONE);
+    }
+    any.a_char = 'm';
+    add_menu(ge.en_win, &nul_glyphinfo, &any, any.a_char, 0, ATR_NONE,
+                NO_COLOR, "Miscellaneous", MENU_ITEMFLAGS_NONE);
+    end_menu(ge.en_win, "View which attributes:");
+    n = select_menu(ge.en_win, PICK_ANY, &pick_list);
+    destroy_nhwindow(ge.en_win);
+    ge.en_win = create_nhwindow(NHW_MENU);
+    if (n > 0) {
+        start_menu(ge.en_win, MENU_BEHAVE_STANDARD);
+        enlght_out_attr(ATR_HEADING, "Selected Attributes:");
+        for (i = 0; i < n; i++) {
+            switch (pick_list[i].item.a_char) {
+                case 'g':
+                    background_enlightenment(mode, FALSE);
+                    break;
+                case 'b':
+                    basics_enlightenment(mode, FALSE);
+                    break;
+                case 'c':
+                    characteristics_enlightenment(mode, FALSE);
+                    break;
+                case 's':
+                    status_enlightenment(mode, FALSE);
+                    break;
+                case 'a':
+                    attributes_enlightenment(mode, FALSE);
+                    break;
+                case 'm':
+                    misc_enlightenment(mode, FALSE);
+                    break;
+            }
+        }
+        free((genericptr_t) pick_list);
+        display_nhwindow(ge.en_win, TRUE);
+        destroy_nhwindow(ge.en_win);
+    }
+    ge.en_win = WIN_ERR;
+}
+
+void
 enlightenment(
     int mode,  /* BASICENLIGHTENMENT | MAGICENLIGHTENMENT (| both) */
     int final) /* ENL_GAMEINPROGRESS:0, ENL_GAMEOVERALIVE, ENL_GAMEOVERDEAD */
@@ -410,32 +479,8 @@ enlightenment(
         /* intrinsics and other traditional enlightenment feedback */
         attributes_enlightenment(mode, final);
     }
-
-    enlght_out(""); /* separator */
-    enlght_out_attr(ATR_SUBHEAD, "Miscellaneous:");
-    /* reminder to player and/or information for dumplog */
-    if ((mode & BASICENLIGHTENMENT) != 0 && (wizard || discover || final)) {
-        if (wizard || discover) {
-            Sprintf(buf, "running in %s mode", wizard ? "debug" : "explore");
-            you_are(buf, "");
-        }
-
-        if (!flags.bones) {
-            /* mention not saving bones iff hero just died */
-            Sprintf(buf, "disabled loading%s of bones levels",
-                    (final == ENL_GAMEOVERDEAD) ? " and storing" : "");
-            you_have_X(buf);
-        } else if (!u.uroleplay.numbones) {
-            enl_msg(You_, "haven't encountered", "didn't encounter",
-                    " any bones levels", "");
-        } else {
-            Sprintf(buf, "encountered %ld bones level%s",
-                    u.uroleplay.numbones, plur(u.uroleplay.numbones));
-            you_have_X(buf);
-        }
-    }
-    (void) fmt_elapsed_time(buf, final);
-    enl_msg("Total elapsed playing time ", "is", "was", buf, "");
+    /* misc stuff, pulled out into function - k */
+    misc_enlightenment(mode, final);
 
     if (!ge.en_via_menu) {
         display_nhwindow(ge.en_win, TRUE);
@@ -2080,6 +2125,37 @@ attributes_enlightenment(
     }
 }
 
+staticfn void
+misc_enlightenment(int mode, int final)
+{
+    char buf[BUFSZ];
+    enlght_out(""); /* separator */
+    enlght_out_attr(ATR_SUBHEAD, "Miscellaneous:");
+    /* reminder to player and/or information for dumplog */
+    if ((mode & BASICENLIGHTENMENT) != 0 && (wizard || discover || final)) {
+        if (wizard || discover) {
+            Sprintf(buf, "running in %s mode", wizard ? "debug" : "explore");
+            you_are(buf, "");
+        }
+
+        if (!flags.bones) {
+            /* mention not saving bones iff hero just died */
+            Sprintf(buf, "disabled loading%s of bones levels",
+                    (final == ENL_GAMEOVERDEAD) ? " and storing" : "");
+            you_have_X(buf);
+        } else if (!u.uroleplay.numbones) {
+            enl_msg(You_, "haven't encountered", "didn't encounter",
+                    " any bones levels", "");
+        } else {
+            Sprintf(buf, "encountered %ld bones level%s",
+                    u.uroleplay.numbones, plur(u.uroleplay.numbones));
+            you_have_X(buf);
+        }
+    }
+    (void) fmt_elapsed_time(buf, final);
+    enl_msg("Total elapsed playing time ", "is", "was", buf, "");
+}
+
 /* ^X command */
 int
 doattributes(void)
@@ -2090,7 +2166,10 @@ doattributes(void)
     if (wizard || discover)
         mode |= MAGICENLIGHTENMENT;
 
-    enlightenment(mode, ENL_GAMEINPROGRESS);
+    if (flags.dnh_enlightenment)
+        enlightenment_dnh(mode);
+    else
+        enlightenment(mode, ENL_GAMEINPROGRESS);
     return ECMD_OK;
 }
 

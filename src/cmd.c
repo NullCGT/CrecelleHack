@@ -1677,7 +1677,7 @@ struct ext_func_tab extcmdlist[] = {
     { M('a'), "adjust", "adjust inventory letters",
               doorganize, IFBURIED | AUTOCOMPLETE | GENERALCMD, NULL },
     { M('A'), "annotate", "name current level",
-              donamelevel, IFBURIED | AUTOCOMPLETE | GENERALCMD, NULL },
+              donamelevel, IFBURIED | AUTOCOMPLETE | GENERALCMD | CMD_M_PREFIX, NULL },
     { 'a',    "apply", "apply (use) a tool (pick-axe, key, lamp...)",
               doapply, CMD_M_PREFIX, NULL },
     { C('x'), "attributes", "show your attributes",
@@ -3723,7 +3723,8 @@ rhack(int key)
                  * the former call to help_dir() (for 'bad_command' below).
                  */
                 if (was_m_prefix) {
-                    pline("The %s command does not accept '%s' prefix.",
+                    custompline(SUPPRESS_HISTORY,
+                          "The %s command does not accept '%s' prefix.",
                           tlist->ef_txt, which);
                 } else {
                     uchar ch = tlist->key;

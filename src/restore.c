@@ -357,6 +357,9 @@ restmon(NHFILE *nhfp, struct monst *mtmp)
         if (buflen > 0) {
             newedog(mtmp);
             Sfi_edog(nhfp, EDOG(mtmp), "monst-edog");
+            /* save or bones held a relative time */
+            relative_time_to_moves(&EDOG(mtmp)->droptime);
+            relative_time_to_moves(&EDOG(mtmp)->hungrytime);
             /* sanity check to prevent rn2(0) */
            if (EDOG(mtmp)->apport <= 0) {
                EDOG(mtmp)->apport = 1;
@@ -562,6 +565,8 @@ restgamestate(NHFILE *nhfp)
 #endif  /* SFCTOOL */
     newgamecontext = svc.context; /* copy statically init'd context */
     Sfi_context_info(nhfp, &svc.context, "gamestate-context");
+    relative_time_to_moves(&svc.context.seer_turn);
+    relative_time_to_moves(&svc.context.digging.lastdigtime);
     svc.context.warntype.species = (ismnum(svc.context.warntype.speciesidx))
                                   ? &mons[svc.context.warntype.speciesidx]
                                   : (struct permonst *) 0;
@@ -1122,7 +1127,7 @@ getlev(NHFILE *nhfp, int pid, xint8 lev)
     Sfi_dest_area(nhfp, &svu.updest, "lev-updest");
     Sfi_dest_area(nhfp, &svd.dndest, "lev-dndest");
     Sfi_levelflags(nhfp, &svl.level.flags, "lev-level_flags");
-
+    rest_adjust_levelflags();
     if (svd.doors) {
         free(svd.doors);
         svd.doors = 0;
@@ -1362,6 +1367,13 @@ grow_dungeon(void) {
         remove_coating(x, y, COAT_POTION);
         if (cansee(x, y)) pline_xy(x, y, "You see some liquid evaporate.");
     }
+}
+
+void
+rest_adjust_levelflags(void)
+{
+    /* adjust timestamps */
+    relative_time_to_moves(&svl.level.flags.stasis_until);
 }
 
 /* "name-role-race-gend-algn" occurs very early in a save file; sometimes we

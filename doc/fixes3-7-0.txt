@@ -1594,6 +1594,8 @@ wizard mode: history menu for #wizwish and WIZKIT
 monster priests and wizards did not cast spells
 prevent phaseable monsters hiding deep inside nondiggable walls
 blessed potion of see invisible does not guarantee the intrinsic
+prevent selecting all options in #optionsfull menu
+shapeshifters change shape less
 
 
 Fixes to 3.7.0-x General Problems Exposed Via git Repository

@@ -224,6 +224,10 @@ curses_destroy_win(WINDOW *win)
     delwin(win);
     if (win == activemenu)
         activemenu = NULL;
+    /* during shutdown, RIP window could still be active after mapwin goes
+       away; so, avoid 'if (mapwin)' above when deleting RIP window later */
+    if (win == mapwin)
+        win = mapwin = NULL;
     curses_refresh_nethack_windows();
     nhUse(dummyht);
 }

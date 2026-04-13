@@ -57,6 +57,12 @@ OPTIONS=!autopickup
 # Set the default boulder symbol to '0'
 OPTIONS=boulder:0
 
+# Disable the prompt for a tutorial
+#OPTIONS=!tutorial
+
+# Disable game tips
+#OPTIONS=!tips
+
 # Highlight menu lines with different colors. You need to define the colors
 # with MENUCOLOR lines.
 #  Toggle menucolor use on or off

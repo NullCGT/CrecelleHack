@@ -870,7 +870,8 @@ back_buffer_flip(void)
                     do_anything |= do_wide_content;
             } else {
 #endif
-                if (strcmp((const char *) back->utf8str,
+                if (back->utf8str && front->utf8str
+                    && strcmp((const char *) back->utf8str,
                            (const char *) front->utf8str))
                     do_anything |= do_utf8_content;
 #ifdef UTF8_FROM_CORE
@@ -1184,6 +1185,7 @@ consoletty_open(int mode UNUSED)
     really_move_cursor();
     nhUse(debugvar);
 }
+extern void set_emergency_io(void);
 
 void
 consoletty_exit(void)
@@ -1191,8 +1193,10 @@ consoletty_exit(void)
     free_custom_colors();
     free((genericptr_t) console.front_buffer);
     free((genericptr_t) console.back_buffer);
+    console.front_buffer = console.back_buffer = 0;
     free((genericptr_t) console.localestr);
     free((genericptr_t) console.orig_localestr);
+    set_emergency_io();
 }
 
 int
@@ -2541,6 +2545,9 @@ void early_raw_print(const char *s)
  *
  */
 
+
+DISABLE_WARNING_CONDEXPR_IS_CONSTANT
+
 void nethack_enter_consoletty(void)
 {
     int width;
@@ -2774,6 +2781,9 @@ void nethack_enter_consoletty(void)
     console.is_ready = TRUE;
     nhUse(apisuccess);
 }
+
+RESTORE_WARNING_CONDEXPR_IS_CONSTANT
+
 #endif /* TTY_GRAPHICS */
 
 /* this is used as a printf() replacement when the window

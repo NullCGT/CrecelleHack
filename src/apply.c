@@ -57,7 +57,7 @@ staticfn boolean check_jump(genericptr_t, coordxy, coordxy);
 staticfn boolean is_valid_jump_pos(coordxy, coordxy, int, boolean);
 staticfn boolean get_valid_jump_position(coordxy, coordxy);
 staticfn boolean get_valid_polearm_position(coordxy, coordxy);
-staticfn boolean find_poleable_mon(coord *, int, int);
+staticfn boolean find_poleable_mon(coord *);
 
 static const char
     no_elbow_room[] = "don't have enough elbow-room to maneuver.";
@@ -3566,7 +3566,7 @@ static const char
 
 /* find pos of monster in range, if only one monster */
 staticfn boolean
-find_poleable_mon(coord *pos, int min_range, int max_range)
+find_poleable_mon(coord *pos)
 {
     struct monst *mtmp;
     coord mpos = { 0, 0 }; /* no candidate location yet */
@@ -3575,13 +3575,12 @@ find_poleable_mon(coord *pos, int min_range, int max_range)
     int glyph;
 
     impaired = (Confusion || Stunned || Hallucination);
-    rt = isqrt(max_range);
+    rt = isqrt(gp.polearm_range_max);
     lo_x = max(u.ux - rt, 1), hi_x = min(u.ux + rt, COLNO - 1);
     lo_y = max(u.uy - rt, 0), hi_y = min(u.uy + rt, ROWNO - 1);
     for (x = lo_x; x <= hi_x; ++x) {
         for (y = lo_y; y <= hi_y; ++y) {
-            if (distu(x, y) < min_range || distu(x, y) > max_range
-                || !isok(x, y) || !cansee(x, y))
+            if (!get_valid_polearm_position(x, y))
                 continue;
             glyph = glyph_at(x, y);
             if (!impaired
@@ -3687,7 +3686,7 @@ could_pole_mon(void)
 
     cc.x = u.ux;
     cc.y = u.uy;
-    if (!find_poleable_mon(&cc, min_range, max_range)) {
+    if (!find_poleable_mon(&cc)) {
         if (hitm && !DEADMONSTER(hitm) && sensemon(hitm)
             && mdistu(hitm) <= max_range && mdistu(hitm) >= min_range)
             return TRUE;
@@ -3740,7 +3739,7 @@ use_pole(struct obj *obj, boolean autohit)
         pline(where_to_hit);
     cc.x = u.ux;
     cc.y = u.uy;
-    if (!find_poleable_mon(&cc, min_range, max_range) && hitm
+    if (!find_poleable_mon(&cc) && hitm
         && !DEADMONSTER(hitm) && sensemon(hitm)
         && mdistu(hitm) <= max_range && mdistu(hitm) >= min_range) {
         cc.x = hitm->mx;

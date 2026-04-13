@@ -427,6 +427,12 @@ scores_only(int argc, char **argv, const char *dir)
     (void) whoami(); /* set up default plname[] */
 #endif
     prscore(argc, argv);
+#ifdef MSWIN_GRAPHICS
+    /* NetHackW can also support WINDOWPORT(curses) now, so check */
+    if (WINDOWPORT(mswin)) {
+        wait_synch();
+    }
+#endif
 
     nh_terminate(EXIT_SUCCESS); /* bypass opt_terminate() */
     /*NOTREACHED*/

@@ -24,10 +24,15 @@ strategy:
       imageName: 'macOS-15'
       toolchainName: clang
       buildTargetName: all
-    windows-visualstudio:
+    windows-x64-vstudio:
       imageName: 'windows-latest'
       toolchainName: vs
       buildTargetName: all
+    windows-arm64-vstudio:
+      imageName: 'windows-latest'
+      toolchainName: vs
+      buildTargetName: all
+      buildPlatform: 'ARM64' # Targeting Snapdragon
     windows-mingw:
       imageName: 'windows-2025'
       toolchainName: mingw

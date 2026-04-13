@@ -211,6 +211,12 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine,
         free(savefile);
     }
     GUILaunched = 1;
+    /* emergency IO */
+    windowprocs.win_raw_print = mswin_raw_print;
+    windowprocs.win_raw_print_bold = mswin_raw_print_bold;
+    windowprocs.win_nhgetch = mswin_nhgetch;
+    windowprocs.win_wait_synch = mswin_wait_synch;
+
     /* let nethackw_main do the argument processing */
     nethackw_main(argc, argv);
     /* not reached */

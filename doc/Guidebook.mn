@@ -1247,6 +1247,9 @@ Autocompletes.
 Default key is \(oqM-A\(cq, and also \(oq\(haN\(cq if
 .op number_pad
 is on.
+.lp ""
+Preceding #annotate with the \(oqm\(cq prefix is the same as
+#overview with the prefix.
 .lp "#apply   "
 Apply (use) a tool such as a pick-axe, a key, or a lamp.
 Default key is \(oqa\(cq.

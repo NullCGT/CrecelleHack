@@ -101,7 +101,7 @@ void update_file(const char *, const char *,
                  const char *, const char *, BOOL);
 void windows_raw_print_bold(const char *);
 
-staticfn void set_emergency_io(void);
+void set_emergency_io(void);
 staticfn void stdio_wait_synch(void);
 staticfn void stdio_raw_print(const char *str);
 staticfn void stdio_nonl_raw_print(const char *str);
@@ -198,6 +198,7 @@ _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);*/
 #endif
 
     gh.hname = "CrecelleHack"; /* used for syntax messages */
+    set_emergency_io();
 #ifndef MSWIN_GRAPHICS
     early_init(argc, argv); /* already in WinMain for MSWIN_GRAPHICS */
 #endif
@@ -219,7 +220,6 @@ _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);*/
     nethack_enter_consoletty();
     consoletty_open(1);
 #endif
-    set_emergency_io();
 
 #ifdef EARLY_CONFIGFILE_PASS
     rcfile_interface_options();
@@ -237,10 +237,6 @@ _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);*/
     choose_windows(
         windowtype); /* sets all the window port function pointers */
 
-    init_nhwindows(&argc, argv);
-    /* if (GUILaunched || IsDebuggerPresent()) */
-    getreturn_enabled = TRUE;
-
 #if defined(CHDIR) && !defined(NOCWD_ASSUMPTIONS)
     /* Save current directory and make sure it gets restored when
      * the game is exited.
@@ -248,22 +244,23 @@ _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);*/
     if (getcwd(orgdir, sizeof orgdir) == (char *) 0)
         error("CrecelleHack: current directory path too long");
 #endif
+    getreturn_enabled = TRUE;
     initoptions_init(); // This allows OPTIONS in syscf on Windows.
     set_default_prefix_locations(
         argv[0]); /* must be re-done after initoptions_init()
                    * which clears out gp.fqn_prefix[] */
-    iflags.windowtype_deferred = TRUE;
+    // iflags.windowtype_deferred = TRUE;
 
     program_state.early_options = 1;
+    /* if (GUILaunched || IsDebuggerPresent()) */
     early_options(&argc, &argv, &dir);
     program_state.early_options = 0;
-    initoptions();
 
+
+    initoptions();
 #if defined(CHDIR) && !defined(NOCWD_ASSUMPTIONS)
     chdir(gf.fqn_prefix[HACKPREFIX]);
 #endif
-
-
 
     check_recordfile((char *) 0);
     /* did something earlier flag a need to exit without starting a game? */
@@ -292,7 +289,21 @@ _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);*/
         && (strstri(argv[0], "nethackw.exe") || GUILaunched))
         iflags.windowtype_locked = TRUE;
 #endif
+#ifdef WINCHAIN
+    commit_windowchain();
+#endif
+    init_nhwindows(&argc, argv);
+#ifdef TTY_GRAPHICS
+    if WINDOWPORT(tty) {
+        int i;
 
+        for (i = 0; i < 20; ++i) {
+            nh_delay_output();
+        }
+
+ /*        wait_synch(); */
+    }
+#endif
 #ifdef DLB
     if (!dlb_init()) {
         pline("%s\n%s\n%s\n%s\n%s\n%s\n\n", copyright_banner_line(1),
@@ -319,9 +330,6 @@ _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);*/
     iflags.use_background_glyph = FALSE;
     if (WINDOWPORT(mswin))
         iflags.use_background_glyph = TRUE;
-#ifdef WINCHAIN
-    commit_windowchain();
-#endif
 
 //    init_nhwindows(&argc, argv);
 

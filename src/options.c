@@ -2068,6 +2068,8 @@ optfn_map_mode(
          */
         op = string_for_opt(opts, negated);
         if (op != empty_optstr && !negated) {
+            int save_map_mode = iflags.wc_map_mode;
+
             if (!strcmpi(op, "tiles"))
                 iflags.wc_map_mode = MAP_MODE_TILES;
             else if (!strncmpi(op, "ascii4x6", sizeof "ascii4x6" - 1))
@@ -2101,6 +2103,11 @@ optfn_map_mode(
                 config_error_add("Unknown %s parameter '%s'",
                                  allopt[optidx].name, op);
                 return optn_err;
+            }
+            if (wc_supported("map_mode")) {
+                if (!iflags.wc_map_mode
+                    || save_map_mode != iflags.wc_map_mode)
+                    preference_update("map_mode");
             }
         } else if (negated) {
             bad_negation(allopt[optidx].name, TRUE);
@@ -5586,9 +5593,6 @@ can_set_perm_invent(void)
 
 #ifdef TTY_PERM_INVENT
     if ((WINDOWPORT(tty)
-#ifdef WIN32
-         || WINDOWPORT(safestartup)
-#endif
          ) && !go.opt_initial) {
         perm_invent_toggled(FALSE);
         /* perm_invent_toggled()
@@ -7436,12 +7440,10 @@ initoptions_finish(void)
      * Option processing can take place before a user-decided WindowPort
      * is even initialized, so check for that too.
      */
-    if (!WINDOWPORT(safestartup)) {
-        if (iflags.hilite_delta && !wc2_supported("statushilites")) {
-            raw_printf("Status highlighting not supported for %s interface.",
-                       windowprocs.name);
-            iflags.hilite_delta = 0;
-        }
+    if (iflags.hilite_delta && !wc2_supported("statushilites")) {
+        raw_printf("Status highlighting not supported for %s interface.",
+                    windowprocs.name);
+        iflags.hilite_delta = 0;
     }
 #endif
     update_rest_on_space();
@@ -8966,7 +8968,7 @@ doset(void) /* changing options via menu by Per Liboriussen */
                     enhance_menu_text(buf, sizeof buf, pass, bool_p,
                                       &allopt[i]);
                 add_menu(tmpwin, &nul_glyphinfo, &any, 0, 0,
-                         ATR_NONE, clr, buf, MENU_ITEMFLAGS_NONE);
+                         ATR_NONE, clr, buf, MENU_ITEMFLAGS_SKIPINVERT);
             }
 
     add_menu_str(tmpwin, "");
@@ -9171,7 +9173,7 @@ doset_add_menu(
     indent = !any.a_int ? "    " : "";
     Sprintf(buf, fmtstr, indent, option, value);
     add_menu(win, &nul_glyphinfo, &any, 0, 0,
-             ATR_NONE, clr, buf, MENU_ITEMFLAGS_NONE);
+             ATR_NONE, clr, buf, MENU_ITEMFLAGS_SKIPINVERT);
 }
 
 

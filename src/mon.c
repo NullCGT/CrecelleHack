@@ -6,6 +6,7 @@
 #include "hack.h"
 #include "mfndpos.h"
 
+staticfn void pet_sanity_check(struct monst *, const char *);
 staticfn void sanity_check_single_mon(struct monst *, boolean, const char *);
 staticfn struct obj *make_corpse(struct monst *, unsigned);
 staticfn int minliquid_core(struct monst *);
@@ -45,14 +46,28 @@ extern const struct shclass shtypes[]; /* defined in shknam.c */
      || !svl.level.flags.deathdrops    \
      || (svl.level.flags.graveyard && is_undead(mdat) && rn2(3)))
 
-
-#if 0
+#if 0   /* potentially of historical interest */
 /* part of the original warning code which was replaced in 3.3.1 */
 const char *warnings[] = {
     "white", "pink", "red", "ruby", "purple", "black"
 };
 #endif /* 0 */
 
+staticfn void
+pet_sanity_check(
+    struct monst *mtmp,
+    const char *msgarg)
+{
+    if (has_edog(mtmp)) {
+        struct edog *edog = EDOG(mtmp);
+
+        if (edog->droptime > svm.moves)
+            impossible("insane pet #%u has droptime (%ld)"
+                       " in the future (%ld) (%s)",
+                       mtmp->m_id, edog->droptime, svm.moves, msgarg);
+        /* TODO: verify some of the other edog fields */
+    }
+}
 
 staticfn void
 sanity_check_single_mon(
@@ -116,8 +131,12 @@ sanity_check_single_mon(
     if (mtmp->isminion && !has_emin(mtmp))
         impossible("minion without emin (%s)", msg);
     /* guardian angel on astral level is tame but has emin rather than edog */
-    if (mtmp->mtame && !has_edog(mtmp) && !mtmp->isminion)
-        impossible("pet without edog (%s)", msg);
+    if (mtmp->mtame) {
+        if (!has_edog(mtmp) && !mtmp->isminion)
+            impossible("pet without edog (%s)", msg);
+        else
+            pet_sanity_check(mtmp, msg);
+    }
     /* steed should be tame and saddled */
     if (mtmp == u.usteed) {
         const char *ns, *nt = !mtmp->mtame ? "not tame" : 0;
@@ -133,7 +152,7 @@ sanity_check_single_mon(
 
     if (mtmp->mtrapped) {
         if (mtmp->wormno) {
-            /* TODO: how to check worm in trap? */
+            ; /* TODO: how to check worm in trap? */
         } else if (!t_at(mx, my))
             impossible("trapped without a trap (%s)", msg);
     }
@@ -5171,8 +5190,10 @@ decide_to_shapeshift(struct monst *mon)
 
     if (!is_vampshifter(mon)) {
         /* regular shapeshifter; 'ptr' is Null */
-        if (!rn2(6))
+        if (!mon->mspec_used && !rn2(6)) {
             dochng = TRUE;
+            mon->mspec_used = 3 + rn2(10);
+        }
     } else if (!(mon->mstrategy & STRAT_WAITFORU)) {
         /* The vampire has to be in good health (mhp) to maintain
          * its shifted form.
@@ -6462,4 +6483,11 @@ erase_summons(struct monst *mtmp)
         }
     }
 }
+/* cleanup for 'onefile' processing */
+#undef LEVEL_SPECIFIC_NOCORPSE
+#undef KEEPTRAITS
+#undef mstoning
+#undef livelog_mon_nam
+#undef BREEDER_EGG
+
 /*mon.c*/

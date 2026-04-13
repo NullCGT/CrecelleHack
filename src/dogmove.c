@@ -313,12 +313,19 @@ dog_eat(struct monst *mtmp,
         /* It's a reward if it's DOGFOOD and the player dropped/threw it.
            We know the player had it if invlet is set. -dlc */
         if (dogfood(mtmp, obj) == DOGFOOD && obj->invlet) {
+            int prior_apport = edog->apport;
+
             edog->apport += (int) (200L / ((long) edog->dropdist + svm.moves
                                            - edog->droptime));
             if (edog->apport <= 0) {
-                impossible("dog_eat: pet apport <= 0 (%d, %d, %ld, %ld)",
+                impossible("dog_eat: pet apport <= 0 (%d, %d, %ld, %ld, %d, %u, %u)",
                             edog->apport, edog->dropdist, edog->droptime,
-                            svm.moves);
+                            svm.moves,
+                            prior_apport,
+                           /* check whether edog struct got clobbered;
+                              these two values should always match if
+                              edog content is still intact */
+                           mtmp->m_id, edog->parentmid);
                 edog->apport = 1;
             }
         }

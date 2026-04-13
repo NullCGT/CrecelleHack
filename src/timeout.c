@@ -1,4 +1,4 @@
-/* NetHack 3.7	timeout.c	$NHDT-Date: 1756531249 2025/08/29 21:20:49 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.205 $ */
+/* NetHack 3.7	timeout.c	$NHDT-Date: 1776080125 2026/04/13 03:35:25 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.207 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2018. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -2122,6 +2122,14 @@ wiz_timeout_queue(void)
     }
     if (any_visible_region()) {
         visible_region_summary(win);
+    }
+    if (svl.level.flags.stasis_until >= svm.moves) {
+        putstr(win, 0, "");
+        Sprintf(buf, "Level is no-teleport for %ld %s.",
+                svl.level.flags.stasis_until - svm.moves + 1L,
+                (svl.level.flags.stasis_until - svm.moves > 0L)
+                  ? "turns" : "more turn");
+        putstr(win, 0, buf);
     }
     display_nhwindow(win, FALSE);
     destroy_nhwindow(win);

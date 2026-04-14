@@ -53,6 +53,7 @@ staticfn boolean untouchable(struct obj *, boolean);
 staticfn int count_surround_traps(coordxy, coordxy);
 staticfn void dispose_of_orig_obj(struct obj *);
 staticfn struct artifact *artifact_from_index(int);
+staticfn int invoke_chorale(struct obj *) NONNULLARG1;
 
 /* The amount added to the victim's total hit points to insure that the
    victim will be killed even after damage bonus/penalty adjustments.
@@ -128,12 +129,13 @@ fix_bones_artifact_otyp(struct obj *otmp)
     }
 }
 
-static int axe_fuzzes[] = { AXE, BATTLE_AXE, DUAL_AXE, TWO_HANDED_SWORD };
+static int axe_fuzzes[] = { AXE, BATTLE_AXE, DUAL_AXE, FLAMBERGE };
 static int sword_fuzzes[] = { SHORT_SWORD, ELVEN_SHORT_SWORD, ORCISH_SHORT_SWORD,
                                 DWARVISH_SHORT_SWORD, SCIMITAR, SABER, BROADSWORD,
                                 ELVEN_BROADSWORD, LONG_SWORD, RUNESWORD };
 static int bi_sw_fuzzes[] = { TWO_BLADED_SWORD, KATANA, TSURUGI,
-                                TWO_HANDED_SWORD, FALCHION };
+                                TWO_HANDED_SWORD, FALCHION,
+                                FLAMBERGE };
 
 /* Mildly randomize artifact otyps */
 staticfn void
@@ -405,6 +407,8 @@ mk_artifact(
         dye_obj(otmp, CLR_WHITE, FALSE);
     if (otmp && permapoisoned(otmp))
         otmp->opoisoned = 1;
+    if (is_art(otmp, ART_CHORISTER))
+        add_oprop_to_object(otmp, 0);
     return otmp;
 }
 
@@ -2420,6 +2424,7 @@ arti_invoke(struct obj *obj)
             /*FALLTHRU*/
         case FIRESTORM: res = invoke_storm_spell(obj); break;
         case BLINDING_RAY: res = invoke_blinding_ray(obj); break;
+        case CHORALE: res = invoke_chorale(obj); break;
         case STONEPROOF: {
             You("are covered in a protective sheath of acid!");
             if (Stoned)
@@ -2546,7 +2551,7 @@ arti_speak(struct obj *obj)
     line = getrumor(bcsign(obj), buf, TRUE);
     if (!*line)
         line = "CrecelleHack rumors file closed for renovation.";
-    pline("%s:", Tobjnam(obj, "whisper"));
+    pline("%s:", Tobjnam(obj, (oart == &artilist[ART_CHORISTER]) ? "sing" : "whisper"));
     SetVoice((struct monst *) 0, 0, 80, voice_talking_artifact);
     verbalize1(line);
     return ECMD_TIME;
@@ -3153,6 +3158,27 @@ can_hold_second(struct obj *obj)
         return (!(smart || cross));
     }
     }
+}
+
+/* for Chorister, allows choosing harmony. */
+staticfn int
+invoke_chorale(struct obj *obj)
+{
+    int index = 0;
+    char buf[BUFSZ];
+    if (!Deaf) {
+        getlin("Apply which harmony to Chorister?", buf);
+        (void) mungspaces(buf);
+        index = lookup_oprop_by_name(buf, &index);
+        pline("You burst into song, and Chorister accompanies you!");
+        (void) identify(obj);
+    } else {
+        pline("You feel %s hum.", the(xname(obj)));
+    }
+    wake_nearby(FALSE);
+    add_oprop_to_object(obj, index);
+    update_inventory();
+    return ECMD_TIME;
 }
 
 /*artifact.c*/

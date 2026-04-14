@@ -244,6 +244,10 @@ static NEARDATA struct artifact artilist[] = {
       0, A_NEUTRAL, NON_PM, NON_PM, 2, 3, 1000L, NO_COLOR, DEFAULT_MAT,
       FUZZED_OTYP, SYMPATHY),
 
+    A("Chorister",  FLAMBERGE, (SPFX_RESTR | SPFX_SPEAK),
+      0, 0, PHYS(5, 4), NO_DFNS, NO_CARY, CHORALE, A_NONE, NON_PM,
+      NON_PM, 0, 7, 3000L, NO_COLOR, DEFAULT_MAT, FIXED_OTYP, CHORISTER),
+
     /*
      *      The artifacts for the quest dungeon, all self-willed.
      *      gen_spe should be 0; gift_value irrelevant and set to 12.

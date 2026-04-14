@@ -8,6 +8,12 @@
       - Mimics sometimes mimic fossils.
       - Fossils do not become skeletal monsters when raised due to the
         current lack of templates.
+## New Artifacts
+- Chorister
+  - Can invoke to change its oprop.
+  - Sings rumors upon wielding.
+## New Objects
+- Flamberge
 ## Misc
 - Allow players to joust if in centuar or quadruped form.
 ## Options

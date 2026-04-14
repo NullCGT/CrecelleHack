@@ -1677,7 +1677,7 @@ makemon(
     } else if (mndx == PM_GHOST && !(mmflags & MM_NONAME)) {
         mtmp = christen_monst(mtmp, rndghostname());
     } else if (mndx == PM_CROESUS) {
-        mitem = TWO_HANDED_SWORD;
+        mitem = FLAMBERGE;
     } else if (ptr->msound == MS_NEMESIS) {
         mitem = BELL_OF_OPENING;
     } else if (mndx == PM_PESTILENCE) {

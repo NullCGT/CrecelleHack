@@ -221,18 +221,18 @@ static NEARDATA struct artifact artilist[] = {
      * Crecelle Artifacts
      *
      */
-
-    A("Lucifer", MORNING_STAR, (SPFX_RESTR),
-      0, 0, PHYS(4, 0), NO_DFNS, NO_CARY, 0, A_CHAOTIC, NON_PM, NON_PM,
-      1, 3, 400L, NO_COLOR, BONE, FIXED_OTYP, LUCIFER),
-
-    A("Wrath of Sankis", PICK_AXE, (SPFX_RESTR | SPFX_DFLAGH | SPFX_DEFN),
-      0, MH_DWARF, PHYS(5, 0), FIRE(0, 0), NO_CARY, 0, A_NEUTRAL, NON_PM,
-      NON_PM, 2, 1, 200L, NO_COLOR, GOLD, FUZZED_OTYP, WRATH_OF_SANKIS),
     
     A("Acidfall", LONG_SWORD, (SPFX_RESTR | SPFX_ATTK | SPFX_DEFN), 0, 0,
       ACID(5, 0), ACID(0, 0), NO_CARY, STONEPROOF, A_NONE, NON_PM, NON_PM,
       0, 5, 3000L, NO_COLOR, METAL, FUZZED_OTYP, ACIDFALL),
+
+    A("Chorister",  FLAMBERGE, (SPFX_RESTR | SPFX_SPEAK),
+      0, 0, PHYS(5, 4), NO_DFNS, NO_CARY, CHORALE, A_NONE, NON_PM,
+      NON_PM, 0, 7, 3000L, NO_COLOR, DEFAULT_MAT, FIXED_OTYP, CHORISTER),
+
+    A("Lucifer", MORNING_STAR, (SPFX_RESTR),
+      0, 0, PHYS(4, 0), NO_DFNS, NO_CARY, 0, A_CHAOTIC, NON_PM, NON_PM,
+      1, 3, 400L, NO_COLOR, BONE, FIXED_OTYP, LUCIFER),
 
     A("Skullcrusher", CLUB, (SPFX_RESTR),
       0, 0, PHYS(3, 0), NO_DFNS, NO_CARY,
@@ -244,9 +244,11 @@ static NEARDATA struct artifact artilist[] = {
       0, A_NEUTRAL, NON_PM, NON_PM, 2, 3, 1000L, NO_COLOR, DEFAULT_MAT,
       FUZZED_OTYP, SYMPATHY),
 
-    A("Chorister",  FLAMBERGE, (SPFX_RESTR | SPFX_SPEAK),
-      0, 0, PHYS(5, 4), NO_DFNS, NO_CARY, CHORALE, A_NONE, NON_PM,
-      NON_PM, 0, 7, 3000L, NO_COLOR, DEFAULT_MAT, FIXED_OTYP, CHORISTER),
+    A("Wrath of Sankis", PICK_AXE, (SPFX_RESTR | SPFX_DFLAGH | SPFX_DEFN),
+      0, MH_DWARF, PHYS(5, 0), FIRE(0, 0), NO_CARY, 0, A_NEUTRAL, NON_PM,
+      NON_PM, 2, 1, 200L, NO_COLOR, GOLD, FUZZED_OTYP, WRATH_OF_SANKIS),
+
+    
 
     /*
      *      The artifacts for the quest dungeon, all self-willed.

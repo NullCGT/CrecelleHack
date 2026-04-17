@@ -407,13 +407,15 @@ SHELLDIR = $(PREFIX)/games
 INSTDIR=$(HACKDIR)
 VARDIR = $(HACKDIR)/var
 
-ifneq "$(CCISCLANG)" ""
-# gdb may not be installed if clang is chosen compiler so the game
-# won't start in that case due to a sysconf error. Comment out
-# relevant lines in sysconf.
-POSTINSTALL+= sed -i -e 's;^GDBPATH=/usr/bin/gdb;\#GDBPATH=/usr/bin/gdb;' \
+ifdef MAKEFILE_TOP
+TESTGDBPATH=/usr/bin/gdb
+POSTINSTALL+= test -f $(TESTGDBPATH) || \
+		sed -i -e 's;^GDBPATH=/usr/bin/gdb;\#GDBPATH=/usr/bin/gdb;' \
 		-e 's;PANICTRACE_GDB=1;PANICTRACE_GDB=0;' $(INSTDIR)/sysconf;
-endif
+POSTUPDATE+= test -f $(TESTGDBPATH) || \
+		sed -i -e 's;^GDBPATH=/usr/bin/gdb;\#GDBPATH=/usr/bin/gdb;' \
+		-e 's;PANICTRACE_GDB=1;PANICTRACE_GDB=0;' $(INSTDIR)/sysconf;
+endif  #MAKEFILE_TOP
 
 ifeq '$(USE_NONOSTATICFN)' '1'
 CFLAGS += -DNONOSTATICFN
@@ -467,6 +469,10 @@ MANDIR=/usr/share/man/man6
 
 #
 #-INCLUDE multisnd2-pre.370
+#
+
+#
+#-INCLUDE response.370
 #
 
 #-POST

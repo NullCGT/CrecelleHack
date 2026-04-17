@@ -2632,10 +2632,13 @@ reroll_menu(void)
     if (option == 'y') {
         ++u.uroleplay.numrerolls;
         /* rate-limit rerolls to prevent CPU abuse */
-#if defined(UNIX) || defined(MACOS)
-        sleep(1);
-#elif defined(WIN32)
+#if defined(WIN32)
         Sleep(1000);
+#elif defined(MSDOS) && defined(TIMED_DELAY)
+        msleep(1000);
+#else
+        /* Unix, macOS, VMS, and other POSIX-like systems */
+        sleep(1);
 #endif
         return TRUE;
     }

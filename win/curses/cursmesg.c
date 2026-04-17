@@ -342,7 +342,11 @@ curses_block(
         curses_alert_main_borders(TRUE);
         wrefresh(win);
     }
-    while (iflags.msg_is_alert && (ret = wgetch(win) != '\t'));
+    while (iflags.msg_is_alert) {
+        ret = wgetch(win);
+        if (ret == ERR || ret == '\0' || ret == '\t')
+            break;
+    }
     curses_alert_main_borders(FALSE);
     wrefresh(win);
 

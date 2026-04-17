@@ -1275,7 +1275,11 @@ bot_via_windowport(void)
     else
         *gb.blstats[idx][BL_ARMOR].val = '\0';
 
-    if (flags.terrainstatus) {
+    if (flags.coatstatus && flags.terrainstatus) {
+        /* This is a hack and more expensive than it should be but it's
+           also simple and it works and we can afford the comp. - K */
+        (void) coat_status(gb.blstats[idx][BL_TERRAIN].val);
+    } else if (flags.terrainstatus) {
         if (iflags.terrain_typ == MAX_TYPE)
             classify_terrain();
         i = iflags.terrain_typ;
@@ -4626,4 +4630,24 @@ status_hilite_menu(void)
 
 #endif /* STATUS_HILITES */
 
+char *
+coat_status(char *coatbuf)
+{
+    int i;
+    if (!IS_COATABLE(levl[u.ux][u.uy].typ)
+        || !levl[u.ux][u.uy].coat_info) {
+        Sprintf(coatbuf, "Clean");
+    } else {
+        for (i = 0; i < NUM_COATINGS; i++) {
+            if (levl[u.ux][u.uy].coat_info == all_coatings[i].val)
+                break;
+        }
+        if (i < NUM_COATINGS) {
+            Sprintf(coatbuf, "%s", all_coatings[i].name);
+        } else {
+            Sprintf(coatbuf, "Mix");
+        }
+    }
+    return upstart(coatbuf);
+}
 /*botl.c*/

@@ -5,6 +5,8 @@ Boolean Crecelle Options
 altstarts               gnomes start in gnomish mines              [True]
 bold_coatings           indicate coated areas using bold           [True]
 char_blurbs             display character creation info blurbs     [True]
+coatstatus              display coating info in status if
+                        terrainstatus is enabled.                  [True]
 color_coatings          indicate coated areas using color          [True]
 color_surfaces          indicate non-stone surfaces using color    [True]
 dnh_enlightenment       display a menu for enlightenment           [False]

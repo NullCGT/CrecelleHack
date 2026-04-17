@@ -308,6 +308,7 @@ extern int count_status_hilites(void);
 extern void all_options_statushilites(strbuf_t *);
 extern boolean status_hilite_menu(void);
 #endif /* STATUS_HILITES */
+extern char *coat_status(char *) NONNULL NONNULLARG1;
 
 /* ### calendar.c ### */
 

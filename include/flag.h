@@ -87,6 +87,7 @@ struct flag {
     boolean tombstone;       /* print tombstone */
     boolean verbose;         /* max battle info */
     boolean weaponstatus;    /* show weapon info on status lines */
+    boolean coatstatus;      /* replace terrain with coating */
     int end_top, end_around; /* describe desired score list */
     unsigned autounlock;     /* locked door/chest action */
 #define AUTOUNLOCK_UNTRAP    1

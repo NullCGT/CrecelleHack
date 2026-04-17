@@ -20,6 +20,8 @@
 - Added dnh_enlightenment. This changes the attributes menu to a pick
   list, as used in dnethack. Should be helpful for the extremely
   lengthy statuses that can occur.
+- Added coatstatus. Takes advantage of new terrainstatus option to
+  display current coating on status line.
 
 # 1.4.2
 ## Monsters

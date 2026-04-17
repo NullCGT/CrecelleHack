@@ -242,6 +242,9 @@ static int optfn_##a(int, int, boolean, char *, char *);
     NHOPTB(cmdassist, Behavior, 0, opt_out, set_in_game,
            On, Yes, No, No, NoAlias, &iflags.cmdassist, Term_False,
            "give help for errors on direction input")
+    NHOPTB(coatstatus, Status, 0, opt_out, set_in_game,
+                On, Yes, No, No, NoAlias, &flags.coatstatus, Term_False,
+                "show coating instead of terrain in status")
     NHOPTB(color, Map, 0, opt_in, set_in_game,
            On, Yes, No, No, "colour", &iflags.wc_color, Term_False,
            "use color in map")

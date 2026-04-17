@@ -803,8 +803,8 @@ static int optfn_##a(int, int, boolean, char *, char *);
                 No, Yes, No, No, "termcolumns", "number of columns")
     NHOPTC(term_rows, Advanced, 6, opt_in, set_in_config,
                 No, Yes, No, No, NoAlias, "number of rows")
-    NHOPTB(terrainstatus, Status, 0, opt_in, set_in_game,
-                Off, Yes, No, No, NoAlias, &flags.terrainstatus, Term_False,
+    NHOPTB(terrainstatus, Status, 0, opt_out, set_in_game,
+                On, Yes, No, No, NoAlias, &flags.terrainstatus, Term_False,
                 "show hero's location as a status field")
     NHOPTC(tile_file, Advanced, 70, opt_in, set_gameview,
                 No, Yes, No, No, NoAlias, "name of tile file")

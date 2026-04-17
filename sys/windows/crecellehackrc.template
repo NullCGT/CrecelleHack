@@ -1,30 +1,24 @@
 #######################################################
 ####### AntiGulp's Example CreceeleHackRC File ########
-# Hi, I'm AntiGulp! This is a stripped-down version of
-# my personal NetHack-3.7 config with some CrecelleHack
-# additions.
+# Hi, I'm AntiGulp! This is an altered version of my personal
+# CrecelleHack rc file.
 # Feel free to copy any or all of these settings for yourself.
 ###########################################
 
 #################################
-# CrecelleHack Gameplay Options #
+###### CRECELLEHACK OPTIONS #####
 #################################
 # Custom Taunt
 OPTIONS=taunt:do a little dance.
-# Implicit Item Sizes
-OPTIONS=implicit_medium
-# Implicit Materials
-OPTIONS=implicit material
-# Display item weights
-OPTIONS=invweight
-# Display surface colors
-OPTIONS=color_surfaces
-# Display coating colors
-OPTIONS=color_coatings
-# Use bold to indicate coatings
-OPTIONS=bold_coatings
-# Automatically size wishes to player
-OPTIONS=player_sized_wishes
+# Quash character explanations
+OPTIONS=!char_blurbs
+# Lookup highlighting
+MENUCOLOR="fully id"=brown
+MENUCOLOR="more you could"=yellow
+MENUCOLOR="can be poi"=green
+MENUCOLOR="to write"=red
+# Pet names
+OPTIONS=koboldname:Robold the Kobold
 
 ##########################
 ####### Challenges #######
@@ -37,11 +31,36 @@ OPTIONS=player_sized_wishes
 # Start with nothing nothing at all.
 #OPTIONS=pauper
 
+#################################
+######## Personalization ########
+#################################
+# Options pertaining to the personalization of your character or game.
+# The name of your character.
+OPTIONS=name:Antigulp
+# Default name for your starting pet if it is a cat.
+OPTIONS=catname:Catra
+# Default name for your starting pet if it is a dog.
+OPTIONS=dogname:Adora
+# Default name for your starting pet if it is a horse.
+OPTIONS=horsename:Swiftwind
+# Starting gender.
+# OPTIONS=gender:female
+# Fruit name. Fruits are renamed to this. Defaults to "slime mold."
+OPTIONS=fruit:BowBurger 
+# Uncomment this line to start without a pet.
+# OPTIONS=nopet
+# Comment out this line to get a tutorial
+OPTIONS=notutorial
+# Comment out this line to get tips
+OPTIONS=notips
+
 ########################
 ####### Controls #######
 ########################
 # Method of controlling the character.
 OPTIONS=number_pad:0
+# Enable meta keys
+OPTIONS=altmeta
 
 ########################
 ####### Gameplay #######
@@ -55,8 +74,8 @@ OPTIONS=pushweapon
 OPTIONS=autodig
 # Automatically open doors when moving into them.
 OPTIONS=autoopen
-# Mention dungeon decor even if it is not covered.
-OPTIONS=mention_decor
+# Suppress decor mentions.
+OPTIONS=!mention_decor
 # Mention walls when walked into.
 OPTIONS=mention_walls
 # Sort loot always.
@@ -69,6 +88,15 @@ OPTIONS=autounlock:apply-key+kick
 ############################
 # Useful for regular play
 AUTOCOMPLETE=travel,twoweapon,options,optionsfull,known,knownclass
+
+###########################
+######## Keybinds #########
+###########################
+BIND=O:optionsfull
+BIND=M-o:options
+BIND=M-k:toggle(sparkle)
+BIND=M-v:toggle(verbose) 
+BIND=M-z:toggle(autodig)
 
 ###############################
 ######## Connectivity #########
@@ -92,11 +120,23 @@ OPTIONS=scores:10t 2a o
 ######## Display ########
 #########################
 # Display options.
+# Fancy effects
+OPTIONS=sparkle
+OPTIONS=timed_delay
 # Custom symbol replacements (monsters)
 SYMBOLS=S_boulder:0
 SYMBOLS=S_golem:7
 SYMBOLS=S_ghost:8
-OPTIONS=roguesymset:Plain
+# The symset to use when displaying characters.
+OPTIONS=symset:Enhanced1
+OPTIONS=roguesymset:RogueEpyx
+# Custom symbol replacement (terrain and regions)
+OPTIONS=S_cloud: U+00A7
+SYMBOLS=S_ice: U+025E6
+OPTIONS=S_poisoncloud: U+00A7
+OPTIONS=S_potioncloud: U+00A7
+OPTIONS=S_stone: U+2591
+OPTIONS=S_throne: U+0409
 # Highlight tame monsters.
 OPTIONS=hilite_pet
 # Highlight piles of items.
@@ -146,6 +186,10 @@ OPTIONS=toptenwin
 OPTIONS=windowcolors:menu white/black message white/black status white/black
 # Reverse video for "--More--"
 OPTIONS=standout
+# Packorder
+OPTIONS=packorder:)%/("=?![+*`0_
+# Show terrain in status line
+OPTIONS=terrainstatus
 
 #####################################
 ######## Curses-Specific GUI ########
@@ -153,8 +197,6 @@ OPTIONS=standout
 # Options for the curses interface.
 # Display the inventory onscreen at all times.
 OPTIONS=perm_invent
-# Status bar location.
-OPTIONS=align_status:bottom
 # Message window location.
 OPTIONS=align_message:top
 # Show dialogue in popup menus.
@@ -246,8 +288,8 @@ MENUCOLOR=" holy "=brightcyan
 MENUCOLOR=" unholy "=orange
 
 ##### Level Annotations #####
-MENUCOLOR="Level .*\:"=green
-MENUCOLOR="You are here"=blue
+MENUCOLOR="Level .*\:"=white&reverse
+MENUCOLOR="You are here"=green&reverse
 
 ###### Colored Items ########
 MENUCOLOR=" white (gem|dragon|glass)"=white
@@ -323,6 +365,16 @@ MENUCOLOR="\[Grand Master\]"=brightcyan
 
 ########### Money ###########
 MENUCOLOR="gold piece"=yellow
+
+######## Enlightment ########
+MENUCOLOR="Background:"=white&reverse
+MENUCOLOR="Basics:"=white&reverse
+MENUCOLOR="Characteristics:"=white&reverse
+MENUCOLOR="Status:"=white&reverse
+MENUCOLOR="Attributes:"=white&reverse
+MENUCOLOR="Miscellaneous:"=white&reverse
+MENUCOLOR="Major events:"=white&reverse
+MENUCOLOR="Game over:"=white&reverse
 
 ###################################
 ######## Status Highlights ########

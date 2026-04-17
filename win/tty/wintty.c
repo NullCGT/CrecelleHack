@@ -121,6 +121,7 @@ struct window_procs tty_procs = {
 #if !defined(NO_TERMS) || defined(WIN32CON)
      | WC2_EXTRACOLORS
 #endif
+     | WC2_EXTRASTATUS
     ),
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, /* color availability */
     tty_init_nhwindows, tty_player_selection, tty_askname, tty_get_nh_event,
@@ -4278,28 +4279,30 @@ static const char *const encvals[3][6] = {
     { "", "Brd",      "Strs",     "Strn",     "Ovtx",      "Ovld"       }
 };
 #define blPAD BL_FLUSH
-#define MAX_PER_ROW 16
+#define MAX_PER_ROW 19
 /* 2 or 3 status lines */
 static const enum statusfields
     twolineorder[3][MAX_PER_ROW] = {
     { BL_TITLE, BL_STR, BL_DX, BL_CO, BL_IN, BL_WI, BL_CH, BL_ALIGN,
-      BL_SCORE, BL_TOD, BL_FLUSH, blPAD, blPAD, blPAD, blPAD, blPAD },
+      BL_SCORE, BL_TOD, BL_MC, BL_FLUSH,
+      blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD },
     { BL_LEVELDESC, BL_GOLD, BL_HP, BL_HPMAX, BL_ENE, BL_ENEMAX,
-      BL_AC, BL_MC, BL_XP, BL_EXP, BL_TIME, BL_HUNGER,
-      BL_CAP, BL_CONDITION, BL_VERS, BL_FLUSH },
+      BL_AC, BL_XP, BL_EXP, BL_HD, BL_TIME, BL_HUNGER, BL_CAP,
+      BL_CONDITION, BL_WEAPON, BL_ARMOR, BL_TERRAIN, BL_VERS, BL_FLUSH },
     /* third row of array isn't used for twolineorder */
     { BL_FLUSH, blPAD, blPAD, blPAD, blPAD, blPAD,
       blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD }
 },
     /* Align moved from 1 to 2, Leveldesc+Time+Cond+Vers moved from 2 to 3 */
     threelineorder[3][MAX_PER_ROW] = {
-    { BL_TITLE, BL_STR, BL_DX, BL_CO, BL_IN, BL_WI, BL_CH,
-      BL_SCORE, BL_FLUSH, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD },
+    { BL_TITLE, BL_STR, BL_DX, BL_CO, BL_IN, BL_WI, BL_CH, BL_SCORE, BL_FLUSH,
+      blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD },
     { BL_ALIGN, BL_GOLD, BL_HP, BL_HPMAX, BL_ENE, BL_ENEMAX,
-      BL_AC, BL_MC, BL_XP, BL_EXP, BL_HD, BL_HUNGER,
-      BL_CAP, BL_FLUSH, blPAD, blPAD },
-    { BL_LEVELDESC, BL_TOD, BL_TIME, BL_CONDITION, BL_VERS, BL_FLUSH,
-      blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD }
+      BL_AC, BL_MC, BL_XP, BL_EXP, BL_HD, BL_HUNGER, BL_CAP,
+      BL_FLUSH, blPAD, blPAD, blPAD, blPAD, blPAD },
+    { BL_LEVELDESC, BL_TOD, BL_TIME, BL_CONDITION, BL_WEAPON, BL_ARMOR, BL_TERRAIN,
+      BL_VERS, BL_FLUSH, blPAD,
+      blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD }
 };
 static const enum statusfields (*fieldorder)[MAX_PER_ROW];
 #undef MAX_PER_ROW
@@ -4385,7 +4388,8 @@ tty_status_enablefield(
  *         BL_TITLE, BL_STR, BL_DX, BL_CO, BL_IN, BL_WI, BL_CH,
  *         BL_ALIGN, BL_SCORE, BL_CAP, BL_GOLD, BL_ENE, BL_ENEMAX,
  *         BL_XP, BL_AC, BL_HD, BL_TIME, BL_HUNGER, BL_HP, BL_HPMAX,
- *         BL_LEVELDESC, BL_EXP, BL_CONDITION, BL_VERS
+ *         BL_LEVELDESC, BL_EXP, BL_CONDITION,
+ *         BL_WEAPON, BL_ARMOR, BL_TERRAIN, BL_VERS
  *      -- fldindex could also be BL_FLUSH (-1), which is not really
  *         a field index, but is a special trigger to tell the
  *         windowport that it should output all changes received
@@ -4756,7 +4760,8 @@ status_sanity_check(void)
         "BL_ENE", "BL_ENEMAX", "BL_XP", "BL_AC", "BL_MC", "BL_HD",         /* 11..15 */
         "BL_TIME", "BL_HUNGER", "BL_HP", "BL_HPMAX",              /* 16..19 */
         "BL_LEVELDESC", "BL_EXP", "BL_CONDITION",                 /* 20..22 */
-        "BL_VERS", "BL_TOD",                                    /*   23..25  */
+        "BL_WEAPON", "BL_ARMOR", "BL_TERRAIN",                    /* 23..25 */
+        "BL_VERS", "BL_TOD",                                      /*   27   */
     };
     static boolean in_sanity_check = FALSE;
     int i;
@@ -4776,8 +4781,8 @@ status_sanity_check(void)
                a corresponding expansion of idxtext[] here */
             if (i < SIZE(idxtext))
                 Strcpy(indxtxt, idxtext[i]);
-            else
-                Sprintf(indxtxt, "%d", i);
+            else /* blstats[] increased without doing same for idxtext[] */
+                Sprintf(indxtxt, "#%d", i);
             Sprintf(panicmsg, "failed on tty_status[NOW][%s].", indxtxt);
             paniclog("status_sanity_check", panicmsg);
             tty_status[NOW][i].sanitycheck = FALSE;

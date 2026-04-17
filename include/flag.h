@@ -17,6 +17,7 @@
 
 struct flag {
     boolean acoustics;       /* allow dungeon sound messages */
+    boolean armorstatus;     /* show armor info on status lines */
     boolean autodig;         /* MRKR: Automatically dig */
     boolean autoquiver;      /* Automatically fill quiver */
     boolean autoopen;        /* open doors by walking into them */
@@ -81,9 +82,11 @@ struct flag {
     boolean sortpack;        /* sorted inventory */
     boolean sparkle;         /* show "resisting" special FX (Scott Bigham) */
     boolean standout;        /* use standout for --More-- */
+    boolean terrainstatus;   /* show terrain info on status lines */
     boolean time;            /* display elapsed 'time' */
     boolean tombstone;       /* print tombstone */
     boolean verbose;         /* max battle info */
+    boolean weaponstatus;    /* show weapon info on status lines */
     int end_top, end_around; /* describe desired score list */
     unsigned autounlock;     /* locked door/chest action */
 #define AUTOUNLOCK_UNTRAP    1
@@ -325,6 +328,7 @@ struct instance_flags {
     int getpos_coords;    /* show coordinates when getting cursor position */
     int menuinvertmode;   /* 0 = invert toggles every item;
                            * 1 = invert skips 'all items' item */
+    int terrain_typ;      /* index into terrain_descr[] for botl */
     color_attr menu_headings;    /* CLR_ and ATR_ for menu headings */
     uint32_t colorcount;    /* store how many colors terminal is capable of */
     boolean use_truecolor;  /* force use of truecolor */

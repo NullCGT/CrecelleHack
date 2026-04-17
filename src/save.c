@@ -1069,22 +1069,6 @@ save_msghistory(NHFILE *nhfp)
     /* note: we don't attempt to handle release_data() here */
 }
 
-void
-moves_to_relative_time(long *timestamp)
-{
-    long prevts = *timestamp;
-
-    *timestamp = prevts - svm.moves;
-}
-
-void
-relative_time_to_moves(long *timestamp)
-{
-    long prevts = *timestamp;
-
-    *timestamp = svm.moves + prevts;
-}
-
 /* also called by prscore(); this probably belongs in dungeon.c... */
 void
 free_dungeons(void)

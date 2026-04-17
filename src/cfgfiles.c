@@ -1915,6 +1915,7 @@ vconfig_error_add(const char *str, va_list the_args)
     config_erradd(buf);
 }
 
+#ifndef SFCTOOL
 void
 rcfile(void)
 {
@@ -2048,6 +2049,7 @@ config_unmatched_ignored(void)
         return TRUE;
     return FALSE;
 }
+#endif /* SFCTOOL */
 
 #ifdef SYSCF
 #ifdef SYSCF_FILE

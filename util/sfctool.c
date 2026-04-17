@@ -96,7 +96,7 @@ int util_strncmpi(const char *s1, const char *s2, size_t sz);
 #ifdef UNIX
 #define nethack_exit exit
 ATTRNORETURN void nh_terminate(int) NORETURN;   /* bwrite() calls this */
-static void chdirx(const char *, boolean);
+//static void chdirx(const char *, boolean);
 #else
 ATTRNORETURN extern void nethack_exit(int) NORETURN;
 #ifdef WIN32

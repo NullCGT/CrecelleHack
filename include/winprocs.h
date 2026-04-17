@@ -262,6 +262,9 @@ extern
 #define WC2_U_UTF8STR    0x020000L /* 18 utf8str support */
 #define WC2_EXTRACOLORS  0x040000L /* 19 color support beyond NH_BASIC_COLOR */
                                    /* 13 free bits */
+#define WC2_EXTRASTATUS  0x080000L /* 20 optional weaponstatus, armorstatus,
+                                    *    terrainstatus */
+                                   /* 12 free bits */
 
 #define ALIGN_LEFT   1
 #define ALIGN_RIGHT  2

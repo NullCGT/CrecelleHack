@@ -2320,8 +2320,10 @@ find_misc(struct monst *mtmp)
                     if ((t = t_at(xx, yy)) != 0
                         && (ignore_boulders || !sobj_at(BOULDER, xx, yy))
                         && !onscary(xx, yy, mtmp)) {
-                        /* use trap if it's the correct type */
-                        if (t->ttyp == POLY_TRAP) {
+                        /* use trap if it's the correct type and will
+                           polymorph the monster */
+                        if (t->ttyp == POLY_TRAP &&
+                            !wearing_iron_shoes(mtmp)) {
                             gt.trapx = xx;
                             gt.trapy = yy;
                             gm.m.has_misc = MUSE_POLY_TRAP;

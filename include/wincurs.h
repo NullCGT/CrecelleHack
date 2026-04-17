@@ -26,8 +26,6 @@ extern WINDOW *activemenu;         /* curses window for menu requesting a
 #define SCROLLBAR_BACK_COLOR CLR_BLACK
 #define HIGHLIGHT_COLOR CLR_WHITE
 #define MORECOLOR CLR_ORANGE
-#define STAT_UP_COLOR CLR_GREEN
-#define STAT_DOWN_COLOR CLR_RED
 #define MESSAGE_WIN 1
 #define STATUS_WIN  2
 #define MAP_WIN     3

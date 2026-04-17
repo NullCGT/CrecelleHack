@@ -285,6 +285,8 @@ extern void max_rank_sz(void);
 extern long botl_score(void);
 #endif
 extern int describe_level(char *, int);
+extern char *weapon_status(char *) NONNULL NONNULLARG1;
+extern char *armor_status(char *) NONNULL NONNULLARG1;
 extern void status_initialize(boolean);
 extern void status_finish(void);
 extern boolean exp_percent_changing(void);
@@ -1263,6 +1265,7 @@ extern void runmode_delay_output(void);
 extern void overexert_hp(void);
 extern boolean overexertion(void);
 extern void invocation_message(void);
+extern void classify_terrain(void);
 extern void switch_terrain(void);
 extern void set_uinwater(int);
 extern boolean pooleffects(boolean);
@@ -2863,6 +2866,8 @@ boolean restgamestate(NHFILE *);
 void restore_msghistory(NHFILE *);
 #endif
 extern void rest_adjust_levelflags(void);
+extern void moves_to_relative_time(long *);
+extern void relative_time_to_moves(long *);
 
 /* ### rip.c ### */
 
@@ -2958,8 +2963,6 @@ extern void freedynamicdata(void);
 extern void store_savefileinfo(NHFILE *) NONNULLARG1;
 extern void store_savefileinfo(NHFILE *) NONNULLARG1;
 extern int nhdatatypes_size(void);
-extern void moves_to_relative_time(long *);
-extern void relative_time_to_moves(long *);
 #if 0
 extern void assignlog(char *, char*, int);
 extern FILE *getlog(NHFILE *);
@@ -3429,6 +3432,7 @@ extern struct monst *activate_statue_trap(struct trap *, coordxy, coordxy,
 extern int immune_to_trap(struct monst *, unsigned) NO_NNARGS; /* revisit */
 extern void set_utrap(unsigned, unsigned);
 extern void reset_utrap(boolean);
+extern boolean wearing_iron_shoes(struct monst *);
 extern boolean m_harmless_trap(struct monst *, struct trap *) NONNULLPTRS;
 extern void dotrap(struct trap *, unsigned) NONNULLARG1;
 extern void seetrap(struct trap *) NONNULLARG1;

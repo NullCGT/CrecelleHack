@@ -1168,9 +1168,20 @@ break_armor(struct permonst *old)
         if ((otmp = uarmc) != 0
             /* mummy wrapping adapts to small and very big sizes */
             && (otmp->otyp != MUMMY_WRAPPING || !WrappingAllowed(uptr))) {
-            pline_The("clasp on your %s breaks open!", cloak_simple_name(otmp));
-            (void) Cloak_off();
-            dropp(otmp);
+            if (otmp->otyp == MUMMY_WRAPPING) {
+                /* doesn't have a clasp to break open */
+                Your("%s tears apart!", cloak_simple_name(otmp));
+                (void) Cloak_off();
+                useup(otmp);
+            } else if (otmp->otyp == ALCHEMY_SMOCK) {
+                pline_The("knot on your %s is pulled apart!", cloak_simple_name(otmp));
+                (void) Cloak_off();
+                dropp(otmp);
+            } else {
+                pline_The("clasp on your %s breaks open!", cloak_simple_name(otmp));
+                (void) Cloak_off();
+                dropp(otmp);
+            }
         }
         if (uarmu) {
             Your("shirt rips to shreds!");

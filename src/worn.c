@@ -139,6 +139,9 @@ setworn(struct obj *obj, long mask)
         /* tux -> tuxedo -> "monkey suit" -> monk's suit */
         iflags.tux_penalty = (uarm && Role_if(PM_MONK) && gu.urole.spelarmr);
     }
+    if ((flags.weaponstatus && (mask & W_WEP) != 0L)
+        || (flags.armorstatus && (mask & W_ARMOR) != 0L))
+        disp.botl = TRUE;
     update_inventory();
     recalc_telepat_range();
 }
@@ -150,6 +153,7 @@ setnotworn(struct obj *obj)
 {
     const struct worn *wp;
     int p;
+    long unworn = 0L;
 
     if (!obj)
         return;
@@ -164,6 +168,7 @@ setnotworn(struct obj *obj)
             cancel_doff(obj, wp->w_mask);
 
             *(wp->w_obj) = (struct obj *) 0;
+            unworn |= wp->w_mask;
             p = objects[obj->otyp].oc_oprop;
             u.uprops[p].extrinsic = u.uprops[p].extrinsic & ~wp->w_mask;
             monstunseesu_prop(p); /* remove this extrinsic from seenres */
@@ -175,6 +180,9 @@ setnotworn(struct obj *obj)
         }
     if (!uarm)
         iflags.tux_penalty = FALSE;
+    if ((flags.weaponstatus && (unworn & W_WEP) != 0L)
+        || (flags.armorstatus && (unworn & W_ARMOR) != 0L))
+        disp.botl = TRUE;
     update_inventory();
     recalc_telepat_range();
 }

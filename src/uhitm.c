@@ -1622,12 +1622,12 @@ hmon_hitmon_jousting(
         first_weapon_hit(obj);
 
     if (hmd->jousting < 0) {
-        pline("%s shatters on impact!", Yname2(obj));
         /* (must be either primary or secondary weapon to get here) */
         set_twoweap(FALSE); /* sets u.twoweap = FALSE;
                              * untwoweapon() is too verbose here */
         if (obj == uwep)
             uwepgone(); /* set gu.unweapon */
+        pline("%s shatters on impact!", Yname2(obj));
         /* minor side-effect: broken lance won't split puddings */
         useup(obj);
         obj = (struct obj *) 0;

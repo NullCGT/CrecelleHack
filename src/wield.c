@@ -104,10 +104,15 @@ setuwep(struct obj *obj)
 
     if (obj == uwep)
         return; /* necessary to not set gu.unweapon */
-    /* This message isn't printed in the caller because it happens
-     * *whenever* Sunsword is unwielded, from whatever cause.
-     */
     setworn(obj, W_WEP);
+    /* handle Ogresmasher before Sunsword; even though they can't be happening
+       at the same time, botl flag update should come before pline message */
+    if (uwep == obj
+        && ((uwep && uwep->oartifact == ART_OGRESMASHER)
+            || (olduwep && olduwep->oartifact == ART_OGRESMASHER)))
+        disp.botl = TRUE; /* gaining or losing Con bonus */
+    /* This message isn't printed in the caller because it happens
+     * *whenever* Sunsword is unwielded, from whatever cause. */
     if (uwep == obj && artifact_light(olduwep) && olduwep->lamplit) {
         end_burn(olduwep, FALSE);
         if (!Blind)
@@ -865,8 +870,11 @@ drop_uswapwep(void)
 void
 set_twoweap(boolean on_off)
 {
-    u.twoweap = on_off;
-    u.dualweap = FALSE;
+    if (on_off != u.twoweap) {
+        u.twoweap = on_off;
+        if (flags.weaponstatus)
+            disp.botl = TRUE;
+    }
 }
 
 void
@@ -874,6 +882,8 @@ set_dualweap(boolean on_off)
 {
     u.dualweap = on_off;
     u.twoweap = FALSE;
+    if (flags.weaponstatus)
+        disp.botl = TRUE;
 }
 
 /* the #twoweapon command */

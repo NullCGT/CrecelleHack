@@ -92,7 +92,20 @@ enum levl_typ_types {
     CLOUD     = 36,
 
     MAX_TYPE  = 37,
+    /* for special levels */
     MATCH_WALL = 38,
+
+    /* these aren't levl[][].typ values, they're additional indices
+       into terrain_descr[] for status feedback */
+    xFLOOR     = 39,
+    xGROUND    = 40,
+    xOPENDOOR  = 41,
+    xSHUTDOOR  = 42,
+    xSWAMP     = 43,
+    xSUBMERGED = 44,
+    xSEA       = 45,
+    xWATERWALL = 46,
+
     INVALID_TYPE = 127
 };
 

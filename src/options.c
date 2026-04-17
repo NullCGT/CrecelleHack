@@ -5410,12 +5410,24 @@ optfn_boolean(
             return optn_ok;
 
         switch (optidx) {
-        case opt_time:
-#ifdef SCORE_ON_BOTL
+        case opt_terrainstatus:
+            classify_terrain(); /* bring iflags.terrain_typ up to date */
+            FALLTHROUGH;
+            /*FALLTHRU*/
+        case opt_weaponstatus:
+        case opt_armorstatus:
+            if (!wc2_supported(allopt[optidx].name)) {
+                /* not actually an error */
+                config_error_add("'%s' is not supported.",
+                                 allopt[optidx].name);
+                return optn_ok;
+            }
+            FALLTHROUGH;
+            /*FALLTHRU*/
         case opt_showscore:
-#endif
         case opt_showvers:
         case opt_showexp:
+        case opt_time:
             if (VIA_WINDOWPORT())
                 status_initialize(REASSESS_ONLY);
             disp.botl = TRUE;
@@ -9932,6 +9944,7 @@ static struct wc_Opt wc_options[] = {
     { (char *) 0, 0L }
 };
 static struct wc_Opt wc2_options[] = {
+    { "armorstatus", WC2_EXTRASTATUS },
     { "fullscreen", WC2_FULLSCREEN },
     { "guicolor", WC2_GUICOLOR },
     { "hilite_status", WC2_HILITE_STATUS },
@@ -9946,7 +9959,9 @@ static struct wc_Opt wc2_options[] = {
     { "statuslines", WC2_STATUSLINES },
     { "term_cols", WC2_TERM_SIZE },
     { "term_rows", WC2_TERM_SIZE },
+    { "terrainstatus", WC2_EXTRASTATUS },
     { "use_darkgray", WC2_DARKGRAY },
+    { "weaponstatus", WC2_EXTRASTATUS },
     { "windowborders", WC2_WINDOWBORDERS },
     { "wraptext", WC2_WRAPTEXT },
     { (char *) 0, 0L }

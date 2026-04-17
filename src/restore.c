@@ -1375,6 +1375,21 @@ rest_adjust_levelflags(void)
     /* adjust timestamps */
     relative_time_to_moves(&svl.level.flags.stasis_until);
 }
+void
+moves_to_relative_time(long *timestamp)
+{
+    long prevts = *timestamp;
+
+    *timestamp = prevts - svm.moves;
+}
+
+void
+relative_time_to_moves(long *timestamp)
+{
+    long prevts = *timestamp;
+
+    *timestamp = svm.moves + prevts;
+}
 
 /* "name-role-race-gend-algn" occurs very early in a save file; sometimes we
    want the whole thing, other times just "name" (for svp.plname[]) */

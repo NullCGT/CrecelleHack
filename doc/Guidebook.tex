@@ -2934,6 +2934,11 @@ weapon which existed in AD\&D does roughly the same damage to monsters in
 in an appendix to \textit{Unearthed Arcana}, an AD\&D supplement.
 
 %.pg
+Some interfaces support the \texttt{weaponstatus} option.
+When it is enabled, an extra status condition is displayed, describing
+the currently wielded weapon.
+
+%.pg
 The commands to use weapons are `\texttt{w}' (wield), `\texttt{t}' (throw),
 `\texttt{f}' (fire), `\texttt{Q}' (quiver),
 `\texttt{x}' (exchange), `\texttt{X}' (twoweapon), and ``\texttt{\#enhance}''
@@ -3160,6 +3165,11 @@ The \textit{nudist}
 option can be set (prior to game start) to attempt to play the entire
 game without wearing any armor (a self-imposed challenge which is
 extremely difficult to accomplish).
+
+%.pg
+Some interfaces support the \texttt{armorstatus} option.
+When it is enabled, an extra status condition is displayed, summarizing
+currently worn armor.
 
 %.pg
 The commands to use armor are `\texttt{W}' (wear) and `\texttt{T}' (take off).
@@ -4053,7 +4063,7 @@ Highlight menu lines with different colors.
 See the ``Configuring Menu Colors`` section.
 %.lp
 \item[MSGTYPE]
-Change the way messages are shown in the top status line.
+Change the way messages are shown in the top line.
 See the ``Configuring Message Types`` section.
 %.lp
 \item[ROGUESYMBOLS]
@@ -4215,6 +4225,21 @@ If \texttt{align} is not specified, there is no default value;
 player will be prompted unless role and/or race forces a choice for alignment.
 Cannot be set with the `\texttt{O}' command.  Persistent.
 %.lp
+\item[armorstatus]
+Display an extra status condition which summarizes currently worn armor
+(default off, not supported by all interfaces).
+%.lp ""
+\\
+For the usual case where more than one piece of armor is worn, a list of
+letters is shown in the following order:
+\\
+\texttt{G} - gloves;\\
+\texttt{C} - cloak;\\
+\texttt{A} - suit;\\
+\texttt{U} - shirt;\\
+\texttt{H} - helmet;\\
+\texttt{B} - boots;\\
+\texttt{S} - shield.
 \item[autodescribe]
 Automatically describe the terrain under cursor when asked to get a location
 on the map (default true).
@@ -5307,6 +5332,10 @@ This option may be used to select one of the named symbol sets found within
 \texttt{symbols} to alter the symbols displayed on the screen.
 Use ``\texttt{symset:default}'' to explicitly select the default symbols.
 %.lp
+\item[terrainstatus]
+Display an extra status condition describing the spot beneath the hero's
+feet (default off, not supported by all interfaces).
+%.lp
 \item[time]
 Show the elapsed game time in turns on bottom line (default off).  Persistent.
 %.lp
@@ -5346,6 +5375,17 @@ Setting this option on or off in the config file will skip the query.
 %.lp
 \item[verbose]
 Provide more commentary during the game (default on).  Persistent.
+%.lp
+\item[weaponstatus]
+Display an extra status condition which describes currently wielded weapon
+(default off, not supported by all interfaces).
+%.lp ""
+\\
+Some possible displayed values are:
+\\
+\texttt{bare-hnds} - no weapon and no gloves;\\
+\texttt{empty-hnd} - no weapon but gloves are worn;\\
+\texttt{dual-weps} - wielding two weapons.
 %.lp
 \item[whatis\textunderscore coord]
 When using the `\texttt{/}' or `\texttt{;}' commands to look around on the map with

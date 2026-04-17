@@ -2724,6 +2724,12 @@ Some of the more obscure weapons (such as the \fIaklys\fP,
 \fIlucern hammer\fP, and \fIbec-de-corbin\fP) are defined in an
 appendix to \fIUnearthed Arcana\fP, an AD&D supplement.
 .pg
+Some interfaces support the
+.op weaponstatus
+option.
+When it is enabled, an extra status condition is displayed, describing
+the currently wielded weapon.
+.pg
 The commands to use weapons are \(oqw\(cq (wield), \(oqt\(cq (throw),
 \(oqf\(cq (fire), \(oqQ\(cq (quiver),
 \(oqx\(cq (exchange), \(oqX\(cq (twoweapon), and \(lq#enhance\(rq
@@ -2955,6 +2961,12 @@ The
 option can be set (prior to game start) to attempt to play the entire
 game without wearing any armor (a self-imposed challenge which is
 extremely difficult to accomplish).
+.pg
+Some interfaces support the
+.op armorstatus
+option.
+When it is enabled, an extra status condition is displayed, summarizing
+currently worn armor.
 .pg
 The commands to use armor are \(oqW\(cq (wear) and \(oqT\(cq (take off).
 The \(oqA\(cq command can be used to take off armor as well as other
@@ -3734,7 +3746,7 @@ Otherwise the last section extends to the end of the options file.
 Highlight menu lines with different colors.
 See the \(lqConfiguring Menu Colors\(rq section.
 .lp MSGTYPE
-Change the way messages are shown in the top status line.
+Change the way messages are shown in the top line.
 See the \(lqConfiguring Message Types\(rq section.
 .lp ROGUESYMBOLS
 Custom symbols for the rogue level's symbol set.
@@ -3883,6 +3895,21 @@ If \f(CRalign\fP is not specified, there is no default value;
 player will be prompted unless role and/or race forces a choice for alignment.
 Cannot be set with the \(oq\f(CRO\fP\(cq command.
 Persistent.
+.lp armorstatus
+Display an extra status condition which summarizes currently worn armor
+(default off, not supported by all interfaces).
+.lp ""
+For the usual case where more than one piece of armor is worn, a list of
+letters is shown in the following order:
+.sd
+\f(CRG\fP - gloves;
+\f(CRC\fP - cloak;
+\f(CRA\fP - suit;
+\f(CRU\fP - shirt;
+\f(CRH\fP - helmet;
+\f(CRB\fP - boots;
+\f(CRS\fP - shield.
+.ed
 .lp autodescribe
 Automatically describe the terrain under cursor when asked to get a location
 on the map (default true).
@@ -4877,6 +4904,9 @@ and prior versions (for example \(lqsuppress_alert:3.3.1\(rq).
 This option may be used to select one of the named symbol sets found within
 \(lqsymbols\(rq to alter the symbols displayed on the screen.
 Use \(lqsymset:default\(rq to explicitly select the default symbols.
+.lp terrainstatus
+Display an extra status condition describing the spot beneath the hero's
+feet (default off, not supported by all interfaces).
 .lp "time    "
 Show the elapsed game time in turns on bottom line (default off).
 Persistent.
@@ -4913,6 +4943,16 @@ Play a tutorial level at the start of the game.
 Setting this option on or off in the config file will skip the query.
 .lp "verbose "
 Provide more commentary during the game (default on).  Persistent.
+.lp weaponstatus
+Display an extra status condition which describes currently wielded weapon
+(default off, not supported by all interfaces).
+.lp ""
+Some possible displayed values are:
+.sd
+\f(CRbare-hnds\fP - no weapon and no gloves;
+\f(CRempty-hnd\fP - no weapon but gloves are worn;
+\f(CRdual-weps\fP - wielding two weapons.
+.ed
 .lp whatis_coord
 When using the \(oq/\(cq or \(oq;\(cq commands to look around on the map with
 .op autodescribe

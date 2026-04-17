@@ -31,29 +31,6 @@ OPTIONS=koboldname:Robold the Kobold
 # Start with nothing nothing at all.
 #OPTIONS=pauper
 
-#################################
-######## Personalization ########
-#################################
-# Options pertaining to the personalization of your character or game.
-# The name of your character.
-OPTIONS=name:Antigulp
-# Default name for your starting pet if it is a cat.
-OPTIONS=catname:Catra
-# Default name for your starting pet if it is a dog.
-OPTIONS=dogname:Adora
-# Default name for your starting pet if it is a horse.
-OPTIONS=horsename:Swiftwind
-# Starting gender.
-# OPTIONS=gender:female
-# Fruit name. Fruits are renamed to this. Defaults to "slime mold."
-OPTIONS=fruit:BowBurger 
-# Uncomment this line to start without a pet.
-# OPTIONS=nopet
-# Comment out this line to get a tutorial
-OPTIONS=notutorial
-# Comment out this line to get tips
-OPTIONS=notips
-
 ########################
 ####### Controls #######
 ########################

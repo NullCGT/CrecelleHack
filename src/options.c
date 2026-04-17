@@ -4175,8 +4175,8 @@ optfn_statuslines(
         } else if (op != empty_optstr) {
             itmp = atoi(op);
         }
-        if (itmp < 2 || itmp > 4) {
-            config_error_add("'%s:%s' is invalid; must be 2-4 inclusive",
+        if (itmp < 2 || itmp > 3) {
+            config_error_add("'%s:%s' is invalid; must be 2 or 3",
                              allopt[optidx].name, op);
             retval = optn_silenterr;
         } else {
@@ -4188,8 +4188,7 @@ optfn_statuslines(
     }
     if (req == get_val || req == get_cnf_val) {
         if (wc2_supported(allopt[optidx].name))
-            Strcpy(opts, (iflags.wc2_statuslines < 3) ? "2"
-                            : (iflags.wc2_statuslines > 3) ? "4" : "3");
+            Strcpy(opts, (iflags.wc2_statuslines < 3) ? "2" : "3");
         else
             Strcpy(opts, "unknown");
         return optn_ok;

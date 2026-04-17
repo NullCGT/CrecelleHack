@@ -373,7 +373,6 @@
 - Reverted changes to reflection from 1.0.
 - New feedback for cracked and greasy mirrors. Cracked mirrors scare
   monsters more easily.
-- Support 4 status lines in curses.
 - Many additional options for config files.
   - obscure_role_obj_names is taken from dnethack.
 - Ported xnethack's player orientation patch, based on some ancient

@@ -1270,6 +1270,7 @@ trapeffect_arrow_trap(
     unsigned trflags UNUSED)
 {
     struct obj *otmp;
+    int dam;
 
     if (mtmp == &gy.youmonst) {
         if (!trap->ammo) {
@@ -1286,10 +1287,11 @@ trapeffect_arrow_trap(
         }
         extract_nobj(otmp, &trap->ammo);
         seetrap(trap);
-        pline("%s shoots out at you!", An(xname(otmp)));
+        pline("An arrow shoots out at you!");
+        dam = dmgval(otmp, (struct monst *) 0, &gy.youmonst);
         if (u.usteed && !rn2(2) && steedintrap(trap, otmp)) {
             ; /* nothing */
-        } else if (thitu(8, dmgval(otmp, (struct monst *) 0, &gy.youmonst), &otmp, "arrow")) {
+        } else if (thitu(8, Maybe_Half_Phys(dam), &otmp, "arrow")) {
             if (otmp)
                 obfree(otmp, (struct obj *) 0);
         } else {
@@ -1360,6 +1362,7 @@ trapeffect_dart_trap(
     unsigned int trflags UNUSED)
 {
     struct obj *otmp;
+    int dam;
 
     if (mtmp == &gy.youmonst) {
         int oldumort = u.umortality;
@@ -1378,10 +1381,10 @@ trapeffect_dart_trap(
         if (trap->ammo->quan > 1)
             otmp = splitobj(trap->ammo, 1);
         extract_nobj(otmp, &trap->ammo);
+        dam = dmgval(otmp, (struct monst *) 0, &gy.youmonst);
         if (u.usteed && !rn2(2) && steedintrap(trap, otmp)) {
             ; /* nothing */
-        } else if (thitu(7, dmgval(otmp, (struct monst *) 0, &gy.youmonst),
-                         &otmp, "little dart")) {
+        } else if (thitu(7, Maybe_Half_Phys(dam), &otmp, "little dart")) {
             if (otmp) {
                 if (otmp->opoisoned)
                     poisoned("dart", A_CON, "little dart",
@@ -3636,9 +3639,11 @@ launch_obj(
                 break;
             }
         } else if (u_at(x, y)) {
+            int dam = dmgval(singleobj, (struct monst *) 0, &gy.youmonst);
+
             if (gm.multi)
                 nomul(0);
-            if (thitu(9 + singleobj->spe, dmgval(singleobj, (struct monst *) 0, &gy.youmonst),
+            if (thitu(9 + singleobj->spe, Maybe_Half_Phys(dam),
                       &singleobj, (char *) 0))
                 stop_occupation();
         }

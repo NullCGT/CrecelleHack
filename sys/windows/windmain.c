@@ -197,11 +197,11 @@ _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);*/
 #endif
 #endif
 
-    gh.hname = "CrecelleHack"; /* used for syntax messages */
     set_emergency_io();
 #ifndef MSWIN_GRAPHICS
     early_init(argc, argv); /* already in WinMain for MSWIN_GRAPHICS */
 #endif
+    gh.hname = "CrecelleHack"; /* used for syntax messages */
     set_default_prefix_locations(
         argv[0]); /* must be re-done after initoptions_init()
                    * which clears out gp.fqn_prefix[] */

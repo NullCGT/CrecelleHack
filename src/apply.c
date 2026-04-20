@@ -3476,10 +3476,11 @@ use_whip(struct obj *obj)
                     if (!rn2(25)) {
                         /* proficient with whip, but maybe not
                            so proficient at catching weapons */
-                        int hitu, hitvalu;
+                        int dam, hitvalu, hitu;
 
+                        dam = dmgval(otmp, &gy.youmonst);
                         hitvalu = 8 + otmp->spe;
-                        hitu = thitu(hitvalu, dmgval(otmp, &gy.youmonst),
+                        hitu = thitu(hitvalu, Maybe_Half_Phys(dam),
                                      &otmp, (char *) 0);
                         if (hitu) {
                             pline_The("%s hits you as you try to snatch it!",

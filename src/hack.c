@@ -3355,7 +3355,7 @@ switch_terrain(void)
 void
 set_uinwater(int in_out)
 {
-    if (in_out != u.uinwater) {
+    if (in_out != (int) u.uinwater) {
         u.uinwater = in_out ? 1 : 0;
         switch_terrain();
     }

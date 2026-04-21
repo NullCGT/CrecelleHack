@@ -504,6 +504,7 @@ do_improvisation(struct obj *instr)
 {
     int damage, mode, do_spec = !(Stunned || Confusion);
     struct obj itmp;
+    struct monst *mtmp;
     boolean mundane = FALSE, same_old_song = FALSE;
     static char my_goto_song[] = {'C', '\0'},
                 *improvisation = my_goto_song;
@@ -640,14 +641,29 @@ do_improvisation(struct obj *instr)
         makeknown(instr->otyp);
         break;
     case TOOLED_HORN: /* Awaken or scare monsters */
-        if (!Deaf)
-            You("produce a frightful, grave%s sound.",
-                same_old_song ? ", yet familiar," : "");
-        else
-            You("blow into the horn.");
+        if (instr->oartifact == ART_HORN_OF_THE_HORDE) {
+            if (!Deaf)
+                pline("The horn lets loose a horrible roar!");
+            else 
+                You("blow into the horn, and it shudders in your grip!");
+        } else {
+            if (!Deaf)
+                You("produce a frightful, grave%s sound.",
+                    same_old_song ? ", yet familiar," : "");
+            else
+                You("blow into the horn.");
+        }
         Hero_playnotes(obj_to_instr(&itmp), improvisation, 80);
         awaken_monsters(u.ulevel * 30);
         exercise(A_WIS, FALSE);
+        if (instr->oartifact == ART_HORN_OF_THE_HORDE && (instr->age <= svm.moves)) {
+            for (int i = 0; i < rn1(materials[instr->material].ac + 2, 2); i++) {
+                mtmp = makemon(&mons[PM_BARBARIAN], u.ux, u.uy, MM_EDOG | NO_MINVENT);
+                if (mtmp) initedog(mtmp, TRUE);
+                EDOG(mtmp)->petstrat = PETSTRAT_AGGRO;
+            }
+            instr->age = svm.moves + rnz(200);
+        }
         break;
     case BUGLE: /* Awaken & attract soldiers */
         if (!Deaf)

@@ -3079,6 +3079,10 @@ mon_reflects(struct monst *mon, const char *str)
             makeknown(AMULET_OF_REFLECTION);
         }
         return TRUE;
+    } else if ((orefl = which_armor(mon, W_SADDLE))
+               && orefl->oartifact == ART_SELENIC_SEAT) {
+        pline(str, s_suffix(mon_nam(mon)), "saddle");
+        return TRUE;
     } else if ((orefl = which_armor(mon, WORN_BLINDF))
                 && orefl->otyp == MIRRORED_GLASSES) {
         if (str) {

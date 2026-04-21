@@ -1072,6 +1072,11 @@ mksobj_init(struct obj **obj, boolean artif)
             otmp->quan = 1L;
         break;
     case TOOL_CLASS:
+        if (artif && !rn2(20 + (10 * nartifact_exist()))) {
+            /* mk_artifact() with otmp and A_NONE will never return NULL */
+            otmp = mk_artifact(otmp, (aligntyp) A_NONE, 99, TRUE);
+            *obj = otmp;
+        }
         if (is_weptool(otmp)) {
             if (otmp->otyp == UNICORN_HORN || rn2(20))
                 set_obj_size(otmp, MZ_MEDIUM, FALSE);

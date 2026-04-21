@@ -9,13 +9,24 @@
       - Fossils do not become skeletal monsters when raised due to the
         current lack of templates.
 ## New Artifacts
-- Chorister
+- Chorister (Flamberge)
   - Can invoke to change its oprop.
   - Sings rumors upon wielding.
+- Selenic Seat (Silver Saddle)
+  - Provides cold resistance when carried.
+  - Provides cold resistance and reflection to a steed it is applied to.
+  - When put on a monster, advances that monster if it is not advanced.
+- Horn of the Horde (Tooled Horn)
+  - Summons a number of tame barbarians depending on the material of the
+    horn. Barbarians will automatically attack any enemies regardless of
+    level.
+  - The number of barbarians summoned depends on the material the horn is
+    made out of.
 ## New Objects
 - Flamberge
 ## Misc
 - Allow players to joust if in centuar or quadruped form.
+- Monsters pursue pets more aggressively.
 ## Options
 - Added dnh_enlightenment. This changes the attributes menu to a pick
   list, as used in dnethack. Should be helpful for the extremely

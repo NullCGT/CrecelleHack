@@ -606,6 +606,11 @@ update_mon_extrinsics(
     int which = (int) objects[obj->otyp].oc_oprop,
         altwhich = altprop(obj);
 
+    if (obj->oartifact == ART_SELENIC_SEAT) {
+        which = REFLECTING;
+        altwhich = COLD_RES;
+    }
+
     unseen = !canseemon(mon);
     if (!which && !altwhich)
         goto maybe_blocks;

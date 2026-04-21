@@ -40,6 +40,7 @@ staticfn void peffect_oil(struct obj *);
 staticfn void peffect_acid(struct obj *);
 staticfn void peffect_polymorph(struct obj *);
 staticfn void peffect_waste(struct obj *);
+staticfn void peffect_alkahest(struct obj *);
 staticfn boolean H2Opotion_dip(struct obj *, struct obj *, boolean,
                              const char *);
 staticfn short mixtype(struct obj *, struct obj *);
@@ -1456,6 +1457,25 @@ peffect_waste(struct obj *otmp)
     }
 }
 
+staticfn void
+peffect_alkahest(struct obj *otmp)
+{
+    if (Acid_resistance) {
+        /* Not necessarily a creature who _likes_ acid */
+        pline("This tastes utterly flavorless.");
+    } else {
+        int dmg;
+        pline("Your insides are dissolving!");
+        dmg = d(otmp->cursed ? 8 : 10, otmp->blessed ? 8 : 4);
+        adjust_damage(&gy.youmonst, &dmg, AD_ACID);
+        losehp(dmg, "drinking universal solvent", KILLED_BY);
+        exercise(A_CON, FALSE);
+    }
+    if (Stoned)
+        fix_petrification();
+    gp.potion_unkn++; /* holy/unholy water can burn like acid too */
+}
+
 int
 peffects(struct obj *otmp)
 {
@@ -1561,6 +1581,9 @@ peffects(struct obj *otmp)
         break;
     case POT_HAZARDOUS_WASTE:
         peffect_waste(otmp);
+        break;
+    case POT_ALKAHEST:
+        peffect_alkahest(otmp);
         break;
     default:
         impossible("What a comic tonic! (%u)", otmp->otyp);
@@ -1799,10 +1822,15 @@ add_coating(coordxy x, coordxy y, short coatflags, int pindex) {
     if ((coatflags & COAT_POTION) != 0) {
         remove_coating(x, y, COAT_BLOOD | COAT_FROST | COAT_FUNGUS);
         levl[x][y].pindex = pindex;
-        if (pindex == POT_ACID) {
+        if (pindex == POT_ACID || pindex == POT_ALKAHEST) {
             remove_coating(x, y, COAT_GRASS | COAT_ASHES);
         } else if (pindex < POT_GAIN_ABILITY || pindex > POT_WATER) {
             impossible("coating at <%d,%d> with invalid tonic %d?", x, y, pindex);
+        }
+        /* Alkahest will burn through floor */
+        if (pindex == POT_ALKAHEST && !rn2(4)) {
+            struct trap *t = t_at(u.ux, u.uy);
+            do_pit(x, y, t ? is_pit(t->ttyp) : FALSE);
         }
     } else if ((coatflags & COAT_BLOOD) != 0) {
         remove_coating(x, y, COAT_POTION | COAT_FROST | COAT_FUNGUS);
@@ -1998,10 +2026,10 @@ evaporate_potion_puddles(coordxy x, coordxy y) {
    in order to accomplish this. */
 void
 floor_spillage(int x, int y, short otyp, int corpsenm) {
-    struct obj *objchain;
+    struct obj *objchain, *oldchain;
     if (objects[otyp].oc_class != POTION_CLASS)
         impossible("Trying to spill non-tonic %d on floor?", otyp);
-    if (otyp == POT_WATER || otyp == POT_ACID) {
+    if (otyp == POT_WATER || otyp == POT_ACID || otyp == POT_ALKAHEST) {
         if ((objchain = svl.level.objects[x][y]) != 0) {
             if (otyp == POT_WATER)
                 water_damage_chain(objchain, TRUE);
@@ -2009,6 +2037,13 @@ floor_spillage(int x, int y, short otyp, int corpsenm) {
                 while (objchain) {
                     acid_damage(objchain);
                     objchain = objchain->nexthere;
+                }
+            } else if (otyp == POT_ALKAHEST) {
+                while (objchain) {
+                    oldchain = objchain;
+                    objchain = objchain->nexthere;
+                    if (!is_ascension_obj(oldchain))
+                        delobj(oldchain);
                 }
             }
         }
@@ -2276,13 +2311,17 @@ do_illness:
         if (obj->lamplit)
             explode_oil(obj, mon->mx, mon->my);
         break;
+    case POT_ALKAHEST:
     case POT_ACID:
         if (!resists_acid(mon) && !resist(mon, POTION_CLASS, 0, NOTELL)) {
+            int damage;
+            if (obj->otyp == POT_ACID) damage = d(obj->cursed ? 2 : 1, obj->blessed ? 4 : 8);
+            else damage = d(obj->cursed ? 4 : 6, obj->blessed ? 8 : 4);
             pline("%s %s in pain!", Monnam(mon),
                     is_silent(mon->data) ? "writhes" : "shrieks");
             if (!is_silent(mon->data))
                 wake_nearto(mon->mx, mon->my, mon->data->mlevel * 10);
-            mon->mhp -= d(obj->cursed ? 2 : 1, obj->blessed ? 4 : 8);
+            mon->mhp -= damage;
             if (DEADMONSTER(mon)) {
                 if (your_fault)
                     killed(mon);
@@ -2418,7 +2457,17 @@ potionhit(struct monst *mon, struct obj *obj, int how)
                       obj->blessed ? " a little"
                                    : obj->cursed ? " a lot" : "");
                 dmg = d(obj->cursed ? 2 : 1, obj->blessed ? 4 : 8);
-                losehp(Maybe_Half_Phys(dmg), "tonic of acid", KILLED_BY_AN);
+                adjust_damage(&gy.youmonst, &dmg, AD_ACID);
+                losehp(dmg, "tonic of acid", KILLED_BY_AN);
+            }
+            break;
+        case POT_ALKAHEST:
+            if (!Acid_resistance) {
+                int dmg;
+                pline("You are melting!");
+                dmg = d(obj->cursed ? 4 : 6, obj->blessed ? 8 : 4);
+                adjust_damage(&gy.youmonst, &dmg, AD_ACID);
+                losehp(dmg, "alkahest", KILLED_BY);
             }
             break;
         case POT_BLOOD: {
@@ -2672,8 +2721,9 @@ potionbreathe(struct obj *obj)
         if (!Antimagic)
             peffect_polymorph(obj);
         break;
+    case POT_ALKAHEST:
     case POT_ACID: {
-        int dmg = rnd(8);
+        int dmg = rnd((obj->otyp == POT_ACID) ? 8 : 16);
         if (!Acid_immunity) {
             You("are dissolving!");
             adjust_damage(&gy.youmonst, &dmg, AD_ACID);
@@ -2763,10 +2813,11 @@ mpotionbreathe(struct obj *obj, struct monst *mtmp, boolean heros_fault)
     case POT_HAZARDOUS_WASTE:
         harmless = FALSE; /* monsters know what this means... */
         break;
+    case POT_ALKAHEST:
     case POT_ACID:
         if (!resists_acid(mtmp)) {
             harmless = FALSE;
-            mtmp->mhp -= rnd(8);
+            mtmp->mhp -= rnd((obj->otyp == POT_ACID) ? 8 : 16);
             if (mtmp->mhp <= 0)
                 monkilled(mtmp, "", AD_ACID);
         }
@@ -3311,6 +3362,13 @@ potion_dip(struct obj *obj, struct obj *potion)
             }
         }
         potion->in_use = FALSE; /* didn't go poof */
+        return ECMD_TIME;
+    } else if (potion->otyp == POT_ALKAHEST
+                && obj->oclass != POTION_CLASS
+                && !is_ascension_obj(obj)) {
+        pline("%s dissolves!", The(xname(obj)));
+        useup(obj);
+        poof(potion);
         return ECMD_TIME;
     } else if (potion->otyp == POT_DYE) {
         if (!objects[potion->otyp].oc_name_known) {

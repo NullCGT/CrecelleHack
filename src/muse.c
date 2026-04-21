@@ -3191,7 +3191,7 @@ mon_consume_unstone(
 {
     boolean vis = canseemon(mon), tinned = obj->otyp == TIN,
             food = obj->otyp == CORPSE || tinned,
-            acid = obj->otyp == POT_ACID
+            acid = obj->otyp == POT_ACID || obj->otyp == POT_ALKAHEST
                    || (food && acidic(&mons[obj->corpsenm])),
             lizard = food && obj->corpsenm == PM_LIZARD;
     int nutrit = food ? dog_nutrition(mon, obj) : 0; /* also sets meating */
@@ -3264,7 +3264,7 @@ mon_consume_unstone(
 staticfn boolean
 cures_stoning(struct monst *mon, struct obj *obj, boolean tinok)
 {
-    if (obj->otyp == POT_ACID)
+    if (obj->otyp == POT_ACID || obj->otyp == POT_ALKAHEST)
         return TRUE;
     if (obj->otyp == GLOB_OF_GREEN_SLIME)
         return (boolean) slimeproof(mon->data);

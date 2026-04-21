@@ -34,7 +34,6 @@ staticfn void put_monsters_to_sleep(int);
 staticfn void charm_snakes(int);
 staticfn void calm_nymphs(int);
 staticfn void charm_monsters(int);
-staticfn void do_pit(coordxy, coordxy, unsigned);
 staticfn void do_earthquake(int);
 staticfn const char *generic_lvl_desc(void);
 staticfn int do_improvisation(struct obj *);
@@ -217,7 +216,7 @@ charm_monsters(int distance)
 }
 
 /* Try to make a pit. */
-staticfn void
+void
 do_pit(coordxy x, coordxy y, unsigned tu_pit)
 {
     struct monst *mtmp;

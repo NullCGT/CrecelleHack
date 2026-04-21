@@ -2164,6 +2164,7 @@ extern boolean munslime(struct monst *, boolean) NONNULLARG1;
 /* ### music.c ### */
 
 extern void awaken_soldiers(struct monst *) NONNULLARG1;
+extern void do_pit(coordxy, coordxy, unsigned);
 extern int do_play_instrument(struct obj *) NONNULLARG1;
 enum instruments obj_to_instr(struct obj *) NONNULLARG1;
 

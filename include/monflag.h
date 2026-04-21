@@ -124,7 +124,7 @@ enum ms_sounds {
 
 #define M2_NOPOLY       0x00000001L /* players mayn't poly into one */
 #define M2_COLLAT       0x00000002L /* smashes items on floor when missing */
-// #define M2_WERE         0x00000004L /* is a lycanthrope */
+#define M2_IGNOREPETS   0x00000004L /* ignores pets in favor of attacking player */
 // #define M2_HUMAN        0x00000008L /* is a human */
 // #define M2_ELF          0x00000010L /* is an elf */
 // #define M2_DWARF        0x00000020L /* is a dwarf */

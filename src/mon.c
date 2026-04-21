@@ -2641,6 +2641,8 @@ mm_aggression(
         return ALLOW_M | ALLOW_TM;
     if (mndx == PM_TORNADO)
         return ALLOW_M | ALLOW_TM;
+    if (!magr->mpeaceful && mdef->mtame && !ignores_pets(magr->data))
+        return ALLOW_M | ALLOW_TM;
     /* Various other combinations such as dog vs cat, cat vs rat, and
        elf vs orc have been suggested.  For the time being we don't
        support those. */

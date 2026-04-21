@@ -2185,7 +2185,8 @@ m_move(struct monst *mtmp, int after)
 
             nearer = ((ndist = dist2(nx, ny, ggx, ggy)) < nidist);
 
-            if ((appr == 1 && nearer) || (appr == -1 && !nearer)
+            if ((MON_AT(nx, ny) && (mfp.info[i] & ALLOW_TM))
+                || (appr == 1 && nearer) || (appr == -1 && !nearer)
                 || (!appr && !rn2(++chcnt))
                 || (appr == -2
                     && ((ndist <= preferredrange_min && !nearer)

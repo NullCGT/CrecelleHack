@@ -301,6 +301,7 @@
         && !mindless(ptr))
 #define ash_kicker(ptr) (((ptr)->mflags4 & M4_KICK_ASHES) != 0L)
 #define is_climber(ptr) (((ptr)->mflags2 & M2_CLIMBER) != 0L)
+#define ignores_pets(ptr) (((ptr)->mflags2 & M2_IGNOREPETS) != 0L)
 #define resists_whack(ptr) (((ptr)->mflags4 & M4_RWHACK) != 0L)
 #define resists_pierce(ptr) (((ptr)->mflags4 & M4_RPIERCE) != 0L)
 #define resists_slash(ptr) (((ptr)->mflags4 & M4_RSLASH) != 0L)

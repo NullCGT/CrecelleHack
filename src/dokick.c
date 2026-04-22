@@ -1108,6 +1108,7 @@ kick_nondoor(coordxy x, coordxy y, int avrg_attrib)
             return ECMD_TIME;
         }
         You("kick %s.", (Blind ? something : "the fountain"));
+        potion_splatter(x, y, POT_WATER, NON_PM);
         if (!rn2(3)) {
             kick_ouch(x, y, "");
             return ECMD_TIME;

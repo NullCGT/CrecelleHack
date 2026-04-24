@@ -851,6 +851,7 @@ newgame(void)
         svm.mvitals[i].mvflags = mons[i].geno & G_NOCORPSE;
 
     init_objects(); /* must be before u_init() */
+    adj_mon_colors(); /* must happen earlier than earlier adjs */
 
     flags.pantheon = -1; /* role_init() will reset this */
     role_init();         /* must be before init_dungeons(), u_init(),

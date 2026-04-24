@@ -28,6 +28,7 @@
 - Allow players to joust if in centuar or quadruped form.
 - Monsters pursue pets more aggressively.
 - Kicking a fountain sprays water across the floor.
+- Rename and recolor acid blobs depending on potion of acid appearance.
 ## Options
 - Added dnh_enlightenment. This changes the attributes menu to a pick
   list, as used in dnethack. Should be helpful for the extremely

@@ -1033,6 +1033,9 @@ x_monnam(
         if (mtmp->data == &mons[PM_GIANT_MUSTELID] && (!has_mgivenname(mtmp) || called))
             strcat(buf, "giant ");
         pm_name = mustelid_types[mtmp->m_id % SIZE(mustelid_types)];
+    } else if (mtmp->data == &mons[PM_ACID_BLOB]) {
+        strcat(buf, OBJ_DESCR(objects[POT_ACID]));
+        pm_name = " blob";
     } else {
         pm_name = mon_pmname(mtmp);
     }

@@ -6285,6 +6285,14 @@ adj_midbosses(void)
     }
 }
 
+/* make adjustments to monster colors if needed. must be done at a
+   different time than rest of adjustments. */
+void
+adj_mon_colors(void)
+{
+    mons[PM_ACID_BLOB].mcolor = objects[POT_ACID].oc_color;
+}
+
 /* make erinyes more dangerous based on your alignment abuse */
 void
 adj_erinys(unsigned abuse)

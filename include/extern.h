@@ -1933,6 +1933,7 @@ extern void dealloc_mextra(struct monst *);
 extern boolean usmellmon(struct permonst *);
 extern void mimic_hit_msg(struct monst *, short);
 extern void adj_midbosses(void);
+extern void adj_mon_colors(void);
 extern void adj_erinys(unsigned);
 extern void see_monster_closeup(struct monst *, boolean) NONNULLARG1;
 extern void see_nearby_monsters(void);

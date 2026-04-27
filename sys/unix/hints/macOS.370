@@ -215,6 +215,13 @@ LFLAGS += -framework AVFoundation
 #endif
 endif
 
+ifdef MAKEFILE_SRC
+ifdef WANT_NHUUID
+CFLAGS += -DNHUUID
+UUIDOBJ = macuuid.o
+endif
+endif
+
 #
 #-INCLUDE multisnd1-pre.370
 #
@@ -547,6 +554,11 @@ checkmakefiles:
 endif
 endif
 
+ifdef WANT_NHUUID
+$(TARGETPFX)macuuid.o: ../sys/unix/macuuid.m
+	$(CC) $(CFLAGS) -c -o$@ $<
+endif
+
 ifdef WANT_LIBNH
 $(TARGETPFX)libnh.a: $(HOBJ) $(LIBNHSYSOBJ) ../lib/lua/liblua-$(LUA_VERSION).a
 	$(AR) rcs $@ $(HOBJ) $(LIBNHSYSOBJ) ../lib/lua/liblua-$(LUA_VERSION).a
@@ -653,7 +665,7 @@ $(BUNDLE_INFOPLIST):
 	@echo '<key>CFBundleShortVersionString</key>' >>$@
 	@echo '<string>3.7.0</string>' >>$@
 	@echo '<key>NSHumanReadableCopyright</key>' >>$@
-	@echo '<string>©By Stichting Mathematisch Centrum and M. Stephenson 1985-2023</string>' >>$@
+	@echo '<string>©By Stichting Mathematisch Centrum and M. Stephenson 1985-2026</string>' >>$@
 	@echo '<key>LSApplicationCategoryType</key>' >>$@
 	@echo '<string>public.app-category.adventure-games</string>' >>$@
 	@echo '</dict>' >>$@

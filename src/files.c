@@ -526,7 +526,7 @@ free_nhfile(NHFILE *nhfp)
 {
     if (nhfp) {
         init_nhfile(nhfp);
-        free(nhfp);
+        free((genericptr_t) nhfp);
     }
 }
 
@@ -963,6 +963,9 @@ create_bonesfile(d_level *lev, char **bonesid, char errbuf[])
     const char *file;
     NHFILE *nhfp = (NHFILE *) 0;
     int failed = 0;
+#if defined(WIN32)
+    errno_t err;
+#endif
 
     if (errbuf)
         *errbuf = '\0';
@@ -981,7 +984,7 @@ create_bonesfile(d_level *lev, char **bonesid, char errbuf[])
         nhfp->style.binary = TRUE;
         nhfp->fnidx = historical;
         nhfp->fd = -1;
-        nhfp->fpdef = fopen(file, nhfp->style.binary ? WRBMODE : WRTMODE);
+        nhfp->fpdef = (FILE *) 0;
         if (nhfp->fpdef) {
 #ifdef SAVEFILE_DEBUGGING
             nhfp->fpdebug = fopen("create_bonesfile-debug.log", "a");
@@ -990,12 +993,16 @@ create_bonesfile(d_level *lev, char **bonesid, char errbuf[])
             failed = errno;
         }
         if (nhfp->structlevel) {
-#if defined(MICRO) || defined(WIN32)
+#if defined(MICRO)
             /* Use O_TRUNC to force the file to be shortened if it already
              * exists and is currently longer.
              */
             nhfp->fd = open(file,
                             O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, FCMASK);
+#elif defined(WIN32)
+            err = _sopen_s(&nhfp->fd, file,
+                           O_WRONLY | O_CREAT | O_TRUNC | O_BINARY,
+                           _SH_DENYRW, _S_IREAD | _S_IWRITE);
 #else /* ?MICRO || WIN32 */
 /* implies UNIX or MAC (MAC is for OS9 or earlier) */
 #ifdef MAC
@@ -1061,6 +1068,9 @@ open_bonesfile(d_level *lev, char **bonesid)
 {
     const char *fq_bones;
     NHFILE *nhfp = (NHFILE *) 0;
+#if defined(WIN32)
+    errno_t err UNUSED;
+#endif
 
     *bonesid = set_bonesfile_name(gb.bones, lev);
     fq_bones = fqname(gb.bones, BONESPREFIX, 0);
@@ -1068,6 +1078,10 @@ open_bonesfile(d_level *lev, char **bonesid)
 
     nhfp = new_nhfile();
     if (nhfp) {
+#if defined(WIN32) && defined(DEBUG)
+        if (nhfp->fd >= 0)
+            impossible("bones file NHFILE * has odd fd (%d)", nhfp->fd);
+#endif
         nhfp->structlevel = TRUE;
         nhfp->fieldlevel = FALSE;
         nhfp->ftype = NHF_BONESFILE;
@@ -1077,15 +1091,18 @@ open_bonesfile(d_level *lev, char **bonesid)
         nhfp->style.binary = (sysopt.bonesformat[0] != exportascii);
         nhfp->fnidx = sysopt.bonesformat[0];
         nhfp->fd = -1;
-        nhfp->fpdef = fopen(fq_bones, nhfp->style.binary ? RDBMODE : RDTMODE);
+        nhfp->fpdef = (FILE *) 0;
         if (nhfp->fpdef) {
 #ifdef SAVEFILE_DEBUGGING
             nhfp->fpdebug = fopen("open_bonesfile-debug.log", "a");
 #endif
         }
         if (nhfp->structlevel) {
-#ifdef MAC
+#if defined(MAC)
             nhfp->fd = macopen(fq_bones, O_RDONLY | O_BINARY, BONE_TYPE);
+#elif defined(WIN32)
+            err = _sopen_s(&nhfp->fd, fq_bones, _O_RDONLY | _O_BINARY,
+                           _SH_DENYRW, _S_IREAD | _S_IWRITE);
 #else
             nhfp->fd = open(fq_bones, O_RDONLY | O_BINARY, 0);
 #endif

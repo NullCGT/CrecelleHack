@@ -4,6 +4,9 @@
 
 #include "hack.h"
 
+void free_macos_uuid(void);
+const char *get_macos_uuid(void);
+
 #ifdef DEBUG
 #undef DEBUG
 #endif

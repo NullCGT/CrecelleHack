@@ -750,7 +750,34 @@ exepath(char *str)
 }
 #endif /* EXEPATH */
 
-#ifdef CROSS_TO_AMIGA
+#if defined(CROSS_TO_AMIGA) || defined(CROSS_TO_MSDOS)
+
+void
+get_nhuuid(void)
+{
+    unsigned char stmp[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+    if (svn.nhuuid[0])
+        return;
+
+    /* FIXME: fill in a useful valid UUID somehow */
+    Snprintf(svn.nhuuid, sizeof svn.nhuuid, "%s", (char *) stmp);
+}
+
+void
+free_nhuuid(void)
+{
+    int i;
+
+    for (i = 0; i < SIZE(svn.nhuuid); i++) {
+        svn.nhuuid[i] = 0;
+    }
+}
+#endif
+
+#if defined(CROSS_TO_AMIGA)
 void msmsg
 VA_DECL(const char *, fmt)
 {

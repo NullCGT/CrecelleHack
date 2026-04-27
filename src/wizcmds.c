@@ -1849,6 +1849,14 @@ wiz_display_macros(void)
     return ECMD_OK;
 }
 
+/* the #wizshownhuuid command */
+int
+wiz_show_nhuuid(void)
+{
+    pline("The NHUUID for this game is { %s }.", svn.nhuuid);
+    return ECMD_OK;
+}
+
 /* the #wizmondiff command */
 int
 wiz_mon_diff(void)

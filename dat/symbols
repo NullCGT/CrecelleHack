@@ -902,28 +902,28 @@ start: Enhanced1
 	G_tdwall_gehennom: U+252C/red       # ┬ BOX DRAWINGS LIGHT DOWN AND HORIZONTAL
 	G_tlwall_gehennom: U+2524/red       # ┤ BOX DRAWINGS LIGHT VERTICAL AND LEFT
 	G_trwall_gehennom: U+251C/red       # ├ BOX DRAWINGS LIGHT VERTICAL AND RIGHT
-	G_vwall_knox:  U+2502/150-75-0      # │ BOX DRAWINGS LIGHT VERTICAL
-	G_hwall_knox:  U+2500/150-75-0      # ─ BOX DRAWINGS LIGHT HORIZONTAL
-	G_tlcorn_knox: U+250c/150-75-0      # ┌ BOX DRAWINGS LIGHT DOWN AND RIGHT
-	G_trcorn_knox: U+2510/150-75-0      # ┐ BOX DRAWINGS LIGHT DOWN AND LEFT
-	G_blcorn_knox: U+2514/150-75-0      # └ BOX DRAWINGS LIGHT UP AND RIGHT
-	G_brcorn_knox: U+2518/150-75-0      # ┘ BOX DRAWINGS LIGHT UP AND LEFT
-	G_crwall_knox: U+253C/150-75-0      # ┼ BOX DRAWINGS LIGHT VERTICAL AND HORIZONTAL
-	G_tuwall_knox: U+2534/150-75-0      # ┴ BOX DRAWINGS LIGHT UP AND HORIZONTAL
-	G_tdwall_knox: U+252C/150-75-0      # ┬ BOX DRAWINGS LIGHT DOWN AND HORIZONTAL
-	G_tlwall_knox: U+2524/150-75-0      # ┤ BOX DRAWINGS LIGHT VERTICAL AND LEFT
-	G_trwall_knox: U+251C/150-75-0      # ├ BOX DRAWINGS LIGHT VERTICAL AND RIGHT
-	G_vwall_mines:  U+2502/113-126-142  # │ BOX DRAWINGS LIGHT VERTICAL
-	G_hwall_mines:  U+2500/113-126-142  # ─ BOX DRAWINGS LIGHT HORIZONTAL
-	G_tlcorn_mines: U+250c/113-126-142  # ┌ BOX DRAWINGS LIGHT DOWN AND RIGHT
-	G_trcorn_mines: U+2510/113-126-142  # ┐ BOX DRAWINGS LIGHT DOWN AND LEFT
-	G_blcorn_mines: U+2514/113-126-142  # └ BOX DRAWINGS LIGHT UP AND RIGHT
-	G_brcorn_mines: U+2518/113-126-142  # ┘ BOX DRAWINGS LIGHT UP AND LEFT
-	G_crwall_mines: U+253C/113-126-142  # ┼ BOX DRAWINGS LIGHT VERTICAL AND HORIZONTAL
-	G_tuwall_mines: U+2534/113-126-142  # ┴ BOX DRAWINGS LIGHT UP AND HORIZONTAL
-	G_tdwall_mines: U+252C/113-126-142  # ┬ BOX DRAWINGS LIGHT DOWN AND HORIZONTAL
-	G_tlwall_mines: U+2524/113-126-142  # ┤ BOX DRAWINGS LIGHT VERTICAL AND LEFT
-	G_trwall_mines: U+251C/113-126-142  # ├ BOX DRAWINGS LIGHT VERTICAL AND RIGHT
+	G_vwall_knox:  U+2502/126-230-230   # │ BOX DRAWINGS LIGHT VERTICAL
+	G_hwall_knox:  U+2500/126-230-230   # ─ BOX DRAWINGS LIGHT HORIZONTAL
+	G_tlcorn_knox: U+250c/126-230-230   # ┌ BOX DRAWINGS LIGHT DOWN AND RIGHT
+	G_trcorn_knox: U+2510/126-230-230   # ┐ BOX DRAWINGS LIGHT DOWN AND LEFT
+	G_blcorn_knox: U+2514/126-230-230   # └ BOX DRAWINGS LIGHT UP AND RIGHT
+	G_brcorn_knox: U+2518/126-230-230   # ┘ BOX DRAWINGS LIGHT UP AND LEFT
+	G_crwall_knox: U+253C/126-230-230   # ┼ BOX DRAWINGS LIGHT VERTICAL AND HORIZONTAL
+	G_tuwall_knox: U+2534/126-230-230   # ┴ BOX DRAWINGS LIGHT UP AND HORIZONTAL
+	G_tdwall_knox: U+252C/126-230-230   # ┬ BOX DRAWINGS LIGHT DOWN AND HORIZONTAL
+	G_tlwall_knox: U+2524/126-230-230   # ┤ BOX DRAWINGS LIGHT VERTICAL AND LEFT
+	G_trwall_knox: U+251C/126-230-230   # ├ BOX DRAWINGS LIGHT VERTICAL AND RIGHT
+	G_vwall_mines:  U+2502/190-126-0    # │ BOX DRAWINGS LIGHT VERTICAL
+	G_hwall_mines:  U+2500/190-126-0    # ─ BOX DRAWINGS LIGHT HORIZONTAL
+	G_tlcorn_mines: U+250c/190-126-0    # ┌ BOX DRAWINGS LIGHT DOWN AND RIGHT
+	G_trcorn_mines: U+2510/190-126-0    # ┐ BOX DRAWINGS LIGHT DOWN AND LEFT
+	G_blcorn_mines: U+2514/190-126-0    # └ BOX DRAWINGS LIGHT UP AND RIGHT
+	G_brcorn_mines: U+2518/190-126-0    # ┘ BOX DRAWINGS LIGHT UP AND LEFT
+	G_crwall_mines: U+253C/190-126-0    # ┼ BOX DRAWINGS LIGHT VERTICAL AND HORIZONTAL
+	G_tuwall_mines: U+2534/190-126-0    # ┴ BOX DRAWINGS LIGHT UP AND HORIZONTAL
+	G_tdwall_mines: U+252C/190-126-0    # ┬ BOX DRAWINGS LIGHT DOWN AND HORIZONTAL
+	G_tlwall_mines: U+2524/190-126-0    # ┤ BOX DRAWINGS LIGHT VERTICAL AND LEFT
+	G_trwall_mines: U+251C/190-126-0    # ├ BOX DRAWINGS LIGHT VERTICAL AND RIGHT
 finish
 
 start: Enhanced2
@@ -1005,28 +1005,28 @@ start: Enhanced2
 	G_tdwall_gehennom: U+252C/red
 	G_tlwall_gehennom: U+2524/red
 	G_trwall_gehennom: U+251C/red
-	G_vwall_knox:  U+2502/150-75-0
-	G_hwall_knox:  U+2500/150-75-0
-	G_tlcorn_knox: U+250c/150-75-0
-	G_trcorn_knox: U+2510/150-75-0
-	G_blcorn_knox: U+2514/150-75-0
-	G_brcorn_knox: U+2518/150-75-0
-	G_crwall_knox: U+253C/150-75-0
-	G_tuwall_knox: U+2534/150-75-0
-	G_tdwall_knox: U+252C/150-75-0
-	G_tlwall_knox: U+2524/150-75-0
-	G_trwall_knox: U+251C/150-75-0
-	G_vwall_mines:  U+2502/113-126-142
-	G_hwall_mines:  U+2500/113-126-142
-	G_tlcorn_mines: U+250c/113-126-142
-	G_trcorn_mines: U+2510/113-126-142
-	G_blcorn_mines: U+2514/113-126-142
-	G_brcorn_mines: U+2518/113-126-142
-	G_crwall_mines: U+253C/113-126-142
-	G_tuwall_mines: U+2534/113-126-142
-	G_tdwall_mines: U+252C/113-126-142
-	G_tlwall_mines: U+2524/113-126-142
-	G_trwall_mines: U+251C/113-126-142
+	G_vwall_knox:  U+2502/126-230-230
+	G_hwall_knox:  U+2500/126-230-230
+	G_tlcorn_knox: U+250c/126-230-230
+	G_trcorn_knox: U+2510/126-230-230
+	G_blcorn_knox: U+2514/126-230-230
+	G_brcorn_knox: U+2518/126-230-230
+	G_crwall_knox: U+253C/126-230-230
+	G_tuwall_knox: U+2534/126-230-230
+	G_tdwall_knox: U+252C/126-230-230
+	G_tlwall_knox: U+2524/126-230-230
+	G_trwall_knox: U+251C/126-230-230
+	G_vwall_mines:  U+2502/190-126-0
+	G_hwall_mines:  U+2500/190-126-0
+	G_tlcorn_mines: U+250c/190-126-0
+	G_trcorn_mines: U+2510/190-126-0
+	G_blcorn_mines: U+2514/190-126-0
+	G_brcorn_mines: U+2518/190-126-0
+	G_crwall_mines: U+253C/190-126-0
+	G_tuwall_mines: U+2534/190-126-0
+	G_tdwall_mines: U+252C/190-126-0
+	G_tlwall_mines: U+2524/190-126-0
+	G_trwall_mines: U+251C/190-126-0
 finish
 
 start: AmigaFont

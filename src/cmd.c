@@ -2007,6 +2007,8 @@ struct ext_func_tab extcmdlist[] = {
               wiz_rumor_check, IFBURIED | AUTOCOMPLETE | WIZMODECMD, NULL },
     { '\0',   "wizseenv", "show map locations' seen vectors",
               wiz_show_seenv, IFBURIED | AUTOCOMPLETE | WIZMODECMD, NULL },
+    { '\0', "wizshownhuuid", "show NHUUID for this game",
+              wiz_show_nhuuid, AUTOCOMPLETE | WIZMODECMD, NULL },
     { '\0',   "wizsmell", "smell monster",
               wiz_smell, IFBURIED | AUTOCOMPLETE | WIZMODECMD, NULL },
     { '\0',   "wiztelekinesis", "telekinesis",

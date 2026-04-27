@@ -4066,6 +4066,7 @@ extern void wizcustom_callback(winid win, int glyphnum, char *id);
 extern int wiz_display_macros(void);
 extern int wiz_mon_diff(void);
 extern int wiz_objprobs(void);
+extern int wiz_show_nhuuid(void);
 #endif
 extern void sanity_check(void);
 

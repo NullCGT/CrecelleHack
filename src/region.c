@@ -1235,7 +1235,7 @@ expire_gas_cloud(genericptr_t p1, genericptr_t p2 UNUSED)
 staticfn boolean 
 poisongas_damage(NhRegion *reg, int dam, struct monst *mtmp) {
     if (!mtmp) { /* hero is indicated by Null rather than by &youmonst */
-        if (m_poisongas_ok(&gy.youmonst) == M_POISONGAS_OK)
+        if (m_poisongas_ok(u.umonst) == M_POISONGAS_OK)
             return FALSE;
         if (!Blind) {
             Your("%s sting.", makeplural(body_part(EYE)));
@@ -1298,7 +1298,7 @@ inside_gas_cloud(genericptr_t p1, genericptr_t p2)
 {
     NhRegion *reg = (NhRegion *) p1;
     struct monst *mtmp = (struct monst *) p2;
-    struct monst *umon = mtmp ? mtmp : &gy.youmonst;
+    struct monst *umon = mtmp ? mtmp : u.umonst;
     int dam = REGION_DAMAGE(reg);
     int otyp = REGION_OTYP(reg);
 
@@ -1319,7 +1319,7 @@ inside_gas_cloud(genericptr_t p1, genericptr_t p2)
         fakeobj.otyp = otyp;
         fakeobj.blessed = REGION_BLESSED(reg);
         fakeobj.cursed = REGION_CURSED(reg);
-        if (!mtmp && (!breathless(gy.youmonst.data) || haseyes(gy.youmonst.data))) {
+        if (!mtmp && (!breathless(u.umonst->data) || haseyes(u.umonst->data))) {
             potionbreathe(&fakeobj);
         } else if (mtmp && (!breathless(mtmp->data) || haseyes(mtmp->data))
                     && !can_magbreathe(mtmp)) {
@@ -1433,7 +1433,7 @@ create_gas_cloud(
        probably a natural cause of being polyed. don't message about it */
     if (!svc.context.mon_moving && u_at(x, y) && cloudsize == 1
         && (!damage
-            || (damage && m_poisongas_ok(&gy.youmonst) == M_POISONGAS_OK)))
+            || (damage && m_poisongas_ok(u.umonst) == M_POISONGAS_OK)))
         inside_cloud = TRUE;
 
     if (cloudsize > MAX_CLOUD_SIZE) {
@@ -1551,7 +1551,7 @@ region_danger(void)
         /* the only type of region we understand is gas_cloud */
         if (f_indx == INSIDE_GAS_CLOUD) {
             /* completely harmless if you don't need to breathe */
-            if (nonliving(gy.youmonst.data) || Breathless)
+            if (nonliving(u.umonst->data) || Breathless)
                 continue;
             /* minor inconvenience if you're poison immune;
                not harmful enough to be a prayer-level trouble */
@@ -1561,7 +1561,7 @@ region_danger(void)
         }
         if (f_indx == INSIDE_BONFIRE) {
             /* harmless if you like fire */
-            if (likes_fire(gy.youmonst.data))
+            if (likes_fire(u.umonst->data))
                 continue;
             /* minor inconvenience if you resist fire */
             if (Fire_resistance)
@@ -1664,7 +1664,7 @@ inside_bonfire(genericptr_t p1, genericptr_t p2)
 {
     NhRegion *reg = (NhRegion *) p1;
     struct monst *mtmp = (struct monst *) p2;
-    struct monst *umon = mtmp ? mtmp : &gy.youmonst;
+    struct monst *umon = mtmp ? mtmp : u.umonst;
     int dam = REGION_DAMAGE(reg);
 
     if (reg->ttl < 20 && umon && umon->data == &mons[PM_FIRE_ELEMENTAL])
@@ -1676,12 +1676,12 @@ inside_bonfire(genericptr_t p1, genericptr_t p2)
     }
 
     if (!mtmp) {
-        if (m_bonfire_ok(&gy.youmonst) == M_BONFIRE_OK) {
+        if (m_bonfire_ok(u.umonst) == M_BONFIRE_OK) {
             if (Fire_immunity) monstseesu(M_SEEN_FIRE); /* Kludge */
             return FALSE;
         }
         pline("You're burning up!");
-        if (completelyburns(gy.youmonst.data)) { /* paper or straw golem */
+        if (completelyburns(u.umonst->data)) { /* paper or straw golem */
             You("go up in flames!");
             monstunseesu(M_SEEN_FIRE);
             rehumanize();
@@ -1693,11 +1693,11 @@ inside_bonfire(genericptr_t p1, genericptr_t p2)
             monstunseesu(M_SEEN_FIRE);
         }
         if (rn2(6)) {
-            dam += destroy_items(&gy.youmonst, AD_FIRE, dam);
+            dam += destroy_items(u.umonst, AD_FIRE, dam);
             ignite_items(gi.invent);
         }
         burn_away_slime();
-        adjust_damage(&gy.youmonst, &dam, AD_FIRE);
+        adjust_damage(u.umonst, &dam, AD_FIRE);
         u.uhp -= dam;
         if (u.uhp < 1) {
             Sprintf(svk.killer.name, "was consumed in an inferno");

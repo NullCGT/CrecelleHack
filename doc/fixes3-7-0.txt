@@ -1,4 +1,4 @@
-NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.1614 $ $NHDT-Date: 1769342601 2026/01/25 04:03:21 $
+NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.1649 $ $NHDT-Date: 1777000050 2026/04/23 19:07:30 $
 
 General Fixes and Modified Features
 -----------------------------------
@@ -1598,6 +1598,11 @@ prevent selecting all options in #optionsfull menu
 shapeshifters change shape less
 rolling boulder traps aren't removed when stepped on and move boulders
         pushed onto them
+when starting a new game as a monk, newsym(0,0) was being called (adjabil ->
+	postadjabil -> see_monsters when initializing See_invisible as hero
+	became level 1; seen 'monster' was the hero who hadn't been placed
+	on the map yet)
+incorporate a fix to prevent segfault due to rolling boulder trap
 
 
 Fixes to 3.7.0-x General Problems Exposed Via git Repository
@@ -2203,7 +2208,7 @@ mounted hero was able to deliver joust hits when trapped
 timer sanity check for melting ice gave false complaint about non-ice for
 	frozen moat under open drawbridge
 mhitm_ad_phys() was not applying Half_physical_damage when hero was target
-callers of thitu() were not applyibg Half_physical_damage either
+callers of thitu() were not applying Half_physical_damage either
 throwing crystal plate mail or helm of brilliance up against the ceiling could
 	result in the item being cracked and then vanishing
 yn_function (used all over the place) sometimes triggered an impossible()

@@ -28,6 +28,7 @@
 #include <errno.h>
 
 #ifdef WIN32
+#include <rpc.h>
 #include <VersionHelpers.h>
 #include <UserEnv.h>
 
@@ -528,6 +529,36 @@ nethack_exit(int code)
     free_winmain_stuff();
 #endif
     exit(code);
+}
+
+void
+get_nhuuid(void)
+{
+    UUID binuuid;
+    unsigned char *stmp;
+    RPC_STATUS rpcstatus;
+
+    if (svn.nhuuid[0])
+        return;
+
+    rpcstatus = UuidCreate(&binuuid);
+    if (rpcstatus == RPC_S_OK) {
+        rpcstatus = UuidToStringA(&binuuid, &stmp);
+        if (rpcstatus == RPC_S_OK) {
+            Snprintf(svn.nhuuid, sizeof svn.nhuuid, "%s", (char *) stmp);
+            RpcStringFree(&stmp);
+        }
+    }
+}
+
+void
+free_nhuuid(void)
+{
+    int i;
+
+    for (i = 0; i < SIZE(svn.nhuuid); i++) {
+        svn.nhuuid[i] = 0;
+    }
 }
 
 #ifdef WIN32CON

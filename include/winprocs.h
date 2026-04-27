@@ -19,7 +19,7 @@ enum wp_ids { wp_tty = 1, wp_X11, wp_Qt, wp_mswin, wp_curses,
 #ifdef OUTDATED_STUFF
               wp_mac, wp_Gem, wp_Gnome,
 #endif
-              wp_trace	// XXX do we need this?  should chainin/out get an id? TBD
+              wp_trace  // XXX do we need this?  should chainin/out get an id? TBD
 };
 
 /* NB: this MUST match chain_procs below */

@@ -198,7 +198,7 @@ struct ami_sysflags {
     boolean altmeta;  /* use ALT keys as META */
     boolean amiflush; /* kill typeahead */
 #endif
-#ifdef AMII_GRAPHICS	        
+#ifdef AMII_GRAPHICS 
     int numcols;
     unsigned short amii_dripens[20]; /* DrawInfo Pens currently there are 13 in v39 */
     AMII_COLOR_TYPE amii_curmap[AMII_MAXCOLORS]; /* colormap */

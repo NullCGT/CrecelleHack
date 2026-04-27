@@ -14,7 +14,7 @@ CCFLAGS = -g3 -O0
 
 #If you want to force use of one particular set of compilers, do it
 #here, ahead of the detection, so that the detection will match your
-#choice and set variables CCISCLANG, GCCGTEQ, CLANGPPGTEQ9 etc.
+#choice and set variables CCISCLANG, CCISGCC, GCCGTEQ, CLANGPPGTEQ9 etc.
 #accordingly.
 #
 #CC= gcc
@@ -41,7 +41,7 @@ endif
 # If you want to override the compiler detection just carried out
 # uncomment one of the following pairs. Note, however, that
 # doing this after the detection above will likely result in
-# mismatched variable values for CCISCLANG, GCCGTEQ, CLANGPPGTEQ9 etc.
+# mismatched variable values for CCISCLANG, CCISGCC, GCCGTEQ, CLANGPPGTEQ9 etc.
 #
 #CC= gcc
 #CXX= g++ -std-gnu++11
@@ -72,8 +72,17 @@ CFLAGS+=-Wstrict-prototypes
 CFLAGS+=-Wnonnull
 
 #detection of clang vs gcc
-CCISCLANG := $(shell echo `$(CC) --version` | grep clang)
-ifeq "$(CCISCLANG)" ""
+CCTEST := $(shell echo `$(CC) --version` | grep clang)
+ifneq "$(CCTEST)" ""
+CCISCLANG=1
+CCISGCC=
+else
+CCISCLANG=
+CCISGCC=1
+endif
+#$(info CCISCLANG=$(CCISCLANG), CCISGCC=$(CCISGCC))
+
+ifeq "$(CCISGCC)" "1"
 # gcc-specific follows
 CXX=g++ -std=gnu++11
 # get the version of gcc
@@ -95,8 +104,8 @@ CFLAGS+=-Wimplicit-fallthrough
 #endif
 # end of gcc-specific
 else   # gcc or clang?
-CXX=clang++ -std=gnu++11
 # clang-specific follows
+CXX=clang++ -std=gnu++11
 CLANGGTEQ12 := $(shell expr `$(CC) -dumpversion | cut -f1 -d.` \>= 12)
 CLANGGTEQ14 := $(shell expr `$(CC) -dumpversion | cut -f1 -d.` \>= 14)
 CLANGGTEQ21 := $(shell expr `$(CC) -dumpversion | cut -f1 -d.` \>= 21)

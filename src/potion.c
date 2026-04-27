@@ -135,7 +135,7 @@ make_stunned(long xtime, boolean talk)
             if (u.usteed)
                 You("wobble in the saddle.");
             else
-                You("%s...", stagger(gy.youmonst.data, "stagger"));
+                You("%s...", stagger(u.umonst->data, "stagger"));
         }
     }
     if ((!xtime && old) || (xtime && !old))
@@ -224,9 +224,9 @@ make_slimed(long xtime, const char *msg)
         dealloc_killer(find_delayed_killer(SLIMED));
         /* fake appearance is set late in turn-to-slime countdown */
         if (U_AP_TYPE == M_AP_MONSTER
-            && gy.youmonst.mappearance == PM_GREEN_SLIME) {
-            gy.youmonst.m_ap_type = M_AP_NOTHING;
-            gy.youmonst.mappearance = 0;
+            && u.umonst->mappearance == PM_GREEN_SLIME) {
+            u.umonst->m_ap_type = M_AP_NOTHING;
+            u.umonst->mappearance = 0;
         }
     }
 }
@@ -298,11 +298,11 @@ make_blinded(long xtime, boolean talk)
     } else if (old && !xtime) {
         /* clearing temporary blindness without toggling blindness */
         if (talk) {
-            if (!haseyes(gy.youmonst.data) || PermaBlind) {
+            if (!haseyes(u.umonst->data) || PermaBlind) {
                 strange_feeling((struct obj *) 0, (char *) 0);
             } else if (Blindfolded) {
                 eyes = body_part(EYE);
-                if (eyecount(gy.youmonst.data) != 1)
+                if (eyecount(u.umonst->data) != 1)
                     eyes = makeplural(eyes);
                 Your(eyemsg, eyes, vtense(eyes, "itch"));
             } else { /* Eyes of the Overworld */
@@ -324,11 +324,11 @@ make_blinded(long xtime, boolean talk)
     } else if (!old && xtime) {
         /* setting temporary blindness without toggling blindness */
         if (talk) {
-            if (!haseyes(gy.youmonst.data) || PermaBlind) {
+            if (!haseyes(u.umonst->data) || PermaBlind) {
                 strange_feeling((struct obj *) 0, (char *) 0);
             } else if (Blindfolded) {
                 eyes = body_part(EYE);
-                if (eyecount(gy.youmonst.data) != 1)
+                if (eyecount(u.umonst->data) != 1)
                     eyes = makeplural(eyes);
                 Your(eyemsg, eyes, vtense(eyes, "twitch"));
             } else { /* Eyes of the Overworld */
@@ -411,12 +411,12 @@ make_hallucinated(
 
         /* clearing temporary hallucination without toggling vision */
         if (!changed && !HHallucination && old && talk) {
-            if (!haseyes(gy.youmonst.data)) {
+            if (!haseyes(u.umonst->data)) {
                 strange_feeling((struct obj *) 0, (char *) 0);
             } else if (Blind) {
                 const char *eyes = body_part(EYE);
 
-                if (eyecount(gy.youmonst.data) != 1)
+                if (eyecount(u.umonst->data) != 1)
                     eyes = makeplural(eyes);
                 Your(eyemsg, eyes, vtense(eyes, "itch"));
             } else { /* Grayswandir */
@@ -757,7 +757,7 @@ peffect_hallucination(struct obj *otmp)
 
 staticfn void
 peffect_blood(struct obj *otmp) {
-    if (is_vampire(gy.youmonst.data)) {
+    if (is_vampire(u.umonst->data)) {
         You_feel("better.");
         healup(8 + d(4 + 2 * bcsign(otmp), 4), !otmp->cursed ? 1 : 0,
            !!otmp->blessed, !otmp->cursed);
@@ -825,7 +825,7 @@ peffect_water(struct obj *otmp)
         return;
     }
     gp.potion_unkn++;
-    if (mon_hates_blessings(&gy.youmonst) /* undead or demon */
+    if (mon_hates_blessings(u.umonst) /* undead or demon */
         || u.ualign.type == A_CHAOTIC) {
         if (otmp->blessed) {
             pline("This burns like %s!", hliquid("acid"));
@@ -833,7 +833,7 @@ peffect_water(struct obj *otmp)
             if (ismnum(u.ulycn)) {
                 Your("affinity to %s disappears!",
                      makeplural(mons[u.ulycn].pmnames[NEUTRAL]));
-                if (gy.youmonst.data == &mons[u.ulycn])
+                if (u.umonst->data == &mons[u.ulycn])
                     you_unwere(FALSE);
                 set_ulycn(NON_PM); /* cure lycanthropy */
             }
@@ -1376,7 +1376,7 @@ peffect_oil(struct obj *otmp)
     boolean good_for_you = FALSE, vulnerable;
 
     if (otmp->lamplit) {
-        if (likes_fire(gy.youmonst.data)) {
+        if (likes_fire(u.umonst->data)) {
             pline("Ahh, a refreshing drink.");
             good_for_you = TRUE;
         } else {
@@ -1467,7 +1467,7 @@ peffect_alkahest(struct obj *otmp)
         int dmg;
         pline("Your insides are dissolving!");
         dmg = d(otmp->cursed ? 8 : 10, otmp->blessed ? 8 : 4);
-        adjust_damage(&gy.youmonst, &dmg, AD_ACID);
+        adjust_damage(u.umonst, &dmg, AD_ACID);
         losehp(dmg, "drinking universal solvent", KILLED_BY);
         exercise(A_CON, FALSE);
     }
@@ -1876,7 +1876,7 @@ remove_coating(coordxy x, coordxy y, short coatflags) {
 /* monster slips on a puddle of oil */
 boolean
 coateffects(coordxy x, coordxy y, struct monst *mon) {
-    boolean isyou = (mon == &gy.youmonst);
+    boolean isyou = (mon == u.umonst);
     boolean banana_peel = svl.level.objects[x][y] && svl.level.objects[x][y]->otyp == BANANA_PEEL;
     char buf[BUFSZ];
     boolean stepper = !((is_flyer(mon->data) || is_floater(mon->data)
@@ -1893,7 +1893,7 @@ coateffects(coordxy x, coordxy y, struct monst *mon) {
             } else {
                 Your("%s are cut by shards of glass!", makeplural(body_part(FOOT)));
                 losehp(1, "stepping on broken glass", KILLED_BY);
-                make_dripping(rnd(20), POT_BLOOD, gy.youmonst.mnum);
+                make_dripping(rnd(20), POT_BLOOD, u.umonst->mnum);
                 disp.botl = TRUE;
             }
         } else {
@@ -1984,7 +1984,7 @@ coateffects(coordxy x, coordxy y, struct monst *mon) {
 boolean
 moldeffects(coordxy x, coordxy y, struct monst *mon)
 {
-    boolean isyou = (mon == &gy.youmonst);
+    boolean isyou = (mon == u.umonst);
     boolean flier = (!grounded(mon->data) || (isyou && (Levitation || Flying)));
     struct monst fakemon = cg.zeromonst;
 
@@ -2363,7 +2363,7 @@ void
 potionhit(struct monst *mon, struct obj *obj, int how)
 {
     const char *botlnam = bottlename();
-    boolean isyou = (mon == &gy.youmonst);
+    boolean isyou = (mon == u.umonst);
     int tx, ty;
     struct obj *saddle = (struct obj *) 0;
     struct permonst *blood_data;
@@ -2457,7 +2457,7 @@ potionhit(struct monst *mon, struct obj *obj, int how)
                       obj->blessed ? " a little"
                                    : obj->cursed ? " a lot" : "");
                 dmg = d(obj->cursed ? 2 : 1, obj->blessed ? 4 : 8);
-                adjust_damage(&gy.youmonst, &dmg, AD_ACID);
+                adjust_damage(u.umonst, &dmg, AD_ACID);
                 losehp(dmg, "tonic of acid", KILLED_BY_AN);
             }
             break;
@@ -2466,7 +2466,7 @@ potionhit(struct monst *mon, struct obj *obj, int how)
                 int dmg;
                 pline("You are melting!");
                 dmg = d(obj->cursed ? 4 : 6, obj->blessed ? 8 : 4);
-                adjust_damage(&gy.youmonst, &dmg, AD_ACID);
+                adjust_damage(u.umonst, &dmg, AD_ACID);
                 losehp(dmg, "alkahest", KILLED_BY);
             }
             break;
@@ -2554,12 +2554,12 @@ potionbreathe(struct obj *obj)
     case POT_RESTORE_ABILITY:
     case POT_GAIN_ABILITY:
         if (obj->cursed) {
-            if (!breathless(gy.youmonst.data)) {
+            if (!breathless(u.umonst->data)) {
                 Norep("Ulch!  That potion smells terrible!");
-            } else if (haseyes(gy.youmonst.data)) {
+            } else if (haseyes(u.umonst->data)) {
                 const char *eyes = body_part(EYE);
 
-                if (eyecount(gy.youmonst.data) != 1)
+                if (eyecount(u.umonst->data) != 1)
                     eyes = makeplural(eyes);
                 Your("%s %s!", eyes, vtense(eyes, "sting"));
             }
@@ -2698,20 +2698,20 @@ potionbreathe(struct obj *obj)
         tele();
         break;
     case POT_BLOOD:
-        if (olfaction(gy.youmonst.data))
+        if (olfaction(u.umonst->data))
             Norep("You catch a whiff of iron.");
         break;
     case POT_HAZARDOUS_WASTE:
-        if (olfaction(gy.youmonst.data))
+        if (olfaction(u.umonst->data))
             Norep("It smells like gas.");
         break;
     case POT_WATER:
         if (u.umonnum == PM_GREMLIN) {
-            (void) split_mon(&gy.youmonst, (struct monst *) 0);
+            (void) split_mon(u.umonst, (struct monst *) 0);
         } else if (ismnum(u.ulycn)) {
             /* vapor from [un]holy water will trigger
                transformation but won't cure lycanthropy */
-            if (obj->blessed && gy.youmonst.data == &mons[u.ulycn])
+            if (obj->blessed && u.umonst->data == &mons[u.ulycn])
                 you_unwere(FALSE);
             else if (obj->cursed && !Upolyd)
                 you_were();
@@ -2726,18 +2726,18 @@ potionbreathe(struct obj *obj)
         int dmg = rnd((obj->otyp == POT_ACID) ? 8 : 16);
         if (!Acid_immunity) {
             You("are dissolving!");
-            adjust_damage(&gy.youmonst, &dmg, AD_ACID);
+            adjust_damage(u.umonst, &dmg, AD_ACID);
             losehp(dmg, "acidic vapors", KILLED_BY);
         }
         break;
     }
     case POT_FRUIT_JUICE:
     case POT_SEE_INVISIBLE:
-        if (olfaction(gy.youmonst.data))
+        if (olfaction(u.umonst->data))
             Norep("It smells like %s.", makeplural(fruitname(FALSE)));
         break;
     case POT_OIL:
-        if (olfaction(gy.youmonst.data))
+        if (olfaction(u.umonst->data))
             Norep("It smells like machinery.");
         break;
     case POT_GAIN_LEVEL:
@@ -3283,7 +3283,7 @@ dip_potion_explosion(struct obj *obj, int dmg)
         pline("%sThey explode!", !Deaf ? "BOOM!  " : "");
         wake_nearto(u.ux, u.uy, (BOLT_LIM + 1) * (BOLT_LIM + 1));
         exercise(A_STR, FALSE);
-        if (!breathless(gy.youmonst.data) || haseyes(gy.youmonst.data))
+        if (!breathless(u.umonst->data) || haseyes(u.umonst->data))
             potionbreathe(obj);
         useupall(obj);
         if (!(ublindf && ublindf->otyp == TINKER_GOGGLES)) {
@@ -3783,10 +3783,10 @@ split_mon(
     reason[0] = '\0';
     if (mtmp)
         Sprintf(reason, " from %s heat",
-                (mtmp == &gy.youmonst) ? the_your[1]
+                (mtmp == u.umonst) ? the_your[1]
                                     : (const char *) s_suffix(mon_nam(mtmp)));
 
-    if (mon == &gy.youmonst) {
+    if (mon == u.umonst) {
         if (u.mh > u.mhmax) /* sanity precaution */
             u.mh = u.mhmax;
         mtmp2 = (u.mh > 1) ? cloneu() : (struct monst *) 0;

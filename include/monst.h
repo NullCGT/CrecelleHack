@@ -67,8 +67,8 @@ enum m_ap_types {
 
 #define M_AP_TYPMASK  0x7
 #define M_AP_F_DKNOWN 0x8
-#define U_AP_TYPE (gy.youmonst.m_ap_type & M_AP_TYPMASK)
-#define U_AP_FLAG (gy.youmonst.m_ap_type & ~M_AP_TYPMASK)
+#define U_AP_TYPE (u.umonst->m_ap_type & M_AP_TYPMASK)
+#define U_AP_FLAG (u.umonst->m_ap_type & ~M_AP_TYPMASK)
 #define M_AP_TYPE(m) ((m)->m_ap_type & M_AP_TYPMASK)
 #define M_AP_FLAG(m) ((m)->m_ap_type & ~M_AP_TYPMASK)
 

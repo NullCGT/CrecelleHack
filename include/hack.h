@@ -471,7 +471,7 @@ enum encumbrance_types {
 };
 
 struct entity {
-    struct monst *emon;     /* youmonst for the player */
+    struct monst *emon;     /* u.umonst for the player */
     struct permonst *edata; /* must be non-zero for record to be valid */
     int ex, ey;
 };
@@ -1310,7 +1310,7 @@ typedef uint32_t mmflags_nht;     /* makemon MM_ flags */
 #define FM_FMON 0x01    /* search the fmon chain */
 #define FM_MIGRATE 0x02 /* search the migrating monster chain */
 #define FM_MYDOGS 0x04  /* search gm.mydogs */
-#define FM_YOU 0x08     /* check for gy.youmonst */
+#define FM_YOU 0x08     /* check for u.umonst */
 #define FM_EVERYWHERE (FM_YOU | FM_FMON | FM_MIGRATE | FM_MYDOGS)
 
 /* Flags to control pick_[race,role,gend,align] routines in role.c */

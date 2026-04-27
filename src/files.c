@@ -1659,6 +1659,7 @@ free_saved_games(char **saved)
         free((genericptr_t) saved);
     }
 }
+
 #endif /* !SFCTOOL */
 
 /* ----------  END SAVE FILE HANDLING ----------- */

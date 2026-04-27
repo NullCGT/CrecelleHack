@@ -74,7 +74,7 @@
 #define HSick_resistance u.uprops[SICK_RES].intrinsic
 #define ESick_resistance u.uprops[SICK_RES].extrinsic
 #define Sick_resistance (HSick_resistance || ESick_resistance \
-                         || defended(&gy.youmonst, AD_DISE))
+                         || defended(u.umonst, AD_DISE))
 
 /* Intrinsics only */
 #define Invulnerable u.uprops[INVULNERABLE].intrinsic /* [Tom] */
@@ -232,7 +232,7 @@
 /*** Transportation ***/
 #define HJumping u.uprops[JUMPING].intrinsic
 #define EJumping u.uprops[JUMPING].extrinsic
-#define Jumping (HJumping || EJumping || is_jumper(gy.youmonst.data))
+#define Jumping (HJumping || EJumping || is_jumper(u.umonst->data))
 
 #define HTeleportation u.uprops[TELEPORT].intrinsic
 #define ETeleportation u.uprops[TELEPORT].extrinsic
@@ -282,11 +282,11 @@
 #define HMagical_breathing u.uprops[MAGICAL_BREATHING].intrinsic
 #define EMagical_breathing u.uprops[MAGICAL_BREATHING].extrinsic
 #define Amphibious \
-    (HMagical_breathing || EMagical_breathing || amphibious(gy.youmonst.data))
+    (HMagical_breathing || EMagical_breathing || amphibious(u.umonst->data))
 /* Get wet, may go under surface */
 
 #define Breathless \
-    (HMagical_breathing || EMagical_breathing || breathless(gy.youmonst.data))
+    (HMagical_breathing || EMagical_breathing || breathless(u.umonst->data))
 
 #define Underwater (u.uinwater)
 /* Note that Underwater and u.uinwater are both used in code.
@@ -418,7 +418,7 @@
     (ublindf && ublindf->otyp == TOWEL && ublindf->spe > 0)
 /* Whether the hero is in a form that dislikes a certain material */
 #define Hate_material(material) \
-    (hates_material(gy.youmonst.data, material) \
+    (hates_material(u.umonst->data, material) \
      || (!Upolyd && hates_material(&mons[gu.urace.mnum], material)) \
      || (material == SILVER && u.ulycn >= LOW_PM))
 

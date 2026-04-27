@@ -638,14 +638,14 @@ parse_sym_line(char *buf, int which_set)
 #ifdef ENHANCED_SYMBOLS
             } else {
                 if (gc.chosen_symset_start) {
-                    glyphrep_to_custom_map_entries(buf, &glyph);
+                    (void) glyphrep_to_custom_map_entries(buf, &glyph);
                 }
 #endif
             }
         }
     } else if (gc.chosen_symset_start) {
         /* glyph, not symbol */
-        glyphrep_to_custom_map_entries(buf, &glyph);
+        (void) glyphrep_to_custom_map_entries(buf, &glyph);
     }
 #ifndef ENHANCED_SYMBOLS
     nhUse(glyph);

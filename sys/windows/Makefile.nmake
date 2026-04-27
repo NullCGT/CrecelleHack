@@ -139,8 +139,6 @@ GIT_AVAILABLE = N
 # if next line is commented out, full compiler command lines will be output
 Q=@
 
-SKIP_NETHACKW = N
-
 !IFNDEF LUA_VERSION
 LUAVER=5.4.8
 !ELSE

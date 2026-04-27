@@ -722,7 +722,7 @@ namefloorobj(void)
        been moved off the hero's '@' yet, but there's no way to adjust
        the help text once getpos() has started */
     Sprintf(buf, "object on map (or '.' for one %s you)",
-            (u.uundetected && hides_under(gy.youmonst.data))
+            (u.uundetected && hides_under(u.umonst->data))
               ? "over" : "under");
     if (getpos(&cc, FALSE, buf) < 0 || cc.x <= 0)
         return;
@@ -958,7 +958,7 @@ x_monnam(
             mappear_as_mon = (M_AP_TYPE(mtmp) == M_AP_MONSTER);
     char *bp, buf2[BUFSZ];
 
-    if (mtmp == &gy.youmonst)
+    if (mtmp == u.umonst)
         return strcpy(buf, "you"); /* ignore article, "invisible", &c */
 
     if (program_state.gameover)
@@ -1426,7 +1426,7 @@ Mgender(struct monst *mtmp)
 {
     int mgender = MALE;
 
-    if (mtmp == &gy.youmonst) {
+    if (mtmp == u.umonst) {
         if (Upolyd ? u.mfemale : flags.female)
             mgender = FEMALE;
     } else if (mtmp->female) {

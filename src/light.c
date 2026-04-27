@@ -13,8 +13,8 @@
  * Light sources are "things" that have a physical position and range.
  * They have a type, which gives us information about them.  Currently
  * they are only attached to objects and monsters.  Note well:  the
- * polymorphed-player handling assumes that gy.youmonst.m_id will
- * always remain 1 and gy.youmonst.mx will always remain 0.
+ * polymorphed-player handling assumes that u.umonst->m_id will
+ * always remain 1 and u.umonst->mx will always remain 0.
  *
  * Light sources, like timers, either follow game play (RANGE_GLOBAL) or
  * stay on a level (RANGE_LEVEL).  Light sources are unique by their
@@ -378,7 +378,7 @@ find_mid(unsigned nid, unsigned fmflags)
     struct monst *mtmp;
 
     if ((fmflags & FM_YOU) && nid == 1)
-        return &gy.youmonst;
+        return u.umonst;
     if (fmflags & FM_FMON)
         for (mtmp = fmon; mtmp; mtmp = mtmp->nmon)
             if (!DEADMONSTER(mtmp) && mtmp->m_id == nid)
@@ -399,7 +399,7 @@ whereis_mon(struct monst *mon, unsigned fmflags)
 {
     struct monst *mtmp;
 
-    if ((fmflags & FM_YOU) && mon == &gy.youmonst)
+    if ((fmflags & FM_YOU) && mon == u.umonst)
         return FM_YOU;
     if (fmflags & FM_FMON)
         for (mtmp = fmon; mtmp; mtmp = mtmp->nmon)
@@ -957,7 +957,7 @@ wiz_light_sources(void)
                        : ls->type == LS_MONSTER
                           ? (mon_is_local(ls->id.a_monst)
                              ? "mon"
-                             : (ls->id.a_monst == &gy.youmonst)
+                             : (ls->id.a_monst == u.umonst)
                                 ? "you"
                                 /* migrating monster */
                                 : "<m>")

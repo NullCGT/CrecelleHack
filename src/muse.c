@@ -252,7 +252,7 @@ mreadmsg(struct monst *mtmp, struct obj *otmp)
         pline_mon(mtmp, "%s reads %s!", Monnam(mtmp), onambuf);
     } else { /* !Deaf, otherwise we wouldn't reach here */
         char blindbuf[BUFSZ];
-        boolean similar = same_race(gy.youmonst.data, mtmp->data),
+        boolean similar = same_race(u.umonst->data, mtmp->data),
                 uniqmon = ((mtmp->data->geno & G_UNIQ) != 0
                            /* shopkeepers aren't unique monsters but since
                               they have distinct names, treat them as such */
@@ -595,7 +595,7 @@ find_defensive(struct monst *mtmp, boolean tryescape)
                 gm.m.has_defense = MUSE_SSTAIRS;
         }
     } else if (has_coating(x, y, COAT_ASHES) && !nolimbs(mtmp->data)
-                && !is_floater(mtmp->data) && haseyes(gy.youmonst.data)
+                && !is_floater(mtmp->data) && haseyes(u.umonst->data)
                 && !Blind && m_next2u(mtmp) && ash_kicker(mtmp->data)) {
         gm.m.has_defense = MUSE_COAT_ASHES;
     } else if (has_coating(x, y, COAT_BLOOD) && is_vampire(mtmp->data)) {
@@ -1692,8 +1692,8 @@ find_offensive(struct monst *mtmp)
         }
         nomore(MUSE_CAMERA);
         if (obj->otyp == EXPENSIVE_CAMERA
-            && ((!Blind && !resists_blnd(&gy.youmonst))
-                || hates_light(gy.youmonst.data))
+            && ((!Blind && !resists_blnd(u.umonst))
+                || hates_light(u.umonst->data))
             && dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) <= 2
             && obj->spe > 0 && !rn2(6)) {
             gm.m.offensive = obj;
@@ -1732,7 +1732,7 @@ mbhitm(struct monst *mtmp, struct obj *otmp)
 {
     int tmp;
     boolean reveal_invis = FALSE, learnit = FALSE,
-            hits_you = (mtmp == &gy.youmonst);
+            hits_you = (mtmp == u.umonst);
 
     if (!hits_you && otmp->otyp != WAN_UNDEAD_TURNING) {
         mtmp->msleeping = 0;
@@ -1923,7 +1923,7 @@ mbhit(
             break;
         }
         if (u_at(gb.bhitpos.x, gb.bhitpos.y)) {
-            (*fhitm)(&gy.youmonst, obj);
+            (*fhitm)(u.umonst, obj);
             range -= 3;
         } else if ((mtmp = m_at(gb.bhitpos.x, gb.bhitpos.y)) != 0) {
             if (cansee(gb.bhitpos.x, gb.bhitpos.y) && !canspotmon(mtmp))
@@ -2109,7 +2109,7 @@ use_offensive(struct monst *mtmp)
                   Monnam(mtmp), an(xname(otmp)));
         }
         gm.m_using = TRUE;
-        if (!Blind && !resists_blnd(&gy.youmonst)) {
+        if (!Blind && !resists_blnd(u.umonst)) {
             You("are blinded by the flash of light!");
             make_blinded(BlindedTimeout + (long) rnd(1 + 50), FALSE);
         }
@@ -2388,12 +2388,12 @@ find_misc(struct monst *mtmp)
            grease if the player is slithy or a mind flayer and we have something
            greasable in the applicable slot. */
         if (obj->otyp == CAN_OF_GREASE && obj->spe > 0
-            && ((is_mind_flayer(gy.youmonst.data) && mtmp->misc_worn_check & W_ARMH) 
-                || (slithy(gy.youmonst.data) && mtmp->misc_worn_check & W_ARM))) {
+            && ((is_mind_flayer(u.umonst->data) && mtmp->misc_worn_check & W_ARMH) 
+                || (slithy(u.umonst->data) && mtmp->misc_worn_check & W_ARM))) {
                 for (obj2 = mtmp->minvent; obj2; obj2 = obj2->nobj) {
                     if ((obj2->owornmask & mtmp->misc_worn_check) && !obj2->greased) {
-                        if (((is_mind_flayer(gy.youmonst.data) && obj2->owornmask & W_ARMH)
-                            || (slithy(gy.youmonst.data) && obj2->owornmask & W_ARM))) {
+                        if (((is_mind_flayer(u.umonst->data) && obj2->owornmask & W_ARMH)
+                            || (slithy(u.umonst->data) && obj2->owornmask & W_ARM))) {
                             gm.m.misc = obj;
                             gm.m.has_misc = MUSE_GREASE;
                         }
@@ -3137,7 +3137,7 @@ ureflects(const char *fmt, const char *str)
             makeknown(MIRRORED_GLASSES);
         }
         return TRUE;
-    } else if (gy.youmonst.data == &mons[PM_SILVER_DRAGON]) {
+    } else if (u.umonst->data == &mons[PM_SILVER_DRAGON]) {
         if (fmt && str)
             pline(fmt, str, "scales");
         return TRUE;

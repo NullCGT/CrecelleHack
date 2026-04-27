@@ -230,7 +230,7 @@ flooreffects(
                 }
                 mtmp->mtrapped = 0;
             } else {
-                if (!Passes_walls && !throws_rocks(gy.youmonst.data)) {
+                if (!Passes_walls && !throws_rocks(u.umonst->data)) {
                     losehp(Maybe_Half_Phys(rnd(15)),
                            "squished under a boulder", NO_KILLER_PREFIX);
                     goto deletedwithboulder;
@@ -1321,7 +1321,7 @@ dodown(void)
         const char *down_or_thru = trap->ttyp == HOLE ? "down" : "through";
         const char *actn = u_locomotion("jump");
 
-        if (gy.youmonst.data->msize >= MZ_HUGE) {
+        if (u.umonst->data->msize >= MZ_HUGE) {
             char qbuf[QBUFSZ];
 
             You("don't fit %s easily.", down_or_thru);
@@ -1386,7 +1386,7 @@ doup(void)
         return ECMD_TIME;
 
     if ((near_capacity() > SLT_ENCUMBER)
-        && !is_climber(gy.youmonst.data)) {
+        && !is_climber(u.umonst->data)) {
         /* No levitation check; inv_weight() already allows for it */
         Your("load is too heavy to climb the %s.",
              levl[u.ux][u.uy].typ == STAIRS ? "stairs" : "ladder");
@@ -1491,7 +1491,7 @@ u_collide_m(struct monst *mtmp)
        it was already here.  Randomly move you to an adjacent spot
        or else the monster to any nearby location.  Prior to 3.3.0
        the latter was done unconditionally. */
-    if (!rn2(2) && enexto(&cc, u.ux, u.uy, gy.youmonst.data)
+    if (!rn2(2) && enexto(&cc, u.ux, u.uy, u.umonst->data)
         && next2u(cc.x, cc.y))
         u_on_newpos(cc.x, cc.y); /*[maybe give message here?]*/
     else
@@ -2090,7 +2090,7 @@ hellish_smoke_mesg(void)
 
     if (In_hell(&u.uz) && svl.level.flags.temperature > 0)
         You("%s smoke...",
-              olfaction(gy.youmonst.data) ? "smell" : "sense");
+              olfaction(u.umonst->data) ? "smell" : "sense");
 }
 
 /* give a message when the level temperature is different from previous */

@@ -338,7 +338,7 @@ endif  # WANT_LIBNH
 # this needs to be passed via make rather than defined in unixconf.h
 ifdef GITSUBMODULES
 LUAFLAGS=CC='$(CC)' MYCFLAGS=' -DLUA_USE_MACOSX'
-ifneq "$(CCISCLANG)" ""
+ifeq "$(CCISCLANG)" "1"
 # clang
 LUAFLAGS +=CWARNGCC=''
 endif   # clang

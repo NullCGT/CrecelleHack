@@ -513,4 +513,28 @@ sys_random_seed(void)
     return seed;
 }
 
+void
+get_nhuuid(void)
+{
+    unsigned char stmp[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+    if (svn.nhuuid[0])
+        return;
+
+    /* FIXME: fill in a useful valie UUID somehow */
+    Snprintf(svn.nhuuid, sizeof svn.nhuuid, "%s", (char *) stmp);
+}
+
+void
+free_nhuuid(void)
+{
+    int i;
+
+    for (i = 0; i < SIZE(svn.nhuuid); i++) {
+        svn.nhuuid[i] = 0;
+    }
+}
+
 /*vmsmain.c*/

@@ -118,7 +118,7 @@ cursetxt(struct monst *mtmp, boolean undirected)
             point_msg = "all around, then curses";
         else if ((Invis && !perceives(mtmp->data)
                   && (mtmp->mux != u.ux || mtmp->muy != u.uy))
-                 || is_obj_mappear(&gy.youmonst, STRANGE_OBJECT)
+                 || is_obj_mappear(u.umonst, STRANGE_OBJECT)
                  || u.uundetected)
             point_msg = "and curses in your general direction";
         else if (Displaced && (mtmp->mux != u.ux || mtmp->muy != u.uy))
@@ -384,7 +384,7 @@ castmu(
         break;
     } /* switch */
     if (dmg) {
-        adjust_damage(&gy.youmonst, &dmg, mattk->adtyp);
+        adjust_damage(u.umonst, &dmg, mattk->adtyp);
         mdamageu(mtmp, dmg);
     }
     return ret;
@@ -476,7 +476,7 @@ staticfn void
 mcast_death_touch(struct monst *mtmp)
 {
     pline("Oh no, %s's using the touch of death!", mhe(mtmp));
-    if (nonliving(gy.youmonst.data) || is_demon(gy.youmonst.data)) {
+    if (nonliving(u.umonst->data) || is_demon(u.umonst->data)) {
         You("seem no deader than before.");
     } else if (!Antimagic && rn2(mtmp->m_lev) > 12) {
         if (Hallucination) {
@@ -531,7 +531,7 @@ mcast_raise_dead(struct monst *mtmp)
     mm.x = mtmp->mx;
     mm.y = mtmp->my;
     if (!rn2(3))
-        (void) unturn_dead(&gy.youmonst);
+        (void) unturn_dead(u.umonst);
     mkundead(&mm, TRUE, NO_MINVENT);
 }
 
@@ -714,9 +714,9 @@ mcast_fire_pillar(struct monst *mtmp, int dmg)
     if (Half_spell_damage)
         dmg = (dmg + 1) / 2;
     burn_away_slime();
-    (void) burnarmor(&gy.youmonst);
+    (void) burnarmor(u.umonst);
     /* item destruction dmg */
-    (void) destroy_items(&gy.youmonst, AD_FIRE, orig_dmg);
+    (void) destroy_items(u.umonst, AD_FIRE, orig_dmg);
     ignite_items(gi.invent);
     /* burn up flammable items on the floor, melt ice terrain */
     mon_spell_hits_spot(mtmp, AD_FIRE, u.ux, u.uy);
@@ -747,7 +747,7 @@ mcast_lightning(struct monst *mtmp, int dmg)
     }
     if (Half_spell_damage)
         dmg = (dmg + 1) / 2;
-    (void) destroy_items(&gy.youmonst, AD_ELEC, orig_dmg);
+    (void) destroy_items(u.umonst, AD_ELEC, orig_dmg);
     /* lightning might destroy iron bars if hero is on such a spot;
         reflection protects terrain here [execution won't get here due
         to 'if (reflects) break' above] but hero resistance doesn't;
@@ -894,7 +894,7 @@ mcast_blind_you(void)
 {
     /* note: resists_blnd() doesn't apply here */
     if (!Blinded) {
-        int num_eyes = eyecount(gy.youmonst.data);
+        int num_eyes = eyecount(u.umonst->data);
 
         pline("Scales cover your %s!", (num_eyes == 1)
                                        ? body_part(EYE)
@@ -1153,7 +1153,7 @@ mcast_spell(struct monst *mtmp, int dmg, int spellnum)
         break;
     }
     if (adtyp)
-        adjust_damage(&gy.youmonst, &dmg, adtyp);
+        adjust_damage(u.umonst, &dmg, adtyp);
     if (dmg)
         mdamageu(mtmp, dmg);
 }

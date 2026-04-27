@@ -65,13 +65,14 @@ struct nethack_color {
     int tableindex;
     int rgbindex;
     const char *name;
-    const char *hexval;
     long r, g, b;
 };
 
 typedef struct color_and_attr {
            int color, attr;
 } color_attr;
+
+extern const struct nethack_color colortable[];
 
 #endif /* COLOR_H */
 

@@ -320,10 +320,10 @@ m_to_e(struct monst *mtmp, coordxy x, coordxy y, struct entity *etmp)
 staticfn void
 u_to_e(struct entity *etmp)
 {
-    etmp->emon = &gy.youmonst;
+    etmp->emon = u.umonst;
     etmp->ex = u.ux;
     etmp->ey = u.uy;
-    etmp->edata = gy.youmonst.data;
+    etmp->edata = u.umonst->data;
 }
 
 staticfn void
@@ -337,7 +337,7 @@ set_entity(
         m_to_e(m_at(x, y), x, y, etmp);
 }
 
-#define is_u(etmp) (etmp->emon == &gy.youmonst)
+#define is_u(etmp) (etmp->emon == u.umonst)
 #define e_canseemon(etmp) (is_u(etmp) || canseemon(etmp->emon))
 
 /*

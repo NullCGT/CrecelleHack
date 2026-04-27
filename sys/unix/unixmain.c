@@ -15,6 +15,13 @@
 #include <fcntl.h>
 #endif
 
+#ifdef NHUUID
+/* for uuid */
+#ifdef LINUX
+#include <uuid/uuid.h>
+#endif
+#endif  /* NHUUID */
+
 #if !defined(_BULL_SOURCE) && !defined(__sgi) && !defined(_M_UNIX)
 #if !defined(SUNOS4) && !(defined(ULTRIX) && defined(__GNUC__))
 #if defined(POSIX_TYPES) || defined(SVR4) || defined(HPUX)
@@ -123,10 +130,6 @@ main(int argc, char *argv[])
         dir = nh_getenv("HACKDIR");
 #endif /* CHDIR */
     program_state.early_options = 1;
-#ifdef ENHANCED_SYMBOLS
-    if (argcheck(argc, argv, ARG_DUMPGLYPHIDS) == 2)
-        exit(EXIT_SUCCESS);
-#endif
     /* handle -dalthackdir, -s <score stuff>, --version, --showpaths */
     early_options(&argc, &argv, &dir);
     program_state.early_options = 0;
@@ -840,5 +843,41 @@ sys_random_seed(void)
     }
     return seed;
 }
+void
+get_nhuuid(void)
+{
+    char struuid[37] = { 0 };
+#if defined(LINUX) && defined(NHUUID)
+    uuid_t binuuid;
+#elif defined(MACOS) && defined(NHUUID)
+    char *struuid = NULL;
+    extern char *get_mac_uuid(char **); /* sys/unix/macuuid.m */
+    extern void free_macos_uuid(void);  /* sys/unix/macuuid.m */
+#endif
 
+    if (svn.nhuuid[0])
+        return;
+
+#if defined(MACOS) && defined(NHUUID)
+    get_mac_uuid(&struuid);
+#elif defined(LINUX) && defined(NHUUID)
+    uuid_generate_random(binuuid);
+    uuid_unparse(binuuid, struuid);
+#endif /* MACOS || LINUX */
+    Snprintf(svn.nhuuid, sizeof svn.nhuuid, "%s", struuid);
+
+#if defined(MACOS) && defined(NHUUID)
+    free_macos_uuid();
+#endif
+}
+
+void
+free_nhuuid(void)
+{
+    int i;
+
+    for (i = 0; i < SIZE(svn.nhuuid); i++) {
+        svn.nhuuid[i] = 0;
+    }
+}
 /*unixmain.c*/

@@ -228,6 +228,10 @@ ifdef MAKEFILE_SRC
 ifdef CURSESLIB
 WINLIB += $(CURSESLIB)
 endif   #CURSESLIB
+ifdef WANT_NHUUID
+CFLAGS+= -DNHUUID
+LIBS+=-luuid
+endif   #NHUUID
 endif   #MAKEFILE_SRC
 
 ifdef WANT_WIN_X11
@@ -416,7 +420,7 @@ endif
 SYSCFLAGS=-DLUA_USE_LINUX
 ifdef GITSUBMODULES
 LUAFLAGS=CC='$(CC)' SYSCFLAGS='$(SYSCFLAGS)'
-ifneq "$(CCISCLANG)" ""
+ifeq "$(CCISCLANG)" "1"
 # clang
 LUAFLAGS +=CWARNGCC=''
 endif   # clang

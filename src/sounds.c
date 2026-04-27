@@ -638,7 +638,7 @@ maybe_gasp(struct monst *mon)
     case MS_VAMPIRE: /* vampire in its own form */
     case MS_WERE: /* lycanthrope in human form */
     case MS_SPELL: /* titan, barrow wight, Nazgul, nalfeshnee */
-        dogasp = (mptr->mlet == gy.youmonst.data->mlet);
+        dogasp = (mptr->mlet == u.umonst->data->mlet);
         break;
     /* capable of speech but don't care if you attack peacefuls */
     case MS_BRIBE:
@@ -750,7 +750,7 @@ domonnoise(struct monst *mtmp)
         msound = MS_SELL;
     /* some normally non-speaking types can/will speak if hero is similar */
     else if (msound == MS_ORC
-             && ((same_race(ptr, gy.youmonst.data)        /* current form, */
+             && ((same_race(ptr, u.umonst->data)        /* current form, */
                   || same_race(ptr, &mons[Race_switch])) /* unpoly'd form */
                  || Hallucination))
         msound = MS_HUMANOID;
@@ -848,12 +848,12 @@ domonnoise(struct monst *mtmp)
             if (kindred) {
                 verbl_msg = "This is my hunting ground"
                             " that you dare to prowl!";
-            } else if (gy.youmonst.data == &mons[PM_SILVER_DRAGON]
-                       || gy.youmonst.data == &mons[PM_BABY_SILVER_DRAGON]) {
+            } else if (u.umonst->data == &mons[PM_SILVER_DRAGON]
+                       || u.umonst->data == &mons[PM_BABY_SILVER_DRAGON]) {
                 /* Silver dragons are silver in color, not made of silver */
                 Sprintf(verbuf,
                         "%s!  Your silver sheen"" does not frighten me!",
-                        (gy.youmonst.data == &mons[PM_SILVER_DRAGON])
+                        (u.umonst->data == &mons[PM_SILVER_DRAGON])
                             ? "Fool"
                             : "Young Fool");
                 verbl_msg = verbuf;
@@ -1174,7 +1174,7 @@ domonnoise(struct monst *mtmp)
 
         if (SYSOPT_SEDUCE) {
             if (ptr->mlet != S_NYMPH
-                && (could_seduce(mtmp, &gy.youmonst, (struct attack *) 0)
+                && (could_seduce(mtmp, u.umonst, (struct attack *) 0)
                     == 1)) {
                 (void) doseduce(mtmp);
                 break;
@@ -1328,9 +1328,9 @@ dochat(void)
     int tx, ty;
     struct obj *otmp;
 
-    if (is_silent(gy.youmonst.data)) {
+    if (is_silent(u.umonst->data)) {
         pline("As %s, you cannot speak.",
-              an(pmname(gy.youmonst.data, flags.female ? FEMALE : MALE)));
+              an(pmname(u.umonst->data, flags.female ? FEMALE : MALE)));
         return ECMD_OK;
     }
     if (Strangled) {
@@ -1463,7 +1463,7 @@ dochat(void)
         return ECMD_OK;
     }
     if (Deaf) {
-        const char *xresponse = humanoid(gy.youmonst.data)
+        const char *xresponse = humanoid(u.umonst->data)
                     ? "falls on deaf ears"
                     : "is inaudible";
 

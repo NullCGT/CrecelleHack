@@ -37,6 +37,7 @@ static long prev_dgl_extrainfo = 0;
 void
 early_init(int argc USED_FOR_CRASHREPORT, char *argv[] USED_FOR_CRASHREPORT)
 {
+    program_state_init();
 #ifdef CRASHREPORT
     /* Do this as early as possible, but let ports do other things first. */
     crashreport_init(argc, argv);
@@ -131,7 +132,7 @@ u_calc_moveamt(int wtcap)
         /* your speed doesn't augment steed's speed */
         moveamt = mcalcmove(u.usteed, TRUE);
     } else {
-        moveamt = gy.youmonst.data->mmove;
+        moveamt = u.umonst->data->mmove;
 
         if (Very_fast) { /* speed boots, potion, or spell */
             /* gain a free action on 2/3 of turns */
@@ -355,7 +356,7 @@ moveloop_core(void)
                     mvl_wtcap = UNENCUMBERED;
                 } else if (!Upolyd ? (u.uhp < u.uhpmax)
                            : (u.mh < u.mhmax
-                              || gy.youmonst.data->mlet == S_EEL)) {
+                              || u.umonst->data->mlet == S_EEL)) {
                     /* maybe heal */
                     regen_hp(mvl_wtcap);
                 }
@@ -548,7 +549,7 @@ moveloop_core(void)
         curs_on_u();
     }
 
-    m_everyturn_effect(&gy.youmonst);
+    m_everyturn_effect(u.umonst);
 
     svc.context.move = 1;
 
@@ -702,7 +703,7 @@ regen_hp(int wtcap)
     if (Upolyd) {
         if (u.mh < 1) { /* shouldn't happen... */
             rehumanize();
-        } else if (gy.youmonst.data->mlet == S_EEL
+        } else if (u.umonst->data->mlet == S_EEL
                    && !is_pool(u.ux, u.uy) && !Is_waterlevel(&u.uz)
                    && !Breathless) {
             /* eel out of water loses hp, similar to monster eels;
@@ -841,11 +842,12 @@ newgame(void)
     /* make sure welcome messages are given before noticing monsters */
     notice_mon_off();
     disp.botlx = TRUE;
-    svc.context.ident = 2;  /* id 1 is reserved for gy.youmonst */
+    svc.context.ident = 2;  /* id 1 is reserved for u.umonst->m_id */
     svc.context.warnlevel = 1;
     svc.context.next_attrib_check = 600L; /* arbitrary first setting */
     svc.context.tribute.enabled = TRUE;   /* turn on 3.6 tributes    */
     svc.context.tribute.tributesz = sizeof(struct tribute_info);
+    get_nhuuid();
 
     for (i = LOW_PM; i < NUMMONS; i++)
         svm.mvitals[i].mvflags = mons[i].geno & G_NOCORPSE;
@@ -957,7 +959,8 @@ void
 welcome(boolean new_game) /* false => restoring an old game */
 {
     char buf[BUFSZ];
-    boolean currentgend = Upolyd ? u.mfemale : flags.female;
+    boolean currentgend = Upolyd ? u.mfemale : flags.female,
+            adrift = (u.ualign.type != u.ualignbase[A_CURRENT]);
 
     l_nhcore_call(new_game ? NHCORE_START_NEW_GAME : NHCORE_RESTORE_OLD_GAME);
 
@@ -980,8 +983,30 @@ welcome(boolean new_game) /* false => restoring an old game */
      * restores it's only shown if different from its original value.
      */
     *buf = '\0';
+#if 0
     if (new_game || u.ualignbase[A_ORIGINAL] != u.ualignbase[A_CURRENT])
         Sprintf(eos(buf), " %s", align_str(u.ualignbase[A_ORIGINAL]));
+#else
+    /*
+     * 2026-04-24
+     * GitHub issue https://github.com/NetHack/NetHack/issues/537
+     * "Judging by the comment above, it should display your new alignment
+     *  if it was changed, so align_str(u.ualignbase[A_CURRENT]) would
+     *  probably be more appropriate. This won't affect the new game message."
+     *
+     * That is followed by a suggestion to revisit the matter (paraphrased):
+     * "That's actually intentional; the comment oversimplifies.
+     *  When it was implemented, it may have been the only way to tell that
+     *  you had converted alignment. Now ^X mentions your starting alignment
+     *  if base alignment has been changed, so revisiting this welcome back
+     *  message."
+     */
+    if (new_game || u.ualignbase[A_ORIGINAL] != u.ualignbase[A_CURRENT] || adrift)
+        Sprintf(eos(buf), " %s%s",
+                adrift ? "adrift " : "",
+                adrift ? align_str(u.ualign.type)
+                       : align_str(u.ualignbase[A_CURRENT]));
+#endif
     if (!gu.urole.name.f
         && (new_game
             ? (gu.urole.allow & ROLE_GENDMASK) == (ROLE_MALE | ROLE_FEMALE)

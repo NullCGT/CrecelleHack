@@ -961,7 +961,7 @@ wiz_smell(void)
 
     cc.x = u.ux;
     cc.y = u.uy;
-    if (!olfaction(gy.youmonst.data)) {
+    if (!olfaction(u.umonst->data)) {
         You("are incapable of detecting odors in your present form.");
         return ECMD_OK;
     }
@@ -978,7 +978,7 @@ wiz_smell(void)
             if (u.usteed) {
                 mptr = u.usteed->data;
             } else {
-                mptr = gy.youmonst.data;
+                mptr = u.umonst->data;
                 is_you = TRUE;
             }
         } else if ((mtmp = m_at(cc.x, cc.y)) != (struct monst *) 0) {

@@ -171,7 +171,7 @@ make_familiar(struct obj *otmp, coordxy x, coordxy y, boolean quietly)
                     : (cgend == CORPSTAT_MALE) ? MM_MALE : 0L);
 
         mtmp = makemon(pm, x, y, mmflags);
-        ESUM(mtmp)->ownermid = gy.youmonst.m_id;
+        ESUM(mtmp)->ownermid = u.umonst->m_id;
         if (otmp) { /* figurine */
             if (!mtmp) {
                 /* monster has been genocided or target spot is occupied */
@@ -1286,7 +1286,7 @@ tamedog(
            with each other anymore] */
         || mtmp->isshk || mtmp->isgd || mtmp->ispriest || mtmp->isminion
         || is_covetous(mtmp->data) || is_human(mtmp->data)
-        || (is_demon(mtmp->data) && !is_demon(gy.youmonst.data))
+        || (is_demon(mtmp->data) && !is_demon(u.umonst->data))
         || (obj && dogfood(mtmp, obj) >= MANFOOD))
         return FALSE;
 
@@ -1361,7 +1361,7 @@ wary_dog(struct monst *mtmp, boolean was_dead)
             if (!rn2(edog->abuse + 1))
                 mtmp->mpeaceful = 1;
         if (!quietly && cansee(mtmp->mx, mtmp->my)) {
-            if (haseyes(gy.youmonst.data)) {
+            if (haseyes(u.umonst->data)) {
                 if (haseyes(mtmp->data))
                     pline_mon(mtmp,
                              "%s %s to look you in the %s.", Monnam(mtmp),

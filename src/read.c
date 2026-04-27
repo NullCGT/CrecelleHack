@@ -613,7 +613,7 @@ doread(void)
     }
     scroll->in_use = TRUE; /* scroll, not spellbook, now being read */
     if (otyp != SCR_BLANK_PAPER) {
-        boolean silently = !can_chant(&gy.youmonst);
+        boolean silently = !can_chant(u.umonst);
 
         /* a few scroll feedback messages describe something happening
            to the scroll itself, so avoid "it disappears" for those */
@@ -1142,7 +1142,7 @@ seffect_enchant_armor(struct obj **sobjp)
     schar s;
     boolean special_armor;
     boolean same_color;
-    struct obj *otmp = some_armor(&gy.youmonst);
+    struct obj *otmp = some_armor(u.umonst);
     boolean sblessed = sobj->blessed;
     boolean scursed = sobj->cursed;
     boolean confused = (Confusion != 0);
@@ -1366,7 +1366,7 @@ staticfn void
 seffect_destroy_armor(struct obj **sobjp)
 {
     struct obj *sobj = *sobjp;
-    struct obj *otmp = some_armor(&gy.youmonst);
+    struct obj *otmp = some_armor(u.umonst);
     boolean scursed = sobj->cursed;
     boolean confused = (Confusion != 0);
     boolean old_erodeproof, new_erodeproof;
@@ -1447,7 +1447,7 @@ seffect_confuse_monster(struct obj **sobjp)
             altfeedback = (Blind || Invisible);
     const char *const hands = makeplural(body_part(HAND));
 
-    if (gy.youmonst.data->mlet != S_HUMAN || scursed) {
+    if (u.umonst->data->mlet != S_HUMAN || scursed) {
         if (!HConfusion)
             You_feel("confused.");
         make_confused(HConfusion + rnd(100), FALSE);
@@ -2485,10 +2485,10 @@ drop_boulder_on_player(
         return;
     otmp2->quan = confused ? rn1(5, 2) : 1;
     otmp2->owt = weight(otmp2);
-    if (!amorphous(gy.youmonst.data) && !Passes_walls
-        && !noncorporeal(gy.youmonst.data) && !unsolid(gy.youmonst.data)) {
+    if (!amorphous(u.umonst->data) && !Passes_walls
+        && !noncorporeal(u.umonst->data) && !unsolid(u.umonst->data)) {
         You("are hit by %s!", doname(otmp2));
-        dmg = (int) (dmgval(otmp2, (struct monst *) 0, &gy.youmonst) * otmp2->quan);
+        dmg = (int) (dmgval(otmp2, (struct monst *) 0, u.umonst) * otmp2->quan);
         if (uarmh && helmet_protects) {
             if (hard_helmet(uarmh)) {
                 pline("Fortunately, you are wearing a hard helmet.");
@@ -2923,9 +2923,9 @@ do_class_genocide(void)
                     kill_genocided_monsters();
                     update_inventory(); /* eggs & tins */
                     pline("Wiped out all %s.", nam);
-                    if (Upolyd && vampshifted(&gy.youmonst)
+                    if (Upolyd && vampshifted(u.umonst)
                         /* current shifted form or base vampire form */
-                        && (i == u.umonnum || i == gy.youmonst.cham))
+                        && (i == u.umonnum || i == u.umonst->cham))
                         polyself(POLY_REVERT); /* vampshifter to vampire */
                     if (Upolyd && i == u.umonnum) {
                         u.mh = -1;
@@ -3069,8 +3069,8 @@ do_genocide(
             }
             ptr = &mons[mndx];
             /* first revert if current shifted form or base vampire form */
-            if (Upolyd && vampshifted(&gy.youmonst)
-                && (mndx == u.umonnum || mndx == gy.youmonst.cham))
+            if (Upolyd && vampshifted(u.umonst)
+                && (mndx == u.umonnum || mndx == u.umonst->cham))
                 polyself(POLY_REVERT); /* vampshifter (bat, &c) to vampire */
             /* Although "genus" is Latin for race, the hero benefits
              * from both race and role; thus genocide affects either.
@@ -3100,7 +3100,7 @@ do_genocide(
                 continue;
             }
             /* KMH -- Unchanging prevents rehumanization */
-            if (Unchanging && ptr == gy.youmonst.data)
+            if (Unchanging && ptr == u.umonst->data)
                 killplayer++;
             break;
         }
@@ -3112,7 +3112,7 @@ do_genocide(
     if (Hallucination) {
         /* hallucinate hero's type */
         if (Upolyd) {
-            Strcpy(buf, pmname(gy.youmonst.data,
+            Strcpy(buf, pmname(u.umonst->data,
                                flags.female ? FEMALE : MALE));
         } else {
             Strcpy(buf, (flags.female && gu.urole.name.f) ? gu.urole.name.f
@@ -3155,13 +3155,13 @@ do_genocide(
 
             /* Polymorphed characters will die as soon as they're rehumanized.
                KMH -- Unchanging prevents rehumanization. */
-            if (Upolyd && ptr != gy.youmonst.data) {
+            if (Upolyd && ptr != u.umonst->data) {
                 delayed_killer(POLYMORPH, svk.killer.format, svk.killer.name);
                 You_feel("%s inside.", udeadinside());
             } else {
                 done(GENOCIDED);
             }
-        } else if (ptr == gy.youmonst.data) {
+        } else if (ptr == u.umonst->data) {
             rehumanize();
         }
         kill_genocided_monsters();
@@ -3207,8 +3207,8 @@ punish(struct obj *sobj)
         uball->owt += WT_IRON_BALL_INCR * (1 + cursed_levy);
         return;
     }
-    if (amorphous(gy.youmonst.data) || is_whirly(gy.youmonst.data)
-        || unsolid(gy.youmonst.data)) {
+    if (amorphous(u.umonst->data) || is_whirly(u.umonst->data)
+        || unsolid(u.umonst->data)) {
         if (!reuse_ball) {
             pline("A ball and chain appears, then falls away.");
             dropy(mkobj(BALL_CLASS, TRUE));

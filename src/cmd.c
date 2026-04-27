@@ -891,7 +891,7 @@ RESTORE_WARNING_FORMAT_NONLITERAL
 int
 domonability(void)
 {
-    struct permonst *uptr = gy.youmonst.data;
+    struct permonst *uptr = u.umonst->data;
     boolean might_hide = (is_hider(uptr) || hides_under(uptr));
     char c = '\0';
 
@@ -919,12 +919,12 @@ domonability(void)
         return domindblast();
     else if (u.umonnum == PM_GREMLIN) {
         if (IS_FOUNTAIN(levl[u.ux][u.uy].typ)) {
-            if (split_mon(&gy.youmonst, (struct monst *) 0))
+            if (split_mon(u.umonst, (struct monst *) 0))
                 dryup(u.ux, u.uy, TRUE);
         } else if (is_pool(u.ux, u.uy)) {
             /* is_pool: might be wearing water walking boots or amulet of
                magical breathing */
-            (void) split_mon(&gy.youmonst, (struct monst *) 0);
+            (void) split_mon(u.umonst, (struct monst *) 0);
         } else {
             There("is no fountain here.");
         }
@@ -939,7 +939,7 @@ domonability(void)
             aggravate();
     } else if ((is_vampire(uptr) && uptr != &mons[PM_CRIMSON_DEATH]
                 && uptr != &mons[PM_BLOOD_IMP])
-                || is_vampshifter(&gy.youmonst)) {
+                || is_vampshifter(u.umonst)) {
         return dopoly();
     } else if (u.usteed && can_breathe(u.usteed->data)) {
         (void) pet_ranged_attk(u.usteed, TRUE);
@@ -5763,7 +5763,7 @@ doshout(void)
     }
 
     /* Shouting makes noise. */
-    if (gy.youmonst.data->msound == MS_SILENT) {
+    if (u.umonst->data->msound == MS_SILENT) {
         You("cannot speak, so you just shout \"%s\" mentally.", buf);
     } else if (Race_if(PM_KOBOLD)) {
         You("bark something that sounds like \"%s\".", buf);

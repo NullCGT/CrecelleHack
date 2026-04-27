@@ -261,7 +261,7 @@ bot(void)
         return;
     /* dosave() flags completion by setting u.uhp to -1; suppress_map_output()
        covers program_state.restoring and is used for status as well as map */
-    if (u.uhp != -1 && gy.youmonst.data
+    if (u.uhp != -1 && u.umonst->data
         && iflags.status_updates && !suppress_map_output()) {
         if (VIA_WINDOWPORT()) {
             bot_via_windowport();
@@ -492,7 +492,7 @@ weapon_status(char *outbuf)
         /* no weapon; gloves imply hands; humanoid also implies hands;
            otherwise make no assumptions */
         res = uarmg ? "Empty-hnd" /* empty handed means "gloves only" */
-              : humanoid(gy.youmonst.data) ? "Bare-hnds" /* bare hands */
+              : humanoid(u.umonst->data) ? "Bare-hnds" /* bare hands */
                 : "No-weapon";
     } else if (u.twoweap) {
         /* two-weaponing implies hands and a weapon or wep-tool

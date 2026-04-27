@@ -566,8 +566,9 @@ struct you {
     boolean twoweap;         /* KMH -- Using two-weapon combat */
     boolean dualweap;        /* wielding both sides of a dual weapon */
     short mcham;             /* vampire mndx if shapeshifted to bat/cloud */
-    short umovement;         /* instead of youmonst.movement */
+    short umovement;         /* instead of u.umonst->movement */
     schar uachieved[N_ACH];  /* list of achievements in the order attained */
+    struct monst *umonst;
 }; /* end of `struct you' */
 
 

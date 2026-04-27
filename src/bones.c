@@ -627,6 +627,7 @@ savebones(int how, time_t when, struct obj *corpse)
 
     nhfp->mode = WRITING;
     store_version(nhfp);
+    Sfo_char(nhfp, &svn.nhuuid[0], "ancestor-nhuuid", sizeof svn.nhuuid);
     /* if a bones pool digit is in use, it precedes the bonesid
        string and isn't recorded in the file */
     Sfo_char(nhfp, &c, "bones_count", 1);
@@ -648,6 +649,7 @@ getbones(void)
     NHFILE *nhfp = (NHFILE *) 0;
     char c = 0, *bonesid,
          oldbonesid[40] = { 0 }; /* was [10]; more should be safer */
+    char ancestor_nhuuid[SIZE(svn.nhuuid)];
 
 #ifndef SFCTOOL
     if (discover) /* save bones files for real games */
@@ -686,6 +688,8 @@ getbones(void)
                 return 0;
             }
         }
+        Sfi_char(nhfp, &ancestor_nhuuid[0], "ancestor-nhuuid",
+                 sizeof ancestor_nhuuid);
         Sfi_char(nhfp, &c, "bones_count", 1); /* length incl. '\0' */
             if ((unsigned) c <= sizeof oldbonesid) {
                 Sfi_char(nhfp, oldbonesid, "bonesid", (int) c);

@@ -93,7 +93,7 @@ stealgold(struct monst *mtmp)
             whose = s_suffix(y_monnam(who));
             what = makeplural(mbodypart(who, FOOT));
         } else {
-            who = &gy.youmonst;
+            who = u.umonst;
             whose = "your";
             what = makeplural(body_part(FOOT));
         }
@@ -408,7 +408,7 @@ steal(struct monst *mtmp, char *objnambuf)
             /* buried ball is not tracked via 'uball' and there is no chain
                at all (hence no uchain to take off) */
             pline("%s takes off your unseen chain.", Monnambuf);
-            (void) openholdingtrap(&gy.youmonst, &dummy);
+            (void) openholdingtrap(u.umonst, &dummy);
         } else if (Blind) {
             pline("Somebody tries to rob you, but finds nothing to steal.");
         } else if (inv_cnt(TRUE) > inv_cnt(FALSE)) {

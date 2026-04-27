@@ -200,7 +200,7 @@ is_digging(void)
     return FALSE;
 }
 
-#define BY_YOU (&gy.youmonst)
+#define BY_YOU (u.umonst)
 #define BY_OBJECT ((struct monst *) 0)
 
 enum digcheck_result
@@ -396,7 +396,7 @@ dig(void)
         } else if (ttmp && ttmp->ttyp == BEAR_TRAP && u.utrap) {
             if (rnl(7) > (Fumbling ? 1 : 4)) {
                 char kbuf[BUFSZ];
-                int dmg = dmgval(uwep, &gy.youmonst, &gy.youmonst) + dbon();
+                int dmg = dmgval(uwep, u.umonst, u.umonst) + dbon();
 
                 if (dmg < 1)
                     dmg = 1;
@@ -405,7 +405,7 @@ dig(void)
                 You("hit yourself in the %s.", body_part(FOOT));
                 if (Hate_material(uwep->material)) {
                     /* extra damage already applied by dmgval() */
-                    searmsg(&gy.youmonst, &gy.youmonst, uwep, FALSE);
+                    searmsg(u.umonst, u.umonst, uwep, FALSE);
                     exercise(A_CON, FALSE);
                 }
                 Sprintf(kbuf, "chopping off %s own %s", uhis(),
@@ -2213,8 +2213,8 @@ rot_corpse(anything *arg, long timeout)
             && hides_under(mtmp->data)) {
             mtmp->mundetected = 0;
         } else if (u_at(x, y)
-                   && u.uundetected && hides_under(gy.youmonst.data))
-            (void) hideunder(&gy.youmonst);
+                   && u.uundetected && hides_under(u.umonst->data))
+            (void) hideunder(u.umonst);
         newsym(x, y);
     } else if (in_invent)
         update_inventory();
@@ -2273,27 +2273,27 @@ void
 escape_tomb(void)
 {
     debugpline0("escape_tomb");
-    if ((Teleportation || can_teleport(gy.youmonst.data))
+    if ((Teleportation || can_teleport(u.umonst->data))
         && (Teleport_control || rn2(3) < Luck+2)) {
         You("attempt a teleport spell.");
         (void) dotele(FALSE);        /* calls unearth_you() */
     } else if (u.uburied) { /* still buried after 'port attempt */
         boolean good;
 
-        if (amorphous(gy.youmonst.data) || Passes_walls
-            || noncorporeal(gy.youmonst.data)
-            || (unsolid(gy.youmonst.data)
-                && gy.youmonst.data != &mons[PM_WATER_ELEMENTAL])
-            || (tunnels(gy.youmonst.data) && !needspick(gy.youmonst.data))) {
+        if (amorphous(u.umonst->data) || Passes_walls
+            || noncorporeal(u.umonst->data)
+            || (unsolid(u.umonst->data)
+                && u.umonst->data != &mons[PM_WATER_ELEMENTAL])
+            || (tunnels(u.umonst->data) && !needspick(u.umonst->data))) {
             You("%s up through the %s.",
-                (tunnels(gy.youmonst.data) && !needspick(gy.youmonst.data))
+                (tunnels(u.umonst->data) && !needspick(u.umonst->data))
                    ? "try to tunnel"
-                   : (amorphous(gy.youmonst.data))
+                   : (amorphous(u.umonst->data))
                       ? "ooze"
                       : "phase",
                 surface(u.ux, u.uy));
 
-            good = (tunnels(gy.youmonst.data) && !needspick(gy.youmonst.data))
+            good = (tunnels(u.umonst->data) && !needspick(u.umonst->data))
                       ? dighole(TRUE, FALSE, (coord *) 0) : TRUE;
             if (good)
                 unearth_you();

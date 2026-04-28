@@ -138,7 +138,7 @@ staticfn int
 choose_monster_spell(struct monst *mtmp, int adtyp)
 {
     int *list = NULL;
-    int i, spellval, len = 0;
+    int i, len = 0;
     int maxlev;
     int a;
 

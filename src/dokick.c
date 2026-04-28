@@ -2180,6 +2180,7 @@ dograpple(void)
 {
     coordxy x, y;
     struct monst *target;
+    struct obj *cloak;
     boolean touched = FALSE;
     char kbuf[BUFSZ];
     if (u.usticker) {
@@ -2220,12 +2221,16 @@ dograpple(void)
         You("shadowbox.");
         return ECMD_OK;
     }
-    /* Ok let's actually grapple! */
     if (target->mpeaceful && !target->mtame) {
         pline_mon(target, "%s does not want to roll with you!", Monnam(target));
         setmangry(target, TRUE);
     }
-    if (target->mtame && canseemon(target)) {
+    /* Ok let's actually grapple! */
+    cloak = which_armor(target, W_ARMC);
+    if (cloak && cloak->otyp == OILSKIN_CLOAK) {
+        You("try to grapple %s, but %s %s is too slippery.",
+            mon_nam(target), mhis(target), simpleonames(cloak));
+    } else if (target->mtame && canseemon(target)) {
         You("hug %s.", mon_nam(target));
         touched = TRUE;
     } else if (!unsolid(target->data) && rn2(3 + P_SKILL(P_GRAPPLING))) {

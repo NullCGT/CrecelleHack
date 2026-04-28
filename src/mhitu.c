@@ -793,7 +793,12 @@ mattacku(struct monst *mtmp)
                                         coil ? "coils" : "swings");
             else
                 urgent_pline("%s grabs you!", Some_Monnam(mtmp));
-            set_ustuck(mtmp);
+            /* Results */
+            if (uarmc && uarmc->otyp == OILSKIN_CLOAK) {
+                pline("Your cloak causes you to slip free.");
+            } else {
+                set_ustuck(mtmp);
+            }
             return 0;
         }
     }

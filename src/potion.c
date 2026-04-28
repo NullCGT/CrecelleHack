@@ -2636,6 +2636,10 @@ potionbreathe(struct obj *obj)
                              TRUE, 0L);
         break;
     case POT_HONEY:
+        if (Upolyd && u.mh < u.mhmax)
+            u.mh++, disp.botl = TRUE;
+        if (u.uhp < u.uhpmax)
+            u.uhp++, disp.botl = TRUE;
         Norep("Something smells sweet.");
         break;
     case POT_DYE:

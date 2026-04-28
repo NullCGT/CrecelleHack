@@ -1646,6 +1646,9 @@ makemon(
             mon_learns_traps(mtmp, ALL_TRAPS);
         break;
     }
+    if (u.udriptype == POT_HONEY
+        && (mndx == PM_OWLBEAR || mndx == PM_BUGBEAR))
+        mtmp->mpeaceful = TRUE;
     if ((ct = emits_light(mtmp->data)) > 0)
         new_light_source(mtmp->mx, mtmp->my, ct, LS_MONSTER,
                          monst_to_any(mtmp));

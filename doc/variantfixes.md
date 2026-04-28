@@ -29,6 +29,9 @@
 - Monsters pursue pets more aggressively.
 - Kicking a fountain sprays water across the floor.
 - Rename and recolor acid blobs depending on potion of acid appearance.
+- Potion of Honey enhancements:
+  - Bears spawn peaceful when the player is coated in honey.
+  - Honey vapors have a healing effect.
 ## Options
 - Added dnh_enlightenment. This changes the attributes menu to a pick
   list, as used in dnethack. Should be helpful for the extremely

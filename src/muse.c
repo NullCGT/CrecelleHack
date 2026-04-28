@@ -1633,6 +1633,7 @@ find_offensive(struct monst *mtmp)
         if (obj->otyp >= POT_GAIN_ABILITY && obj->otyp <= POT_OIL
             && obj->otyp != POT_HEALING && obj->otyp != POT_EXTRA_HEALING
             && obj->otyp != POT_FULL_HEALING
+            && mtmp->data->mlet != S_NYMPH
             && has_coating(u.ux, u.uy, COAT_POTION)
             && levl[u.ux][u.uy].pindex != POT_WATER
             && (levl[u.ux][u.uy].pindex == POT_HAZARDOUS_WASTE || !rn2(10)

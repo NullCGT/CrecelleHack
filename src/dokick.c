@@ -431,6 +431,7 @@ container_impact_dmg(
     struct obj *otmp, *otmp2;
     long loss = 0L;
     boolean costly, insider, frominv, wchange = FALSE;
+    int pot_otyp = 0;
 
     /* only consider normal containers */
     if (!Is_container(obj) || !Has_contents(obj) || Is_mbag(obj))
@@ -469,6 +470,13 @@ container_impact_dmg(
                 Soundeffect(se_glass_shattering, 25);
             }
             You_hear("a muffled %s.", result);
+            if (otmp->oclass == POTION_CLASS) {
+                if (!pot_otyp) {
+                    pot_otyp = otmp->otyp;
+                } else if (pot_otyp != otmp->otyp) {
+                    You_hear("a muffled bang.");
+                }
+            }
             if (costly) {
                 if (frominv && !otmp->unpaid)
                     otmp->no_charge = 1;

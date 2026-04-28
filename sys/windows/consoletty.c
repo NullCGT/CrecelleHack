@@ -3097,7 +3097,8 @@ default_checkinput(
     DWORD dwWait;
 #endif
     int ch = 0;
-    boolean valid = 0, done = 0;
+    boolean valid = 0, done = 0, done_a_checkpoint = FALSE;
+    DWORD how_many_milliseconds = 0;
 
 #ifdef QWERTZ_SUPPORT
     if (numberpad & 0x10) {
@@ -3107,54 +3108,78 @@ default_checkinput(
         qwertz = FALSE;
     }
 #endif
+    done_a_checkpoint = FALSE;
+    how_many_milliseconds = (iflags.idlecheckpoint)
+        ? (IDLECHECKPOINT_WAIT_TIME * 1000)
+        : INFINITE;
     while (!done) {
-#if defined(SAFERHANGUP)
         dwWait = WaitForSingleObjectEx(hConIn,   // event object to wait for
-                                       INFINITE, // waits indefinitely
+                                       how_many_milliseconds,
                                        TRUE);    // alertable wait enabled
+#if defined(SAFERHANGUP)
         if (dwWait == WAIT_FAILED)
             return '\033';
 #endif
-        ReadConsoleInput(hConIn, ir, 1, count);
-        if (mode == 0) {
-            if ((ir->EventType == KEY_EVENT) && ir->Event.KeyEvent.bKeyDown) {
-                ch = default_processkeystroke(hConIn, ir, &valid, numberpad, 0);
-                done = valid;
-            }
-        } else {
-            if (*count > 0) {
-                if (ir->EventType == KEY_EVENT
+#ifdef INSURANCE
+        if (iflags.idlecheckpoint
+            && dwWait == WAIT_TIMEOUT && !done_a_checkpoint) {
+            /* no input for 30 seconds, so let's take
+             * advantage and do a game checkpoint,
+             * then resume the wait.
+             */
+            save_currentstate();
+            done_a_checkpoint = TRUE;
+        } else
+#endif  /* INSURANCE */
+        {
+            ReadConsoleInput(hConIn, ir, 1, count);
+            if (mode == 0) {
+                if ((ir->EventType == KEY_EVENT)
                     && ir->Event.KeyEvent.bKeyDown) {
+                    ch = default_processkeystroke(hConIn, ir, &valid,
+                                                  numberpad, 0);
+                    done = valid;
+                }
+            } else {
+                if (*count > 0) {
+                    if (ir->EventType == KEY_EVENT
+                        && ir->Event.KeyEvent.bKeyDown) {
 #ifdef QWERTZ_SUPPORT
-                    if (qwertz)
-                        numberpad |= 0x10;
+                        if (qwertz)
+                            numberpad |= 0x10;
 #endif
-                    ch = default_processkeystroke(hConIn, ir, &valid, numberpad, 0);
+                        ch = default_processkeystroke(hConIn, ir, &valid,
+                                                      numberpad, 0);
 #ifdef QWERTZ_SUPPORT
-                    numberpad &= ~0x10;
+                        numberpad &= ~0x10;
 #endif
-                    if (valid)
-                        return ch;
-                } else if (ir->EventType == MOUSE_EVENT) {
-                    if ((ir->Event.MouseEvent.dwEventFlags == 0)
-                        && (ir->Event.MouseEvent.dwButtonState & MOUSEMASK)) {
-                        cc->x = ir->Event.MouseEvent.dwMousePosition.X + 1;
-                        cc->y = ir->Event.MouseEvent.dwMousePosition.Y - 1;
+                        if (valid)
+                            return ch;
+                    } else if (ir->EventType == MOUSE_EVENT) {
+                        if ((ir->Event.MouseEvent.dwEventFlags == 0)
+                            && (ir->Event.MouseEvent.dwButtonState
+                                & MOUSEMASK)) {
+                            cc->x =
+                                ir->Event.MouseEvent.dwMousePosition.X + 1;
+                            cc->y =
+                                ir->Event.MouseEvent.dwMousePosition.Y - 1;
 
-                        if (ir->Event.MouseEvent.dwButtonState & LEFTBUTTON)
-                            *mod = CLICK_1;
-                        else if (ir->Event.MouseEvent.dwButtonState
-                                 & RIGHTBUTTON)
-                            *mod = CLICK_2;
+                            if (ir->Event.MouseEvent.dwButtonState
+                                & LEFTBUTTON)
+                                *mod = CLICK_1;
+                            else if (ir->Event.MouseEvent.dwButtonState
+                                     & RIGHTBUTTON)
+                                *mod = CLICK_2;
 #if 0 /* middle button */
                                     else if (ir->Event.MouseEvent.dwButtonState & MIDBUTTON)
                                         *mod = CLICK_3;
 #endif
-                        return 0;
+                            return 0;
+                        }
                     }
-                }
-            } else
-                done = 1;
+                } else
+                    done = 1;
+            }
         }
     }
     return mode ? 0 : ch;

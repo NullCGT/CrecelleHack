@@ -411,6 +411,9 @@ static int optfn_##a(int, int, boolean, char *, char *);
                 Yes, Yes, No, No, NoAlias,
                 "load IBMGraphics display symbols into symset")
 #endif
+    NHOPTB(idlecheckpoint, Advanced, 0, opt_in, set_in_game,
+           Off, Yes, No, No, NoAlias, &iflags.idlecheckpoint, Term_Off,
+           "update checkpoint file if input is idle for 10 seconds")
 #ifndef MAC
     NHOPTB(ignintr, Advanced, 0, opt_in, set_in_game,
            Off, Yes, No, No, NoAlias, &flags.ignintr, Term_False,

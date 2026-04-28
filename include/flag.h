@@ -265,6 +265,8 @@ struct instance_flags {
                             * to input becoming taken over);
                             * True => enable fuzzer when entering moveloop */
     boolean herecmd_menu;  /* use menu when mouseclick on yourself */
+    boolean idlecheckpoint;  /* platform should perform a checkpoint update
+                              * if waiting for input longer than 10 seconds */
     boolean invis_goldsym; /* gold symbol is ' '? */
     boolean in_lua;        /* executing a lua script */
     boolean lua_testing;   /* doing lua tests */

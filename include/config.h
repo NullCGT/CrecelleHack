@@ -691,6 +691,16 @@ typedef unsigned char uchar;
 #endif
 #endif
 
+/* experimential; if the platform/window-port supports it; when the game has
+ * started to wait for player input, and the wait lasts longer than
+ * IDLECHECKPOINT_WAIT_TIME seconds (defined in hack.h or *conf.h), the game
+ * will perform an update to the checkpoint file.
+ * Currently has support in:
+ *     WIN32CON
+ */
+
+/* #define IDLECHECKPOINT */
+
 /* End of Section 4 */
 
 #ifdef TTY_TILES_ESCCODES

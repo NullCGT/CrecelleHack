@@ -676,8 +676,9 @@ create_levelfile(int lev, char errbuf[])
             Sprintf(errbuf,
                     "Cannot create file \"%s\" for level %d (errno %d).",
                     gl.lock, lev, errno);
-#if defined(MSDOS)
-        setmode(nhfp->fd, O_BINARY);
+#if defined(MSDOS) || defined(WIN32)
+        if (nhfp->fd >= 0)
+            (void) setmode(nhfp->fd, O_BINARY);
 #endif
     }
     nhfp = viable_nhfile(nhfp);
@@ -721,8 +722,9 @@ open_levelfile(int lev, char errbuf[])
             Sprintf(errbuf,
                     "Cannot open file \"%s\" for level %d (errno %d).",
                     gl.lock, lev, errno);
-#if defined(MSDOS)
-        setmode(nhfp->fd, O_BINARY);
+#if defined(MSDOS) || defined(WIN32)
+        if (nhfp->fd >= 0)
+            (void) setmode(nhfp->fd, O_BINARY);
 #endif
     }
     nhfp = viable_nhfile(nhfp);
@@ -1013,8 +1015,9 @@ create_bonesfile(d_level *lev, char **bonesid, char errbuf[])
 #endif  /* ?MICRO || WIN32 */
             if (nhfp->fd < 0)
                 failed = errno;
-#if defined(MSDOS)
-            setmode(nhfp->fd, O_BINARY);
+#if defined(MSDOS) || defined(WIN32)
+            if (nhfp->fd >= 0)
+                (void) setmode(nhfp->fd, O_BINARY);
 #endif
         }
         if (failed && errbuf)  /* failure explanation */
@@ -1106,8 +1109,9 @@ open_bonesfile(d_level *lev, char **bonesid)
 #else
             nhfp->fd = open(fq_bones, O_RDONLY | O_BINARY, 0);
 #endif
-#if defined(MSDOS)
-            setmode(nhfp->fd, O_BINARY);
+#if defined(MSDOS) || defined(WIN32)
+            if (nhfp->fd >= 0)
+                (void) setmode(nhfp->fd, O_BINARY);
 #endif
         }
     }
@@ -1318,8 +1322,8 @@ create_savefile(void)
 #endif
 #endif /* MICRO || WIN32 */
 #if defined(MSDOS) || defined(WIN32)
-        if (nhfp->fd >= 0)
-            (void) setmode(nhfp->fd, O_BINARY);
+            if (nhfp->fd >= 0)
+                (void) setmode(nhfp->fd, O_BINARY);
 #endif
         }
     }
@@ -3119,6 +3123,9 @@ recover_savefile(void)
     if (savewrite_failure)
         goto cleanup;
 
+    if (snhfp->structlevel)
+        bufoff(snhfp->fd);
+
     /* TODO: this is not a single byte, so a big-endian byte swap
      * might be necessary here, if anyone is concerned about big-endian */
     Sfo_int(snhfp, &pltmpsiz, "plname-size");
@@ -3171,6 +3178,8 @@ recover_savefile(void)
             }
         }
     }
+    if (snhfp->structlevel)
+        bufon(snhfp->fd);
     close_nhfile(snhfp);
     /*
      * We have a successful savefile!

@@ -300,7 +300,7 @@ _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);*/
     if WINDOWPORT(tty) {
         int i;
 
-        for (i = 0; i < 20; ++i) {
+        for (i = 0; i < 5; ++i) {
             nh_delay_output();
         }
 

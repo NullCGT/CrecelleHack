@@ -595,6 +595,13 @@ enum inventory_counts {
     /* 2023/11/30 invlet_max is not yet used anywhere */
 };
 
+#ifndef IDLECHECKPOINT_WAIT_TIME
+#define IDLECHECKPOINT_WAIT_TIME 10  /* seconds to wait before executing a checkpoint;
+                                      * always #define'd but only has meaning if
+                                      * IDLECHECKPOINT is defined.
+                                      */
+#endif
+
 struct kinfo {
     struct kinfo *next; /* chain of delayed killers */
     int id;             /* uprop keys to ID a delayed killer */

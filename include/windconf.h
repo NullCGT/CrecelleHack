@@ -35,6 +35,10 @@
 #define EARLY_CONFIGFILE_PASS
 #define TTY_PERM_INVENT
 
+#ifdef WIN32CON
+#define IDLECHECKPOINT
+#endif
+
 /*
  * -----------------------------------------------------------------
  *  The remaining code shouldn't need modification.

@@ -1914,8 +1914,24 @@ struct obj *
 pick_obj(struct obj *otmp)
 {
     struct obj *result;
-    int ox = otmp->ox, oy = otmp->oy;
-    boolean robshop = (!u.uswallow && otmp != uball && costly_spot(ox, oy));
+    int ox, oy;
+    boolean robshop = FALSE;
+
+    if (otmp->ox == 0 && otmp->oy == 0) {
+        if (u.uswallow && u.ustuck && otmp->where == OBJ_MINVENT
+            && otmp->ocarry == u.ustuck) {
+            otmp->ox = u.ustuck->mx;
+            otmp->oy = u.ustuck->my;
+        } else {
+            /* this will be a problem for newsym below */
+            impossible("otmp has no location coordinates <%d, %d> where=%d.",
+                       otmp->ox, otmp->oy, otmp->where);
+        }
+    }
+
+    ox = otmp->ox;
+    oy = otmp->oy;
+    robshop = (!u.uswallow && otmp != uball && costly_spot(ox, oy));
 
     obj_extract_self(otmp);
     newsym(ox, oy);

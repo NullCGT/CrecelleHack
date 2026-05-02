@@ -1281,8 +1281,11 @@ acurr(int chridx)
 schar
 amodifier(int chridx)
 {
-    int attr = ACURR(chridx);
-    if (ACURR(A_STR) <= STR18(0))
+    int attr;
+    if (chridx < A_STR || chridx > A_CHA)
+        return 0;
+    attr = ACURR(chridx);
+    if ((chridx != A_STR) || ACURR(A_STR) <= STR18(0))
         return ((attr - 10) + ((attr >= 0) ? 0 : -1)) / 2;
     else if (ACURR(A_STR) < STR18(50))
         return 5;

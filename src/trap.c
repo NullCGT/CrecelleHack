@@ -1169,6 +1169,8 @@ check_in_air(struct monst *mtmp, unsigned trflags)
 boolean
 wearing_iron_shoes(struct monst *mtmp)
 {
+    if (!mtmp)
+        return FALSE;
     struct obj *armf = which_armor(mtmp, W_ARMF);
     return armf && armf->material == IRON;
 }

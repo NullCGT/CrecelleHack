@@ -1,4 +1,4 @@
-/* NetHack 3.7	consoletty.c	$NHDT-Date: 1596498316 2020/08/03 23:45:16 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.117 $ */
+/* NetHack 5.0	consoletty.c	$NHDT-Date: 1596498316 2020/08/03 23:45:16 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.117 $ */
 /* Copyright (c) NetHack PC Development Team 1993    */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -3120,17 +3120,17 @@ default_checkinput(
         if (dwWait == WAIT_FAILED)
             return '\033';
 #endif
-#ifdef INSURANCE
         if (iflags.idlecheckpoint
             && dwWait == WAIT_TIMEOUT && !done_a_checkpoint) {
             /* no input for 30 seconds, so let's take
              * advantage and do a game checkpoint,
              * then resume the wait.
              */
+#ifdef INSURANCE
             save_currentstate();
+#endif  /* INSURANCE */
             done_a_checkpoint = TRUE;
         } else
-#endif  /* INSURANCE */
         {
             ReadConsoleInput(hConIn, ir, 1, count);
             if (mode == 0) {

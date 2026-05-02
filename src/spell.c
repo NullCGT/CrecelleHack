@@ -1,4 +1,4 @@
-/* NetHack 3.7	spell.c	$NHDT-Date: 1769498874 2026/01/26 23:27:54 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.185 $ */
+/* NetHack 5.0	spell.c	$NHDT-Date: 1769498874 2026/01/26 23:27:54 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.185 $ */
 /*      Copyright (c) M. Stephenson 1988                          */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -317,7 +317,7 @@ deadbook(struct obj *book2)
             set_malign(mtmp);
         }
         /* next handle the affect on things you're carrying */
-        (void) unturn_dead(u.umonst);
+        (void) unturn_dead(&gy.youmonst);
         /* last place some monsters around you */
         mm.x = u.ux;
         mm.y = u.uy;
@@ -485,7 +485,7 @@ study_book(struct obj *spellbook)
 
         if (dullbook > 0) {
             eyes = body_part(EYE);
-            if (eyecount(u.umonst->data) > 1)
+            if (eyecount(gy.youmonst.data) > 1)
                 eyes = makeplural(eyes);
             pline("This book is so dull that you can't keep your %s open.",
                   eyes);
@@ -720,7 +720,7 @@ rejectcasting(void)
     if (Stunned) {
         You("are too impaired to cast a spell.");
         return TRUE;
-    } else if (!can_chant(u.umonst)) {
+    } else if (!can_chant(&gy.youmonst)) {
         You("are unable to chant the incantation.");
         return TRUE;
     } else if (!freehand() && !(uwep && uwep->otyp == QUARTERSTAFF)) {

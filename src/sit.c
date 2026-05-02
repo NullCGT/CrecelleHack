@@ -1,4 +1,4 @@
-/* NetHack 3.7	sit.c	$NHDT-Date: 1718136168 2024/06/11 20:02:48 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.95 $ */
+/* NetHack 5.0	sit.c	$NHDT-Date: 1718136168 2024/06/11 20:02:48 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.95 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -162,7 +162,7 @@ throne_sit_effect(void)
                 if (!Blind) {
                     Your("vision becomes clear.");
                 } else {
-                    int num_of_eyes = eyecount(u.umonst->data);
+                    int num_of_eyes = eyecount(gy.youmonst.data);
                     const char *eye = body_part(EYE);
 
                     /* note: 1 eye case won't actually happen--can't
@@ -213,13 +213,13 @@ throne_sit_effect(void)
             break;
         }
     } else {
-        if (is_prince(u.umonst->data) || u.uevent.uhand_of_elbereth)
+        if (is_prince(gy.youmonst.data) || u.uevent.uhand_of_elbereth)
             You_feel("very comfortable here.");
         else
             You_feel("somehow out of place...");
     }
 
-    /* 3.7: when the random chance for removal is hit, ask for confirmation
+    /* 5.0: when the random chance for removal is hit, ask for confirmation
        if in wizard mode, and remove the throne even if hero was teleported
        away from it.  [This used to remove a throne at hero's current
        location if there happened to be one, so for the teleport case that
@@ -330,7 +330,7 @@ special_throne_effect(int effect) {
     case 11:
         /* polymorph effect (not blocked by magic resistance, but other things
            that protect from polymorphs work) */
-        if (is_vampire(u.umonst->data)) {
+        if (is_vampire(gy.youmonst.data)) {
             You_feel("unworthy.");
         } else {
             pline("This throne was not meant for those such as you!");
@@ -373,14 +373,14 @@ lay_an_egg(void)
     } else if (u.uhunger < (int) objects[EGG].oc_nutrition) {
         You("don't have enough energy to lay an egg.");
         return ECMD_OK;
-    } else if (eggs_in_water(u.umonst->data)) {
+    } else if (eggs_in_water(gy.youmonst.data)) {
         if (!(Underwater || Is_waterlevel(&u.uz))) {
             pline("A splash tetra you are not.");
             return ECMD_OK;
         }
         if (Upolyd
-            && (u.umonst->data == &mons[PM_GIANT_EEL]
-                || u.umonst->data == &mons[PM_ELECTRIC_EEL])) {
+            && (gy.youmonst.data == &mons[PM_GIANT_EEL]
+                || gy.youmonst.data == &mons[PM_ELECTRIC_EEL])) {
             You("yearn for the Sargasso Sea.");
             return ECMD_OK;
         }
@@ -393,7 +393,7 @@ lay_an_egg(void)
     set_corpsenm(uegg, egg_type_from_parent(u.umonnum, FALSE));
     uegg->known = 1;
     observe_object(uegg);
-    You("%s an egg.", eggs_in_water(u.umonst->data) ? "spawn" : "lay");
+    You("%s an egg.", eggs_in_water(gy.youmonst.data) ? "spawn" : "lay");
     dropy(uegg);
     stackobj(uegg);
     morehungry((int) objects[EGG].oc_nutrition);
@@ -414,7 +414,7 @@ dosit(void)
         You("are already sitting on %s.", mon_nam(u.usteed));
         return ECMD_OK;
     }
-    if (u.uundetected && is_hider(u.umonst->data)
+    if (u.uundetected && is_hider(gy.youmonst.data)
         && u.umonnum != PM_TRAPPER && u.umonnum != PM_SPANNER) /* trapper can stay hidden on floor */
         u.uundetected = 0; /* no longer on the ceiling */
 
@@ -441,7 +441,7 @@ dosit(void)
         goto in_water;
     }
 
-    if (u.umonst->data == &mons[PM_FIRE_ELEMENTAL])
+    if (gy.youmonst.data == &mons[PM_FIRE_ELEMENTAL])
         create_bonfire(u.ux, u.uy, 1, rnd(4));
 
     if (OBJ_AT(u.ux, u.uy)
@@ -450,14 +450,14 @@ dosit(void)
         struct obj *obj;
 
         obj = svl.level.objects[u.ux][u.uy];
-        if (u.umonst->data->mlet == S_DRAGON && obj->oclass == COIN_CLASS) {
+        if (gy.youmonst.data->mlet == S_DRAGON && obj->oclass == COIN_CLASS) {
             You("coil up around your %shoard.",
                 (obj->quan + money_cnt(gi.invent) < u.ulevel * 1000)
                 ? "meager " : "");
         } else if (obj->otyp == TOWEL) {
             pline("It's probably not a good time for a picnic...");
         } else {
-            if (slithy(u.umonst->data))
+            if (slithy(gy.youmonst.data))
                 You("coil up around %s.", the(xname(obj)));
             else
                 You("sit on %s.", the(xname(obj)));
@@ -513,16 +513,16 @@ dosit(void)
             dotrap(trap, VIASITTING);
         }
     } else if ((Underwater || Is_waterlevel(&u.uz))
-                && !eggs_in_water(u.umonst->data)) {
+                && !eggs_in_water(gy.youmonst.data)) {
         if (Is_waterlevel(&u.uz))
             There("are no cushions floating nearby.");
         else
             You("sit down on the muddy bottom.");
-    } else if (is_pool(u.ux, u.uy) && !eggs_in_water(u.umonst->data)) {
+    } else if (is_pool(u.ux, u.uy) && !eggs_in_water(gy.youmonst.data)) {
  in_water:
         You("sit in the %s.", hliquid("water"));
         if (Upolyd && u.umonnum == PM_GREMLIN) {
-            if (split_mon(u.umonst, (struct monst *) 0)) {
+            if (split_mon(&gy.youmonst, (struct monst *) 0)) {
                 if (levl[u.ux][u.uy].typ == FOUNTAIN)
                     dryup(u.ux, u.uy, TRUE);
             }
@@ -536,7 +536,7 @@ dosit(void)
     } else if (IS_SINK(typ)) {
         You(sit_message, defsyms[S_sink].explanation);
         Your("%s gets wet.",
-             humanoid(u.umonst->data) ? "rump" : "underside");
+             humanoid(gy.youmonst.data) ? "rump" : "underside");
     } else if (IS_ALTAR(typ)) {
         You(sit_message, defsyms[S_altar].explanation);
         altar_wrath(u.ux, u.uy);
@@ -550,7 +550,7 @@ dosit(void)
         /* must be WWalking */
         You(sit_message, hliquid("lava"));
         burn_away_slime();
-        if (likes_lava(u.umonst->data)) {
+        if (likes_lava(gy.youmonst.data)) {
             pline_The("%s feels warm.", hliquid("lava"));
             return ECMD_TIME;
         }
@@ -566,13 +566,13 @@ dosit(void)
     } else if (IS_THRONE(typ)) {
         You(sit_message, defsyms[S_throne].explanation);
         throne_sit_effect();
-    } else if (lays_eggs(u.umonst->data)) {
+    } else if (lays_eggs(gy.youmonst.data)) {
         return lay_an_egg();
     } else if (has_coating(u.ux, u.uy, COAT_GRASS)) {
         pline("The grass feels nice.");
     } else if (has_coating(u.ux, u.uy, COAT_FUNGUS)) {
         pline("The fungus is soft.");
-        moldeffects(u.ux, u.uy, u.umonst);
+        moldeffects(u.ux, u.uy, &gy.youmonst);
     } else {
         pline("Having fun sitting on the %s?", surface(u.ux, u.uy));
     }
@@ -580,18 +580,18 @@ dosit(void)
     if (has_coating(u.ux, u.uy, COAT_SHARDS)) {
         pline("Ouch! You sat on something sharp!");
         losehp(rnd(3), "sitting on glass", KILLED_BY);
-        make_dripping(rnd(5), POT_BLOOD, u.umonst->mnum);
+        make_dripping(rnd(5), POT_BLOOD, gy.youmonst.mnum);
     } else if (has_coating(u.ux, u.uy, COAT_BLOOD)) {
         blood_data = &mons[levl[u.ux][u.uy].pindex];
         You("sit in blood. How %s.",
-            is_vampire(u.umonst->data) ? "lovely" : "horrifying");
-        if (!is_vampire(u.umonst->data))
+            is_vampire(gy.youmonst.data) ? "lovely" : "horrifying");
+        if (!is_vampire(gy.youmonst.data))
             exercise(A_CHA, FALSE);
         if (touch_petrifies(blood_data)) {
             Sprintf(buf, "bathing in %s blood", pmname(blood_data, MALE));
             instapetrify(buf);
         }
-        make_dripping(rnd(5), POT_BLOOD, u.umonst->mnum);
+        make_dripping(rnd(5), POT_BLOOD, gy.youmonst.mnum);
         remove_coating(u.ux, u.uy, COAT_BLOOD);
     } else if (has_coating(u.ux, u.uy, COAT_POTION)) {
         char liqbuf[BUFSZ];

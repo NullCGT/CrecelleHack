@@ -1,4 +1,4 @@
-/* NetHack 3.7	cmd.c	$NHDT-Date: 1762680996 2025/11/09 01:36:36 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.755 $ */
+/* NetHack 5.0	cmd.c	$NHDT-Date: 1762680996 2025/11/09 01:36:36 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.755 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2013. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -891,7 +891,7 @@ RESTORE_WARNING_FORMAT_NONLITERAL
 int
 domonability(void)
 {
-    struct permonst *uptr = u.umonst->data;
+    struct permonst *uptr = gy.youmonst.data;
     boolean might_hide = (is_hider(uptr) || hides_under(uptr));
     char c = '\0';
 
@@ -919,12 +919,12 @@ domonability(void)
         return domindblast();
     else if (u.umonnum == PM_GREMLIN) {
         if (IS_FOUNTAIN(levl[u.ux][u.uy].typ)) {
-            if (split_mon(u.umonst, (struct monst *) 0))
+            if (split_mon(&gy.youmonst, (struct monst *) 0))
                 dryup(u.ux, u.uy, TRUE);
         } else if (is_pool(u.ux, u.uy)) {
             /* is_pool: might be wearing water walking boots or amulet of
                magical breathing */
-            (void) split_mon(u.umonst, (struct monst *) 0);
+            (void) split_mon(&gy.youmonst, (struct monst *) 0);
         } else {
             There("is no fountain here.");
         }
@@ -939,7 +939,7 @@ domonability(void)
             aggravate();
     } else if ((is_vampire(uptr) && uptr != &mons[PM_CRIMSON_DEATH]
                 && uptr != &mons[PM_BLOOD_IMP])
-                || is_vampshifter(u.umonst)) {
+                || is_vampshifter(&gy.youmonst)) {
         return dopoly();
     } else if (u.usteed && can_breathe(u.usteed->data)) {
         (void) pet_ranged_attk(u.usteed, TRUE);
@@ -1743,8 +1743,8 @@ struct ext_func_tab extcmdlist[] = {
               dohelp, IFBURIED | GENERALCMD, NULL },
     { '\0',   "herecmdmenu", "show menu of commands you can do here",
               doherecmdmenu, IFBURIED | AUTOCOMPLETE | GENERALCMD, NULL },
-    { '\0',    "history", "show long version and game history",
-              dohistory, IFBURIED | GENERALCMD, NULL },
+    { '\0',    "history", "show a summary of the game's development",
+              dohistory, IFBURIED | AUTOCOMPLETE | GENERALCMD, NULL },
     { 'i',    "inventory", "show your inventory",
               ddoinv, IFBURIED | GENERALCMD, NULL },
     { 'I',    "inventtype", "show inventory of one specific item class",
@@ -5765,7 +5765,7 @@ doshout(void)
     }
 
     /* Shouting makes noise. */
-    if (u.umonst->data->msound == MS_SILENT) {
+    if (gy.youmonst.data->msound == MS_SILENT) {
         You("cannot speak, so you just shout \"%s\" mentally.", buf);
     } else if (Race_if(PM_KOBOLD)) {
         You("bark something that sounds like \"%s\".", buf);

@@ -1,4 +1,4 @@
-/* NetHack 3.7	timeout.c	$NHDT-Date: 1776080125 2026/04/13 03:35:25 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.207 $ */
+/* NetHack 5.0	timeout.c	$NHDT-Date: 1776080125 2026/04/13 03:35:25 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.207 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2018. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -144,7 +144,7 @@ stoned_dialogue(void)
         char buf[BUFSZ];
 
         Strcpy(buf, stoned_texts[SIZE(stoned_texts) - i]);
-        if (nolimbs(u.umonst->data) && strstri(buf, "limbs"))
+        if (nolimbs(gy.youmonst.data) && strstri(buf, "limbs"))
             (void) strsubst(buf, "limbs", "extremities");
         urgent_pline("%s", buf);
     }
@@ -234,7 +234,7 @@ vomiting_dialogue(void)
         break;
     case 2:
         txt = vomiting_texts[4];
-        if (cantvomit(u.umonst->data))
+        if (cantvomit(gy.youmonst.data))
             txt = "gag uncontrollably.";
         else if (Hallucination)
             /* "hurl" is short for "hurl chunks" which is slang for
@@ -243,7 +243,7 @@ vomiting_dialogue(void)
         break;
     case 0:
         stop_occupation();
-        if (!cantvomit(u.umonst->data)) {
+        if (!cantvomit(gy.youmonst.data)) {
             morehungry(20);
             /* case 2 used to be "You suddenly vomit!" but it wasn't sudden
                since you've just been through the earlier messages of the
@@ -334,8 +334,8 @@ sickness_dialogue(void)
         if ((u.usick_type & SICK_NONVOMITABLE) == 0)
             (void) strsubst(buf, "illness", "sickness");
         if (Hallucination && strstri(buf, "Death's door")) {
-            /* u.umonst: for Hallucination, mhe()'s mon argument isn't used */
-            Strcpy(pronounbuf, mhe(u.umonst));
+            /* youmonst: for Hallucination, mhe()'s mon argument isn't used */
+            Strcpy(pronounbuf, mhe(&gy.youmonst));
             Sprintf(eos(buf), "  %s %s inviting you in.",
                     /* upstart() modifies its argument but vtense() doesn't
                        care whether or not that has already happened */
@@ -396,8 +396,8 @@ slime_dialogue(void)
         /* display as green slime during "You have become green slime."
            but don't worry about not being able to see self; if already
            mimicking something else at the time, implicitly be revealed */
-        u.umonst->m_ap_type = M_AP_MONSTER;
-        u.umonst->mappearance = PM_GREEN_SLIME;
+        gy.youmonst.m_ap_type = M_AP_MONSTER;
+        gy.youmonst.mappearance = PM_GREEN_SLIME;
         /* no message given when 't' is odd, so no automatic update of
            self; force one */
         newsym(u.ux, u.uy);
@@ -407,7 +407,7 @@ slime_dialogue(void)
         char buf[BUFSZ];
 
         Strcpy(buf, slime_texts[SIZE(slime_texts) - i - 1L]);
-        if (nolimbs(u.umonst->data) && strstri(buf, "limbs"))
+        if (nolimbs(gy.youmonst.data) && strstri(buf, "limbs"))
             (void) strsubst(buf, "limbs", "extremities");
 
         if (strchr(buf, '%')) {
@@ -461,7 +461,7 @@ slimed_to_death(struct kinfo *kptr)
     uchar save_mvflags;
 
     /* redundant: polymon() cures sliming when polying into green slime */
-    if (Upolyd && u.umonst->data == &mons[PM_GREEN_SLIME]) {
+    if (Upolyd && gy.youmonst.data == &mons[PM_GREEN_SLIME]) {
         dealloc_killer(kptr);
         return;
     }
@@ -487,11 +487,11 @@ slimed_to_death(struct kinfo *kptr)
      * [formerly implicit] change of form; polymon() takes care of that.
      * Temporarily ungenocide if necessary.
      */
-    if (emits_light(u.umonst->data))
-        del_light_source(LS_MONSTER, monst_to_any(u.umonst));
+    if (emits_light(gy.youmonst.data))
+        del_light_source(LS_MONSTER, monst_to_any(&gy.youmonst));
     save_mvflags = svm.mvitals[PM_GREEN_SLIME].mvflags;
     svm.mvitals[PM_GREEN_SLIME].mvflags = save_mvflags & ~G_GENOD;
-    /* become a green slime; also resets u.umonst.m_ap_type+.mappearance */
+    /* become a green slime; also resets youmonst.m_ap_type+.mappearance */
     (void) polymon(PM_GREEN_SLIME);
     svm.mvitals[PM_GREEN_SLIME].mvflags = save_mvflags;
     done_timeout(TURNED_SLIME, SLIMED);
@@ -643,8 +643,8 @@ nh_timeout(void)
             sleep_dialogue();
         if (u.mtimedone && !--u.mtimedone) {
             if (Unchanging)
-                u.mtimedone = rnd(100 * u.umonst->data->mlevel + 1);
-            else if (is_were(u.umonst->data))
+                u.mtimedone = rnd(100 * gy.youmonst.data->mlevel + 1);
+            else if (is_were(gy.youmonst.data))
                 you_unwere(FALSE); /* if polycontrl, asks whether to rehumanize */
             else
                 rehumanize();
@@ -966,7 +966,7 @@ fall_asleep(int how_long, boolean wakeup_msg)
     if (wakeup_msg && gm.multi == how_long) {
         /* caller can follow with a direct call to Hear_again() if
            there's a need to override this when wakeup_msg is true */
-        /* 3.7: how_long is negative so wasn't actually incrementing the
+        /* 5.0: how_long is negative so wasn't actually incrementing the
            deafness timeout when it used to be passed as-is */
         incr_itimeout(&HDeaf, abs(how_long));
         disp.botl = TRUE;

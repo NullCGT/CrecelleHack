@@ -1,4 +1,4 @@
-/* NetHack 3.7	monst.h	$NHDT-Date: 1738640524 2025/02/03 19:42:04 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.67 $ */
+/* NetHack 5.0	monst.h	$NHDT-Date: 1738640524 2025/02/03 19:42:04 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.67 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2016. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -64,11 +64,12 @@ enum m_ap_types {
 #define MON_ENDGAME_FREE 0x20
 #define MON_ENDGAME_MIGR 0x40
 #define MON_OBLITERATE   0x80
+#define MON_STILL_ARRIVING 0x100
 
 #define M_AP_TYPMASK  0x7
 #define M_AP_F_DKNOWN 0x8
-#define U_AP_TYPE (u.umonst->m_ap_type & M_AP_TYPMASK)
-#define U_AP_FLAG (u.umonst->m_ap_type & ~M_AP_TYPMASK)
+#define U_AP_TYPE (gy.youmonst.m_ap_type & M_AP_TYPMASK)
+#define U_AP_FLAG (gy.youmonst.m_ap_type & ~M_AP_TYPMASK)
 #define M_AP_TYPE(m) ((m)->m_ap_type & M_AP_TYPMASK)
 #define M_AP_FLAG(m) ((m)->m_ap_type & ~M_AP_TYPMASK)
 

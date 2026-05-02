@@ -1,4 +1,4 @@
-/* NetHack 3.7	restore.c	$NHDT-Date: 1736530208 2025/01/10 09:30:08 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.234 $ */
+/* NetHack 5.0	restore.c	$NHDT-Date: 1736530208 2025/01/10 09:30:08 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.234 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Michael Allison, 2009. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -22,7 +22,6 @@ staticfn struct fruit *loadfruitchn(NHFILE *);
 staticfn void freefruitchn(struct fruit *);
 staticfn void rest_levl(NHFILE *);
 staticfn void rest_stairs(NHFILE *);
-staticfn void rest_u(NHFILE *, boolean);
 #ifndef SFCTOOL
 staticfn void ghostfruit(struct obj *);
 staticfn boolean restgamestate(NHFILE *);
@@ -540,11 +539,11 @@ restgamestate(NHFILE *nhfp)
     int i;
     struct flag newgameflags;
     struct context_info newgamecontext; /* all 0, but has some pointers */
-    unsigned long uid = 0;
     struct obj *bc_obj;
-    boolean restoring_special = (wizard || discover);
+    char timebuf[15];
+    unsigned long uid = 0;
 #ifndef SFCTOOL
-    boolean defer_perm_invent;
+    boolean defer_perm_invent, restoring_special;
     struct obj *otmp;
 #endif
 
@@ -598,6 +597,7 @@ restgamestate(NHFILE *nhfp)
        in the discover case, we don't want to set that for a normal
        game until after the save file has been removed */
     iflags.deferred_X = (newgameflags.explore && !discover);
+    restoring_special = (wizard || discover);
     if (newgameflags.debug) {
         /* authorized by startup code; wizard mode exists and is allowed */
         wizard = TRUE, discover = iflags.deferred_X = FALSE;
@@ -610,9 +610,33 @@ restgamestate(NHFILE *nhfp)
     amii_setpens(amii_numcolors); /* use colors from save file */
 #endif
 #endif /* !SFCTOOL */
-    rest_u(nhfp, restoring_special);
+    Sfi_long(nhfp, &svw.wreserve, "wreserve");
+    Sfi_int32(nhfp, &svw.wtreserved, "wtreserved");
+    Sfi_you(nhfp, &u, "gamestate-you");
+    gy.youmonst.cham = u.mcham;
 
 #ifndef SFCTOOL
+    if (restoring_special && iflags.explore_error_flag) {
+        /* savefile has wizard or explore mode, but player is no longer
+           authorized to access either; can't downgrade mode any further, so
+           fail restoration. */
+        u.uhp = 0;
+    }
+#endif
+
+    Sfi_char(nhfp, timebuf, "gamestate-ubirthday", 14);
+    timebuf[14] = '\0';
+    ubirthday = time_from_yyyymmddhhmmss(timebuf);
+    Sfi_long(nhfp, &urealtime.realtime, "gamestate-realtime");
+    Sfi_char(nhfp, timebuf, "gamestate-start_timing", 14);
+    timebuf[14] = '\0';
+#ifndef SFCTOOL
+    urealtime.start_timing = time_from_yyyymmddhhmmss(timebuf);
+
+    /* current time is the time to use for next urealtime.realtime update */
+    urealtime.start_timing = getnow();
+
+    set_uasmon();
 #ifdef CLIPPING
     cliparound(u.ux, u.uy);
 #endif
@@ -630,7 +654,7 @@ restgamestate(NHFILE *nhfp)
         iflags.perm_invent = defer_perm_invent;
         flags = newgameflags;
         svc.context = newgamecontext;
-        free((genericptr_t) u.umonst), u.umonst = 0;
+        gy.youmonst = cg.zeromonst;
         return FALSE;
     }
     /* in case hangup save occurred in midst of level change */
@@ -655,8 +679,7 @@ restgamestate(NHFILE *nhfp)
             setworn(bc_obj, bc_obj->owornmask);
         bc_obj = nobj;
     }
-#endif /* !SFCTOOL  */
-
+#endif
     gm.migrating_objs = restobjchn(nhfp, FALSE);
     gm.migrating_mons = restmonchn(nhfp);
 
@@ -727,43 +750,6 @@ restgamestate(NHFILE *nhfp)
 #endif /* !SFCTOOL */
     return TRUE;
 }
-
-void
-rest_u(NHFILE *nhfp, boolean restoring_special)
-{
-    char timebuf[15];
-
-    Sfi_you(nhfp, &u, "gamestate-you");
-#ifndef SFCTOOL
-    if (restoring_special && iflags.explore_error_flag) {
-        /* savefile has wizard or explore mode, but player is no longer
-           authorized to access either; can't downgrade mode any further, so
-           fail restoration. */
-        u.uhp = 0;
-    }
-#endif
-
-    Sfi_char(nhfp, timebuf, "gamestate-ubirthday", 14);
-    timebuf[14] = '\0';
-    ubirthday = time_from_yyyymmddhhmmss(timebuf);
-    Sfi_long(nhfp, &urealtime.realtime, "gamestate-realtime");
-    Sfi_char(nhfp, timebuf, "gamestate-start_timing", 14);
-    timebuf[14] = '\0';
-#ifndef SFCTOOL
-    urealtime.start_timing = time_from_yyyymmddhhmmss(timebuf);
-
-    /* current time is the time to use for next urealtime.realtime update */
-    urealtime.start_timing = getnow();
-
-    u.umonst = newmonst();
-    *u.umonst = cg.zeromonst;
-    u.umonst->cham = u.mcham;
-    set_uasmon();
-#else
-    nhUse(restoring_special);
-#endif /* !SFCTOOL */
-}
-
 
 #ifndef SFCTOOL
 /* update game state pointers to those valid for the current level (so we

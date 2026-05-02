@@ -1,4 +1,4 @@
-/* NetHack 3.7	decl.c	$NHDT-Date: 1736530208 2025/01/10 09:30:08 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.341 $ */
+/* NetHack 5.0	decl.c	$NHDT-Date: 1736530208 2025/01/10 09:30:08 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.341 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Michael Allison, 2009. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -676,8 +676,6 @@ static const struct instance_globals_r g_init_r = {
 };
 
 static const struct instance_globals_s g_init_s = {
-    /* allmain.c */
-    FALSE, /* saving_grace_turn */
     /* artifact.c */
     0,  /* spec_dbon_applies */
     0,  /* spec_oprop applies */
@@ -769,8 +767,6 @@ static const struct instance_globals_t g_init_t = {
 };
 
 static const struct instance_globals_u g_init_u = {
-    /* allmain.c */
-    0, /* uhp_at_start_of_monster_turn */
     /* botl.c */
     FALSE, /* update_all */
     /* decl.c */
@@ -844,6 +840,7 @@ static const struct instance_globals_x g_init_x = {
 static const struct instance_globals_y g_init_y = {
     /* decl.c */
     (ROWNO - 1) & ~1, /* y_maze_max */
+    DUMMY, /* youmonst */
     /* pline.c */
     NULL, /* you_buf */
     0, /* you_buf_siz */
@@ -993,6 +990,11 @@ static const struct instance_globals_saved_x init_svx = {
     UNDEFINED_VALUE                      /* xmax */
 };
 
+static const struct instance_globals_saved_w init_svw = {
+    0,                                  /* wreserve */
+    100,                                /* wtreserved, not used currently */
+};
+
 static const struct instance_globals_saved_y init_svy = {
     /* mkmaze.c */
     UNDEFINED_VALUE,                     /* ymin */
@@ -1048,6 +1050,7 @@ struct instance_globals_saved_r svr;
 struct instance_globals_saved_s svs;
 struct instance_globals_saved_t svt;
 struct instance_globals_saved_u svu;
+struct instance_globals_saved_w svw;
 struct instance_globals_saved_x svx;
 struct instance_globals_saved_y svy;
 struct sinfo program_state;
@@ -1125,6 +1128,7 @@ decl_globals_init(void)
     svs = init_svs;
     svt = init_svt;
     svu = init_svu;
+    svw = init_svw;
     svx = init_svx;
     svy = init_svy;
 

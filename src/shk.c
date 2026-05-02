@@ -1,4 +1,4 @@
-/* NetHack 3.7	shk.c	$NHDT-Date: 1736516428 2025/01/10 05:40:28 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.306 $ */
+/* NetHack 5.0	shk.c	$NHDT-Date: 1736516428 2025/01/10 05:40:28 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.306 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -1533,7 +1533,7 @@ cheapest_item(int ibillct, Bill *ibill)
     long gmin = ibill[0].cost;
 
     /*
-     * 3.7: old version didn't determine cheapest item correctly if it
+     * 5.0: old version didn't determine cheapest item correctly if it
      * was either the partly used or partly intact portion of a partially
      * used stack.  Rather than modify it to use bp_to_obj() in order to
      * obtain quanities for every entry on eshkp->bill_p[], switch to
@@ -2115,7 +2115,7 @@ pay_billed_items(
     } while (via_menu);
 
     /*
-     * 3.7:  this used to make two passes through eshkp->bill_p[],
+     * 5.0:  this used to make two passes through eshkp->bill_p[],
      * the first for used up items and the second for unpaid ones.
      * Items which were partly used were processed on both passes.
      *
@@ -3635,12 +3635,12 @@ append_honorific(char *buf)
     };
 
     Strcat(buf, honored[rn2(SIZE(honored) - 1) + u.uevent.udemigod]);
-    if (is_vampire(u.umonst->data))
+    if (is_vampire(gy.youmonst.data))
         Strcat(buf, (flags.female) ? " dark lady" : " dark lord");
-    else if (maybe_polyd(is_elf(u.umonst->data), Race_if(PM_ELF)))
+    else if (maybe_polyd(is_elf(gy.youmonst.data), Race_if(PM_ELF)))
         Strcat(buf, (flags.female) ? " hiril" : " hir");
     else
-        Strcat(buf, !is_human(u.umonst->data) ? " creature"
+        Strcat(buf, !is_human(gy.youmonst.data) ? " creature"
                       : (flags.female) ? " lady"
                         : " sir");
 }
@@ -5951,7 +5951,7 @@ cad(
 {
     const char *res = 0;
 
-    switch (is_demon(u.umonst->data) ? 3 : poly_gender()) {
+    switch (is_demon(gy.youmonst.data) ? 3 : poly_gender()) {
     case 0:
         res = "cad";
         break;
@@ -5970,7 +5970,7 @@ cad(
         break;
     }
     if (altusage) {
-        char *cadbuf = mon_nam(u.umonst); /* snag an output buffer */
+        char *cadbuf = mon_nam(&gy.youmonst); /* snag an output buffer */
 
         /* alternate usage adds a leading double quote and trailing
            exclamation point plus sentence separating spaces */

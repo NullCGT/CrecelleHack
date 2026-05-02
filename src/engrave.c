@@ -1,4 +1,4 @@
-/* NetHack 3.7	engrave.c	$NHDT-Date: 1737345573 2025/01/19 19:59:33 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.165 $ */
+/* NetHack 5.0	engrave.c	$NHDT-Date: 1737345573 2025/01/19 19:59:33 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.165 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -200,10 +200,10 @@ can_reach_floor(boolean check_pit)
     /* Restricted/unskilled riders can't reach the floor */
     if (u.usteed && P_SKILL(P_RIDING) < P_BASIC)
         return FALSE;
-    if (u.uundetected && ceiling_hider(u.umonst->data))
+    if (u.uundetected && ceiling_hider(gy.youmonst.data))
         return FALSE;
 
-    if (Flying || u.umonst->data->msize >= MZ_HUGE)
+    if (Flying || gy.youmonst.data->msize >= MZ_HUGE)
         return TRUE;
 
     if (check_pit && (t = t_at(u.ux, u.uy)) != 0
@@ -533,7 +533,7 @@ u_can_engrave(void)
         return FALSE;
     }
 
-    if (cantwield(u.umonst->data)) {
+    if (cantwield(gy.youmonst.data)) {
         You_cant("even hold anything!");
         return FALSE;
     }
@@ -572,7 +572,7 @@ doengrave_ctx_init(struct _doengrave_ctx *de)
 
     if (de->oep)
         de->oetype = de->oep->engr_type;
-    if (is_demon(u.umonst->data) || is_vampire(u.umonst->data))
+    if (is_demon(gy.youmonst.data) || is_vampire(gy.youmonst.data))
         de->type = ENGR_BLOOD;
 
     de->jello = (u.uswallow && !(is_animal(u.ustuck->data)
@@ -1277,7 +1277,7 @@ doengrave(void)
 
     if (de->post_engr_text[0])
         pline("%s", de->post_engr_text);
-    if (de->doblind && !resists_blnd(u.umonst)) {
+    if (de->doblind && !resists_blnd(&gy.youmonst)) {
         You("are blinded by the flash!");
         make_blinded((long) rnd(50), FALSE);
         if (!Blind)

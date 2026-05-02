@@ -1,4 +1,4 @@
-/* NetHack 3.7	music.c	$NHDT-Date: 1736530208 2025/01/10 09:30:08 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.120 $ */
+/* NetHack 5.0	music.c	$NHDT-Date: 1736530208 2025/01/10 09:30:08 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.120 $ */
 /*      Copyright (c) 1989 by Jean-Christophe Collet */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -164,7 +164,7 @@ awaken_soldiers(struct monst *bugler  /* monster that played instrument */)
     int distance, distm;
 
     /* distance of affected non-soldier monsters to bugler */
-    distance = ((bugler == u.umonst) ? u.ulevel
+    distance = ((bugler == &gy.youmonst) ? u.ulevel
                                          : bugler->data->mlevel) * 30;
 
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
@@ -181,7 +181,7 @@ awaken_soldiers(struct monst *bugler  /* monster that played instrument */)
             else if (!Deaf)
                 Norep("%s the rattle of battle gear being readied.",
                       "You hear");  /* Deaf-aware */
-        } else if ((distm = ((bugler == u.umonst)
+        } else if ((distm = ((bugler == &gy.youmonst)
                                  ? mdistu(mtmp)
                                  : dist2(bugler->mx, bugler->my, mtmp->mx,
                                          mtmp->my))) < distance) {
@@ -300,7 +300,7 @@ do_pit(coordxy x, coordxy y, unsigned tu_pit)
             Your("chain breaks!");
             reset_utrap(TRUE);
         }
-        if (Levitation || Flying || is_clinger(u.umonst->data)) {
+        if (Levitation || Flying || is_clinger(gy.youmonst.data)) {
             if (!tu_pit) { /* no pit here previously */
                 pline("A chasm opens up under you!");
                 You("don't fall in!");
@@ -326,8 +326,8 @@ do_pit(coordxy x, coordxy y, unsigned tu_pit)
             if (keepfooting)
                 exercise(A_DEX, TRUE);
             else
-                selftouch((Upolyd && (slithy(u.umonst->data)
-                                    || nolimbs(u.umonst->data)))
+                selftouch((Upolyd && (slithy(gy.youmonst.data)
+                                    || nolimbs(gy.youmonst.data)))
                           ? "Shaken, you"
                           : "Falling down, you");
         }
@@ -671,7 +671,7 @@ do_improvisation(struct obj *instr)
         else
             You("blow into the bugle.");
         Hero_playnotes(obj_to_instr(&itmp), improvisation, 80);
-        awaken_soldiers(u.umonst);
+        awaken_soldiers(&gy.youmonst);
         exercise(A_WIS, FALSE);
         break;
     case MAGIC_HARP: /* Charm monsters */
@@ -795,7 +795,7 @@ do_play_instrument(struct obj *instr)
     } else if ((instr->otyp == FLUTE || instr->otyp == MAGIC_FLUTE
                 || instr->otyp == TOOLED_HORN || instr->otyp == FROST_HORN
                 || instr->otyp == FIRE_HORN || instr->otyp == BUGLE)
-               && !can_blow(u.umonst)) {
+               && !can_blow(&gy.youmonst)) {
         You("are incapable of playing %s.", thesimpleoname(instr));
         return ECMD_OK;
     }

@@ -1,4 +1,4 @@
-/* NetHack 3.7	monmove.c	$NHDT-Date: 1737392015 2025/01/20 08:53:35 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.266 $ */
+/* NetHack 5.0	monmove.c	$NHDT-Date: 1737392015 2025/01/20 08:53:35 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.266 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Michael Allison, 2006. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -644,8 +644,8 @@ mind_blast(struct monst *mtmp)
                         /* hero has no way to hide as monster but
                             check for that theoretical case anyway */
                         && U_AP_TYPE != M_AP_MONSTER) {
-                u.umonst->m_ap_type = M_AP_NOTHING;
-                u.umonst->mappearance = 0;
+                gy.youmonst.m_ap_type = M_AP_NOTHING;
+                gy.youmonst.mappearance = 0;
                 newsym(u.ux, u.uy);
             }
             pline("It locks on to your %s!",
@@ -685,7 +685,7 @@ mind_blast(struct monst *mtmp)
 void
 m_everyturn_effect(struct monst *mtmp)
 {
-    boolean is_u = (mtmp == u.umonst) ? TRUE : FALSE;
+    boolean is_u = (mtmp == &gy.youmonst) ? TRUE : FALSE;
     coordxy x = is_u ? u.ux : mtmp->mx,
             y = is_u ? u.uy : mtmp->my;
 
@@ -787,7 +787,7 @@ m_everyturn_effect(struct monst *mtmp)
 void
 m_postmove_effect(struct monst *mtmp)
 {
-    boolean is_u = (mtmp == u.umonst) ? TRUE : FALSE;
+    boolean is_u = (mtmp == &gy.youmonst) ? TRUE : FALSE;
     boolean vortex_growth = FALSE;
     coordxy x = is_u ? u.ux0 : mtmp->mx,
             y = is_u ? u.uy0 : mtmp->my;
@@ -979,7 +979,7 @@ dochug(struct monst *mtmp)
             pline("%s whispers at thin air.",
                   cansee(mtmp->mux, mtmp->muy) ? Monnam(mtmp) : "It");
 
-            if (is_demon(u.umonst->data)) {
+            if (is_demon(gy.youmonst.data)) {
                 /* "Good hunting, brother" */
                 if (!tele_restrict(mtmp))
                     (void) rloc(mtmp, RLOC_MSG);
@@ -1225,7 +1225,7 @@ mon_would_consume_item(struct monst *mtmp, struct obj *otmp)
 boolean
 itsstuck(struct monst *mtmp)
 {
-    if (sticks(u.umonst->data) && mtmp == u.ustuck && !u.uswallow) {
+    if (sticks(gy.youmonst.data) && mtmp == u.ustuck && !u.uswallow) {
         pline_mon(mtmp, "%s cannot escape from you!", Monnam(mtmp));
         return TRUE;
     }
@@ -1688,6 +1688,8 @@ postmov(
             if (mtmp->mx)
                 newsym(mtmp->mx, mtmp->my);
             return MMOVE_DIED; /* it died */
+        } else if (mon_offmap(mtmp)) {
+            return MMOVE_DONE;
         }
         ptr = mtmp->data; /* in case mintrap() caused polymorph */
 
@@ -1964,13 +1966,13 @@ m_move(struct monst *mtmp, int after)
          * attack it.
          */
         if (intruder && intruder != mtmp
-            /* 3.7: this used to use 'dist2() < 2' which meant that intended
+            /* 5.0: this used to use 'dist2() < 2' which meant that intended
                attack was disallowed if they were adjacent diagonally */
             && dist2(mtmp->mx, mtmp->my, tx, ty) <= 2) {
             gb.bhitpos.x = tx, gb.bhitpos.y = ty;
             gn.notonhead = (intruder->mx != tx || intruder->my != ty);
             covetousattack = mattackm(mtmp, intruder);
-            /* 3.7: this used to erroneously use '== 2' (M_ATTK_DEF_DIED) */
+            /* 5.0: this used to erroneously use '== 2' (M_ATTK_DEF_DIED) */
             if (covetousattack & M_ATTK_AGR_DIED)
                 return MMOVE_DIED;
             mmoved = MMOVE_MOVED;
@@ -2083,8 +2085,8 @@ m_move(struct monst *mtmp, int after)
 
         if (!mtmp->mcansee
             || (should_see && Invis && !perceives(ptr) && rn2(11))
-            || is_obj_mappear(u.umonst, STRANGE_OBJECT) || u.uundetected
-            || (is_obj_mappear(u.umonst, GOLD_PIECE) && !likes_gold(ptr))
+            || is_obj_mappear(&gy.youmonst, STRANGE_OBJECT) || u.uundetected
+            || (is_obj_mappear(&gy.youmonst, GOLD_PIECE) && !likes_gold(ptr))
             || (mtmp->mpeaceful && !mtmp->isshk) /* allow shks to follow */
             || ((monsndx(ptr) == PM_STALKER || ptr->mlet == S_BAT
                  || ptr->mlet == S_LIGHT) && !rn2(3)))
@@ -2110,7 +2112,7 @@ m_move(struct monst *mtmp, int after)
     if ((!mtmp->mpeaceful || !rn2(10)) && (!Is_rogue_level(&u.uz))) {
         boolean in_line = (lined_up(mtmp)
              && (distmin(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy)
-                 <= (throws_rocks(u.umonst->data) ? 20
+                 <= (throws_rocks(gy.youmonst.data) ? 20
                                                     : (ACURRSTR / 2 + 1))));
 
         if (appr != 1 || !in_line) {
@@ -2548,7 +2550,7 @@ stuff_prevents_passage(struct monst *mtmp)
 {
     struct obj *chain, *obj;
 
-    if (mtmp == u.umonst) {
+    if (mtmp == &gy.youmonst) {
         chain = gi.invent;
     } else {
         chain = mtmp->minvent;

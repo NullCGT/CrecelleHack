@@ -1,4 +1,4 @@
-/* NetHack 3.7	weapon.c	$NHDT-Date: 1725227810 2024/09/01 21:56:50 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.128 $ */
+/* NetHack 5.0	weapon.c	$NHDT-Date: 1725227810 2024/09/01 21:56:50 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.128 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2011. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -238,7 +238,7 @@ dmgval_dbonus(struct obj *otmp, struct monst *magr)
         so always subtract erosion even for blunt weapons. */
     tmp -= greatest_erosion(otmp);
     /* adjust for scaling attribute */
-    if (magr == u.umonst && scaler >= A_STR) {
+    if (magr == &gy.youmonst && scaler >= A_STR) {
         tmp += AMOD(scaler);
     }
     /* adjust for various materials */
@@ -402,7 +402,7 @@ int
 special_dmgval(struct monst *magr, struct monst *mdef,
                long armask, struct obj **hated_obj)
 {
-    boolean youattack = (magr == u.umonst);
+    boolean youattack = (magr == &gy.youmonst);
     const int magr_material = monmaterial(monsndx(magr->data));
     int bonus = 0;
     int tmpbonus = 0;
@@ -511,8 +511,8 @@ searmsg(struct monst *magr UNUSED, struct monst *mdef,
     char whose[BUFSZ];
     int mat;
     char *whom;
-    boolean youattack = (magr == u.umonst);
-    boolean youdefend = (mdef == u.umonst);
+    boolean youattack = (magr == &gy.youmonst);
+    boolean youdefend = (mdef == &gy.youmonst);
     boolean has_flesh = is_fleshy(mdef->data);
 
     if (!obj) {

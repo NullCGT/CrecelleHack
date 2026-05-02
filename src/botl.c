@@ -1,4 +1,4 @@
-/* NetHack 3.7	botl.c	$NHDT-Date: 1769839231 2026/01/30 22:00:31 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.277 $ */
+/* NetHack 5.0	botl.c	$NHDT-Date: 1769839231 2026/01/30 22:00:31 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.277 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Michael Allison, 2006. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -261,7 +261,7 @@ bot(void)
         return;
     /* dosave() flags completion by setting u.uhp to -1; suppress_map_output()
        covers program_state.restoring and is used for status as well as map */
-    if (u.uhp != -1 && u.umonst->data
+    if (u.uhp != -1 && gy.youmonst.data
         && iflags.status_updates && !suppress_map_output()) {
         if (VIA_WINDOWPORT()) {
             bot_via_windowport();
@@ -492,7 +492,7 @@ weapon_status(char *outbuf)
         /* no weapon; gloves imply hands; humanoid also implies hands;
            otherwise make no assumptions */
         res = uarmg ? "Empty-hnd" /* empty handed means "gloves only" */
-              : humanoid(u.umonst->data) ? "Bare-hnds" /* bare hands */
+              : humanoid(gy.youmonst.data) ? "Bare-hnds" /* bare hands */
                 : "No-weapon";
     } else if (u.twoweap) {
         /* two-weaponing implies hands and a weapon or wep-tool

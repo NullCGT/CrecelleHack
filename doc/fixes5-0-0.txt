@@ -1,4 +1,4 @@
-NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.1649 $ $NHDT-Date: 1777000050 2026/04/23 19:07:30 $
+NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.1649 $ $NHDT-Date: 1777000050 2026/04/23 19:07:30 $
 
 General Fixes and Modified Features
 -----------------------------------
@@ -1451,7 +1451,7 @@ some theft messages by nymphs force "she", others use default monster naming
 if a nymph stole worn armor and got killed (perhaps by pet) before hero's next
 	turn, feedback would be "You finish taking off your suit." regardless
 	of the type of armor being taken off
-when setting an option interactively [via O or 3.7's mO], if the particular
+when setting an option interactively [via O or 5.0's mO], if the particular
 	option uses a prompt to get a line of input (for compounds: 'fruit',
 	'scores', most numeric ones), input was treated as a comma-separated
 	list of option[:value] rather than just the new value of that option
@@ -1603,9 +1603,10 @@ when starting a new game as a monk, newsym(0,0) was being called (adjabil ->
 	became level 1; seen 'monster' was the hero who hadn't been placed
 	on the map yet)
 incorporate a fix to prevent segfault due to rolling boulder trap
+wands of digging generate less often lategame
 
 
-Fixes to 3.7.0-x General Problems Exposed Via git Repository
+Fixes to 5.0.0-x General Problems Exposed Via git Repository
 ------------------------------------------------------------
 incrementing EDITLEVEL to invalidate incompatible save files was not working
 	as intended because VERSION_COMPATIBILITY was defined as 3.7.0-0 and up
@@ -2218,9 +2219,6 @@ uncursed genocide while hallucinating deliberately mis-reports hero's role as
 	target but was also inappropriately showing it to livelog/#chronicle
 livelog/#chronicle for bribing a demon lord reported random monster and
 	currency if hero was hallucinating
-livelog/#chronicle for saving-grace: if saving-grace prevents hero's death,
-	report it [at present, it uses the livelog classification for breaking
-	a conduct]
 naming a type of item, unnaming it (with name of <space>), naming it again
 	(new name or re-use of old one), then unnaming it again would issue
 	impossible: "named object not in disco"
@@ -2239,7 +2237,7 @@ an attempt to pick up an object from a monster's stomach would trigger
 	set; set the coordinates to the monster's at the start of pick_obj()
 
 
-Fixes to 3.7.0-x Platform and/or Interface Problems Exposed Via git Repository
+Fixes to 5.0.0-x Platform and/or Interface Problems Exposed Via git Repository
 ------------------------------------------------------------------------------
 curses: 'msg_window' option wasn't functional for curses unless the binary
 	also included tty support
@@ -2903,11 +2901,6 @@ pyrolisk eggs explode when broken
 pauper-option to start the character with no possessions
 wand of secret door detection, spell of detect unseen, and wizard mode ^E now
 	flash the cursor at each location where detection finds something
-saving-grace: once per game if receiving a killing blow from full or nearly
-	full HP, survive with 1 HP
-enlightenment/attribute disclosure for saving-grace: include a line for have
-	or haven't been saved (game in progress) or did or didn't get saved
-	(game over) via saving-grace
 'selectsaved' lists "name-role-race-gend-algn" instead of just "name" in the
 	menu of save files available to be restored
 'selectsaved' prefixes "name-role-race-gend-algn" with "- " for normal play,

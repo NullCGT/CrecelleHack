@@ -1,4 +1,4 @@
-/* NetHack 3.7	dbridge.c	$NHDT-Date: 1772771734 2026/03/05 20:35:34 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.70 $ */
+/* NetHack 5.0	dbridge.c	$NHDT-Date: 1772771734 2026/03/05 20:35:34 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.70 $ */
 /*      Copyright (c) 1989 by Jean-Christophe Collet              */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -320,10 +320,10 @@ m_to_e(struct monst *mtmp, coordxy x, coordxy y, struct entity *etmp)
 staticfn void
 u_to_e(struct entity *etmp)
 {
-    etmp->emon = u.umonst;
+    etmp->emon = &gy.youmonst;
     etmp->ex = u.ux;
     etmp->ey = u.uy;
-    etmp->edata = u.umonst->data;
+    etmp->edata = gy.youmonst.data;
 }
 
 staticfn void
@@ -337,7 +337,7 @@ set_entity(
         m_to_e(m_at(x, y), x, y, etmp);
 }
 
-#define is_u(etmp) (etmp->emon == u.umonst)
+#define is_u(etmp) (etmp->emon == &gy.youmonst)
 #define e_canseemon(etmp) (is_u(etmp) || canseemon(etmp->emon))
 
 /*

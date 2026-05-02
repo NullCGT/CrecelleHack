@@ -1,4 +1,4 @@
-/* NetHack 3.7	steal.c	$NHDT-Date: 1720895742 2024/07/13 18:35:42 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.132 $ */
+/* NetHack 5.0	steal.c	$NHDT-Date: 1720895742 2024/07/13 18:35:42 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.132 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -93,7 +93,7 @@ stealgold(struct monst *mtmp)
             whose = s_suffix(y_monnam(who));
             what = makeplural(mbodypart(who, FOOT));
         } else {
-            who = u.umonst;
+            who = &gy.youmonst;
             whose = "your";
             what = makeplural(body_part(FOOT));
         }
@@ -408,7 +408,7 @@ steal(struct monst *mtmp, char *objnambuf)
             /* buried ball is not tracked via 'uball' and there is no chain
                at all (hence no uchain to take off) */
             pline("%s takes off your unseen chain.", Monnambuf);
-            (void) openholdingtrap(u.umonst, &dummy);
+            (void) openholdingtrap(&gy.youmonst, &dummy);
         } else if (Blind) {
             pline("Somebody tries to rob you, but finds nothing to steal.");
         } else if (inv_cnt(TRUE) > inv_cnt(FALSE)) {

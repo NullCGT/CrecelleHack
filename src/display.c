@@ -1,4 +1,4 @@
-/* NetHack 3.7	display.c	$NHDT-Date: 1777000050 2026/04/23 19:07:30 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.263 $ */
+/* NetHack 5.0	display.c	$NHDT-Date: 1777000050 2026/04/23 19:07:30 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.263 $ */
 /* Copyright (c) Dean Luick, with acknowledgements to Kevin Darcy */
 /* and Dave Cohrs, 1990.                                          */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -1506,6 +1506,8 @@ see_monsters(void)
     for (mon = fmon; mon; mon = mon->nmon) {
         if (DEADMONSTER(mon))
             continue;
+        if ((mon->mstate & MON_STILL_ARRIVING) != 0)
+            continue;
         newsym(mon->mx, mon->my);
         if (mon->wormno)
             see_wsegs(mon);
@@ -2217,7 +2219,7 @@ flush_screen(int cursor_on_u)
     glyph_info bkglyphinfo = nul_glyphinfo;
     int bkglyph;
 
-    /* 3.7: don't update map, status, or perm_invent during save/restore */
+    /* 5.0: don't update map, status, or perm_invent during save/restore */
     if (_suppress_map_output())
         return;
 
@@ -3506,7 +3508,7 @@ t_warn(struct rm *lev)
     static const char warn_str[] = "wall_angle: %s: case %d: seenv = 0x%x";
     const char *wname;
 
-    /* 3.7: non-T_wall cases added after shop repair (via breaching a wall,
+    /* 5.0: non-T_wall cases added after shop repair (via breaching a wall,
        using locking magic to put a door there, then unlocking the door;
        D_CLOSED carried over to the wall) triggered warning for "unknown" */
     switch (lev->typ) {

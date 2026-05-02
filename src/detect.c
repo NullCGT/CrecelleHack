@@ -1,4 +1,4 @@
-/* NetHack 3.7	detect.c	$NHDT-Date: 1763708572 2025/11/20 23:02:52 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.191 $ */
+/* NetHack 5.0	detect.c	$NHDT-Date: 1763708572 2025/11/20 23:02:52 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.191 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2018. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -386,7 +386,7 @@ gold_detect(struct obj *sobj)
            adjust message if you have gold in your inventory */
         char buf[BUFSZ];
 
-        if (u.umonst->data == &mons[PM_GOLD_GOLEM])
+        if (gy.youmonst.data == &mons[PM_GOLD_GOLEM])
             Sprintf(buf, "You feel like a million %s!", currency(2L));
         else if (money_cnt(gi.invent) || hidden_gold(TRUE))
             Strcpy(buf,
@@ -1227,7 +1227,7 @@ use_crystal_ball(struct obj **optr)
             make_confused((HConfusion & TIMEOUT) + impair, FALSE);
             break;
         case 3:
-            if (!resists_blnd(u.umonst)) {
+            if (!resists_blnd(&gy.youmonst)) {
                 pline("%s your vision!", Tobjnam(obj, "damage"));
                 make_blinded(BlindedTimeout + impair, FALSE);
                 if (!Blind)
@@ -1777,7 +1777,7 @@ openone(coordxy zx, coordxy zy, genericptr_t num)
             newsym(zx, zy);
             (*num_p)++;
         }
-        mon = u_at(zx, zy) ? u.umonst : m_at(zx, zy);
+        mon = u_at(zx, zy) ? &gy.youmonst : m_at(zx, zy);
         if (openholdingtrap(mon, &dummy)
             || openfallingtrap(mon, TRUE, &dummy))
             (*num_p)++;

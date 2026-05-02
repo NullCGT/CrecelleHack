@@ -1,4 +1,4 @@
-/* NetHack 3.7	invent.c	$NHDT-Date: 1762680996 2025/11/09 01:36:36 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.543 $ */
+/* NetHack 5.0	invent.c	$NHDT-Date: 1762680996 2025/11/09 01:36:36 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.543 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Derek S. Ray, 2015. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -1239,7 +1239,7 @@ hold_another_object(
         /* in case touching this object turns out to be fatal */
         place_object(obj, u.ux, u.uy);
 
-        if (!touch_artifact(obj, u.umonst)) {
+        if (!touch_artifact(obj, &gy.youmonst)) {
             obj_extract_self(obj); /* remove it from the floor */
             dropy(obj);            /* now put it back again :-) */
             return obj;
@@ -1516,7 +1516,7 @@ carrying(int type)
 {
     struct obj *otmp;
 
-    /* this could be replaced by 'return m_carrying(u.umonst, type);' */
+    /* this could be replaced by 'return m_carrying(&gy.youmonst, type);' */
     for (otmp = gi.invent; otmp; otmp = otmp->nobj)
         if (otmp->otyp == type)
             break;
@@ -4369,7 +4369,7 @@ look_here(
                       : (otmp->quan > 1L) ? "They're"
                         : "It's",
                       corpse_xname(otmp, (const char *) 0, CXN_ARTICLE),
-                      poly_when_stoned(u.umonst->data) ? ""
+                      poly_when_stoned(gy.youmonst.data) ? ""
                       : ", unfortunately");
                 feel_cockatrice(otmp, FALSE);
                 break;
@@ -4448,7 +4448,7 @@ feel_cockatrice(struct obj *otmp, boolean force_touch)
         /* "the <cockatrice> corpse" */
         Strcpy(kbuf, corpse_xname(otmp, (const char *) 0, CXN_PFX_THE));
 
-        if (poly_when_stoned(u.umonst->data))
+        if (poly_when_stoned(gy.youmonst.data))
             You("touched %s with your bare %s.", kbuf,
                 makeplural(body_part(HAND)));
         else
@@ -4888,8 +4888,8 @@ useupf(struct obj *obj, long numused)
             (void) stolen_value(otmp, otmp->ox, otmp->oy, FALSE, FALSE);
     }
     delobj(otmp);
-    if (at_u && u.uundetected && hides_under(u.umonst->data))
-        (void) hideunder(u.umonst);
+    if (at_u && u.uundetected && hides_under(gy.youmonst.data))
+        (void) hideunder(&gy.youmonst);
 }
 
 /*
@@ -5470,7 +5470,7 @@ display_minventory(
         /* Fool the 'weapon in hand' routine into
          * displaying 'weapon in claw', etc. properly.
          */
-        u.umonst->data = mon->data;
+        gy.youmonst.data = mon->data;
         /* in case inside a shop, don't append "for sale" prices */
         iflags.suppress_price++;
 
@@ -5481,7 +5481,7 @@ display_minventory(
 
         iflags.suppress_price--;
         /* was 'set_uasmon();' but that potentially has side-effects */
-        u.umonst->data = &mons[u.umonnum]; /* basic part of set_uasmon() */
+        gy.youmonst.data = &mons[u.umonnum]; /* basic part of set_uasmon() */
     } else {
         invdisp_nothing(title ? title : tmp, "(none)");
         n = 0;

@@ -1,4 +1,4 @@
-/* NetHack 3.7	wield.c	$NHDT-Date: 1707525193 2024/02/10 00:33:13 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.110 $ */
+/* NetHack 5.0	wield.c	$NHDT-Date: 1707525193 2024/02/10 00:33:13 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.110 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2009. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -159,7 +159,7 @@ const char *
 empty_handed(void)
 {
     return uarmg ? "empty handed" /* gloves imply hands */
-           : humanoid(u.umonst->data)
+           : humanoid(gy.youmonst.data)
              /* hands but no weapon and no gloves */
              ? "bare handed"
                /* alternate phrasing for paws or lack of hands */
@@ -256,9 +256,9 @@ ready_weapon(struct obj *wep)
                 pline("%s the material of your %s!",
                         Tobjnam(wep, "mimic"), gloves_simple_name(uarmg));
                 force_material(wep, uarmg->material);
-            } else if (monmaterial(u.umonst->mnum)) {
+            } else if (monmaterial(gy.youmonst.mnum)) {
                 pline("%s your body!", Tobjnam(wep, "mimic"));
-                force_material(wep, monmaterial(u.umonst->mnum));
+                force_material(wep, monmaterial(gy.youmonst.mnum));
             } else {
                 pline("%s in time with your pulse.", Tobjnam(wep, "throb"));
             }
@@ -394,7 +394,7 @@ dowield(void)
 
     /* May we attempt this? */
     gm.multi = 0;
-    if (cantwield(u.umonst->data)) {
+    if (cantwield(gy.youmonst.data)) {
         pline("Don't be ridiculous!");
         return ECMD_FAIL;
     }
@@ -500,7 +500,7 @@ doswapweapon(void)
 
     /* May we attempt this? */
     gm.multi = 0;
-    if (cantwield(u.umonst->data)) {
+    if (cantwield(gy.youmonst.data)) {
         pline("Don't be ridiculous!");
         return ECMD_FAIL;
     }
@@ -754,7 +754,7 @@ wield_tool(struct obj *obj,
         }
         return FALSE;
     }
-    if (cantwield(u.umonst->data)) {
+    if (cantwield(gy.youmonst.data)) {
         You_cant("hold %s strongly enough.", more_than_1 ? "them" : "it");
         return FALSE;
     }
@@ -802,7 +802,7 @@ can_twoweapon(void)
 {
     struct obj *otmp;
 
-    if (!could_twoweap(u.umonst->data) && Upolyd) {
+    if (!could_twoweap(gy.youmonst.data) && Upolyd) {
         You_cant("use two weapons in your current form.");
     } else if (uwep && is_dualweapon(uwep)) {
         return TRUE;

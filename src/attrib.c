@@ -1,4 +1,4 @@
-/* NetHack 3.7	attrib.c	$NHDT-Date: 1777000050 2026/04/23 19:07:30 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.137 $ */
+/* NetHack 5.0	attrib.c	$NHDT-Date: 1777000050 2026/04/23 19:07:30 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.137 $ */
 /*      Copyright 1988, 1989, 1990, 1992, M. Stephenson           */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -696,7 +696,7 @@ rnd_attr(void)
 {
     int i, x = rn2(100);
 
-    /* 3.7: the x -= ... calculation used to have an off by 1 error that
+    /* 5.0: the x -= ... calculation used to have an off by 1 error that
        resulted in the values being biased toward Str and away from Cha */
     for (i = 0; i < A_MAX; ++i)
         if ((x -= gu.urole.attrdist[i]) < 0)
@@ -910,7 +910,7 @@ is_innate(int propidx)
            ignore innateness if equipment is going to claim responsibility */
         && !u.uprops[propidx].extrinsic)
         return FROM_ROLE;
-    if ((propidx == BLINDED && !haseyes(u.umonst->data))
+    if ((propidx == BLINDED && !haseyes(gy.youmonst.data))
         || (propidx == BLND_RES && (HBlnd_resist & FROMFORM) != 0))
         return FROM_FORM;
     return FROM_NONE;
@@ -1256,7 +1256,7 @@ acurr(int chridx)
                there would limit Str to 18/07 [18 + 7] */
             result = max(tmp, 3);
     } else if (chridx == A_CHA) {
-        if (tmp < 18 && (u.umonst->data->mlet == S_NYMPH
+        if (tmp < 18 && (gy.youmonst.data->mlet == S_NYMPH
                          || u.umonnum == PM_AMOROUS_DEMON))
             result = 18;
     } else if (chridx == A_CON) {

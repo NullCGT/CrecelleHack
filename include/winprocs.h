@@ -1,4 +1,4 @@
-/* NetHack 3.7	winprocs.h	$NHDT-Date: 1736530208 2025/01/10 09:30:08 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.83 $ */
+/* NetHack 5.0	winprocs.h	$NHDT-Date: 1736530208 2025/01/10 09:30:08 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.83 $ */
 /* Copyright (c) David Cohrs, 1992                                */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -76,7 +76,7 @@ struct window_procs {
     void (*win_delay_output)(void);
 #ifdef CHANGE_COLOR
     void (*win_change_color)(int, long, int);
-#ifdef MAC
+#ifdef MACOS9
     void (*win_change_background)(int);
     short (*win_set_font_name)(winid, char *);
 #endif
@@ -127,7 +127,7 @@ extern
 #define display_file (*windowprocs.win_display_file)
 #define start_menu (*windowprocs.win_start_menu)
 #define end_menu (*windowprocs.win_end_menu)
-/* 3.7: There are real add_menu() and select_menu in the core now.
+/* 5.0: There are real add_menu() and select_menu in the core now.
  *      add_menu does some common activities, such as menu_colors.
  *      select_menu does some before and after activities.
  *      add_menu() and select_menu() are in windows.c
@@ -151,7 +151,7 @@ extern
 #define nh_poskey (*windowprocs.win_nh_poskey)
 #define nhbell (*windowprocs.win_nhbell)
 #define nh_doprev_message (*windowprocs.win_doprev_message)
-/* 3.7: There is a real getlin() in the core now, which does
+/* 5.0: There is a real getlin() in the core now, which does
  *      some before and after activities.
  *      [alternative fix for menu search via ':'.]
  *      getlin() is in windows.c
@@ -162,7 +162,7 @@ extern
 #define nh_delay_output (*windowprocs.win_delay_output)
 #ifdef CHANGE_COLOR
 #define change_color (*windowprocs.win_change_color)
-#ifdef MAC
+#ifdef MACOS9
 #define change_background (*windowprocs.win_change_background)
 #define set_font_name (*windowprocs.win_set_font_name)
 #endif
@@ -297,7 +297,7 @@ struct wc_Opt {
 /* Macro for the currently active Window Port whose function
    pointers have been loaded */
 #if 0
-/* 3.7 The string comparison version isn't used anymore */
+/* 5.0 The string comparison version isn't used anymore */
 #define WINDOWPORT(wn) \
     (windowprocs.name && !strncmpi((#wn), windowprocs.name, strlen((#wn))))
 #endif
@@ -394,7 +394,7 @@ struct chain_procs {
     void (*win_delay_output)(CARGS);
 #ifdef CHANGE_COLOR
     void (*win_change_color)(CARGS, int, long, int);
-#ifdef MAC
+#ifdef MACOS9
     void (*win_change_background)(CARGS, int);
     short (*win_set_font_name)(CARGS, winid, char *);
 #endif

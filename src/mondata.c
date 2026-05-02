@@ -1,4 +1,4 @@
-/* NetHack 3.7	mondata.c	$NHDT-Date: 1738638877 2025/02/03 19:14:37 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.140 $ */
+/* NetHack 5.0	mondata.c	$NHDT-Date: 1738638877 2025/02/03 19:14:37 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.140 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2011. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -13,7 +13,7 @@ void
 set_mon_data(struct monst *mon, struct permonst *ptr)
 {
     int new_speed, old_speed = mon->data ? mon->data->mmove : 0;
-    short *movement_p = (mon == u.umonst) ? &u.umovement : &mon->movement;
+    short *movement_p = (mon == &gy.youmonst) ? &u.umovement : &mon->movement;
 
     mon->data = ptr;
     mon->mnum = (short) monsndx(ptr);
@@ -85,14 +85,14 @@ poly_when_stoned(struct permonst *ptr)
     /* allow G_EXTINCT */
 }
 
-/* is 'mon' (possibly u.umonst) protected against damage type 'adtype' via
+/* is 'mon' (possibly youmonst) protected against damage type 'adtype' via
    wielded weapon or worn dragon scales? [or by virtue of being a dragon?] */
 boolean
 defended(struct monst *mon, int adtyp)
 {
     struct obj *o, otemp;
     int mndx;
-    boolean is_you = (mon == u.umonst);
+    boolean is_you = (mon == &gy.youmonst);
 
     /* is 'mon' wielding an artifact that protects against 'adtyp'? */
     o = is_you ? uwep : MON_WEP(mon);
@@ -130,7 +130,7 @@ Resists_Elem(struct monst *mon, int propindx)
 {
     struct obj *o;
     long slotmask;
-    boolean is_you = (mon == u.umonst);
+    boolean is_you = (mon == &gy.youmonst);
     int u_resist = 0, damgtype = 0, rsstmask = 0;
 
     /*
@@ -206,7 +206,7 @@ resists_drli(struct monst *mon)
 
     if (is_undead(ptr) || is_demon(ptr) || is_were(ptr)
         /* is_were() doesn't handle hero in human form */
-        || (mon == u.umonst && u.ulycn >= LOW_PM)
+        || (mon == &gy.youmonst && u.ulycn >= LOW_PM)
         || ptr == &mons[PM_DEATH] || is_vampshifter(mon)
         || ptr == &mons[PM_TORNADO])
         return TRUE;
@@ -227,7 +227,7 @@ boolean
 resists_magm(struct monst *mon)
 {
     struct permonst *ptr = mon->data;
-    boolean is_you = (mon == u.umonst);
+    boolean is_you = (mon == &gy.youmonst);
     long slotmask;
     struct obj *o;
 
@@ -261,7 +261,7 @@ resists_blnd(struct monst *mon)
 {
     struct permonst *ptr = mon->data;
     struct obj *obj;
-    boolean is_you = (mon == u.umonst);
+    boolean is_you = (mon == &gy.youmonst);
 
     if (is_you ? (Blind || Unaware)
                : (mon->mblinded || !mon->mcansee || !haseyes(ptr)
@@ -297,7 +297,7 @@ boolean
 resists_blnd_by_arti(struct monst *mon)
 {
     struct obj *o;
-    boolean is_you = (mon == u.umonst);
+    boolean is_you = (mon == &gy.youmonst);
 
     o = is_you ? uwep : MON_WEP(mon);
     if (o && o->oartifact && defends(AD_BLND, o))
@@ -327,7 +327,7 @@ can_blnd(
     uchar aatyp,
     struct obj *obj) /* aatyp == AT_WEAP, AT_SPIT */
 {
-    boolean is_you = (mdef == u.umonst);
+    boolean is_you = (mdef == &gy.youmonst);
     boolean check_visor = FALSE;
     struct obj *o;
 
@@ -373,7 +373,7 @@ can_blnd(
             return TRUE; /* no defense */
         } else
             return FALSE; /* other objects cannot cause blindness yet */
-        if ((magr == u.umonst) && u.uswallow)
+        if ((magr == &gy.youmonst) && u.uswallow)
             return FALSE; /* can't affect eyes while inside monster */
         break;
 
@@ -388,7 +388,7 @@ can_blnd(
         /* e.g. raven: all ublindf, including LENSES, protect */
         if (is_you && ublindf)
             return FALSE;
-        if ((magr == u.umonst) && u.uswallow)
+        if ((magr == &gy.youmonst) && u.uswallow)
             return FALSE; /* can't affect eyes while inside monster */
         check_visor = TRUE;
         break;
@@ -406,7 +406,7 @@ can_blnd(
 
     /* check if wearing a visor (only checked if visor might help) */
     if (check_visor) {
-        o = (mdef == u.umonst) ? gi.invent : mdef->minvent;
+        o = (mdef == &gy.youmonst) ? gi.invent : mdef->minvent;
         for (; o; o = o->nobj)
             if ((o->owornmask & W_ARMH)
                 && objdescr_is(o, "visored helmet"))
@@ -537,7 +537,7 @@ boolean
 mon_hates_material(struct monst *mon, int material)
 {
     struct permonst *mdat;
-    if (mon == u.umonst)
+    if (mon == &gy.youmonst)
         mdat = &mons[gu.urace.mnum];
     else 
         mdat = mon->data;
@@ -630,7 +630,7 @@ can_blow(struct monst *mtmp)
         && (breathless(mtmp->data) || verysmall(mtmp->data)
             || !has_head(mtmp->data) || mtmp->data->mlet == S_EEL))
         return FALSE;
-    if ((mtmp == u.umonst) && Strangled)
+    if ((mtmp == &gy.youmonst) && Strangled)
         return FALSE;
     return TRUE;
 }
@@ -639,7 +639,7 @@ can_blow(struct monst *mtmp)
 boolean
 can_chant(struct monst *mtmp)
 {
-    if ((mtmp == u.umonst && Strangled)
+    if ((mtmp == &gy.youmonst && Strangled)
         || is_silent(mtmp->data) || !has_head(mtmp->data)
         || mtmp->data->msound == MS_BUZZ || mtmp->data->msound == MS_BURBLE)
         return FALSE;
@@ -662,10 +662,10 @@ can_be_strangled(struct monst *mon)
        are non-breathing creatures which have higher brain function. */
     if (!has_head(mon->data))
         return FALSE;
-    if (mon == u.umonst) {
+    if (mon == &gy.youmonst) {
         /* hero can't be mindless but poly'ing into mindless form can
            confer strangulation protection */
-        nobrainer = mindless(u.umonst->data);
+        nobrainer = mindless(gy.youmonst.data);
         nonbreathing = Breathless;
     } else {
         nobrainer = mindless(mon->data);
@@ -1427,7 +1427,7 @@ big_little_match(int montyp1, int montyp2)
 const struct permonst *
 raceptr(struct monst *mtmp)
 {
-    if (mtmp == u.umonst && !Upolyd)
+    if (mtmp == &gy.youmonst && !Upolyd)
         return &mons[gu.urace.mnum];
     return mtmp->data;
 }
@@ -1465,7 +1465,7 @@ stagger(const struct permonst *ptr, const char *def)
 {
     int locoindx = (*def != highc(*def)) ? 2 : 3;
 
-    if (ptr == u.umonst->data && Underwater)
+    if (ptr == gy.youmonst.data && Underwater)
         return "sink";
 
     return (is_floater(ptr) ? levitate[locoindx]

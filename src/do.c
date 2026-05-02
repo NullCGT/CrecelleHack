@@ -1,4 +1,4 @@
-/* NetHack 3.7	do.c	$NHDT-Date: 1774269965 2026/03/23 04:46:05 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.404 $ */
+/* NetHack 5.0	do.c	$NHDT-Date: 1774269965 2026/03/23 04:46:05 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.404 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Derek S. Ray, 2015. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -79,7 +79,7 @@ boulder_hits_pool(
                 levl[rx][ry].typ = ROOM, levl[rx][ry].flags = 0;
                 recalc_block_point(rx, ry);
             }
-            /* 3.7: normally DEADMONSTER() is used when traversing the fmon
+            /* 5.0: normally DEADMONSTER() is used when traversing the fmon
                list--dead monsters usually aren't still at specific map
                locations; however, if ice melts causing a giant to drown,
                that giant would still be on the map when it drops inventory;
@@ -230,7 +230,7 @@ flooreffects(
                 }
                 mtmp->mtrapped = 0;
             } else {
-                if (!Passes_walls && !throws_rocks(u.umonst->data)) {
+                if (!Passes_walls && !throws_rocks(gy.youmonst.data)) {
                     losehp(Maybe_Half_Phys(rnd(15)),
                            "squished under a boulder", NO_KILLER_PREFIX);
                     goto deletedwithboulder;
@@ -1321,7 +1321,7 @@ dodown(void)
         const char *down_or_thru = trap->ttyp == HOLE ? "down" : "through";
         const char *actn = u_locomotion("jump");
 
-        if (u.umonst->data->msize >= MZ_HUGE) {
+        if (gy.youmonst.data->msize >= MZ_HUGE) {
             char qbuf[QBUFSZ];
 
             You("don't fit %s easily.", down_or_thru);
@@ -1386,7 +1386,7 @@ doup(void)
         return ECMD_TIME;
 
     if ((near_capacity() > SLT_ENCUMBER)
-        && !is_climber(u.umonst->data)) {
+        && !is_climber(gy.youmonst.data)) {
         /* No levitation check; inv_weight() already allows for it */
         Your("load is too heavy to climb the %s.",
              levl[u.ux][u.uy].typ == STAIRS ? "stairs" : "ladder");
@@ -1491,7 +1491,7 @@ u_collide_m(struct monst *mtmp)
        it was already here.  Randomly move you to an adjacent spot
        or else the monster to any nearby location.  Prior to 3.3.0
        the latter was done unconditionally. */
-    if (!rn2(2) && enexto(&cc, u.ux, u.uy, u.umonst->data)
+    if (!rn2(2) && enexto(&cc, u.ux, u.uy, gy.youmonst.data)
         && next2u(cc.x, cc.y))
         u_on_newpos(cc.x, cc.y); /*[maybe give message here?]*/
     else
@@ -1600,7 +1600,7 @@ goto_level(
      *   -2    5.21   4.17   0.0
      *   -3    2.08   0.0    0.0
      *
-     * 3.7.0: the chance for the "mysterious force" to kick in goes down
+     * 5.0.0: the chance for the "mysterious force" to kick in goes down
      * as it kicks in, starting at 25% per climb attempt and dropping off
      * gradually but substantially.  The drop off is greater when hero is
      * sent down farther so benefits lawfuls more than chaotics this time.
@@ -2090,7 +2090,7 @@ hellish_smoke_mesg(void)
 
     if (In_hell(&u.uz) && svl.level.flags.temperature > 0)
         You("%s smoke...",
-              olfaction(u.umonst->data) ? "smell" : "sense");
+              olfaction(gy.youmonst.data) ? "smell" : "sense");
 }
 
 /* give a message when the level temperature is different from previous */
@@ -2541,7 +2541,7 @@ set_wounded_legs(long side, int timex)
         set_itimeout(&HWounded_legs, (long) timex);
     /* the leg being wounded and its timeout might differ from one
        attack to the next, but we don't track the legs separately;
-       3.7: both legs will ultimately heal together; this used to use
+       5.0: both legs will ultimately heal together; this used to use
        direct assignment instead of bitwise-OR so getting wounded in
        one leg mysteriously healed the other */
     EWounded_legs |= side;

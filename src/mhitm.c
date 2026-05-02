@@ -1,4 +1,4 @@
-/* NetHack 3.7	mhitm.c	$NHDT-Date: 1732979463 2024/11/30 07:11:03 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.253 $ */
+/* NetHack 5.0	mhitm.c	$NHDT-Date: 1732979463 2024/11/30 07:11:03 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.253 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2011. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -609,7 +609,7 @@ failed_grab(
         && (mattk->aatyp == AT_HUGS || mattk->adtyp == AD_WRAP
             || mattk->adtyp == AD_STCK  || mattk->adtyp == AD_DGST)) {
         if ((gv.vis && canspotmon(mdef)) /* mon-vs-mon */
-            || magr == u.umonst || mdef == u.umonst) {
+            || magr == &gy.youmonst || mdef == &gy.youmonst) {
             char magrnam[BUFSZ], mdefnam[BUFSZ];
             boolean tailmiss = gn.notonhead;
             const char *verb = (mattk->adtyp == AD_DGST) ? "gulp"
@@ -620,14 +620,14 @@ failed_grab(
                mon_nam(x_monnam) calls s_suffix() for named ghosts and
                s_suffix() uses a single static buffer; make copies of both
                names to overcome that [note: comment predates 'tailmiss'] */
-            Strcpy(magrnam, (magr == u.umonst) ? "Your"
+            Strcpy(magrnam, (magr == &gy.youmonst) ? "Your"
                                                    : s_suffix(Monnam(magr)));
             if (!tailmiss) {
-                Strcpy(mdefnam, (mdef == u.umonst) ? "you"
+                Strcpy(mdefnam, (mdef == &gy.youmonst) ? "you"
                                                        : mon_nam(mdef));
             } else {
                 /* hero poly'd into long worm can't grow tail
-                   so no 'u.umonst' handling is needed here */
+                   so no 'youmonst' handling is needed here */
                 Sprintf(mdefnam, "%s tail", s_suffix(some_mon_nam(mdef)));
             }
             /* unsolid grab misses are actually somewhat iffy--how come
@@ -813,8 +813,8 @@ engulf_target(struct monst *magr, struct monst *mdef)
 {
     struct rm *lev;
     int ax, ay, dx, dy;
-    boolean uatk = (magr == u.umonst),
-            udef = (mdef == u.umonst);
+    boolean uatk = (magr == &gy.youmonst),
+            udef = (mdef == &gy.youmonst);
 
     /* can't swallow something that's too big */
     if (mdef->data->msize >= MZ_HUGE
@@ -830,16 +830,16 @@ engulf_target(struct monst *magr, struct monst *mdef)
        might not be able to place attacker and defender both back on map;
        when defender is the hero, a sanity_check complaint about placing
        the hero on top of a monster can occur */
-    dx = (mdef == u.umonst) ? u.ux : mdef->mx;
-    dy = (mdef == u.umonst) ? u.uy : mdef->my;
+    dx = (mdef == &gy.youmonst) ? u.ux : mdef->mx;
+    dy = (mdef == &gy.youmonst) ? u.uy : mdef->my;
     lev = &levl[dx][dy];
     if (!(udef ? Passes_walls : passes_walls(mdef->data))
           && (IS_OBSTRUCTED(lev->typ) || closed_door(dx, dy) || IS_TREE(lev->typ)
               /* not passes_bars(); engulfer isn't squeezing through */
               || (lev->typ == IRONBARS && !is_whirly(magr->data))))
         return FALSE;
-    ax = (magr == u.umonst) ? u.ux : magr->mx;
-    ay = (magr == u.umonst) ? u.uy : magr->my;
+    ax = (magr == &gy.youmonst) ? u.ux : magr->mx;
+    ay = (magr == &gy.youmonst) ? u.uy : magr->my;
     lev = &levl[ax][ay];
     if (!(uatk ? Passes_walls : passes_walls(magr->data))
         && (IS_OBSTRUCTED(lev->typ) || closed_door(ax, ay) || IS_TREE(lev->typ)
@@ -924,7 +924,7 @@ gulpmm(
          *  -> relmon() used to call remove_monster() for the dead
          *  monster even when it wasn't the one on the map, so we
          *  needed to put magr back after mdef was killed and removed
-         *  from their shared spot.  But now [3.7] relmon() calls
+         *  from their shared spot.  But now [5.0] relmon() calls
          *  mon_leaving_level() and that checks whether the monster at
          *  dying monster's coordinates is that dying monster and only
          *  removes it when they match.  So magr is still at mdef's
@@ -1145,7 +1145,7 @@ mon_poly(struct monst *magr, struct monst *mdef, int dmg)
     static const char freaky[] = " undergoes a freakish metamorphosis";
     struct permonst *oldform = mdef->data;
 
-    if (mdef == u.umonst) {
+    if (mdef == &gy.youmonst) {
         if (Antimagic) {
             shieldeff(u.ux, u.uy);
         } else if (Unchanging) {
@@ -1187,7 +1187,7 @@ mon_poly(struct monst *magr, struct monst *mdef, int dmg)
             mdef->mhp -= dmg;
             dmg = 0;
             if (DEADMONSTER(mdef)) {
-                if (magr == u.umonst)
+                if (magr == &gy.youmonst)
                     xkilled(mdef, XKILL_GIVEMSG | XKILL_NOCORPSE);
                 else
                     monkilled(mdef, "", AD_RBRE);
@@ -1203,13 +1203,13 @@ mon_poly(struct monst *magr, struct monst *mdef, int dmg)
                           x_monnam(mdef, ARTICLE_A, (char *) 0,
                                    (SUPPRESS_NAME | SUPPRESS_IT
                                     | SUPPRESS_INVISIBLE), FALSE));
-                else if (was_seen || magr == u.umonst)
+                else if (was_seen || magr == &gy.youmonst)
                     pline("%s%s%s.", Before, freaky,
                           !was_seen ? "" : " and disappears");
             }
             dmg = 0;
             if (can_teleport(magr->data)) {
-                if (magr == u.umonst)
+                if (magr == &gy.youmonst)
                     tele();
                 else if (!tele_restrict(magr))
                     (void) rloc(magr, RLOC_MSG);
@@ -1221,7 +1221,7 @@ mon_poly(struct monst *magr, struct monst *mdef, int dmg)
     }
     /* when a transformation has happened, can't attack again for poly
        effect during next turn or two; not enforced for poly'd hero */
-    if (mdef->data != oldform && magr != u.umonst)
+    if (mdef->data != oldform && magr != &gy.youmonst)
         magr->mspec_used += rnd(2);
 
     return dmg;

@@ -1,4 +1,4 @@
-/* NetHack 3.7	pline.c	$NHDT-Date: 1719819280 2024/07/01 07:34:40 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.130 $ */
+/* NetHack 5.0	pline.c	$NHDT-Date: 1719819280 2024/07/01 07:34:40 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.130 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2018. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -139,7 +139,7 @@ pline_mon(struct monst *mtmp, const char *line, ...)
 {
     va_list the_args;
 
-    if (mtmp == u.umonst)
+    if (mtmp == &gy.youmonst)
         set_msg_xy(0, 0);
     else
         set_msg_xy(mtmp->mx, mtmp->my);

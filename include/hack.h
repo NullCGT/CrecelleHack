@@ -1,4 +1,4 @@
-/* NetHack 3.7	hack.h	$NHDT-Date: 1736530208 2025/01/10 09:30:08 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.266 $ */
+/* NetHack 5.0	hack.h	$NHDT-Date: 1736530208 2025/01/10 09:30:08 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.266 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Pasi Kallinen, 2017. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -471,7 +471,7 @@ enum encumbrance_types {
 };
 
 struct entity {
-    struct monst *emon;     /* u.umonst for the player */
+    struct monst *emon;     /* youmonst for the player */
     struct permonst *edata; /* must be non-zero for record to be valid */
     int ex, ey;
 };
@@ -721,6 +721,8 @@ enum nhcb_calls {
     NUM_NHCB
 };
 
+#define NHUUIDSZ 37
+
 struct plinemsg_type {
     xint16 msgtype;  /* one of MSGTYP_foo */
     struct nhregex *regex;
@@ -811,6 +813,7 @@ struct sinfo {
     int config_error_ready;     /* config_error_add is ready, available */
     int beyond_savefile_load;   /* set when past savefile loading */
     int savefile_completed;     /* savefile has completed writing */
+    int reading_bonesfile;      /* in the midst of trying to read bones file */
 #ifdef PANICLOG
     int in_paniclog;            /* writing a panicloc entry */
 #endif
@@ -1317,7 +1320,7 @@ typedef uint32_t mmflags_nht;     /* makemon MM_ flags */
 #define FM_FMON 0x01    /* search the fmon chain */
 #define FM_MIGRATE 0x02 /* search the migrating monster chain */
 #define FM_MYDOGS 0x04  /* search gm.mydogs */
-#define FM_YOU 0x08     /* check for u.umonst */
+#define FM_YOU 0x08     /* check for gy.youmonst */
 #define FM_EVERYWHERE (FM_YOU | FM_FMON | FM_MIGRATE | FM_MYDOGS)
 
 /* Flags to control pick_[race,role,gend,align] routines in role.c */

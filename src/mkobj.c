@@ -1,4 +1,4 @@
-/* NetHack 3.7	mkobj.c	$NHDT-Date: 1764044196 2025/11/24 20:16:36 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.326 $ */
+/* NetHack 5.0	mkobj.c	$NHDT-Date: 1764044196 2025/11/24 20:16:36 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.326 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Derek S. Ray, 2015. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -1043,7 +1043,7 @@ mksobj_init(struct obj **obj, boolean artif)
             /* for emphasis; glob quantity is always 1 and weight varies
                when other globs coalesce with it or this one shrinks */
             otmp->quan = 1L;
-            /* 3.7: globs in 3.6.x left owt as 0 and let weight() fix
+            /* 5.0: globs in 3.6.x left owt as 0 and let weight() fix
                that up during 'obj->owt = weight(obj)' below, but now
                we initialize glob->owt explicitly so weight() doesn't
                need to perform any fix up and returns glob->owt as-is */
@@ -1950,7 +1950,7 @@ curse(struct obj *otmp)
     otmp->blessed = 0;
     otmp->cursed = 1;
     /* welded two-handed weapon interferes with some armor removal */
-    if (otmp == uwep && is_bimanual(uwep, u.umonst->data))
+    if (otmp == uwep && is_bimanual(uwep, gy.youmonst.data))
         reset_remarm();
     /* rules at top of wield.c state that twoweapon cannot be done
        with cursed alternate weapon */
@@ -2077,7 +2077,7 @@ weight(struct obj *obj)
        manage glob->owt and there is nothing for weight() to do except
        return the current value as-is */
     if (obj->globby) {
-        /* 3.7: in 3.6.x this checked for owt==0 and then used
+        /* 5.0: in 3.6.x this checked for owt==0 and then used
            owt as-is when non-zero or objects[].oc_weight if zero;
            we don't do that anymore because it confused calculating
            the weight of a container when a glob inside shrank down
@@ -2150,7 +2150,7 @@ weight(struct obj *obj)
     } else if (obj->oclass == FOOD_CLASS && obj->oeaten) {
         return eaten_stat((int) obj->quan * wt, obj);
     } else if (obj->oclass == COIN_CLASS) {
-        /* 3.7: always weigh at least 1 unit; used to yield 0 for 1..49 */
+        /* 5.0: always weigh at least 1 unit; used to yield 0 for 1..49 */
         wt = (int) ((obj->quan + 50L) / 100L);
         return max(wt, 1);
     } else if (obj->otyp == HEAVY_IRON_BALL && obj->owt != 0) {

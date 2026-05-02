@@ -1,4 +1,4 @@
-/* NetHack 3.7	write.c	$NHDT-Date: 1702023275 2023/12/08 08:14:35 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.41 $ */
+/* NetHack 5.0	write.c	$NHDT-Date: 1702023275 2023/12/08 08:14:35 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.41 $ */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -86,7 +86,7 @@ dowrite(struct obj *pen)
     const char *typeword;
     int spell_knowledge;
 
-    if (nohands(u.umonst->data)) {
+    if (nohands(gy.youmonst.data)) {
         You("need hands to be able to write!");
         return ECMD_OK;
     } else if (Glib) {

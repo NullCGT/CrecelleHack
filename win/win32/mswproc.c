@@ -1,4 +1,4 @@
-/* NetHack 3.7	mswproc.c	$NHDT-Date: 1717967341 2024/06/09 21:09:01 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.193 $ */
+/* NetHack 5.0	mswproc.c	$NHDT-Date: 1717967341 2024/06/09 21:09:01 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.193 $ */
 /* Copyright (C) 2001 by Alex Kompel */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -881,7 +881,8 @@ mswin_display_nhwindow(winid wid, boolean block)
             if (!block) {
                 UpdateWindow(GetNHApp()->windowlist[wid].win);
             } else {
-                if (GetNHApp()->windowlist[wid].type == NHW_MAP) {
+                if ((GetNHApp()->windowlist[wid].type == NHW_MAP)
+                    || (GetNHApp()->windowlist[wid].type == NHW_MESSAGE)) {
                     (void) mswin_nhgetch();
                 }
             }
@@ -2364,8 +2365,8 @@ logDebug(const char *fmt, ...)
 
 /* Reading and writing settings from the registry. */
 #define CATEGORYKEY "Software"
-#define COMPANYKEY "CrecelleHack"
-#define PRODUCTKEY "NetHack 3.7.0"
+#define COMPANYKEY "NetHack"
+#define PRODUCTKEY "NetHack 5.0.0"
 #define SETTINGSKEY "Settings"
 #define MAINSHOWSTATEKEY "MainShowState"
 #define MAINMINXKEY "MainMinX"

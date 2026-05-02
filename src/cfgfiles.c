@@ -1,4 +1,4 @@
-/* NetHack 3.7	cfgfiles.c	$NHDT-Date: 1740532826 2025/02/25 17:20:26 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.417 $ */
+/* NetHack 5.0	cfgfiles.c	$NHDT-Date: 1740532826 2025/02/25 17:20:26 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.417 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Derek S. Ray, 2015. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -9,7 +9,7 @@
 #include "dlb.h"
 #include <errno.h>
 
-#if (!defined(MAC) && !defined(O_WRONLY) && !defined(AZTEC_C)) \
+#if (!defined(MACOS9) && !defined(O_WRONLY) && !defined(AZTEC_C)) \
     || defined(USE_FCNTL)
 #include <fcntl.h>
 #endif
@@ -129,7 +129,7 @@ static const char *default_configfile =
 #ifdef UNIX
     ".crecellehackrc";
 #else
-#if defined(MAC) || defined(__BEOS__)
+#if defined(MACOS9) || defined(__BEOS__)
     "NetHack Defaults";
 #else
 #if defined(MSDOS) || defined(WIN32)
@@ -278,7 +278,7 @@ fopen_config_file(const char *filename, int src)
     }
     /* fall through to standard names */
 
-#if defined(MICRO) || defined(MAC) || defined(__BEOS__) || defined(WIN32)
+#if defined(MICRO) || defined(MACOS9) || defined(__BEOS__) || defined(WIN32)
     set_configfile_name(fqname(default_configfile, CONFIGPREFIX, 0));
     if ((fp = fopen(configfile, "r")) != (FILE *) 0) {
         return fp;
@@ -369,7 +369,7 @@ fopen_config_file(const char *filename, int src)
         wait_synch();
     }
 #endif /* !VMS => Unix */
-#endif /* !(MICRO || MAC || __BEOS__ || WIN32) */
+#endif /* !(MICRO || MACOS9 || __BEOS__ || WIN32) */
     return (FILE *) 0;
 }
 

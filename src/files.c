@@ -1,4 +1,4 @@
-/* NetHack 3.7	files.c	$NHDT-Date: 1740532826 2025/02/25 17:20:26 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.417 $ */
+/* NetHack 5.0	files.c	$NHDT-Date: 1740532826 2025/02/25 17:20:26 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.417 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Derek S. Ray, 2015. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -45,7 +45,7 @@
 #endif
 #endif
 
-#if (!defined(MAC) && !defined(O_WRONLY) && !defined(AZTEC_C)) \
+#if (!defined(MACOS9) && !defined(O_WRONLY) && !defined(AZTEC_C)) \
     || defined(USE_FCNTL)
 #include <fcntl.h>
 #endif
@@ -153,7 +153,7 @@ extern boolean get_user_home_folder(char *, size_t);
 #endif
 #endif
 
-#ifdef MAC
+#ifdef MACOS9
 #undef unlink
 #define unlink macunlink
 #endif
@@ -663,7 +663,7 @@ create_levelfile(int lev, char errbuf[])
         nhfp->fd = open(fq_lock, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY,
                         FCMASK);
 #else
-#ifdef MAC
+#ifdef MACOS9
         nhfp->fd = maccreat(fq_lock, LEVL_TYPE);
 #else
         nhfp->fd = creat(fq_lock, FCMASK);
@@ -709,7 +709,7 @@ open_levelfile(int lev, char errbuf[])
         nhfp->fpdef = (FILE *) 0;
     }
     if (nhfp && nhfp->structlevel) {
-#ifdef MAC
+#ifdef MACOS9
         nhfp->fd = macopen(fq_lock, O_RDONLY | O_BINARY, LEVL_TYPE);
 #else
         nhfp->fd = open(fq_lock, O_RDONLY | O_BINARY, 0);
@@ -1006,12 +1006,12 @@ create_bonesfile(d_level *lev, char **bonesid, char errbuf[])
                            O_WRONLY | O_CREAT | O_TRUNC | O_BINARY,
                            _SH_DENYRW, _S_IREAD | _S_IWRITE);
 #else /* ?MICRO || WIN32 */
-/* implies UNIX or MAC (MAC is for OS9 or earlier) */
-#ifdef MAC
+/* implies UNIX or MACOS9 (MACOS9 is for OS9 or earlier) */
+#ifdef MACOS9
             nhfp->fd = maccreat(file, BONE_TYPE);
 #else
             nhfp->fd = creat(file, FCMASK);
-#endif  /* ?MAC */
+#endif  /* ?MACOS9 */
 #endif  /* ?MICRO || WIN32 */
             if (nhfp->fd < 0)
                 failed = errno;
@@ -1101,7 +1101,7 @@ open_bonesfile(d_level *lev, char **bonesid)
 #endif
         }
         if (nhfp->structlevel) {
-#if defined(MAC)
+#if defined(MACOS9)
             nhfp->fd = macopen(fq_bones, O_RDONLY | O_BINARY, BONE_TYPE);
 #elif defined(WIN32)
             err = _sopen_s(&nhfp->fd, fq_bones, _O_RDONLY | _O_BINARY,
@@ -1275,7 +1275,7 @@ set_error_savefile(void)
     }
     Strcat(gs.SAVEF, ".e;1");
 #else
-#ifdef MAC
+#ifdef MACOS9
     Strcat(gs.SAVEF, "-e");
 #else
     Strcat(gs.SAVEF, ".e");
@@ -1314,8 +1314,8 @@ create_savefile(void)
             nhfp->fd = open(fq_save, O_WRONLY | O_BINARY | O_CREAT | O_TRUNC,
                             FCMASK);
 #else /* !MICRO && !WIN32 */
-/* UNIX || MAC implied (MAC is OS9 or earlier only) */
-#ifdef MAC
+/* UNIX || MACOS9 implied (MACOS9 is OS9 or earlier only) */
+#ifdef MACOS9
             nhfp->fd = maccreat(fq_save, SAVE_TYPE);
 #else
             nhfp->fd = creat(fq_save, FCMASK);
@@ -1370,7 +1370,7 @@ open_savefile(void)
             nhfp->fplog = fopen("open-savefile.log", "w");
 #endif
         }
-#ifdef MAC
+#ifdef MACOS9
         nhfp->fd = macopen(fq_save, O_RDONLY | O_BINARY, SAVE_TYPE);
 #else
         nhfp->fd = open(fq_save, O_RDONLY | O_BINARY, 0);
@@ -2254,7 +2254,7 @@ make_converted_name(const char *filename)
             size_t sz = strlen(folderbuf);
 
             Snprintf(eos(folderbuf), sizeof folderbuf - sz,
-                     "\\AppData\\Local\\NetHack\\3.7\\");
+                     "\\AppData\\Local\\NetHack\\5.0\\");
             dir = (const char *) folderbuf;
         }
 #endif /* UNIX || WIN32 */
@@ -2630,7 +2630,7 @@ fopen_wizkit_file(void)
 #endif
     }
 
-#if defined(MICRO) || defined(MAC) || defined(__BEOS__) || defined(WIN32)
+#if defined(MICRO) || defined(MACOS9) || defined(__BEOS__) || defined(WIN32)
     if ((fp = fopen(fqname(gw.wizkit, CONFIGPREFIX, 0), "r")) != (FILE *) 0)
         return fp;
 #else
@@ -2909,13 +2909,13 @@ check_recordfile(const char *dir UNUSED_if_not_OS2_CODEVIEW)
     }
 #else /* MICRO || WIN32*/
 
-#ifdef MAC
+#ifdef MACOS9
     /* Create the "record" file, if necessary */
     fq_record = fqname(RECORD, SCOREPREFIX, 0);
     fd = macopen(fq_record, O_RDWR | O_CREAT, TEXT_TYPE);
     if (fd != -1)
         macclose(fd);
-#endif /* MAC */
+#endif /* MACOS9 */
 
 #endif /* MICRO || WIN32*/
 }

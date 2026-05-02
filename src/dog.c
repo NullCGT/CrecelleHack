@@ -1,4 +1,4 @@
-/* NetHack 3.7	dog.c	$NHDT-Date: 1753856387 2025/07/29 22:19:47 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.190 $ */
+/* NetHack 5.0	dog.c	$NHDT-Date: 1753856387 2025/07/29 22:19:47 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.190 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2011. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -171,7 +171,7 @@ make_familiar(struct obj *otmp, coordxy x, coordxy y, boolean quietly)
                     : (cgend == CORPSTAT_MALE) ? MM_MALE : 0L);
 
         mtmp = makemon(pm, x, y, mmflags);
-        ESUM(mtmp)->ownermid = u.umonst->m_id;
+        ESUM(mtmp)->ownermid = gy.youmonst.m_id;
         if (otmp) { /* figurine */
             if (!mtmp) {
                 /* monster has been genocided or target spot is occupied */
@@ -455,6 +455,7 @@ mon_arrive(struct monst *mtmp, int when)
     stairway *stway;
     d_level fromdlev;
 
+    mtmp->mstate |= MON_STILL_ARRIVING;
     mtmp->nmon = fmon;
     fmon = mtmp;
     if (mtmp->isshk)
@@ -503,6 +504,7 @@ mon_arrive(struct monst *mtmp, int when)
             rloc_to(mtmp, u.ux, u.uy);
         else
             mnexto(mtmp, RLOC_NOMSG);
+        mtmp->mstate &= ~MON_STILL_ARRIVING;
         return;
     } else if (when == Wiz_arrive) {
         /* resurrect() is bringing existing wizard to harass the hero */
@@ -633,6 +635,7 @@ mon_arrive(struct monst *mtmp, int when)
 
     mtmp->mx = 0; /*(already is 0)*/
     mtmp->my = xyflags;
+
     if (xlocale)
         failed_to_place = !mnearto(mtmp, xlocale, ylocale, FALSE, RLOC_NOMSG);
     else
@@ -645,6 +648,7 @@ mon_arrive(struct monst *mtmp, int when)
         else /* when==Wiz_arrive => not being called by losedogs() */
             m_into_limbo(mtmp);
     }
+    mtmp->mstate &= ~MON_STILL_ARRIVING;
 }
 
 /* heal monster for time spent elsewhere */
@@ -1286,7 +1290,7 @@ tamedog(
            with each other anymore] */
         || mtmp->isshk || mtmp->isgd || mtmp->ispriest || mtmp->isminion
         || is_covetous(mtmp->data) || is_human(mtmp->data)
-        || (is_demon(mtmp->data) && !is_demon(u.umonst->data))
+        || (is_demon(mtmp->data) && !is_demon(gy.youmonst.data))
         || (obj && dogfood(mtmp, obj) >= MANFOOD))
         return FALSE;
 
@@ -1361,7 +1365,7 @@ wary_dog(struct monst *mtmp, boolean was_dead)
             if (!rn2(edog->abuse + 1))
                 mtmp->mpeaceful = 1;
         if (!quietly && cansee(mtmp->mx, mtmp->my)) {
-            if (haseyes(u.umonst->data)) {
+            if (haseyes(gy.youmonst.data)) {
                 if (haseyes(mtmp->data))
                     pline_mon(mtmp,
                              "%s %s to look you in the %s.", Monnam(mtmp),

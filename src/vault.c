@@ -1,4 +1,4 @@
-/* NetHack 3.7	vault.c	$NHDT-Date: 1737622664 2025/01/23 00:57:44 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.113 $ */
+/* NetHack 5.0	vault.c	$NHDT-Date: 1737622664 2025/01/23 00:57:44 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.113 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2011. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -466,18 +466,18 @@ invault(void)
         }
         if (U_AP_TYPE == M_AP_OBJECT || u.uundetected) {
             if (U_AP_TYPE == M_AP_OBJECT
-                && u.umonst->mappearance != GOLD_PIECE)
+                && gy.youmonst.mappearance != GOLD_PIECE)
                 if (!Deaf) {
                     SetVoice(guard, 0, 80, 0);
                     verbalize("Hey!  Who left that %s in here?",
-                              mimic_obj_name(u.umonst));
+                              mimic_obj_name(&gy.youmonst));
                 }
             /* You're mimicking some object or you're hidden. */
             pline("Puzzled, %s turns around and leaves.", mhe(guard));
             mongone(guard);
             return;
         }
-        if (Strangled || is_silent(u.umonst->data) || gm.multi < 0) {
+        if (Strangled || is_silent(gy.youmonst.data) || gm.multi < 0) {
             /* [we ought to record whether this message has already
                been given in order to vary it upon repeat visits, but
                discarding the monster and its egd data renders that hard] */

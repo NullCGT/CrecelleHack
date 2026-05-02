@@ -1,4 +1,4 @@
-/* NetHack 3.7	dig.c	$NHDT-Date: 1740629713 2025/02/26 20:15:13 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.227 $ */
+/* NetHack 5.0	dig.c	$NHDT-Date: 1740629713 2025/02/26 20:15:13 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.227 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Michael Allison, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -200,7 +200,7 @@ is_digging(void)
     return FALSE;
 }
 
-#define BY_YOU (u.umonst)
+#define BY_YOU (&gy.youmonst)
 #define BY_OBJECT ((struct monst *) 0)
 
 enum digcheck_result
@@ -396,7 +396,7 @@ dig(void)
         } else if (ttmp && ttmp->ttyp == BEAR_TRAP && u.utrap) {
             if (rnl(7) > (Fumbling ? 1 : 4)) {
                 char kbuf[BUFSZ];
-                int dmg = dmgval(uwep, u.umonst, u.umonst) + dbon();
+                int dmg = dmgval(uwep, &gy.youmonst, &gy.youmonst) + dbon();
 
                 if (dmg < 1)
                     dmg = 1;
@@ -405,7 +405,7 @@ dig(void)
                 You("hit yourself in the %s.", body_part(FOOT));
                 if (Hate_material(uwep->material)) {
                     /* extra damage already applied by dmgval() */
-                    searmsg(u.umonst, u.umonst, uwep, FALSE);
+                    searmsg(&gy.youmonst, &gy.youmonst, uwep, FALSE);
                     exercise(A_CON, FALSE);
                 }
                 Sprintf(kbuf, "chopping off %s own %s", uhis(),
@@ -467,7 +467,7 @@ dig(void)
         } else if (digtyp == DIGTYP_BOULDER
                    && (obj = sobj_at(BOULDER, dpx, dpy)) != 0) {
             fracture_rock(obj);
-            /*[3.7: this probably isn't necessary anymore]*/
+            /*[5.0: this probably isn't necessary anymore]*/
             if ((bobj = sobj_at(BOULDER, dpx, dpy)) != 0) {
                 /* another boulder here, restack it to the top */
                 obj_extract_self(bobj);
@@ -2213,8 +2213,8 @@ rot_corpse(anything *arg, long timeout)
             && hides_under(mtmp->data)) {
             mtmp->mundetected = 0;
         } else if (u_at(x, y)
-                   && u.uundetected && hides_under(u.umonst->data))
-            (void) hideunder(u.umonst);
+                   && u.uundetected && hides_under(gy.youmonst.data))
+            (void) hideunder(&gy.youmonst);
         newsym(x, y);
     } else if (in_invent)
         update_inventory();
@@ -2273,27 +2273,27 @@ void
 escape_tomb(void)
 {
     debugpline0("escape_tomb");
-    if ((Teleportation || can_teleport(u.umonst->data))
+    if ((Teleportation || can_teleport(gy.youmonst.data))
         && (Teleport_control || rn2(3) < Luck+2)) {
         You("attempt a teleport spell.");
         (void) dotele(FALSE);        /* calls unearth_you() */
     } else if (u.uburied) { /* still buried after 'port attempt */
         boolean good;
 
-        if (amorphous(u.umonst->data) || Passes_walls
-            || noncorporeal(u.umonst->data)
-            || (unsolid(u.umonst->data)
-                && u.umonst->data != &mons[PM_WATER_ELEMENTAL])
-            || (tunnels(u.umonst->data) && !needspick(u.umonst->data))) {
+        if (amorphous(gy.youmonst.data) || Passes_walls
+            || noncorporeal(gy.youmonst.data)
+            || (unsolid(gy.youmonst.data)
+                && gy.youmonst.data != &mons[PM_WATER_ELEMENTAL])
+            || (tunnels(gy.youmonst.data) && !needspick(gy.youmonst.data))) {
             You("%s up through the %s.",
-                (tunnels(u.umonst->data) && !needspick(u.umonst->data))
+                (tunnels(gy.youmonst.data) && !needspick(gy.youmonst.data))
                    ? "try to tunnel"
-                   : (amorphous(u.umonst->data))
+                   : (amorphous(gy.youmonst.data))
                       ? "ooze"
                       : "phase",
                 surface(u.ux, u.uy));
 
-            good = (tunnels(u.umonst->data) && !needspick(u.umonst->data))
+            good = (tunnels(gy.youmonst.data) && !needspick(gy.youmonst.data))
                       ? dighole(TRUE, FALSE, (coord *) 0) : TRUE;
             if (good)
                 unearth_you();

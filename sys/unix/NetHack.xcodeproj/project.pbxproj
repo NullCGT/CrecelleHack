@@ -209,6 +209,7 @@
 		F5857AA22DED026700A8CB4F /* version.c in Sources */ = {isa = PBXBuildFile; fileRef = 31B8A32721A238010055BD01 /* version.c */; };
 		F5857AA42DED032D00A8CB4F /* cfgfiles.c in Sources */ = {isa = PBXBuildFile; fileRef = F5857AA32DED032C00A8CB4F /* cfgfiles.c */; };
 		F5857AA62DED03BB00A8CB4F /* sfbase.c in Sources */ = {isa = PBXBuildFile; fileRef = F5857AA52DED03BB00A8CB4F /* sfbase.c */; };
+		F5E1A4CF2FA2F74C0014D115 /* macuuid.m in Sources */ = {isa = PBXBuildFile; fileRef = F5E1A4CE2FA2F74C0014D115 /* macuuid.m */; };
 		F5E66A222F7D4B30000E30B7 /* earlyarg.c in Sources */ = {isa = PBXBuildFile; fileRef = F5E66A212F7D4B30000E30B7 /* earlyarg.c */; };
 /* End PBXBuildFile section */
 
@@ -635,6 +636,7 @@
 		F54C1AE42E43D22A006CAA8E /* sfprocs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = sfprocs.h; path = ../../include/include/sfprocs.h; sourceTree = "<group>"; };
 		F5857AA32DED032C00A8CB4F /* cfgfiles.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = cfgfiles.c; path = ../../src/cfgfiles.c; sourceTree = "<group>"; };
 		F5857AA52DED03BB00A8CB4F /* sfbase.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = sfbase.c; path = ../../src/sfbase.c; sourceTree = "<group>"; };
+		F5E1A4CE2FA2F74C0014D115 /* macuuid.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = macuuid.m; sourceTree = "<group>"; };
 		F5E66A212F7D4B30000E30B7 /* earlyarg.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = earlyarg.c; path = ../../src/earlyarg.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -695,6 +697,7 @@
 		3189576821A1FCC100FB2ABE = {
 			isa = PBXGroup;
 			children = (
+				F5E1A4CE2FA2F74C0014D115 /* macuuid.m */,
 				F5E66A212F7D4B30000E30B7 /* earlyarg.c */,
 				F50818302F6F564300D2AAFA /* iactions.c */,
 				F515A73B2DED0B47006E1F63 /* hacklib.c */,
@@ -1883,6 +1886,7 @@
 				31B8A38621A238060055BD01 /* mondata.c in Sources */,
 				31B8A41921A244940055BD01 /* objects.c in Sources */,
 				31B8A3AA21A238060055BD01 /* wizard.c in Sources */,
+				F5E1A4CF2FA2F74C0014D115 /* macuuid.m in Sources */,
 				31B8A3D021A238060055BD01 /* explode.c in Sources */,
 				31B8A3DE21A238060055BD01 /* sys.c in Sources */,
 				31B8A38021A238060055BD01 /* sit.c in Sources */,
@@ -2190,6 +2194,7 @@
 					"DEBUG=1",
 					"$(inherited)",
 				);
+				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = "NHUUID=1";
 				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_PEDANTIC = YES;
@@ -2318,6 +2323,10 @@
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 5J8MP36Y73;
 				GCC_C_LANGUAGE_STANDARD = c99;
+				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
 				INSTALL_PATH = "$(NH_INSTALL_DIR)";
 				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
 				OTHER_CFLAGS = (
@@ -2351,6 +2360,7 @@
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 5J8MP36Y73;
 				GCC_C_LANGUAGE_STANDARD = c99;
+				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = "NHUUID=1";
 				INSTALL_PATH = "$(NH_INSTALL_DIR)";
 				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
 				OTHER_CFLAGS = (

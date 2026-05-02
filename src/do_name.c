@@ -1,4 +1,4 @@
-/* NetHack 3.7	do_name.c	$NHDT-Date: 1737013431 2025/01/15 23:43:51 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.326 $ */
+/* NetHack 5.0	do_name.c	$NHDT-Date: 1737013431 2025/01/15 23:43:51 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.326 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Pasi Kallinen, 2018. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -452,7 +452,7 @@ objtyp_is_callable(int i)
 
     switch(objects[i].oc_class) {
     case AMULET_CLASS:
-        /* 3.7: calling these used to be allowed but that enabled the
+        /* 5.0: calling these used to be allowed but that enabled the
            player to tell whether two unID'd amulets of yendor were both
            fake or one was real by calling them distinct names and then
            checking discoveries to see whether first name was replaced
@@ -722,7 +722,7 @@ namefloorobj(void)
        been moved off the hero's '@' yet, but there's no way to adjust
        the help text once getpos() has started */
     Sprintf(buf, "object on map (or '.' for one %s you)",
-            (u.uundetected && hides_under(u.umonst->data))
+            (u.uundetected && hides_under(gy.youmonst.data))
               ? "over" : "under");
     if (getpos(&cc, FALSE, buf) < 0 || cc.x <= 0)
         return;
@@ -958,7 +958,7 @@ x_monnam(
             mappear_as_mon = (M_AP_TYPE(mtmp) == M_AP_MONSTER);
     char *bp, buf2[BUFSZ];
 
-    if (mtmp == u.umonst)
+    if (mtmp == &gy.youmonst)
         return strcpy(buf, "you"); /* ignore article, "invisible", &c */
 
     if (program_state.gameover)
@@ -1426,7 +1426,7 @@ Mgender(struct monst *mtmp)
 {
     int mgender = MALE;
 
-    if (mtmp == u.umonst) {
+    if (mtmp == &gy.youmonst) {
         if (Upolyd ? u.mfemale : flags.female)
             mgender = FEMALE;
     } else if (mtmp->female) {
@@ -1622,7 +1622,7 @@ static NEARDATA const char *const hliquids[] = {
     "caramel sauce", "ink", "aqueous humour", "milk substitute",
     "fruit juice", "glowing lava", "gastric acid", "mineral water",
     "cough syrup", "quicksilver", "sweet vitriol", "grey goo", "pink slime",
-    "cosmic latte",
+    "cosmic latte", "bone oil", "custard", "lard", "vinegar", "creosote",
     /* "new coke (tm)", --better not */
 };
 

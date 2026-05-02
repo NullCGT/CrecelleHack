@@ -1,4 +1,4 @@
-/* NetHack 3.7	worn.c	$NHDT-Date: 1770949988 2026/02/12 18:33:08 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.119 $ */
+/* NetHack 5.0	worn.c	$NHDT-Date: 1770949988 2026/02/12 18:33:08 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.119 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2013. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -463,7 +463,7 @@ check_wornmask_slots(void)
             why = "uswapwep is not a melee weapon";
         else if (uswapwep && u_bimanual(uswapwep))
             why = "uswapwep is two-handed";
-        else if (Upolyd && !could_twoweap(u.umonst->data))
+        else if (Upolyd && !could_twoweap(gy.youmonst.data))
             why = "without two weapon attacks";
 
         if (why)
@@ -1072,7 +1072,7 @@ m_dowear_type(
 struct obj *
 which_armor(struct monst *mon, long flag)
 {
-    if (mon == u.umonst) {
+    if (mon == &gy.youmonst) {
         switch (flag) {
         case W_ARM:
             return uarm;

@@ -1,4 +1,4 @@
-/* NetHack 3.7	steed.c	$NHDT-Date: 1720128167 2024/07/04 21:22:47 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.121 $ */
+/* NetHack 5.0	steed.c	$NHDT-Date: 1720128167 2024/07/04 21:22:47 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.121 $ */
 /* Copyright (c) Kevin Hugo, 1998-1999. */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -68,7 +68,7 @@ use_saddle(struct obj *otmp)
         char kbuf[BUFSZ];
 
         You("touch %s.", mon_nam(mtmp));
-        if (!(poly_when_stoned(u.umonst->data) && polymon(PM_STONE_GOLEM))) {
+        if (!(poly_when_stoned(gy.youmonst.data) && polymon(PM_STONE_GOLEM))) {
             Sprintf(kbuf, "attempting to saddle %s",
                     an(pmname(mtmp->data, Mgender(mtmp))));
             instapetrify(kbuf);
@@ -175,8 +175,8 @@ put_saddle_on_mon(struct obj *saddle, struct monst *mtmp)
 boolean
 can_ride(struct monst *mtmp)
 {
-    return (mtmp->mtame && humanoid(u.umonst->data)
-            && !verysmall(u.umonst->data) && !bigmonst(u.umonst->data)
+    return (mtmp->mtame && humanoid(gy.youmonst.data)
+            && !verysmall(gy.youmonst.data) && !bigmonst(gy.youmonst.data)
             && (!Underwater || is_swimmer(mtmp->data)));
 }
 
@@ -245,10 +245,10 @@ mount_steed(
             return (FALSE);
     }
 
-    if (Upolyd && (!humanoid(u.umonst->data)
-                   || verysmall(u.umonst->data)
-                   || bigmonst(u.umonst->data)
-                   || slithy(u.umonst->data))) {
+    if (Upolyd && (!humanoid(gy.youmonst.data)
+                   || verysmall(gy.youmonst.data)
+                   || bigmonst(gy.youmonst.data)
+                   || slithy(gy.youmonst.data))) {
         You("won't fit on a saddle.");
         return (FALSE);
     }
@@ -552,7 +552,7 @@ landing_spot(
                     kn_trap = i == 0 && ((t = t_at(x, y)) != 0 && t->tseen
                                          && t->ttyp != VIBRATING_SQUARE);
                     boulder = i <= 1 && (sobj_at(BOULDER, x, y)
-                                         && !throws_rocks(u.umonst->data));
+                                         && !throws_rocks(gy.youmonst.data));
                     if (!kn_trap && !boulder) {
                         spot->x = x;
                         spot->y = y;
@@ -573,7 +573,7 @@ landing_spot(
 
     /* If we didn't find a good spot and forceit is on, try enexto(). */
     if (forceit && !found)
-        found = enexto(spot, u.ux, u.uy, u.umonst->data);
+        found = enexto(spot, u.ux, u.uy, gy.youmonst.data);
 
     return found;
 }

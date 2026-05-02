@@ -1,4 +1,4 @@
-/* NetHack 3.7	mthrowu.c	$NHDT-Date: 1737392015 2025/01/20 08:53:35 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.173 $ */
+/* NetHack 5.0	mthrowu.c	$NHDT-Date: 1737392015 2025/01/20 08:53:35 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.173 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Pasi Kallinen, 2016. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -124,7 +124,7 @@ thitu(
             pline("It doesn't seem to hurt you.");
             monstseesu(M_SEEN_ACID);
         } else if (obj && stone_missile(obj)
-                   && passes_rocks(u.umonst->data)) {
+                   && passes_rocks(gy.youmonst.data)) {
             /* use 'named' as an approximation for "hitting from above";
                we avoid "passes through you" for horizontal flight path
                because missile stops and that wording would suggest that
@@ -134,14 +134,14 @@ thitu(
         } else if (obj && obj->oclass == POTION_CLASS) {
             /* an explosion which scatters objects might hit hero with one
                (potions deliberately thrown at hero are handled by m_throw) */
-            potionhit(u.umonst, obj, POTHIT_OTHER_THROW);
+            potionhit(&gy.youmonst, obj, POTHIT_OTHER_THROW);
             *objp = obj = 0; /* potionhit() uses up the potion */
         } else {
             if (obj && Hate_material(obj->material)) {
                 /* extra damage already applied by dmgval();
                  * dmgval is not called in this function but we assume that the
                  * caller used it when constructing the dmg parameter */
-                searmsg((struct monst *) 0, u.umonst, obj, TRUE);
+                searmsg((struct monst *) 0, &gy.youmonst, obj, TRUE);
                 exercise(A_CON, FALSE);
             }
             if (is_acid) {
@@ -190,7 +190,7 @@ drop_throw(
             if (!(broken = flooreffects(obj, x, y, "fall"))) {
                 place_object(obj, x, y);
                 if (!mtmp && u_at(x, y))
-                    mtmp = u.umonst;
+                    mtmp = &gy.youmonst;
                 if (mtmp && ohit)
                     passive_obj(mtmp, obj, (struct attack *) 0);
                 stackobj(obj);
@@ -507,7 +507,7 @@ ucatchgem(
     struct monst *mon)
 {
     /* won't catch rock or gray stone; catch (then drop) worthless glass */
-    if (gem->otyp <= LAST_GLASS_GEM && is_unicorn(u.umonst->data)) {
+    if (gem->otyp <= LAST_GLASS_GEM && is_unicorn(gy.youmonst.data)) {
         char *gem_xname = xname(gem),
              *mon_s_name = s_suffix(mon_nam(mon));
 
@@ -536,7 +536,7 @@ u_catch_thrown_obj(struct obj *otmp)
 
     if (!Blind && !Confusion && !Stunned && !Fumbling
         && otmp->oclass != VENOM_CLASS
-        && !nohands(u.umonst->data) && freehand()
+        && !nohands(gy.youmonst.data) && freehand()
         && calc_capacity(otmp->owt) <= SLT_ENCUMBER && !rn2(catch_chance)) {
         char buf[BUFSZ];
 
@@ -695,7 +695,7 @@ m_throw(
                 break;
 
             if (singleobj->oclass == POTION_CLASS) {
-                potionhit(u.umonst, singleobj, POTHIT_MONST_THROW);
+                potionhit(&gy.youmonst, singleobj, POTHIT_MONST_THROW);
                 break;
             }
             oldumort = u.umortality;
@@ -719,7 +719,7 @@ m_throw(
                 {
                     int dam, hitv;
 
-                    dam = dmgval(singleobj, mon, u.umonst);
+                    dam = dmgval(singleobj, mon, &gy.youmonst);
                     hitv = 3 - distmin(u.ux, u.uy, mon->mx, mon->my);
                     if (hitv < -4)
                         hitv = -4;
@@ -732,7 +732,7 @@ m_throw(
                         if (singleobj->otyp == ELVEN_ARROW)
                             dam++;
                     }
-                    if (bigmonst(u.umonst->data))
+                    if (bigmonst(gy.youmonst.data))
                         hitv++;
                     hitv += 8 + singleobj->spe;
                     if (dam < 1)
@@ -755,7 +755,7 @@ m_throw(
             if (hitu && singleobj->otyp == BOTTLE) {
                 pline_The("bottle shatters over your %s.", body_part(HEAD));
             }
-            if (hitu && can_blnd((struct monst *) 0, u.umonst,
+            if (hitu && can_blnd((struct monst *) 0, &gy.youmonst,
                                  (uchar) ((singleobj->otyp == BLINDING_VENOM)
                                              ? AT_SPIT
                                              : AT_WEAP),
@@ -770,7 +770,7 @@ m_throw(
                 } else if (singleobj->otyp == BLINDING_VENOM) {
                     const char *eyes = body_part(EYE);
 
-                    if (eyecount(u.umonst->data) != 1)
+                    if (eyecount(gy.youmonst.data) != 1)
                         eyes = makeplural(eyes);
                     /* venom in the eyes */
                     if (!Blind)
@@ -785,7 +785,7 @@ m_throw(
             }
             if (hitu && singleobj->otyp == EGG) {
                 if (!Stoned && !Stone_resistance
-                    && !(poly_when_stoned(u.umonst->data)
+                    && !(poly_when_stoned(gy.youmonst.data)
                          && polymon(PM_STONE_GOLEM))) {
                     make_stoned(5L, (char *) 0, KILLED_BY, "");
                 }
@@ -1037,7 +1037,7 @@ spitmm(struct monst *mtmp, struct attack *mattk, struct monst *mtarg)
         return M_ATTK_MISS;
     }
     if (m_lined_up(mtarg, mtmp)) {
-        boolean utarg = (mtarg == u.umonst);
+        boolean utarg = (mtarg == &gy.youmonst);
         coordxy tx = utarg ? mtmp->mux : mtarg->mx;
         coordxy ty = utarg ? mtmp->muy : mtarg->my;
 
@@ -1102,7 +1102,7 @@ int
 breamm(struct monst *mtmp, struct attack *mattk, struct monst *mtarg)
 {
     int typ = get_atkdam_type(mattk->adtyp);
-    boolean utarget = (mtarg == u.umonst);
+    boolean utarget = (mtarg == &gy.youmonst);
 
     if (m_lined_up(mtarg, mtmp)) {
         if (mtmp->mcan) {
@@ -1234,11 +1234,11 @@ thrwmu(struct monst *mtmp)
                   obj_is_pname(otmp) ? the(onm) : an(onm));
         }
 
-        dam = dmgval(otmp, mtmp, u.umonst);
+        dam = dmgval(otmp, mtmp, &gy.youmonst);
         hitv = 3 - distmin(u.ux, u.uy, mtmp->mx, mtmp->my);
         if (hitv < -4)
             hitv = -4;
-        if (bigmonst(u.umonst->data))
+        if (bigmonst(gy.youmonst.data))
             hitv++;
         hitv += 8 + otmp->spe;
         if (dam < 1)
@@ -1276,14 +1276,14 @@ thrwmu(struct monst *mtmp)
 int
 spitmu(struct monst *mtmp, struct attack *mattk)
 {
-    return spitmm(mtmp, mattk, u.umonst);
+    return spitmm(mtmp, mattk, &gy.youmonst);
 }
 
 /* monster breathes at you (ranged) */
 int
 breamu(struct monst *mtmp, struct attack *mattk)
 {
-    return breamm(mtmp, mattk, u.umonst);
+    return breamm(mtmp, mattk, &gy.youmonst);
 }
 
 /* return TRUE if terrain at x,y blocks linedup checks */
@@ -1384,7 +1384,7 @@ linedup(
 staticfn int
 m_lined_up(struct monst *mtarg, struct monst *mtmp)
 {
-    boolean utarget = (mtarg == u.umonst);
+    boolean utarget = (mtarg == &gy.youmonst);
     coordxy tx = utarget ? mtmp->mux : mtarg->mx;
     coordxy ty = utarget ? mtmp->muy : mtarg->my;
     boolean ignore_boulders = utarget && (throws_rocks(mtmp->data)
@@ -1406,7 +1406,7 @@ m_lined_up(struct monst *mtarg, struct monst *mtmp)
 boolean
 lined_up(struct monst *mtmp)
 {
-    return m_lined_up(u.umonst, mtmp) ? TRUE : FALSE;
+    return m_lined_up(&gy.youmonst, mtmp) ? TRUE : FALSE;
 }
 
 /* check if a monster is carrying an item of a particular type */
@@ -1415,7 +1415,7 @@ m_carrying(struct monst *mtmp, int type)
 {
     struct obj *otmp;
 
-    for (otmp = (mtmp == u.umonst) ? gi.invent : mtmp->minvent; otmp;
+    for (otmp = (mtmp == &gy.youmonst) ? gi.invent : mtmp->minvent; otmp;
          otmp = otmp->nobj)
         if (otmp->otyp == type)
             break;

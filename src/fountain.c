@@ -1,4 +1,4 @@
-/* NetHack 3.7	fountain.c	$NHDT-Date: 1699582923 2023/11/10 02:22:03 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.100 $ */
+/* NetHack 5.0	fountain.c	$NHDT-Date: 1699582923 2023/11/10 02:22:03 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.100 $ */
 /*      Copyright Scott R. Turner, srt@ucla, 10/27/86 */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -828,7 +828,7 @@ dipsink(struct obj *obj)
            breathless for this message */
         pline("A wisp of vapor rises up...");
         /* NB: potionbreathe calls trycall or makeknown as appropriate */
-        if (!breathless(u.umonst->data) || haseyes(u.umonst->data))
+        if (!breathless(gy.youmonst.data) || haseyes(gy.youmonst.data))
             potionbreathe(obj);
         break;
     }

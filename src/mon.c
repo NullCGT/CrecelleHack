@@ -6493,6 +6493,38 @@ erase_summons(struct monst *mtmp)
         }
     }
 }
+
+/*
+ * Maybe munch on grass. Handles pet eating as well.
+ * Return value: 0 => nothing happened, 1 => monster ate something,
+ * 2 => monster died somehow (currently not possible).
+ */
+int
+meatgrass(struct monst *mtmp)
+{
+    int vis;
+
+    /* Only eat grass if there actually is grass */
+    if (!has_coating(mtmp->mx, mtmp->my, COAT_GRASS))
+        return 0;
+
+    /* Don't eat blood-covered grass! That's gross. */
+    if (has_coating(mtmp->mx, mtmp->my, COAT_BLOOD))
+        return 0;
+
+    /* Eat the grass. We could add a sound effect for this, but eating
+       grass is both mundane and quiet. */
+    vis = canseemon(mtmp);
+    remove_coating(mtmp->mx, mtmp->my, COAT_GRASS);
+    if (has_edog(mtmp))
+        EDOG(mtmp)->hungrytime += 50;
+    else
+        mtmp->mnexthunger = svm.moves + 50;
+    if (vis) {
+        pline_mon(mtmp, "%s munches on some grass.", Monnam(mtmp));
+    }
+    return 0;
+}
 /* cleanup for 'onefile' processing */
 #undef LEVEL_SPECIFIC_NOCORPSE
 #undef KEEPTRAITS

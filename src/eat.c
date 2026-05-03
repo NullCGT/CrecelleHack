@@ -2894,15 +2894,23 @@ doeat(void)
         }
     }
 
-    /* from floorfood(), &hands_obj means iron bars at current spot */
+    /* from floorfood(), &hands_obj means iron bars at current spot, or
+       grass at current spot */
     if (otmp == &hands_obj) {
-        /* hero in metallivore form is eating [diggable] iron bars
-           at current location so skip the other assorted checks;
-           operates as if digging rather than via the eat occupation */
-        if (still_chewing(u.ux, u.uy) && levl[u.ux][u.uy].typ == IRONBARS) {
-            /* this is verbose, but player will see the hero rather than the
-               bars so wouldn't know that more turns of eating are required */
-            You("pause to swallow.");
+        if (levl[u.ux][u.uy].typ == IRONBARS) {
+            /* hero in metallivore form is eating [diggable] iron bars
+            at current location so skip the other assorted checks;
+            operates as if digging rather than via the eat occupation */
+            if (still_chewing(u.ux, u.uy) && levl[u.ux][u.uy].typ == IRONBARS) {
+                /* this is verbose, but player will see the hero rather than the
+                bars so wouldn't know that more turns of eating are required */
+                You("pause to swallow.");
+            }
+        } else {
+            /* Herbivorous hero is eating */
+            You("munch on some grass.");
+            remove_coating(u.ux, u.uy, COAT_GRASS);
+            lesshungry(50);
         }
         return ECMD_TIME;
     }
@@ -3717,6 +3725,13 @@ floorfood(
             }
             ++getobj_else;
         }
+    }
+
+    if (feeding && likes_grass(uptr)
+        && has_coating(u.ux, u.uy, COAT_GRASS)
+        && !has_coating(u.ux, u.uy, COAT_BLOOD)
+        && y_n("There is some grass here. Eat it?") == 'y') {
+        return &hands_obj;
     }
 
     /* Is there some food (probably a heavy corpse) here on the ground? */

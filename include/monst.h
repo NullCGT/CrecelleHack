@@ -167,7 +167,7 @@ struct monst {
     Bitfield(mtraitor, 1);  /* mon has turned traitor */
     Bitfield(mprone, 1);    /* mon is prone after being tripped */
     Bitfield(maware, 1);    /* mon is aware of you */
-    Bitfield(mbaby, 1);
+    Bitfield(mbaby, 1);     /* mon is baby */
     Bitfield(mdripping, 1); /* mon is dripping with liquid */
     Bitfield(madvanced, 1); /* mon is advanced beyond normal means */
     Bitfield(mwandexp, 1);  /* mon has experience with wands */
@@ -199,7 +199,7 @@ struct monst {
     long mlstmv;           /* for catching up with lost time */
     long mstate;           /* debugging info on monsters stored here */
     long migflags;         /* migrating flags */
-    long mspare1;
+    long mnexthunger;      /* next time monster will get hungry, currently only used for grass eating */
     struct obj *minvent;   /* mon's inventory */
     struct obj *mw;        /* mon's weapon */
     long misc_worn_check;  /* mon's wornmask */

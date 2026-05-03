@@ -1845,7 +1845,6 @@ postmov(
                 if (meatmetal(mtmp) == 2)
                     return MMOVE_DIED; /* it died */
             }
-
             /* Maybe a cube ate just about anything */
             if (ptr == &mons[PM_GELATINOUS_CUBE]) {
                 if ((etmp = meatobj(mtmp)) >= 2)
@@ -1865,6 +1864,12 @@ postmov(
                 if (mtmp->wormno)
                     see_wsegs(mtmp);
             }
+        }
+        /* Maybe an herbivore chewed some grass */
+        if (mtmp->mcanmove && !mtmp->mtame && likes_grass(ptr)
+            && (mtmp->mnexthunger < svm.moves)) {
+            if (meatgrass(mtmp) == 2)
+                return MMOVE_DIED;
         }
 
         maybe_spin_web(mtmp);

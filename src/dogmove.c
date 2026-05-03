@@ -1060,7 +1060,7 @@ dog_move(
     struct edog *edog = (mtmp->mtame && has_edog(mtmp)) ? EDOG(mtmp) : 0;
     struct obj *obj = (struct obj *) 0;
     xint16 otyp;
-    boolean cursemsg[9], do_eat = FALSE;
+    boolean cursemsg[9], do_eat = FALSE, do_grass = FALSE;
     boolean better_with_displacing = FALSE, ranged_only;
     coordxy nix, niy;      /* position mtmp is (considering) moving to */
     coordxy nx, ny; /* temporary coordinates */
@@ -1337,6 +1337,18 @@ dog_move(
                     goto newdogpos;
                 }
             }
+            /* eat grass if possible */
+            if (likes_grass(mtmp->data)
+                && (svm.moves > (edog->hungrytime + DOG_HUNGRY))
+                && has_coating(nx, ny, COAT_GRASS)
+                && !has_coating(nx, ny, COAT_BLOOD)) {
+                nix = nx;
+                niy = ny;
+                chi = i;
+                do_grass = TRUE;
+                cursemsg[i] = FALSE; /* not reluctant */
+                goto newdogpos;
+            }
         }
         /* didn't find something to eat; if we saw a cursed item and
            aren't being forced to walk on it, usually keep looking */
@@ -1428,6 +1440,10 @@ dog_move(
          */
         if (do_eat) {
             if (dog_eat(mtmp, obj, omx, omy, FALSE) == 2)
+                return MMOVE_DIED;
+        }
+        if (do_grass) {
+            if (meatgrass(mtmp) == 2)
                 return MMOVE_DIED;
         }
     } else if (mtmp->mleashed && distu(omx, omy) > 4) {

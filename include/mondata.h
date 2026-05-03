@@ -295,6 +295,8 @@
 #define likes_grappling(ptr) \
     ((ptr)->mlet == S_NAGA || (ptr)->mlet == S_ZOMBIE \
         || ptr == &mons[PM_GRAPPLER])
+#define likes_grass(ptr) \
+    (herbivorous(ptr) && !carnivorous(ptr))
 
 #define mud_hider(ptr) \
     ((!is_hider(ptr) && ptr->msize <= MZ_MEDIUM) \

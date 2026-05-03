@@ -32,6 +32,8 @@
 - Potion of Honey enhancements:
   - Bears spawn peaceful when the player is coated in honey.
   - Honey vapors have a healing effect.
+- Herbivorous monsters and players polymorphed into them can eat grass.
+  - This makes herbivorous pets much easier to keep alive.
 ## Options
 - Added dnh_enlightenment. This changes the attributes menu to a pick
   list, as used in dnethack. Should be helpful for the extremely

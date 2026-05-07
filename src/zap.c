@@ -760,7 +760,7 @@ montraits(
 
         if (mtmp2->mhpmax > 0 || is_rider(mtmp2->data)) {
             mtmp = makemon(mtmp2->data, cc->x, cc->y,
-                           (NO_MINVENT | MM_NOWAIT | MM_NOCOUNTBIRTH
+                           (NO_MINVENT | MM_NOWAIT | MM_NOCOUNTBIRTH | MM_AWARE
                             /* in case mtmp2 is a long worm; saved traits for
                                long worm don't include tail segments so don't
                                give mtmp any; it will be given a new 'wormno'
@@ -924,7 +924,7 @@ revive(struct obj *corpse, boolean by_hero)
     coord xy;
     coordxy x, y;
     boolean one_of;
-    mmflags_nht mmflags = NO_MINVENT | MM_NOWAIT | MM_NOMSG;
+    mmflags_nht mmflags = NO_MINVENT | MM_NOWAIT | MM_NOMSG | MM_AWARE;
     int montype, cgend, container_nesting = 0;
     boolean is_zomb;
 
@@ -5151,8 +5151,10 @@ dobuzz(
         if (mon) {
             if (fireball)
                 break;
-            if (type >= 0)
+            if (type >= 0) {
                 mon->mstrategy &= ~STRAT_WAITMASK;
+                make_aware(mon, TRUE);
+            }
  buzzmonst:
             gn.notonhead = (mon->mx != gb.bhitpos.x
                             || mon->my != gb.bhitpos.y);

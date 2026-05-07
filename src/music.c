@@ -46,6 +46,7 @@ awaken_scare(struct monst *mtmp, boolean scary)
     mtmp->msleeping = 0;
     mtmp->mcanmove = 1;
     mtmp->mfrozen = 0;
+    make_aware(mtmp, FALSE);
     /* may scare some monsters -- waiting monsters excluded */
     if (!unique_corpstat(mtmp->data)
         && (mtmp->mstrategy & STRAT_WAITMASK) != 0)
@@ -117,6 +118,7 @@ charm_snakes(int distance)
             mtmp->mstrategy &= ~STRAT_WAITMASK;
             could_see_mon = canseemon(mtmp);
             mtmp->mundetected = 0;
+            make_aware(mtmp, FALSE);
             newsym(mtmp->mx, mtmp->my);
             if (canseemon(mtmp)) {
                 if (!could_see_mon)
@@ -148,6 +150,7 @@ calm_nymphs(int distance)
             mtmp->mpeaceful = 1;
             mtmp->mavenge = 0;
             mtmp->mstrategy &= ~STRAT_WAITMASK;
+            make_aware(mtmp, FALSE);
             if (canseemon(mtmp))
                 pline(
                     "%s listens cheerfully to the music, then seems quieter.",
@@ -176,6 +179,7 @@ awaken_soldiers(struct monst *bugler  /* monster that played instrument */)
             mtmp->msleeping = mtmp->mfrozen = 0;
             mtmp->mcanmove = 1;
             mtmp->mstrategy &= ~STRAT_WAITMASK;
+            make_aware(mtmp, TRUE);
             if (canseemon(mtmp))
                 pline("%s is now ready for battle!", Monnam(mtmp));
             else if (!Deaf)

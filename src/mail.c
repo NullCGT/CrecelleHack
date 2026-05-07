@@ -407,7 +407,7 @@ newmail(struct mail_info *info)
         goto give_up;
 
     /* Make the daemon.  Have it rush towards the hero. */
-    if (!(md = makemon(&mons[PM_MAIL_DAEMON], start.x, start.y, NO_MM_FLAGS)))
+    if (!(md = makemon(&mons[PM_MAIL_DAEMON], start.x, start.y, MM_AWARE)))
         goto give_up;
     if (!md_rush(md, stop.x, stop.y))
         goto go_back;

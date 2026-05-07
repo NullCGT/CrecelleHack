@@ -27,6 +27,7 @@ staticfn int m_balks_at_approaching(int, struct monst *, int *, int *);
 staticfn boolean stuff_prevents_passage(struct monst *);
 staticfn int vamp_shift(struct monst *, struct permonst *, boolean);
 staticfn void maybe_spin_web(struct monst *);
+staticfn void update_mon_awareness(struct monst *);
 
 /* a11y: give a message when monster moved */
 staticfn void
@@ -653,6 +654,7 @@ mind_blast(struct monst *mtmp)
                     : Blind_telepat ? "latent telepathy"
                     : "mind"); /* note: hero is never mindless */
             dmg = rnd(15);
+            make_aware(mtmp, TRUE);
             if (Half_spell_damage)
                 dmg = (dmg + 1) / 2;
             losehp(dmg, "psychic blast", KILLED_BY_AN);
@@ -674,6 +676,7 @@ mind_blast(struct monst *mtmp)
             if (cansee(m2->mx, m2->my))
                 pline("It locks on to %s.", mon_nam(m2));
             m2->mhp -= rnd(15);
+            make_aware(m2, TRUE);
             if (DEADMONSTER(m2))
                 monkilled(m2, "", AD_DRIN);
         }
@@ -897,6 +900,11 @@ dochug(struct monst *mtmp)
         return 0;
     }
 
+    /* Potentially become aware (or unaware) of the player */
+    if (!mtmp->msleeping) {
+        update_mon_awareness(mtmp);
+    }
+
     /* not frozen or sleeping: wipe out texts written in the dust */
     wipe_engr_at(mtmp->mx, mtmp->my, 1, FALSE);
 
@@ -974,7 +982,7 @@ dochug(struct monst *mtmp)
 
     /* Demonic Blackmail! */
     if (nearby && mdat->msound == MS_BRIBE && mtmp->mpeaceful && !mtmp->mtame
-        && !u.uswallow) {
+        && is_aware(mtmp) && !u.uswallow) {
         if (mtmp->mux != u.ux || mtmp->muy != u.uy) {
             pline("%s whispers at thin air.",
                   cansee(mtmp->mux, mtmp->muy) ? Monnam(mtmp) : "It");
@@ -1136,7 +1144,7 @@ dochug(struct monst *mtmp)
      */
 
     /* Now, attack the player if possible - one attack set per monst */
-    if (status != MMOVE_DONE && (!mtmp->mpeaceful
+    if (status != MMOVE_DONE && is_aware(mtmp) && (!mtmp->mpeaceful
                                  || (Conflict && !resist_conflict(mtmp)))) {
         if (((inrange && !scared) || panicattk) && !noattacks(mdat)
             /* [is this hp check really needed?] */
@@ -1150,11 +1158,11 @@ dochug(struct monst *mtmp)
         }
     }
     /* special speeches for quest monsters */
-    if (!helpless(mtmp) && nearby)
+    if (!helpless(mtmp) && nearby && is_aware(mtmp))
         quest_talk(mtmp);
     /* extra emotional attack for vile monsters */
     if (inrange && mtmp->data->msound == MS_CUSS && !mtmp->mpeaceful
-        && couldsee(mtmp->mx, mtmp->my) && !mtmp->minvis && !rn2(5))
+        && is_aware(mtmp) && couldsee(mtmp->mx, mtmp->my) && !mtmp->minvis && !rn2(5))
         cuss(mtmp);
 
     /* note: can't get here when monster is dead, so this always returns 0 */
@@ -1365,7 +1373,8 @@ m_balks_at_approaching(int oldappr, struct monst *mtmp, int *pdistmin,
         *pdistmax = 0;
 
     /* peaceful, far away, or can't see you */
-    if (mtmp->mpeaceful || (edist >= 5 * 5) || !m_canseeu(mtmp))
+    if (mtmp->mpeaceful || (edist >= 5 * 5) || !m_canseeu(mtmp)
+        || !is_aware(mtmp))
         return oldappr;
 
     /* has ammo+launcher */
@@ -2090,6 +2099,7 @@ m_move(struct monst *mtmp, int after)
 
         if (!mtmp->mcansee
             || (should_see && Invis && !perceives(ptr) && rn2(11))
+            || !is_aware(mtmp)
             || is_obj_mappear(&gy.youmonst, STRANGE_OBJECT) || u.uundetected
             || (is_obj_mappear(&gy.youmonst, GOLD_PIECE) && !likes_gold(ptr))
             || (mtmp->mpeaceful && !mtmp->isshk) /* allow shks to follow */
@@ -2159,7 +2169,7 @@ m_move(struct monst *mtmp, int after)
         chi = -1;
         nidist = dist2(nix, niy, ggx, ggy);
         /* allow monsters be shortsighted on some levels for balance */
-        if (!mtmp->mpeaceful && svl.level.flags.shortsighted
+        if (!mtmp->mpeaceful && is_aware(mtmp) && svl.level.flags.shortsighted
             && nidist > (couldsee(nix, niy) ? 144 : 36) && appr == 1)
             appr = 0;
         if (is_unicorn(ptr) && noteleport_level(mtmp)) {
@@ -2626,6 +2636,23 @@ vamp_shift(
         display_nhwindow(WIN_MESSAGE, FALSE);
     }
     return reslt;
+}
+
+/* Used for stealth purposes. See also disturb() - K */
+staticfn void
+update_mon_awareness(struct monst *mtmp) {
+    int stealth = calculate_stealth();
+    /* become aware of the player, perhaps. */
+    if (mdistu(mtmp) <= 100) {
+        if (!rn2(2))
+            make_aware(mtmp, TRUE);
+    }
+    /* lose awareness if out of sight */
+    if (!mtmp->malert && is_aware(mtmp)
+        && !m_canseeu(mtmp) && !rn2(6)) {
+        make_unaware(mtmp, FALSE);
+    }
+    mtmp->malert = 0;
 }
 
 /*monmove.c*/

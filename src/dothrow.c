@@ -2278,6 +2278,7 @@ thitmonst(
             tmiss(obj, mon, FALSE);
             mon->msleeping = 0;
             mon->mstrategy &= ~STRAT_WAITMASK;
+            make_aware(mon, TRUE);
         }
     } else if (guaranteed_hit) {
         char trail[BUFSZ];

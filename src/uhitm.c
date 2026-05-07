@@ -340,7 +340,8 @@ check_caitiff(struct monst *mtmp)
     if (Role_if(PM_KNIGHT) && u.ualign.type == A_LAWFUL
         && !is_undead(mtmp->data)
         && (helpless(mtmp)
-            || (mtmp->mflee && !mtmp->mavenge))) {
+            || (mtmp->mflee && !mtmp->mavenge)
+            || !is_aware(mtmp))) {
         You("caitiff!");
         adjalign(-1);
     } else if (Role_if(PM_SAMURAI) && mtmp->mpeaceful) {
@@ -589,6 +590,8 @@ do_attack(struct monst *mtmp)
         && !glyph_is_invisible(levl[u.ux + u.dx][u.uy + u.dy].glyph)
         && !engulfing_u(mtmp))
         map_invisible(u.ux + u.dx, u.uy + u.dy);
+    if (!DEADMONSTER(mtmp))
+        make_aware(mtmp, TRUE);
 
     return TRUE;
 }
@@ -969,7 +972,8 @@ backstabbable(struct monst *mon)
         && mon->data->mlet != S_EYE
         && mon->data->mlet != S_FUNGUS
         && canseemon(mon)
-        && (mon->mflee || helpless(mon));
+        && (mon->mflee || helpless(mon)
+            || !is_aware(mon));
 }
 
 staticfn void
@@ -2254,7 +2258,7 @@ demonpet(void)
     pline("Some hell-p has arrived!");
     i = !rn2(6) ? ndemon(u.ualign.type) : NON_PM;
     pm = i != NON_PM ? &mons[i] : gy.youmonst.data;
-    if ((dtmp = makemon(pm, u.ux, u.uy, NO_MM_FLAGS)) != 0)
+    if ((dtmp = makemon(pm, u.ux, u.uy, MM_AWARE)) != 0)
         (void) tamedog(dtmp, (struct obj *) 0, FALSE);
     exercise(A_WIS, TRUE);
 }

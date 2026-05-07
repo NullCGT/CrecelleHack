@@ -76,6 +76,8 @@ initedog(struct monst *mtmp, boolean everything)
        already be higher when taming magic affects already tame monst */
     if (edogp->hungrytime < minhungry)
         edogp->hungrytime = minhungry;
+    /* pets are always considered to be aware of the player */
+    make_aware(mtmp, FALSE);
     /* livelog first pet, but only if you didn't start with one (the starting
      * pet will be initialized before in_moveloop is true) */
     if (!u.uconduct.pets && program_state.in_moveloop) {

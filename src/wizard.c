@@ -570,6 +570,7 @@ aggravate(void)
         mtmp->msleeping = 0;
         mtmp->mux = u.ux; /* Signal location - k */
         mtmp->muy = u.uy; /* Signal location - k */
+        make_aware(mtmp, TRUE); /* Monster is aware of you */
         if (!mtmp->mcanmove && !rn2(5)) {
             mtmp->mfrozen = 0;
             mtmp->mcanmove = 1;
@@ -585,7 +586,7 @@ clonewiz(void)
 {
     struct monst *mtmp2;
 
-    if ((mtmp2 = makemon(&mons[PM_WIZARD_OF_YENDOR], u.ux, u.uy, MM_NOWAIT))
+    if ((mtmp2 = makemon(&mons[PM_WIZARD_OF_YENDOR], u.ux, u.uy, MM_NOWAIT | MM_AWARE))
         != 0) {
         mtmp2->msleeping = mtmp2->mtame = mtmp2->mpeaceful = 0;
         if (!u.uhave.amulet && rn2(2)) { /* give clone a fake */
@@ -673,7 +674,7 @@ nasty(struct monst *summoner)
     /* when a monster casts the "summon nasties" spell, it gives feedback;
        when random post-Wizard harassment casts that, we give feedback */
     unsigned mmflags = summoner ? MM_NOMSG : NO_MM_FLAGS;
-    mmflags |= MM_ESUM;
+    mmflags |= (MM_ESUM | MM_AWARE);
 
 #define MAXNASTIES 10 /* more than this can be created */
 
@@ -801,7 +802,7 @@ resurrect(void)
     if (!svc.context.no_of_wizards) {
         /* make a new Wizard */
         verb = "kill";
-        mtmp = makemon(&mons[PM_WIZARD_OF_YENDOR], u.ux, u.uy, MM_NOWAIT);
+        mtmp = makemon(&mons[PM_WIZARD_OF_YENDOR], u.ux, u.uy, MM_NOWAIT | MM_AWARE);
         /* affects experience; he's not coming back from a corpse
            but is subject to repeated killing like a revived corpse */
         if (mtmp)
@@ -848,6 +849,7 @@ resurrect(void)
            he just sits wherever he is, "meditating", contradicting the
            threatening message below */
         mtmp->mstrategy &= ~STRAT_WAITMASK;
+        make_aware(mtmp, FALSE);
 
         mtmp->mtame = 0, mtmp->mpeaceful = 0; /* paranoia */
         set_malign(mtmp);

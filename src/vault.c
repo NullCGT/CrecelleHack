@@ -404,7 +404,7 @@ invault(void)
         }
 
         /* make something interesting happen */
-        if (!(guard = makemon(&mons[PM_GUARD], x, y, MM_EGD | MM_NOMSG)))
+        if (!(guard = makemon(&mons[PM_GUARD], x, y, MM_EGD | MM_NOMSG | MM_AWARE)))
             return;
         guard->isgd = 1;
         guard->mpeaceful = 1;

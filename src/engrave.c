@@ -1748,7 +1748,7 @@ disturb_grave(coordxy x, coordxy y)
     } else {
         You("disturb the undead!");
         lev->disturbed = 1;
-        (void) makemon(&mons[PM_GHOUL], x, y, NO_MM_FLAGS);
+        (void) makemon(&mons[PM_GHOUL], x, y, MM_AWARE);
         exercise(A_WIS, FALSE);
     }
 }

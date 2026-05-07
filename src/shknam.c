@@ -660,7 +660,7 @@ shkinit(const struct shclass *shp, struct mkroom *sroom)
         (void) rloc(m_at(sx, sy), RLOC_NOMSG); /* insurance */
 
     /* now initialize the shopkeeper monster structure */
-    if (!(shk = makemon(&mons[PM_SHOPKEEPER], sx, sy, MM_ESHK)))
+    if (!(shk = makemon(&mons[PM_SHOPKEEPER], sx, sy, MM_ESHK | MM_AWARE)))
         return -1;
     eshkp = ESHK(shk); /* makemon(...,MM_ESHK) allocates this */
     shk->isshk = shk->mpeaceful = 1;

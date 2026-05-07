@@ -665,6 +665,7 @@ extern void map_glyphinfo(coordxy, coordxy, int, unsigned, glyph_info *) NONNULL
 extern void reset_glyphmap(enum glyphmap_change_triggers trigger);
 extern int fn_cmap_to_glyph(int);
 extern int compute_obj_glyph_color(struct obj *);
+extern void alerteff(coordxy, coordxy);
 
 /* ### do.c ### */
 
@@ -815,6 +816,7 @@ extern int count_worn_armor(void);
 extern int wrong_size_armor(struct obj *, struct permonst *);
 extern boolean on_loved_terrain(void);
 extern boolean on_hated_terrain(void);
+extern int calculate_stealth(void);
 
 /* ### dog.c ### */
 
@@ -1944,6 +1946,9 @@ extern void shieldeff_mon(struct monst *) NONNULLARG1;
 extern void flash_mon(struct monst *) NONNULLARG1;
 extern void newesum(struct monst *) NONNULLARG1;
 extern void free_esum(struct monst *) NONNULLARG1;
+extern boolean is_aware(struct monst *) NONNULLARG1;
+extern void make_aware(struct monst *, boolean) NONNULLARG1;
+extern void make_unaware(struct monst *, boolean) NONNULLARG1;
 
 /* ### mondata.c ### */
 

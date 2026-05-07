@@ -3718,4 +3718,16 @@ on_hated_terrain(void) {
     return FALSE;
 }
 
+/* returns the current stealth rating of the player */
+int
+calculate_stealth(void) {
+    int ret = 6;
+    if (Stealth)
+        ret += 3;
+    if (Fumbling)
+        ret -= 3;
+
+    return ret;
+}
+
 /*do_wear.c*/

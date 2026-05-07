@@ -478,6 +478,8 @@ look_at_monster(
         Strcat(buf, ", leashed to you");
     if (mtmp->mprone)
         Strcat(buf, ", prone");
+    if (!is_aware(mtmp) && !mtmp->mtame)
+        Strcat(buf, ", unaware of you");
     if (mtmp->mdripping)
         Strcat(buf, ", wet");
     if (mtmp->mtrapped && cansee(mtmp->mx, mtmp->my)) {

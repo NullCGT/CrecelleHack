@@ -2280,6 +2280,9 @@ mon_allowflags(struct monst *mtmp)
     if (mon_avoids_chokepoint(mtmp)) {
         allowflags |= NOTONL;
     }
+    if (!is_aware(mtmp)) {
+        allowflags &= ~ALLOW_U;
+    }
     if (gy.youmonst.data == &mons[PM_STRAW_GOLEM]
         && is_bird(mtmp->data)) {
         /* birds don't want to get near scarecrows. */
@@ -4423,7 +4426,8 @@ m_respond(struct monst *mtmp)
         }
         wake_nearto(mtmp->mx, mtmp->my, 25);
     }
-    if (does_callouts(mtmp->data) && !mtmp->mpeaceful && couldsee(mtmp->mx, mtmp->my)
+    if (does_callouts(mtmp->data) && !mtmp->mpeaceful && !is_aware(mtmp)
+        && couldsee(mtmp->mx, mtmp->my)
         && !rn2(10) && !um_dist(mtmp->mx, mtmp->my, 5)) {
         mcallout(mtmp);
     }
@@ -4537,6 +4541,7 @@ peacefuls_respond(struct monst *mtmp)
                     } else {
                         mon->mpeaceful = 0;
                         mon->mstrategy &= ~STRAT_WAITMASK;
+                        make_aware(mon, TRUE);
                         adjalign(-1);
                         if (!exclaimed)
                             pline_mon(mon, "%s gets angry!", Monnam(mon));
@@ -4592,6 +4597,7 @@ setmangry(struct monst *mtmp, boolean via_attack)
 
     /* AIS: Should this be in both places, or just in wakeup()? */
     mtmp->mstrategy &= ~STRAT_WAITMASK;
+    make_aware(mtmp, FALSE);
     if (!mtmp->mpeaceful)
         return;
     /* [FIXME: this logic seems wrong; peaceful humanoids gasp or exclaim
@@ -4689,6 +4695,7 @@ wake_nearto_core(coordxy x, coordxy y, int distance, boolean petcall)
                so we leave mfrozen monsters alone */
             wake_msg(mtmp, FALSE);
             mtmp->msleeping = 0; /* wake indeterminate sleep */
+            make_aware(mtmp, TRUE);
             if (!(mtmp->data->geno & G_UNIQ))
                 mtmp->mstrategy &= ~STRAT_WAITMASK; /* wake 'meditation' */
             if (svc.context.mon_moving || !petcall)
@@ -6524,6 +6531,47 @@ meatgrass(struct monst *mtmp)
         pline_mon(mtmp, "%s munches on some grass.", Monnam(mtmp));
     }
     return 0;
+}
+
+/* Indicates whether or not a monster is aware of the player, for
+   stealth purposes.
+   
+   TODO: Expand to return an awareness level instead of a boolean. */
+boolean
+is_aware(struct monst *mtmp) {
+    /* Band-aid fix: covetous monsters use separate ai */
+    if (is_covetous(mtmp->data)
+        || mtmp->mtame
+        || (mtmp->data == &mons[PM_SHOPKEEPER]))
+        return TRUE;
+    return ((mtmp->mstrategy & STRAT_AWARE) != 0);
+}
+
+/* make a monster aware of you, possibly with a message. */
+void
+make_aware(struct monst *mtmp, boolean message) {
+    if (is_aware(mtmp))
+        return;
+    mtmp->malert = 1;
+    mtmp->mstrategy |= STRAT_AWARE;
+    if (message && canseemon(mtmp) && flags.verbose
+        && !mtmp->mpeaceful) {
+        alerteff(mtmp->mx, mtmp->my);
+        if (Hallucination && mtmp->data->mlet == S_SNAKE)
+            Norep("Snake, watch out!");
+        else
+            pline_mon(mtmp, "%s notices you.", Monnam(mtmp));
+    }
+}
+
+/* monster becomes unaware of you, possibly with a message. */
+void
+make_unaware(struct monst *mtmp, boolean message) {
+    mtmp->mstrategy &= ~STRAT_AWARE;
+    if (message && canseemon(mtmp) && flags.verbose
+        && !mtmp->mpeaceful) {
+        pline_mon(mtmp, "%s loses sight of you.", Monnam(mtmp));
+    }
 }
 /* cleanup for 'onefile' processing */
 #undef LEVEL_SPECIFIC_NOCORPSE

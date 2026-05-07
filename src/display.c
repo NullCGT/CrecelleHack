@@ -3881,6 +3881,24 @@ int compute_obj_glyph_color(struct obj *otmp)
     return NO_COLOR;
 }
 
+/*
+ * alerteff()
+ * 
+ * Display an alert glyph for 1 frame when a monster spots the player.
+ */
+void
+alerteff(coordxy x, coordxy y)
+{
+    if (!flags.sparkle)
+        return;
+    if (cansee(x, y)) {
+        show_glyph(x, y, cmap_to_glyph(S_alert));
+        flush_screen(1);
+        nh_delay_output();
+    }
+    newsym(x, y);
+}
+
 /* for 'onefile' processing where end of this file isn't necessarily the
    end of the source code seen by the compiler (there are lots of other
    macros defined above...) */

@@ -310,9 +310,9 @@ deadbook(struct obj *book2)
         You("raised the dead!");
         /* first maybe place a dangerous adversary */
         if (!rn2(3) && ((mtmp = makemon(&mons[PM_MASTER_LICH], u.ux, u.uy,
-                                        NO_MINVENT)) != 0
+                                        NO_MINVENT | MM_AWARE)) != 0
                         || (mtmp = makemon(&mons[PM_NALFESHNEE], u.ux, u.uy,
-                                           NO_MINVENT)) != 0)) {
+                                           NO_MINVENT | MM_AWARE)) != 0)) {
             mtmp->mpeaceful = 0;
             set_malign(mtmp);
         }

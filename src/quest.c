@@ -370,6 +370,7 @@ chat_with_leader(struct monst *mtmp)
 void
 leader_speaks(struct monst *mtmp)
 {
+    make_aware(mtmp, FALSE);
     /* maybe you attacked leader? */
     if (!mtmp->mpeaceful) {
         if (!Qstat(pissed_off)) {
@@ -457,6 +458,7 @@ prisoner_speaks(struct monst *mtmp)
             pline("%s speaks:", Monnam(mtmp));
         SetVoice(mtmp, 0, 80, 0);
         verbalize("I'm finally free!");
+        make_aware(mtmp, FALSE);
         mtmp->mstrategy &= ~STRAT_WAITMASK;
         mtmp->mpeaceful = 1;
 

@@ -1808,7 +1808,7 @@ seffect_light(struct obj **sobjp)
 
             for (i = 0; i < numlights; ++i) {
                 mon = makemon(&mons[pm], u.ux, u.uy,
-                              MM_EDOG | NO_MINVENT | MM_NOMSG);
+                              MM_EDOG | NO_MINVENT | MM_NOMSG | MM_AWARE);
                 if (mon) {
                     initedog(mon, TRUE);
                     mon->msleeping = 0;

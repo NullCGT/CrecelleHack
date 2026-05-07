@@ -1777,6 +1777,13 @@ makemon(
             mtmp->mstrategy |= STRAT_APPEARMSG;
     }
 
+    /* monster spawns fully aware of the player */
+    if ((mmflags & MM_AWARE)
+        || (mmflags & MM_ANGRY)
+        || (mmflags & MM_EMIN)) {
+        mtmp->mstrategy |= STRAT_AWARE;
+    }
+
     if (allow_minvent && gm.migrating_objs)
         deliver_obj_to_mon(mtmp, 1, DF_NONE); /* in case of waiting items */
 
@@ -1890,7 +1897,7 @@ create_critters(
         if (!mptr && u.uinwater && enexto(&c, x, y, &mons[PM_GIANT_EEL]))
             x = c.x, y = c.y;
 
-        if ((mon = makemon(mptr, x, y, NO_MM_FLAGS)) == 0)
+        if ((mon = makemon(mptr, x, y, MM_AWARE)) == 0)
             continue; /* try again [should probably stop instead] */
 
         if ((canseemon(mon) && (M_AP_TYPE(mon) == M_AP_NOTHING
@@ -3022,7 +3029,7 @@ summon_furies(int limit) /* number to create, or 0 to create until extinct */
 {
     int i = 0;
     while (mk_gen_ok(PM_ERINYS, G_GONE, 0U) && (i < limit || !limit)) {
-        makemon(&mons[PM_ERINYS], u.ux, u.uy, MM_ADJACENTOK | MM_NOWAIT);
+        makemon(&mons[PM_ERINYS], u.ux, u.uy, MM_ADJACENTOK | MM_NOWAIT | MM_AWARE);
         i++;
     }
 }

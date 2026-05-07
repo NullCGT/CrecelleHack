@@ -1455,6 +1455,7 @@ dochat(void)
 
     /* if this monster is waiting for something, prod it into action */
     mtmp->mstrategy &= ~STRAT_WAITMASK;
+    make_aware(mtmp, TRUE);
 
     if (!Deaf && mtmp->mtame && mtmp->meating) {
         if (!canspotmon(mtmp))
@@ -1574,6 +1575,7 @@ tiphat(void)
     } else { /* 'mtmp' is guaranteed to be non-Null if we get here */
         /* if this monster is waiting for something, prod it into action */
         mtmp->mstrategy &= ~STRAT_WAITMASK;
+        make_aware(mtmp, FALSE);
 
         if (vismon && humanoid(mtmp->data) && mtmp->mpeaceful && !Conflict) {
             if ((otmp = which_armor(mtmp, W_ARMH)) == 0) {

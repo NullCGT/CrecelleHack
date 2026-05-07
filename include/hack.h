@@ -1189,7 +1189,8 @@ typedef uint32_t mmflags_nht;     /* makemon MM_ flags */
 #define GP_AVOID_MONPOS 0x01000000L /* don't accept existing mon location */
 /* Creckle */
 #define MM_ESUM        0x02000000L /* add esum structure */
-/* 25 bits used */
+#define MM_AWARE       0x00400000L /* monster starts aware of you */
+/* 26 bits used */
 
 /* flags for mhidden_description() (pager.c; used for mimics and hiders) */
 #define MHID_PREFIX  1 /* include ", mimicking " prefix */

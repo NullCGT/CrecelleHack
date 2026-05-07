@@ -166,7 +166,7 @@ struct monst {
     Bitfield(mspotted, 1);  /* mon is currently seen by hero */
     Bitfield(mtraitor, 1);  /* mon has turned traitor */
     Bitfield(mprone, 1);    /* mon is prone after being tripped */
-    Bitfield(maware, 1);    /* mon is aware of you */
+    Bitfield(malert, 1);    /* mon just spotted you. reset each turn */
     Bitfield(mbaby, 1);     /* mon is baby */
     Bitfield(mdripping, 1); /* mon is dripping with liquid */
     Bitfield(madvanced, 1); /* mon is advanced beyond normal means */
@@ -184,13 +184,14 @@ struct monst {
 #define STRAT_ARRIVE    0x40000000L /* just arrived on current level */
 #define STRAT_WAITFORU  0x20000000L
 #define STRAT_CLOSE     0x10000000L
+#define STRAT_AWARE     0x08000000L
 #define STRAT_WAITMASK  (STRAT_CLOSE | STRAT_WAITFORU)
-#define STRAT_HEAL      0x08000000L
-#define STRAT_GROUND    0x04000000L
-#define STRAT_MONSTR    0x02000000L
-#define STRAT_PLAYER    0x01000000L
+#define STRAT_HEAL      0x04000000L
+#define STRAT_GROUND    0x02000000L
+#define STRAT_MONSTR    0x01000000L
+#define STRAT_PLAYER    0x00800000L
 #define STRAT_NONE      0x00000000L
-#define STRAT_STRATMASK 0x0f000000L
+#define STRAT_STRATMASK 0x00f00000L
     /* mstrategy unused 0x00ffff00L */
 #define STRAT_GOAL      0x000000ffL
 

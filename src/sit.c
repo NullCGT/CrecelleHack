@@ -124,7 +124,7 @@ throne_sit_effect(void)
                 verbalize("Thine audience hath been summoned, %s!",
                           flags.female ? "Dame" : "Sire");
                 while (cnt--)
-                    (void) makemon(courtmon((struct monst *) 0), tx, ty, NO_MM_FLAGS);
+                    (void) makemon(courtmon((struct monst *) 0), tx, ty, MM_AWARE);
                 break;
             }
         case 8:

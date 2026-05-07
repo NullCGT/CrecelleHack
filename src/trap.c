@@ -407,7 +407,7 @@ mk_trap_statue(coordxy x, coordxy y)
              && sgn(u.ualign.type) == sgn(mptr->maligntyp));
     statue = mkcorpstat(STATUE, (struct monst *) 0, mptr, x, y,
                         CORPSTAT_NONE);
-    mtmp = makemon(&mons[statue->corpsenm], 0, 0, MM_NOCOUNTBIRTH | MM_NOMSG);
+    mtmp = makemon(&mons[statue->corpsenm], 0, 0, MM_NOCOUNTBIRTH | MM_NOMSG | MM_AWARE);
     if (!mtmp)
         return; /* should never happen */
     while (mtmp->minvent) {
@@ -861,7 +861,7 @@ animate_statue(
             /* block quest guards from other roles */
             || (mptr->msound == MS_GUARDIAN
                 && quest_info(MS_GUARDIAN) != mnum)) {
-            mmflags |= MM_NOCOUNTBIRTH | MM_ADJACENTOK;
+            mmflags |= MM_NOCOUNTBIRTH | MM_ADJACENTOK | MM_AWARE;
             mon = makemon(&mons[PM_DOPPELGANGER], x, y, mmflags);
             /* if hero has protection from shape changers, cham field will
                be NON_PM; otherwise, set form to match the statue */

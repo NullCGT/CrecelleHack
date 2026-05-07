@@ -50,7 +50,7 @@ dowatersnakes(void)
         }
         while (num-- > 0)
             if ((mtmp = makemon(&mons[PM_WATER_MOCCASIN], u.ux, u.uy,
-                                MM_NOMSG)) != 0
+                                MM_NOMSG|MM_AWARE)) != 0
                 && t_at(mtmp->mx, mtmp->my))
                 (void) mintrap(mtmp, NO_TRAP_FLAGS);
     } else {
@@ -97,7 +97,7 @@ dowaternymph(void)
 
     if (!(svm.mvitals[PM_WATER_NYMPH].mvflags & G_GONE)
         && (mtmp = makemon(&mons[PM_WATER_NYMPH], u.ux, u.uy,
-                           MM_NOMSG)) != 0) {
+                           MM_NOMSG|MM_AWARE)) != 0) {
         if (!Blind)
             You("attract %s!", a_monnam(mtmp));
         else

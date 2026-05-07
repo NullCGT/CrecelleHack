@@ -866,7 +866,8 @@ m_dowear_type(
     old = which_armor(mon, flag);
     if (old && old->cursed)
         return;
-    if (old && flag == W_AMUL && old->otyp != AMULET_OF_GUARDING)
+    if (old && flag == W_AMUL
+        && (old->otyp == AMULET_OF_REFLECTION || old->otyp == AMULET_OF_LIFE_SAVING))
         return; /* no amulet better than life-saving or reflection */
     best = old;
 

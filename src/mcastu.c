@@ -30,9 +30,9 @@ static int mon_wizard_spells[] = { MCAST_PSI_BOLT, MCAST_CURE_SELF, MCAST_HASTE_
                                         MCAST_DESTRY_ARMR, MCAST_CURSE_ITEMS, MCAST_AGGRAVATION,
                                         MCAST_SUMMON_MONS, MCAST_CLONE_WIZ, MCAST_DEATH_TOUCH};
 static int mon_shadow_mage_spells[] = { MCAST_PSI_BOLT, MCAST_DARKNESS, MCAST_HASTE_SELF,
-                                        MCAST_STUN_YOU, MCAST_DISAPPEAR, MCAST_WEAKEN_YOU,
-                                        MCAST_DESTRY_ARMR, MCAST_CURSE_ITEMS, MCAST_SLEEP_YOU,
-                                        MCAST_SUMMON_MONS, MCAST_MIRROR_IMAGE, MCAST_DEATH_TOUCH};
+                                        MCAST_MIRROR_IMAGE, MCAST_SLEEP_YOU, MCAST_STUN_YOU,
+                                        MCAST_DISAPPEAR, MCAST_WEAKEN_YOU, MCAST_DESTRY_ARMR,
+                                        MCAST_CURSE_ITEMS, MCAST_SUMMON_MONS, MCAST_DEATH_TOUCH};
 static int mon_vamp_spells[] = { MCAST_OPEN_WOUNDS, MCAST_CURE_SELF, MCAST_BLOODRUSH,
                                         MCAST_DISAPPEAR, MCAST_CURSE_ITEMS, MCAST_BLOOD_SPEAR,
                                         MCAST_BLOOD_RAIN, MCAST_BLOOD_BIND };
@@ -48,20 +48,18 @@ static int mon_chaos_cleric_spells[] = { MCAST_OPEN_WOUNDS, MCAST_CURE_SELF, MCA
                                           MCAST_PARALYZE, MCAST_BLIND_YOU, MCAST_CHAOS_RAIN,
                                           MCAST_CURSE_ITEMS, MCAST_LIGHTNING, MCAST_FIRE_PILLAR,
                                           MCAST_GEYSER };
-static int mon_undead_spells[] = { MCAST_HASTE_SELF, MCAST_STUN_YOU, MCAST_WEAKEN_YOU,
-                                          MCAST_SLEEP_YOU, MCAST_CURSE_ITEMS,
-                                          MCAST_CURSE_ITEMS, MCAST_AGGRAVATION, MCAST_RAISE_DEAD,
-                                          MCAST_DEATH_TOUCH, MCAST_MIRROR_IMAGE, MCAST_DISAPPEAR,
-                                          MCAST_TELEPORT };
+static int mon_undead_spells[] = { MCAST_HASTE_SELF, MCAST_MIRROR_IMAGE, MCAST_STUN_YOU,
+                                        MCAST_DISAPPEAR, MCAST_WEAKEN_YOU, MCAST_SLEEP_YOU,
+                                        MCAST_CURSE_ITEMS, MCAST_CURSE_ITEMS, MCAST_AGGRAVATION,
+                                        MCAST_RAISE_DEAD, MCAST_TELEPORT, MCAST_DEATH_TOUCH };
 static int mon_demo_spells[] = { MCAST_PSI_BOLT, MCAST_OPEN_WOUNDS, MCAST_CURE_SELF, 
                                         MCAST_HASTE_SELF, MCAST_STUN_YOU, MCAST_WEAKEN_YOU,
                                         MCAST_DESTRY_ARMR, MCAST_CURSE_ITEMS, MCAST_AGGRAVATION,
                                         MCAST_SUMMON_MONS, MCAST_CHAOS_RAIN, MCAST_DEATH_TOUCH};
-static int mon_trickster_spells[] = { MCAST_PSI_BOLT, MCAST_HASTE_SELF, MCAST_DISAPPEAR,
-                                             MCAST_LEVITATE_YOU,
-                                             MCAST_AGGRAVATION, MCAST_MIRROR_IMAGE, MCAST_CONFUSE_YOU,
-                                             MCAST_GREASE, MCAST_DISGUISE, MCAST_CURSE_ITEMS, MCAST_SUMMON_MONS, 
-                                             MCAST_TELEPORT };
+static int mon_trickster_spells[] = { MCAST_PSI_BOLT, MCAST_DISGUISE, MCAST_GREASE,
+                                        MCAST_MIRROR_IMAGE, MCAST_CONFUSE_YOU, MCAST_HASTE_SELF,
+                                        MCAST_DISAPPEAR, MCAST_LEVITATE_YOU, MCAST_CURSE_ITEMS,
+                                        MCAST_AGGRAVATION, MCAST_SUMMON_MONS, MCAST_TELEPORT };
 
 DISABLE_WARNING_FORMAT_NONLITERAL
 
@@ -183,8 +181,8 @@ choose_monster_spell(struct monst *mtmp, int adtyp)
     if (!list || len < 1)
         return MCAST_PSI_BOLT;
 
-    /* max spell level in this monster spell list */
-    maxlev = mcast_data[list[len - 1]].level;
+    /* max level spell possible to cast */
+    maxlev = mtmp->m_lev;
 
     /* randomly determine the spell. we can't do it the vanilla way because 
        many monsters have multiple spells of the same level now. */

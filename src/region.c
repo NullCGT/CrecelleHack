@@ -547,8 +547,8 @@ spread_bonfire(NhRegion *reg) {
             if (x == reg->bounding_box.lx && y == reg->bounding_box.ly) {
                 evaporate_potion_puddles(x, y);
             }
-            if (heros_fault(reg) && newreg)
-                set_heros_fault(newreg);
+            /* set faults */
+            clear_heros_fault(newreg);
         }
     }
 }

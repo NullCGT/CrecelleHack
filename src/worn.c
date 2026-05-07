@@ -866,7 +866,8 @@ m_dowear_type(
     old = which_armor(mon, flag);
     if (old && old->cursed)
         return;
-    if (old && flag == W_AMUL && old->otyp != AMULET_OF_GUARDING)
+    if (old && flag == W_AMUL
+        && (old->otyp == AMULET_OF_REFLECTION || old->otyp == AMULET_OF_LIFE_SAVING))
         return; /* no amulet better than life-saving or reflection */
     best = old;
 
@@ -884,9 +885,11 @@ m_dowear_type(
             /* for 'best' to be non-Null, it must be an amulet of guarding;
                life-saving and reflection don't get here due to early return
                and other amulets of guarding can't be any better */
-            if (!best || obj->otyp != AMULET_OF_GUARDING) {
+            if (!best || obj->otyp == AMULET_OF_LIFE_SAVING
+                || obj->otyp == AMULET_OF_REFLECTION) {
                 best = obj;
-                if (best->otyp != AMULET_OF_GUARDING)
+                if (best->otyp == AMULET_OF_REFLECTION
+                    || best->otyp == AMULET_OF_LIFE_SAVING)
                     goto outer_break; /* life-saving or reflection; use it */
             }
             continue; /* skip post-switch armor handling */

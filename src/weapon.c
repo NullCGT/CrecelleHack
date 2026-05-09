@@ -1612,7 +1612,7 @@ use_skill(int skill, int degree)
     if (skill != P_NONE && !P_RESTRICTED(skill)) {
         advance_before = can_advance(skill, FALSE);
         /* Prevent looping to max via abuse */
-        if (degree >= 0 || P_ADVANCE(skill) > degree)
+        if (degree >= 0 || P_ADVANCE(skill) > abs(degree))
             P_ADVANCE(skill) += degree;
         if (!advance_before && can_advance(skill, FALSE)) {
             give_may_advance_msg(skill);

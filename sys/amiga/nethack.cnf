@@ -5,7 +5,10 @@
 
 # *** DISPLAY MODE ***
 #
-# Tile mode (graphical tiles, recommended):
+# Tile mode (graphical tiles, recommended).  Needs >=384 KB free chip
+# RAM and a display mode that can open at 4 bitplanes (16 colours); on
+# machines that can't, NetHack will automatically fall back to text
+# mode at startup.
 OPTIONS=windowtype:amiv
 #
 # Text mode (uses hack.font line-drawing characters):
@@ -17,6 +20,8 @@ OPTIONS=time,showexp,lit_corridor
 OPTIONS=boulder:0
 OPTIONS=autopickup,pickup_types:$"=/!?+
 OPTIONS=catname:Kaori
+# Numpad for movement; '5' is the run prefix, ALT+5 the rush prefix.
+OPTIONS=number_pad:1
 
 # *** MENU COLORS ***
 # Colour-code inventory items by BUC status and value.

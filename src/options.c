@@ -7428,6 +7428,7 @@ void
 initoptions_finish(void)
 {   nhsym sym = 0;
 
+    disregard_this_option(opt_mention_decor);  /* defer this */
     rcfile();
 
     (void) fruitadd(svp.pl_fruit, (struct fruit *) 0);
@@ -10289,6 +10290,9 @@ heed_all_options(void)
 {
     int i;
 
+    /* ensure OPTIONS= lines are enabled */
+    heed_this_config_statement(0); /* index 0 == OPTIONS */
+
     for (i = 0; i < OPTCOUNT; i++)
         allopt[i].disregarded = FALSE;
 }
@@ -10305,6 +10309,9 @@ disregard_all_options(void)
 void
 heed_this_option(enum opt optidx)
 {
+    /* ensure OPTIONS= lines are enabled */
+    heed_this_config_statement(0);  /* index 0 == OPTIONS */
+
     if (optidx >= 0 && optidx < (enum opt) OPTCOUNT)
          allopt[optidx].disregarded = FALSE;
 }

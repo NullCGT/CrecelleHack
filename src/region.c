@@ -1714,9 +1714,10 @@ inside_bonfire(genericptr_t p1, genericptr_t p2)
         wakeup(mtmp, heros_fault(reg));
         /* Message and complete burning */
         if (completelyburns(mtmp->data)) {
-            if (heros_fault(reg))
+            if (heros_fault(reg)) {
+                u.uconduct.pyro++;
                 killed(mtmp);
-            else
+            } else
                 monkilled(mtmp, "bonfire", AD_FIRE);
             return TRUE;
         } else if (canseemon(mtmp)) {
@@ -1736,9 +1737,10 @@ inside_bonfire(genericptr_t p1, genericptr_t p2)
         adjust_damage(mtmp, &dam, AD_FIRE);
         mtmp->mhp -= dam;
         if (DEADMONSTER(mtmp)) {
-            if (heros_fault(reg))
+            if (heros_fault(reg)) {
+                u.uconduct.pyro++;
                 killed(mtmp);
-            else
+            } else
                 monkilled(mtmp, "bonfire", AD_FIRE);
             if (DEADMONSTER(mtmp)) { /* not lifesaved */
                 return TRUE;

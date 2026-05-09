@@ -2351,11 +2351,11 @@ show_conduct(int final)
         you_have_X(buf);
     }
 
-    if (!u.uconduct.dyed) {
+    if (!u.uconduct.dyer) {
         you_have_never("dyed an item");
     } else if (wizard) {
         Sprintf(buf, "dyed items %ld time%s",
-                u.uconduct.dyed, plur(u.uconduct.dyed));
+                u.uconduct.dyer, plur(u.uconduct.dyer));
         you_have_X(buf);
     }
 

@@ -210,12 +210,12 @@ struct u_conduct {     /* number of times... */
     long pets;         /* obtained a pet */
     long conflicting;  /* generated conflict */
     long holy_water;   /* blessed an object with holy water */
-    long dyed;         /* player has explicitly dyed an item */
+    long dyer;         /* player has explicitly dyed an item */
+    long pyro;         /* player indirectly killed a monster with a bonfire */
+    long junior_alchemist; /* player has used floor alchemy */
     /* genocides already listed at end of game */
     long reserved1;
     long reserved2;
-    long reserved3;
-    long reserved4;
 };
 
 struct u_roleplay {

@@ -1,0 +1,12 @@
+achieveXname,name,description,icon,source,
+pyro,Pyromaniac,indirectly slay a monster with a bonfire,pyro.png,crecelle,
+dyer,You dye...,dye an item,dyer.png,crecelle,
+blessless,Bless Less,ascended without praying for holy water,blessless.png,crecelle,
+conflictless,Conflict Averse,ascended without generating conflict,conflictless.png,crecelle
+petless,No Pets Allowed,ascended without having a pet,petless.png,evil,
+artifactless,Artifactless,ascended without touching an artifact,artifactless.png,evil,
+elberethless,Elberethless,ascended without writing Elbereth,elberethless.png,evil,
+deaf,Deaf,ascended being permanently deaf,deaf.png,evil,
+race=kobold,Tucker,ascended a kobold,kobold.png,crecelle,
+role=grappler,From the Top Rope,ascended a grappler,grappler.png,crecelle,
+junior_alchemist,Junior Alchemist,created an explosion by mixing potions on the floor,junior_alchemist.png,crecelle,

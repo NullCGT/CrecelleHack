@@ -453,8 +453,12 @@ encodeconduct(void)
         e |= 1L << 15;
     if (u.uconduct.holy_water)
         e |= 1L << 16;
-    if (u.uconduct.dyed)
+    if (u.uconduct.dyer)
         e |= 1L << 17;
+    if (u.uconduct.pyro)
+        e |= 1L << 18;
+    if (u.uconduct.junior_alchemist)
+        e |= 1L << 19;
 
     return e;
 }
@@ -615,7 +619,9 @@ encode_extended_conducts(char *buf)
     add_achieveX(buf, "petless",      !u.uconduct.pets);
     add_achieveX(buf, "conflictless", !u.uconduct.conflicting);
     add_achieveX(buf, "blessless",    !u.uconduct.holy_water);
-    add_achieveX(buf, "dyeless",      !u.uconduct.dyed);
+    add_achieveX(buf, "dyer",         u.uconduct.dyer);
+    add_achieveX(buf, "pyro",         u.uconduct.pyro);
+    add_achieveX(buf, "junior alchemist", u.uconduct.junior_alchemist);
     add_achieveX(buf, "unrerolled",   !u.uroleplay.reroll);
 
     return buf;

@@ -2107,6 +2107,8 @@ floor_alchemy(int x, int y, short otyp) {
     if (bomb || !rn2(10)) {
         remove_coating(x, y, COAT_POTION);
         explode(x, y, PHYS_EXPL_TYPE, d(1, 10), 0, EXPL_NOXIOUS);
+        if (!gi.in_mklev && !svc.context.mon_moving)
+            u.uconduct.junior_alchemist++;
         return 0;
     } else {
         /* potion coatings are handled by floor_spillage() */
@@ -3841,7 +3843,7 @@ dye_obj(struct obj *obj, int color, boolean your_fault) {
         newodye(obj);
     ODYE(obj) = color;
     if (your_fault)
-        u.uconduct.dyed++;
+        u.uconduct.dyer++;
 }
 
 /* convert an object's dye index to a string */

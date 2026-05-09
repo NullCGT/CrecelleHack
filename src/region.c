@@ -548,7 +548,10 @@ spread_bonfire(NhRegion *reg) {
                 evaporate_potion_puddles(x, y);
             }
             /* set faults */
-            clear_heros_fault(newreg);
+            if (heros_fault(reg) && newreg)
+                set_heros_fault(newreg);
+            else if (newreg)
+                clear_heros_fault(newreg);
         }
     }
 }

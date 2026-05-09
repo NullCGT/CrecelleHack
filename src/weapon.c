@@ -85,12 +85,16 @@ static NEARDATA const char kebabable[] = {
 staticfn void
 give_may_advance_msg(int skill)
 {
-    You_feel("more confident in your %s%sskills.",
-             (skill == P_NONE) ? ""
-                 : (skill <= P_LAST_WEAPON) ? "weapon"
-                     : (skill <= P_LAST_SPELL) ? "spell casting"
-                         : P_NAME(skill),
-             (skill == P_NONE) ? "" : " ");
+    if (skill >= P_FIRST_ATTR && skill <= P_LAST_ATTR) {
+        Norep("You feel more confident in your attributes.");
+    } else {
+        You_feel("more confident in your %s%sskills.",
+                (skill == P_NONE) ? ""
+                    : (skill <= P_LAST_WEAPON) ? "weapon"
+                        : (skill <= P_LAST_SPELL) ? "spell casting"
+                            : P_NAME(skill),
+                (skill == P_NONE) ? "" : " ");
+    }
     (void) handle_tip(TIP_ENHANCE);
 }
 
@@ -1565,8 +1569,8 @@ enhance_weapon_skill(void)
 
         Strcpy(buf, (to_advance > 0) ? "Pick a skill to advance:"
                                      : "Current skills:");
-        if (wizard && !speedy)
-            Sprintf(eos(buf), "  (%d slot%s available)", u.weapon_slots,
+        if (!speedy)
+            Sprintf(eos(buf), "  (%d point%s available)", u.weapon_slots,
                     plur(u.weapon_slots));
         end_menu(win, buf);
         n = select_menu(win, to_advance ? PICK_ONE : PICK_NONE, &selected);

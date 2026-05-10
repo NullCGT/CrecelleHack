@@ -1,4 +1,4 @@
-/* NetHack 3.7	attrib.c	$NHDT-Date: 1754979443 2025/08/11 22:17:23 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.134 $ */
+/* NetHack 5.0	attrib.c	$NHDT-Date: 1777000050 2026/04/23 19:07:30 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.137 $ */
 /*      Copyright 1988, 1989, 1990, 1992, M. Stephenson           */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -112,7 +112,7 @@ static const struct innate {
 staticfn void exerper(void);
 staticfn int rnd_attr(void);
 staticfn int init_attr_role_redist(int, boolean);
-staticfn void postadjabil(long *);
+staticfn void postadjabil(long *) NONNULLARG1;
 staticfn const struct innate *role_abil(int);
 staticfn const struct innate *check_innate_abil(long *, long);
 staticfn int innately(long *);
@@ -696,7 +696,7 @@ rnd_attr(void)
 {
     int i, x = rn2(100);
 
-    /* 3.7: the x -= ... calculation used to have an off by 1 error that
+    /* 5.0: the x -= ... calculation used to have an off by 1 error that
        resulted in the values being biased toward Str and away from Cha */
     for (i = 0; i < A_MAX; ++i)
         if ((x -= gu.urole.attrdist[i]) < 0)
@@ -792,7 +792,7 @@ staticfn
 void
 postadjabil(long *ability)
 {
-    if (!ability)
+    if (!u.ulevel) /* initializing hero; don't attempt screen update yet */
         return;
     if (ability == &(HWarning) || ability == &(HSee_invisible))
         see_monsters();
@@ -1281,8 +1281,11 @@ acurr(int chridx)
 schar
 amodifier(int chridx)
 {
-    int attr = ACURR(chridx);
-    if (ACURR(A_STR) <= STR18(0))
+    int attr;
+    if (chridx < A_STR || chridx > A_CHA)
+        return 0;
+    attr = ACURR(chridx);
+    if ((chridx != A_STR) || ACURR(A_STR) <= STR18(0))
         return ((attr - 10) + ((attr >= 0) ? 0 : -1)) / 2;
     else if (ACURR(A_STR) < STR18(50))
         return 5;

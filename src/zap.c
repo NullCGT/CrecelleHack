@@ -1,4 +1,4 @@
-/* NetHack 3.7	zap.c	$NHDT-Date: 1770949988 2026/02/12 18:33:08 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.584 $ */
+/* NetHack 5.0	zap.c	$NHDT-Date: 1770949988 2026/02/12 18:33:08 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.584 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2013. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -40,6 +40,7 @@ staticfn boolean destroyable(struct obj *, int);
 staticfn boolean elemental_shift(struct monst *, int);
 
 staticfn void wishcmdassist(int);
+staticfn void wish_history_menu(char *);
 
 #define ZT_MAGIC_MISSILE (AD_MAGM - 1)
 #define ZT_FIRE (AD_FIRE - 1)
@@ -197,7 +198,7 @@ bhitm(struct monst *mtmp, struct obj *otmp)
                 seemimic(mtmp);
             shieldeff(mtmp->mx, mtmp->my);
             pline("Boing!");
-            /* 3.7: used to 'break' to avoid setting learn_it here */
+            /* 5.0: used to 'break' to avoid setting learn_it here */
         } else if (u.uswallow || rnd(20) < 10 + find_mac(mtmp)) {
             if (disguised_mimic)
                 seemimic(mtmp);
@@ -927,7 +928,8 @@ revive(struct obj *corpse, boolean by_hero)
     int montype, cgend, container_nesting = 0;
     boolean is_zomb;
 
-    if (corpse->otyp != CORPSE && corpse->otyp != SKELETON) {
+    if (corpse->otyp != CORPSE && corpse->otyp != SKELETON
+        && corpse->otyp != FOSSIL) {
         impossible("Attempting to revive %s?", xname(corpse));
         return (struct monst *) 0;
     }
@@ -1502,7 +1504,7 @@ obj_resists(struct obj *obj,
         return TRUE;
     } else if ((obj->otyp == SKULL
                 || obj->otyp == SKULL_HELM
-                || obj->otyp == SKELETON)
+                || obj->otyp == SKELETON || obj->otyp == FOSSIL)
                 && (obj->corpsenm == PM_BLACK_DRAGON 
                     || obj->corpsenm == PM_BABY_BLACK_DRAGON)) {
         return TRUE;
@@ -1797,7 +1799,7 @@ poly_obj(struct obj *obj, int id)
         otmp = mksobj(id, FALSE, FALSE);
 /* Actually more things use corpsenm but they polymorph differently */
 #define USES_CORPSENM(typ) \
-    ((typ) == CORPSE || (typ) == STATUE || (typ) == FIGURINE)
+    ((typ) == CORPSE || (typ) == STATUE || (typ) == FIGURINE || (typ) == FOSSIL)
 
         if (USES_CORPSENM(obj->otyp) && USES_CORPSENM(id))
             set_corpsenm(otmp, obj->corpsenm);
@@ -1935,7 +1937,7 @@ poly_obj(struct obj *obj, int id)
         while (otmp->otyp == SPE_POLYMORPH)
             otmp->otyp = rnd_class(svb.bases[SPBOOK_CLASS], SPE_BLANK_PAPER);
         /* reduce spellbook abuse; non-blank books degrade;
-           3.7: novels don't use spestudied so shouldn't degrade to blank
+           5.0: novels don't use spestudied so shouldn't degrade to blank
            (but don't force spestudied to zero for them since a non-zero
            value could get passed along to a future polymorph) */
         if (otmp->otyp != SPE_BLANK_PAPER && otmp->otyp != SPE_NOVEL) {
@@ -2427,7 +2429,8 @@ bhito(struct obj *obj, struct obj *otmp)
         case SPE_TURN_UNDEAD:
             if (obj->otyp == EGG) {
                 revive_egg(obj);
-            } else if (obj->otyp == CORPSE || obj->otyp == SKELETON) {
+            } else if (obj->otyp == CORPSE || obj->otyp == SKELETON
+                        || obj->otyp == FOSSIL) {
                 struct monst *mtmp;
                 coordxy ox, oy;
                 unsigned save_norevive;
@@ -2690,6 +2693,16 @@ zapnodir(struct obj *obj)
         known = !!obj->dknown;
         (void) findit();
         break;
+    case WAN_STASIS: {
+        long tmp_until = svm.moves + (long) rn1(21, 10);
+
+        /* no immediately obvious effect, and no message so that it isn't
+           distinguishable from other NODIR wands that produce no message;
+           for multiple zaps, keep the longest duration rather than latest */
+        if (tmp_until > svl.level.flags.stasis_until)
+            svl.level.flags.stasis_until = tmp_until;
+        break;
+    }
     case WAN_CREATE_MONSTER:
         /* create_critters() returns True iff hero sees a new monster appear */
         if (create_critters(rn2(23) ? 1 : rn1(7, 2),
@@ -4460,8 +4473,10 @@ boomhit(struct obj *obj, int dx, int dy)
         }
         if (u_at(gb.bhitpos.x, gb.bhitpos.y)) { /* ct == 9 */
             if (Fumbling || rn2(20) >= ACURR(A_DEX)) {
+                int dam = dmgval(obj, &gy.youmonst, &gy.youmonst);
+
                 /* we hit ourselves */
-                (void) thitu(10 + obj->spe, dmgval(obj, &gy.youmonst, &gy.youmonst), &obj,
+                (void) thitu(10 + obj->spe, Maybe_Half_Phys(dam), &obj,
                              "boomerang");
                 endmultishot(TRUE);
                 break;
@@ -4743,21 +4758,21 @@ zhitu(
             monstunseesu(M_SEEN_DISINT);
             if (uarms) {
                 /* destroy shield; other possessions are safe */
-                (void) destroy_arm(uarms);
+                (void) disintegrate_arm(uarms);
                 break;
             } else if (uarm) {
                 /* destroy suit; if present, cloak goes too */
                 if (uarmc)
-                    (void) destroy_arm(uarmc);
-                (void) destroy_arm(uarm);
+                    (void) disintegrate_arm(uarmc);
+                (void) disintegrate_arm(uarm);
                 break;
             }
             /* no shield or suit, you're dead; wipe out cloak
                and/or shirt in case of life-saving or bones */
             if (uarmc)
-                (void) destroy_arm(uarmc);
+                (void) disintegrate_arm(uarmc);
             if (uarmu)
-                (void) destroy_arm(uarmu);
+                (void) disintegrate_arm(uarmu);
         } else if (nonliving(gy.youmonst.data) || is_demon(gy.youmonst.data)) {
             shieldeff(sx, sy);
             You("seem unaffected.");
@@ -4816,7 +4831,7 @@ zhitu(
     }
 
     /*
-     * 3.7: when fatal, this used to yield "Killed by <fltxt>." without any
+     * 5.0: when fatal, this used to yield "Killed by <fltxt>." without any
      * information about who was responsible.  Now 'buzzer' is used to try
      * to supply "zapped/cast/breathed by <mon> [imitating <other_mon>]."
      *
@@ -5030,13 +5045,13 @@ disintegrate_mon(
 void
 ubuzz(int type, int nd)
 {
-    dobuzz(type, nd, u.ux, u.uy, u.dx, u.dy, TRUE, FALSE);
+    dobuzz(type, nd, u.ux, u.uy, u.dx, u.dy, TRUE, FALSE, FALSE);
 }
 
 void
 buzz(int type, int nd, coordxy sx, coordxy sy, int dx, int dy)
 {
-    dobuzz(type, nd, sx, sy, dx, dy, TRUE, FALSE);
+    dobuzz(type, nd, sx, sy, dx, dy, TRUE, FALSE, FALSE);
 }
 
 /*
@@ -5054,7 +5069,8 @@ dobuzz(
     int nd,                 /* damage strength ('number of dice') */
     coordxy sx, coordxy sy, /* starting point */
     int dx, int dy,         /* direction delta */
-    boolean sayhit, boolean saymiss) /* report out of sight hit/miss events */
+    boolean sayhit, boolean saymiss, /* report out of sight hit/miss events */
+    boolean forcemiss)
 {
     int range, fltyp = zaptype(type), damgtype = fltyp % 10;
     coordxy lsx, lsy;
@@ -5140,7 +5156,7 @@ dobuzz(
  buzzmonst:
             gn.notonhead = (mon->mx != gb.bhitpos.x
                             || mon->my != gb.bhitpos.y);
-            if (zap_hit(find_mac(mon), spell_type)) {
+            if (!forcemiss && zap_hit(find_mac(mon), spell_type)) {
                 if (mon_reflects(mon, (char *) 0)) {
                     if (cansee(mon->mx, mon->my)) {
                         hit(flash_str(fltyp, FALSE), mon, exclam(0));
@@ -5232,7 +5248,7 @@ dobuzz(
             if (u.usteed && !rn2(3) && !mon_reflects(u.usteed, (char *) 0)) {
                 mon = u.usteed;
                 goto buzzmonst;
-            } else if (zap_hit((int) u.uac, 0)) {
+            } else if (!forcemiss && zap_hit((int) u.uac, 0)) {
                 range -= 2;
                 pline_dir(xytodir(-dx, -dy), "%s hits you!",
                           The(flash_str(fltyp, FALSE)));
@@ -5703,7 +5719,7 @@ zap_over_floor(
                         pline_The("water conducts the %s!", flash_str(zaptype(type), FALSE));
                 }
                 rangemod -= 7;
-                dobuzz(type, 1, x, y, dx, dy, FALSE, FALSE);
+                dobuzz(type, 1, x, y, dx, dy, FALSE, FALSE, FALSE);
             }
         }
     }
@@ -6292,7 +6308,7 @@ maybe_destroy_item(
             if (osym == POTION_CLASS && dmgtyp != AD_COLD
                 && (!breathless(gy.youmonst.data)
                     || haseyes(gy.youmonst.data))) {
-                potionbreathe(obj); /* Should we maybe create a cloud of gas? */
+                potionbreathe(obj);
             }
             if (obj->owornmask) { /* m_useup handles these for monster */
                 if (obj->owornmask & W_RING) /* ring being worn */
@@ -6596,6 +6612,96 @@ wishcmdassist(int triesleft)
     destroy_nhwindow(win);
 }
 
+#define MAX_WISH_HISTORY 20
+static char *wish_history[MAX_WISH_HISTORY] = { NULL };
+static int wish_history_idx = 0;
+
+/* add string to wish history list */
+void
+wish_history_add(char *buf)
+{
+#ifdef DEBUG
+    int i;
+
+    if (!wizard)
+        return;
+
+    for (i = 0; i < MAX_WISH_HISTORY; i++) {
+        int idx = (wish_history_idx + i) % MAX_WISH_HISTORY;
+
+        if (!wish_history[idx])
+            continue;
+        if (!strncmpi(wish_history[idx], buf, strlen(wish_history[idx])))
+            break;
+
+    }
+
+    if (i == MAX_WISH_HISTORY) {
+        int idx = (wish_history_idx + i) % MAX_WISH_HISTORY;
+
+        if (wish_history[idx])
+            free(wish_history[idx]);
+        wish_history[idx] = (char *) alloc(strlen(buf) + 1);
+        strcpy(wish_history[idx], buf);
+        wish_history_idx = (wish_history_idx + 1) % MAX_WISH_HISTORY;
+    }
+#endif /* DEBUG */
+}
+
+/* release any old wish text; called from freedynamicdata(save.c) */
+void
+wish_history_flush(void)
+{
+#ifdef DEBUG
+    int idx;
+
+    for (idx = 0; idx < MAX_WISH_HISTORY; ++idx) {
+        if (wish_history[idx])
+            free((genericptr_t) wish_history[idx]), wish_history[idx] = NULL;
+    }
+    wish_history_idx = 0;
+#endif
+}
+
+/* shows menu of previous wishes, copies selected into buf, max BUFSZ len.
+   buf is not modified, if nothing was selected. */
+staticfn void
+wish_history_menu(char *buf)
+{
+#ifdef DEBUG
+    winid win;
+    anything any;
+    int i = 0, npick;
+    menu_item *picks = (menu_item *) 0;
+    int idx;
+
+    win = create_nhwindow(NHW_MENU);
+    start_menu(win, MENU_BEHAVE_STANDARD);
+    any = cg.zeroany;
+
+    for (i = MAX_WISH_HISTORY-1; i >= 0; i--) {
+        idx = (wish_history_idx + i) % MAX_WISH_HISTORY;
+        if (wish_history[idx]) {
+            any.a_int = (i + 1);
+            add_menu(win, &nul_glyphinfo, &any, '\0', 0, ATR_NONE, NO_COLOR,
+                     wish_history[idx], MENU_ITEMFLAGS_NONE);
+        }
+    }
+
+    end_menu(win, "Wish what?");
+    npick = select_menu(win, PICK_ONE, &picks);
+    destroy_nhwindow(win);
+    if (npick > 0) {
+        i = picks->item.a_int;
+        i--;
+        idx = (wish_history_idx + i) % MAX_WISH_HISTORY;
+
+        if (wish_history[idx])
+            strcpy(buf, wish_history[idx]);
+    }
+#endif /* DEBUG */
+}
+
 RESTORE_WARNING_FORMAT_NONLITERAL
 
 void
@@ -6618,7 +6724,11 @@ makewish(void)
     if (iflags.cmdassist && tries > 0)
         Strcat(promptbuf, " (enter 'help' for assistance)");
     Strcat(promptbuf, "?");
-    getlin(promptbuf, buf);
+
+    if (iflags.menu_requested && wish_history[0] && (tries == 0))
+        wish_history_menu(buf);
+    else
+        getlin(promptbuf, buf);
 
     if (iflags.term_gone) {
         if (!iflags.debug_fuzzer)
@@ -6656,9 +6766,11 @@ makewish(void)
         livelog_printf(LL_WISH, "declined to make a wish");
         return;
     } else if (otmp == &hands_obj) {
+        wish_history_add(bufcpy);
         /* wizard mode terrain wish: skip livelogging, etc */
         return;
     }
+    wish_history_add(bufcpy);
 
     if (otmp->oartifact) {
         /* update artifact bookkeeping; doesn't produce a livelog event */

@@ -1,4 +1,4 @@
-/* NetHack 3.7	artifact.h	$NHDT-Date: 1602692711 2020/10/14 16:25:11 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.15 $ */
+/* NetHack 5.0	artifact.h	$NHDT-Date: 1602692711 2020/10/14 16:25:11 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.15 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2011. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -78,6 +78,7 @@ enum invoke_prop_types {
     SNOWSTORM,
     BLINDING_RAY,
     STONEPROOF,
+    CHORALE,
 };
 
 /* artifact tracking; gift and wish imply found; it also gets set for items

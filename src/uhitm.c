@@ -1,4 +1,4 @@
-/* NetHack 3.7	uhitm.c	$NHDT-Date: 1752823766 2025/07/17 23:29:26 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.477 $ */
+/* NetHack 5.0	uhitm.c	$NHDT-Date: 1752823766 2025/07/17 23:29:26 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.477 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -1080,7 +1080,8 @@ hmon_hitmon_weapon_melee(
     if (artifact_light(obj) && obj->lamplit
         && mon_hates_light(mon))
         hmd->lightobj = TRUE;
-    if (u.usteed && !hmd->thrown && hmd->dmg > 0
+    if ((is_jouster(gy.youmonst.data) || u.usteed)
+        && !hmd->thrown && hmd->dmg > 0
         && weapon_type(obj) == P_LANCE && mon != u.ustuck) {
         hmd->jousting = joust(mon, obj);
         /* exercise skill even for minimal damage hits */
@@ -1123,8 +1124,8 @@ hmon_hitmon_weapon(
         /* or strike with a missile in your hand... */
         || (!hmd->thrown && (is_missile(obj) || is_ammo(obj)))
         /* or use a pole at short range and not mounted... */
-        || (!hmd->thrown && !u.usteed && is_pole(obj)
-            && !is_art(obj,ART_SNICKERSNEE))
+        || (!hmd->thrown && !(u.usteed || is_jouster(gy.youmonst.data))
+            && is_pole(obj) && !is_art(obj,ART_SNICKERSNEE))
         /* or throw a missile without the proper bow... */
         || (is_ammo(obj) && (hmd->thrown != HMON_THROWN
                              || !ammo_and_launcher(obj, uwep)))) {
@@ -1621,12 +1622,12 @@ hmon_hitmon_jousting(
         first_weapon_hit(obj);
 
     if (hmd->jousting < 0) {
-        pline("%s shatters on impact!", Yname2(obj));
         /* (must be either primary or secondary weapon to get here) */
         set_twoweap(FALSE); /* sets u.twoweap = FALSE;
                              * untwoweapon() is too verbose here */
         if (obj == uwep)
             uwepgone(); /* set gu.unweapon */
+        pline("%s shatters on impact!", Yname2(obj));
         /* minor side-effect: broken lance won't split puddings */
         useup(obj);
         obj = (struct obj *) 0;
@@ -2316,7 +2317,7 @@ steal_it(struct monst *mdef, struct attack *mattk)
     if (ustealo) { /* we will be taking everything */
         char heshe[20];
 
-        /* 3.7: this uses hero's base gender rather than nymph femininity
+        /* 5.0: this uses hero's base gender rather than nymph femininity
            but was using hardcoded pronouns She/her for target monster;
            switch to dynamic pronoun */
         if (gender(mdef) == (int) u.mfemale
@@ -4492,7 +4493,7 @@ mhitm_ad_ston(
                     pline("%s seems to grimace.", Monnam(magr));
                 }
                 /*
-                 * 3.7:  New moon is no longer overridden by carrying a
+                 * 5.0:  New moon is no longer overridden by carrying a
                  * lizard corpse.  Having the moon's impact on terrestrial
                  * activity be affected by carrying a dead critter felt
                  * silly.
@@ -6795,7 +6796,7 @@ oprop_effects_pre(struct monst *magr, struct monst *mdef)
             throwit(otmp, 0L, FALSE, (struct obj *) 0);
             weapon->pknown = 1;
         } else if (weapon->oprop == OPROP_CRACKLING && rn2(2)) {
-            if (cansee(dx, dy))
+            if (cansee(dx, dy) && flags.verbose)
                 pline("Lightning arcs from the %s!", simpleonames(weapon));
             gc.current_wand = weapon;
             ubuzz(BZ_U_WAND(BZ_OFS_AD(AD_ELEC)), 1);

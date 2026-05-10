@@ -1,4 +1,4 @@
-/* NetHack 3.7	monsters.h	$NHDT-Date: 1723945838 2024/08/18 01:50:38 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.124 $ */
+/* NetHack 5.0	monsters.h	$NHDT-Date: 1723945838 2024/08/18 01:50:38 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.124 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Michael Allison, 2006. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -597,7 +597,7 @@
           ATTK(AT_TENT, AD_DRIN, 2, 1), ATTK(AT_TENT, AD_DRIN, 2, 1)),
         SIZ(1450, 400, MS_HISS, MZ_HUMAN), 0, 0,
         M1_HUMANOID | M1_FLY | M1_SEE_INVIS | M1_OMNIVORE,
-        M2_HOSTILE | M2_NASTY | M2_GREEDY | M2_JEWELS | M2_COLLECT,
+        M2_HOSTILE | M2_NASTY | M2_GREEDY | M2_JEWELS | M2_COLLECT | M2_IGNOREPETS,
         M3_INFRAVISIBLE | M3_INFRAVISION | M3_AMBUSHER | M3_TRAITOR | M3_TRIPPER,
         M4_BST_ROCK, 0, 19, CLR_BRIGHT_MAGENTA, MASTER_MIND_FLAYER),
     /*
@@ -1087,7 +1087,7 @@
         0, 8, CLR_RED, SCORPION),
     /*
      * trappers, lurkers, &c
-     * Note:  prior to 3.7, these were defined to do AD_DGST damage,
+     * Note:  prior to 5.0, these were defined to do AD_DGST damage,
      * but they don't swallow their victims into their stomachs and
      * digest, they enfold and crush or suffocate.
      * The Monster Manual states that someone engulfed by a trapper
@@ -1249,7 +1249,7 @@
         SIZ(WT_ETHEREAL, 0, MS_SILENT, MZ_HUGE),
         MR_SLEEP | MR_POISON | MR_STONE, 0,
         M1_FLY | M1_BREATHLESS | M1_NOLIMBS | M1_NOHEAD | M1_UNSOLID,
-        M2_STALK | M2_HOSTILE, 
+        M2_STALK | M2_HOSTILE | M2_IGNOREPETS, 
         M3_INFRAVISION | M3_TRAITOR, M4_BST_BLOOD, MH_UNDEAD, 14, CLR_RED, CRIMSON_DEATH),
     /* Not actually a monster, but behaves very similarly */
     MON(NAM("tornado"), S_VORTEX,
@@ -1398,7 +1398,7 @@
         SIZ(WT_HUMAN, 400, MS_IMITATE, MZ_HUMAN),
         MR_COLD | MR_ELEC | MR_SLEEP | MR_POISON, 0,
         M1_HUMANOID | M1_SEE_INVIS,
-        M2_MINION | M2_STALK | M2_NASTY | M2_COLLECT,
+        M2_MINION | M2_STALK | M2_NASTY | M2_COLLECT | M2_IGNOREPETS,
         M3_INFRAVISIBLE | M3_INFRAVISION, M4_BST_GRASS,
         0, 12, CLR_YELLOW, ALEAX),
     /* Angels start with the emin extension attached, and usually have
@@ -1990,7 +1990,7 @@
         A(ATTK(AT_WEAP, AD_PHYS, 1, 6),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(650, 100, MS_ORC, MZ_SMALL), 0, 0, M1_HUMANOID | M1_OMNIVORE,
-        M2_COLLECT | M2_HOSTILE, M3_INFRAVISIBLE | M3_INFRAVISION | M3_CALLOUT,
+        M2_COLLECT | M2_HOSTILE | M2_IGNOREPETS, M3_INFRAVISIBLE | M3_INFRAVISION | M3_CALLOUT,
         M4_BST_GRASS, MH_GNOME, 5, CLR_BRIGHT_MAGENTA, GWTWOD),
     /*
      * giant Humanoids
@@ -2328,7 +2328,7 @@
             | M1_OMNIVORE,
         M2_STRONG, M3_AMBUSHER, M4_BST_GRASS | M4_RSLASH,
         0, 13, HI_GOLD, GOLDEN_NAGA),
-    /* 3.7: guardian naga used to have three attacks: bite, spit, hug
+    /* 5.0: guardian naga used to have three attacks: bite, spit, hug
        but in order for the hug to succeed the two preceding attacks had
        to have hit, and it's not possible to both bite and spit, hence
        the hug never hit; change to spit, bite, touch, hug; if the bite
@@ -2430,7 +2430,7 @@
         M1_HUMANOID | M1_OMNIVORE | M1_POIS | M1_TPORT, M2_HOSTILE,
         M3_INFRAVISIBLE | M3_AMBUSHER, M4_BST_POTION,
         0, 9, CLR_CYAN, QUANTUM_MECHANIC),
-    /* 3.7: from slash'em, to expand Q class; hit polymorphs target */
+    /* 5.0: from slash'em, to expand Q class; hit polymorphs target */
     MON(NAM("genetic engineer"), S_QUANTMECH,
         LVL(12, 12, 3, 10, 0), (G_GENO | 1),
         A(ATTK(AT_CLAW, AD_POLY, 1, 4),
@@ -2656,7 +2656,7 @@
         SIZ(WT_HUMAN, 0, MS_SPELL, MZ_HUMAN), MR_COLD | MR_SLEEP | MR_POISON,
         0, M1_BREATHLESS | M1_HUMANOID | M1_SEE_INVIS,
         M2_NOPOLY | M2_STALK | M2_STRONG | M2_HOSTILE | M2_MALE
-            | M2_COLLECT | M2_COLLAT,
+            | M2_COLLECT | M2_COLLAT | M2_IGNOREPETS,
         MH_UNDEAD, M4_KICK_ASHES, 0, 17, HI_LORD, NAZGUL),
     /*
      * Xorn
@@ -3023,7 +3023,7 @@
         A(ATTK(AT_WEAP, AD_PHYS, 1, 8),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(WT_ELF, 350, MS_HUMANOID, MZ_HUMAN), MR_SLEEP, MR_SLEEP,
-        M1_HUMANOID | M1_OMNIVORE | M1_SEE_INVIS,
+        M1_HUMANOID | M1_HERBIVORE | M1_SEE_INVIS,
         M2_NOPOLY | M2_COLLECT,
         M3_INFRAVISION | M3_INFRAVISIBLE, 0,
         MH_ELF, 1, HI_DOMESTIC, ELF),
@@ -3032,7 +3032,7 @@
         A(ATTK(AT_WEAP, AD_PHYS, 2, 4), NO_ATTK,
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(WT_ELF, 350, MS_HUMANOID, MZ_HUMAN), MR_SLEEP, MR_SLEEP,
-        M1_HUMANOID | M1_OMNIVORE | M1_SEE_INVIS, M2_COLLECT,
+        M1_HUMANOID | M1_HERBIVORE | M1_SEE_INVIS, M2_COLLECT,
         M3_INFRAVISIBLE | M3_INFRAVISION, M4_BST_GRASS,
         MH_ELF, 6, CLR_GREEN, WOODLAND_ELF),
     MON(NAM("Green-elf"), S_HUMAN,
@@ -3040,7 +3040,7 @@
         A(ATTK(AT_WEAP, AD_PHYS, 2, 4),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(WT_ELF, 350, MS_HUMANOID, MZ_HUMAN), MR_SLEEP, MR_SLEEP,
-        M1_HUMANOID | M1_OMNIVORE | M1_SEE_INVIS, M2_COLLECT,
+        M1_HUMANOID | M1_HERBIVORE | M1_SEE_INVIS, M2_COLLECT,
         M3_INFRAVISIBLE | M3_INFRAVISION, M4_BST_GRASS,
         MH_ELF, 7, CLR_BRIGHT_GREEN, GREEN_ELF),
     MON(NAM("Grey-elf"), S_HUMAN,
@@ -3048,7 +3048,7 @@
         A(ATTK(AT_WEAP, AD_PHYS, 2, 4),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(WT_ELF, 350, MS_HUMANOID, MZ_HUMAN), MR_SLEEP, MR_SLEEP,
-        M1_HUMANOID | M1_OMNIVORE | M1_SEE_INVIS, M2_COLLECT,
+        M1_HUMANOID | M1_HERBIVORE | M1_SEE_INVIS, M2_COLLECT,
         M3_INFRAVISIBLE | M3_INFRAVISION | M3_AMBUSHER | M3_CALLOUT,
         M4_BST_GRASS | M4_KICK_ASHES, MH_ELF, 8, CLR_GRAY, GREY_ELF),
     MON(NAMS("elf-lord", "elf-lady", "elf-noble"), S_HUMAN,
@@ -3056,7 +3056,7 @@
         A(ATTK(AT_WEAP, AD_PHYS, 2, 4), ATTK(AT_WEAP, AD_PHYS, 2, 4),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(WT_ELF, 350, MS_HUMANOID, MZ_HUMAN), MR_SLEEP, MR_SLEEP,
-        M1_HUMANOID | M1_OMNIVORE | M1_SEE_INVIS,
+        M1_HUMANOID | M1_HERBIVORE | M1_SEE_INVIS,
         M2_STRONG | M2_LORD | M2_COLLECT,
         M3_INFRAVISIBLE | M3_INFRAVISION | M3_AMBUSHER, M4_BST_GRASS,
         MH_ELF, 11, CLR_BRIGHT_BLUE, ELF_NOBLE),
@@ -3074,7 +3074,7 @@
         A(ATTK(AT_WEAP, AD_PHYS, 2, 4), ATTK(AT_WEAP, AD_PHYS, 2, 4),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(WT_ELF, 350, MS_HUMANOID, MZ_HUMAN), MR_SLEEP, MR_SLEEP,
-        M1_HUMANOID | M1_OMNIVORE | M1_SEE_INVIS,
+        M1_HUMANOID | M1_HERBIVORE | M1_SEE_INVIS,
         M2_STRONG | M2_PRINCE | M2_COLLECT,
         M3_INFRAVISIBLE | M3_INFRAVISION | M3_AMBUSHER, M4_BST_GRASS,
         MH_ELF, 11, HI_LORD, ELVEN_MONARCH),
@@ -3088,7 +3088,7 @@
             | M2_SHAPESHIFTER,
         M3_INFRAVISIBLE | M3_AMBUSHER | M3_TRIPPER, M4_BST_POTION,
         MH_HUMAN, 11, HI_DOMESTIC, DOPPELGANGER),
-    /* 3.7: shopkeepers used to have speed 18, but if/when they were
+    /* 5.0: shopkeepers used to have speed 18, but if/when they were
        hasted they always got 2 moves per turn and had a tendency to move
        away from blocking the door and then move right back; since they
        might start with a potion of speed and drink that as soon as the
@@ -3293,7 +3293,7 @@
         SIZ(WT_HUMAN, 0, MS_LAUGH, MZ_HUMAN),
         MR_COLD | MR_DISINT | MR_SLEEP | MR_POISON | MR_STONE, 0,
         M1_FLY | M1_BREATHLESS | M1_WALLWALK | M1_HUMANOID | M1_UNSOLID,
-        M2_NOPOLY | M2_STALK | M2_HOSTILE | M2_COLLECT | M2_WANDER,
+        M2_NOPOLY | M2_STALK | M2_HOSTILE | M2_COLLECT | M2_WANDER | M2_IGNOREPETS,
         M3_INFRAVISION | M3_INFRAVISIBLE | M3_TRAITOR | M3_TRIPPER, 0,
         MH_UNDEAD, 12, CLR_WHITE, POLTERGEIST),
     MON(NAM("ghost"), S_GHOST,
@@ -3345,7 +3345,7 @@
 #define SEDUCTION_ATTACKS_NO \
     A(ATTK(AT_CLAW, AD_PHYS, 1, 3), ATTK(AT_CLAW, AD_PHYS, 1, 3), \
       ATTK(AT_BITE, AD_DRLI, 2, 6), NO_ATTK, NO_ATTK, NO_ATTK)
-    /* incubus and succubus; prior to 3.7, succubus and incubus were
+    /* incubus and succubus; prior to 5.0, succubus and incubus were
        distinct monsters; "amorous demon" is considered to be a temporary
        placeholder but may be here to stay... */
     MON(NAMS("incubus", "succubus", "amorous demon"), S_DEMON,
@@ -3655,7 +3655,7 @@
     /*
      * sea monsters
      *
-     * 3.7: all the fish except kraken used to specify M1_SLITHY, presumably
+     * 5.0: all the fish except kraken used to specify M1_SLITHY, presumably
      * cloned from giant eel.  Using "slither" to describe their movement
      * wasn't appropriate.  Unfortunately, locomotion() isn't able to choose
      * "swim" as their movement description because it is only passed a
@@ -3886,8 +3886,8 @@
     /* monster priests are separate monsters (above; "aligned cleric") */
     MON(NAMS("priest", "priestess", "cleric"), S_HUMAN,
         LVL(10, 12, 10, 2, 0), G_NOGEN,
-        A(ATTK(AT_WEAP, AD_PHYS, 1, 6),
-          NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
+        A(ATTK(AT_WEAP, AD_PHYS, 1, 6), ATTK(AT_MAGC, AD_CLRC, 0, 0),
+          NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(WT_HUMAN, 400, MS_HUMANOID, MZ_HUMAN), 0, 0,
         M1_HUMANOID | M1_OMNIVORE,
         M2_NOPOLY | M2_STRONG | M2_COLLECT,
@@ -3944,8 +3944,8 @@
         MH_HUMAN, 12, HI_DOMESTIC, VALKYRIE),
     MON(NAM("wizard"), S_HUMAN,
         LVL(10, 12, 10, 3, 0), G_NOGEN,
-        A(ATTK(AT_WEAP, AD_PHYS, 1, 6),
-          NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
+        A(ATTK(AT_WEAP, AD_PHYS, 1, 6), ATTK(AT_MAGC, AD_SPEL, 0, 0),
+          NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(WT_HUMAN, 400, MS_HUMANOID, MZ_HUMAN), 0, 0,
         M1_HUMANOID | M1_OMNIVORE,
         M2_NOPOLY | M2_STRONG | M2_COLLECT | M2_MAGIC,
@@ -3989,7 +3989,7 @@
         A(ATTK(AT_WEAP, AD_PHYS, 1, 8),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(WT_ELF, 350, MS_LEADER, MZ_HUMAN), MR_SLEEP, MR_SLEEP,
-        M1_HUMANOID | M1_SEE_INVIS | M1_OMNIVORE,
+        M1_HUMANOID | M1_SEE_INVIS | M1_HERBIVORE,
         M2_NOPOLY | M2_PNAME | M2_PEACEFUL | M2_STRONG
           | M2_MALE | M2_COLLECT | M2_MAGIC,
         M3_CLOSE | M3_INFRAVISION | M3_INFRAVISIBLE, M4_BST_GRASS,
@@ -3999,7 +3999,7 @@
         A(ATTK(AT_WEAP, AD_PHYS, 1, 8),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(WT_ELF, 350, MS_LEADER, MZ_HUMAN), MR_SLEEP, MR_SLEEP,
-        M1_HUMANOID | M1_SEE_INVIS | M1_OMNIVORE,
+        M1_HUMANOID | M1_SEE_INVIS | M1_HERBIVORE,
         M2_NOPOLY | M2_PNAME | M2_PEACEFUL | M2_STRONG
           | M2_FEMALE | M2_COLLECT | M2_MAGIC,
         M3_CLOSE | M3_INFRAVISION | M3_INFRAVISIBLE, M4_BST_GRASS,
@@ -4239,7 +4239,7 @@
         SIZ(WT_HUMAN, 400, MS_NEMESIS, MZ_HUMAN), MR_STONE, 0,
         M1_HUMANOID | M1_OMNIVORE,
         M2_NOPOLY | M2_STRONG | M2_MALE | M2_HOSTILE | M2_STALK
-            | M2_NASTY | M2_COLLECT | M2_MAGIC | M2_CLIMBER,
+            | M2_NASTY | M2_COLLECT | M2_MAGIC | M2_CLIMBER | M2_IGNOREPETS,
         M3_WANTSARTI | M3_WAITFORU | M3_INFRAVISIBLE | M3_TRIPPER, M4_BST_BLOOD | M4_BST_MUD,
         MH_HUMAN, 20, HI_LORD, MASTER_ASSASSIN),
     /* A renegade daimyo who led a 13 year civil war against the shogun
@@ -4316,7 +4316,7 @@
         A(ATTK(AT_WEAP, AD_PHYS, 2, 4), ATTK(AT_MAGC, AD_CLRC, 0, 0),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(WT_ELF, 350, MS_GUARDIAN, MZ_HUMAN), MR_SLEEP, MR_SLEEP,
-        M1_HUMANOID | M1_SEE_INVIS | M1_OMNIVORE,
+        M1_HUMANOID | M1_SEE_INVIS | M1_HERBIVORE,
         M2_NOPOLY | M2_PEACEFUL | M2_COLLECT,
         M3_INFRAVISION | M3_INFRAVISIBLE, M4_BST_GRASS,
         MH_ELF, 7, HI_DOMESTIC, HIGH_ELF),
@@ -4392,7 +4392,7 @@
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(WT_HUMAN, 400, MS_HUMANOID, MZ_HUMAN), 0, 0,
         M1_HUMANOID | M1_OMNIVORE,
-        M2_NOPOLY | M2_HOSTILE | M2_STRONG | M2_COLLECT,
+        M2_NOPOLY | M2_HOSTILE | M2_STRONG | M2_COLLECT | M2_IGNOREPETS,
         M3_INFRAVISIBLE | M3_AMBUSHER | M3_TRIPPER, M4_BST_GRASS | M4_KICK_ASHES,
         MH_HUMAN, 7, HI_DOMESTIC, NINJA),
     MON(NAM("roshi"), S_HUMAN,

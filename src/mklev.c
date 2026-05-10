@@ -1,4 +1,4 @@
-/* NetHack 3.7	mklev.c	$NHDT-Date: 1737387068 2025/01/20 07:31:08 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.194 $ */
+/* NetHack 5.0	mklev.c	$NHDT-Date: 1737387068 2025/01/20 07:31:08 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.194 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Alex Smith, 2017. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -308,6 +308,10 @@ add_room(coordxy lowx, coordxy lowy, coordxy hix, coordxy hiy,
 {
     struct mkroom *croom;
 
+#ifdef DEBUG
+    if (svn.nroom >= MAXNROFROOMS)
+        panic("level has too many rooms");
+#endif /*DEBUG*/
     croom = &svr.rooms[svn.nroom];
     do_room_or_subroom(croom, lowx, lowy, hix, hiy, lit, rtype, special,
                        (boolean) TRUE);
@@ -324,6 +328,12 @@ add_subroom(struct mkroom *proom,
 {
     struct mkroom *croom;
 
+#ifdef DEBUG
+    if (gn.nsubroom >= MAXNROFROOMS)
+        panic("level has too many subrooms");
+    if (proom->nsubrooms >= MAX_SUBROOMS)
+        panic("room has too many subrooms");
+#endif /*DEBUG*/
     croom = &gs.subrooms[gn.nsubroom];
     do_room_or_subroom(croom, lowx, lowy, hix, hiy, lit, rtype, special,
                        (boolean) FALSE);
@@ -895,6 +905,7 @@ clear_level_structures(void)
     svl.level.flags.fumaroles = 0;
     svl.level.flags.stormy = 0;
     svl.level.flags.outdoors = 0;
+    svl.level.flags.stasis_until = 0L;
 
     svn.nroom = 0;
     svr.rooms[0].hx = -1;
@@ -1505,6 +1516,7 @@ mineralize(int kelp_pool, int kelp_moat, int goldprob, int gemprob,
     struct obj *otmp;
     coordxy x, y;
     int cnt;
+    int fossilprob;
 
     if (kelp_pool < 0)
         kelp_pool = 10;
@@ -1533,15 +1545,19 @@ mineralize(int kelp_pool, int kelp_moat, int goldprob, int gemprob,
         goldprob = 20 + depth(&u.uz) / 3;
     if (gemprob < 0)
         gemprob = goldprob / 4;
+    fossilprob = gemprob / 2;
 
     /* mines have ***MORE*** goodies - otherwise why mine? */
     if (!skip_lvl_checks) {
         if (In_mines(&u.uz)) {
             goldprob *= 2;
             gemprob *= 3;
+            fossilprob *= 2;
         } else if (In_quest(&u.uz)) {
             goldprob /= 4;
             gemprob /= 6;
+            if (Role_if(PM_CAVE_DWELLER))
+                fossilprob *= 5;
         }
     }
 
@@ -1588,6 +1604,15 @@ mineralize(int kelp_pool, int kelp_moat, int goldprob, int gemprob,
                                     place_object(otmp, x, y);
                             }
                         }
+                }
+                if (depth(&u.uz) > 14 && rn2(1000) < fossilprob) {
+                    if ((otmp = mksobj(FOSSIL, TRUE, FALSE)) != 0) {
+                        otmp->quan = 1L;
+                        otmp->owt = weight(otmp);
+                        otmp->ox = x,  otmp->oy = y;
+                        if (!rn2(3)) add_to_buried(otmp);
+                        else place_object(otmp, x, y);
+                    }
                 }
             }
 }

@@ -1,4 +1,4 @@
-/* NetHack 3.7	polyself.c	$NHDT-Date: 1772101811 2026/02/26 02:30:11 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.227 $ */
+/* NetHack 5.0	polyself.c	$NHDT-Date: 1772101811 2026/02/26 02:30:11 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.227 $ */
 /*      Copyright (C) 1987, 1988, 1989 by Ken Arromdee */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -1168,9 +1168,20 @@ break_armor(struct permonst *old)
         if ((otmp = uarmc) != 0
             /* mummy wrapping adapts to small and very big sizes */
             && (otmp->otyp != MUMMY_WRAPPING || !WrappingAllowed(uptr))) {
-            pline_The("clasp on your %s breaks open!", cloak_simple_name(otmp));
-            (void) Cloak_off();
-            dropp(otmp);
+            if (otmp->otyp == MUMMY_WRAPPING) {
+                /* doesn't have a clasp to break open */
+                Your("%s tears apart!", cloak_simple_name(otmp));
+                (void) Cloak_off();
+                useup(otmp);
+            } else if (otmp->otyp == ALCHEMY_SMOCK) {
+                pline_The("knot on your %s is pulled apart!", cloak_simple_name(otmp));
+                (void) Cloak_off();
+                dropp(otmp);
+            } else {
+                pline_The("clasp on your %s breaks open!", cloak_simple_name(otmp));
+                (void) Cloak_off();
+                dropp(otmp);
+            }
         }
         if (uarmu) {
             Your("shirt rips to shreds!");
@@ -1389,6 +1400,7 @@ rehumanize(void)
     disp.botl = TRUE;
     gv.vision_full_recalc = 1;
     encumber_msg();
+    update_inventory();
     if (was_flying && !Flying && u.usteed)
         You("and %s return gently to the %s.",
             mon_nam(u.usteed), surface(u.ux, u.uy));

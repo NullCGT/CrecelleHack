@@ -1,4 +1,4 @@
-/* NetHack 3.7	makemon.c	$NHDT-Date: 1770949988 2026/02/12 18:33:08 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.271 $ */
+/* NetHack 5.0	makemon.c	$NHDT-Date: 1770949988 2026/02/12 18:33:08 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.271 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -19,7 +19,6 @@ staticfn int temperature_shift(struct permonst *);
 staticfn int biome_shift(struct permonst *);
 staticfn boolean mk_gen_ok(int, unsigned, unsigned);
 staticfn int QSORTCALLBACK cmp_init_mongen_order(const void *, const void *);
-staticfn void check_mongen_order(void);
 staticfn void init_mongen_order(void);
 staticfn boolean wrong_elem_type(struct permonst *);
 staticfn void m_initgrp(struct monst *, coordxy, coordxy, int, mmflags_nht);
@@ -940,7 +939,7 @@ m_initinv(struct monst *mtmp)
         break;
     case S_GIANT:
         if (ptr == &mons[PM_MINOTAUR]) {
-            if (!rn2(3) || (gi.in_mklev && Is_earthlevel(&u.uz)))
+            if (!rn2(8) || (gi.in_mklev && Is_earthlevel(&u.uz)))
                 (void) mongets(mtmp, WAN_DIGGING);
         } else if (is_giant(ptr)) {
             for (cnt = rn2((int) (mtmp->m_lev / 2)); cnt; cnt--) {
@@ -1567,12 +1566,18 @@ makemon(
     /* quest leader and nemesis both know about all trap types */
     if (ptr->msound == MS_LEADER || ptr->msound == MS_NEMESIS)
         mon_learns_traps(mtmp, ALL_TRAPS);
+    /* locations where monsters are already experienced with wands */
+    if (Is_stronghold(&u.uz) || Is_knox(&u.uz) || In_endgame(&u.uz) ||
+        In_hell(&u.uz) || In_V_tower(&u.uz) || In_quest(&u.uz))
+        mtmp->mwandexp = TRUE;
 
     place_monster(mtmp, x, y);
     mtmp->mcansee = mtmp->mcanmove = TRUE;
+    mtmp->mgenmklev = gi.in_mklev;
     mtmp->seen_resistance = M_SEEN_NOTHING;
     mtmp->mpeaceful = (mmflags & MM_ANGRY) ? FALSE : peace_minded(ptr);
     mtmp->mtraitor = 0;
+    mtmp->mnexthunger = 0L;
     if ((mmflags & MM_MINVIS) != 0) /* for ^G */
         mon_set_minvis(mtmp, FALSE); /* call after place_monster() */
         
@@ -1641,6 +1646,9 @@ makemon(
             mon_learns_traps(mtmp, ALL_TRAPS);
         break;
     }
+    if (u.udriptype == POT_HONEY
+        && (mndx == PM_OWLBEAR || mndx == PM_BUGBEAR))
+        mtmp->mpeaceful = TRUE;
     if ((ct = emits_light(mtmp->data)) > 0)
         new_light_source(mtmp->mx, mtmp->my, ct, LS_MONSTER,
                          monst_to_any(mtmp));
@@ -1672,7 +1680,7 @@ makemon(
     } else if (mndx == PM_GHOST && !(mmflags & MM_NONAME)) {
         mtmp = christen_monst(mtmp, rndghostname());
     } else if (mndx == PM_CROESUS) {
-        mitem = TWO_HANDED_SWORD;
+        mitem = FLAMBERGE;
     } else if (ptr->msound == MS_NEMESIS) {
         mitem = BELL_OF_OPENING;
     } else if (mndx == PM_PESTILENCE) {
@@ -2133,6 +2141,8 @@ cmp_init_mongen_order(const void *p1, const void *p2)
     return difficulty1 - difficulty2;
 }
 
+#if (NH_DEVEL_STATUS != NH_STATUS_RELEASED)
+staticfn void check_mongen_order(void);
 /* check that monsters are in correct difficulty order for mkclass() */
 staticfn void
 check_mongen_order(void)
@@ -2155,6 +2165,7 @@ check_mongen_order(void)
         }
     }
 }
+#endif
 
 /* initialize monster order for mkclass */
 staticfn void
@@ -2593,7 +2604,6 @@ mongets(struct monst *mtmp, int otyp)
            because the owner bit has not yet been set. */
         if (has_esum(mtmp)) {
             newosum(otmp);
-            pline("KABOOM");
         }
 
         /* powerful monsters have a good chance of getting
@@ -2854,7 +2864,7 @@ set_mimic_sym(struct monst *mtmp)
     } else if (rt == DELPHI) {
         if (rn2(2)) {
             ap_type = M_AP_OBJECT;
-            appear = STATUE;
+            appear = rn2(3) ? STATUE : FOSSIL;
         } else {
             ap_type = M_AP_FURNITURE;
             appear = S_fountain;
@@ -2917,7 +2927,7 @@ set_mimic_sym(struct monst *mtmp)
     mtmp->mappearance = appear;
     /* when appearing as an object based on a monster type, pick a shape */
     if (ap_type == M_AP_OBJECT
-        && (appear == STATUE || appear == FIGURINE
+        && (appear == STATUE || appear == FIGURINE || appear == FOSSIL
             || appear == CORPSE || appear == EGG || appear == TIN
             || appear == POT_BLOOD)) {
         int mndx = rndmonnum(),

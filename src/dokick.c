@@ -1,4 +1,4 @@
-/* NetHack 3.7	dokick.c	$NHDT-Date: 1712453347 2024/04/07 01:29:07 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.223 $ */
+/* NetHack 5.0	dokick.c	$NHDT-Date: 1712453347 2024/04/07 01:29:07 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.223 $ */
 /* Copyright (c) Izchak Miller, Mike Stephenson, Steve Linhart, 1989. */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -431,6 +431,7 @@ container_impact_dmg(
     struct obj *otmp, *otmp2;
     long loss = 0L;
     boolean costly, insider, frominv, wchange = FALSE;
+    int pot_otyp = 0;
 
     /* only consider normal containers */
     if (!Is_container(obj) || !Has_contents(obj) || Is_mbag(obj))
@@ -469,6 +470,13 @@ container_impact_dmg(
                 Soundeffect(se_glass_shattering, 25);
             }
             You_hear("a muffled %s.", result);
+            if (otmp->oclass == POTION_CLASS) {
+                if (!pot_otyp) {
+                    pot_otyp = otmp->otyp;
+                } else if (pot_otyp != otmp->otyp) {
+                    You_hear("a muffled bang.");
+                }
+            }
             if (costly) {
                 if (frominv && !otmp->unpaid)
                     otmp->no_charge = 1;
@@ -622,13 +630,13 @@ really_kick_object(coordxy x, coordxy y)
         || closed_door(x + u.dx, y + u.dy))
         range = 1;
 
-    /* 3.7: this used to skip 'costly' handling if kickedobj->no_charge
+    /* 5.0: this used to skip 'costly' handling if kickedobj->no_charge
        was set but that optimization could result in no_charge staying set
        for objects kicked out of the shop */
     shkp = find_objowner(gk.kickedobj, x, y);
     costly = (shkp && (costly_spot(x, y) || (costly_adjacent(shkp, x, y)
                                              && gk.kickedobj->unpaid)));
-    /* 3.7: give feedback about the item being kicked; some follow-on
+    /* 5.0: give feedback about the item being kicked; some follow-on
        messages refer to "it" */
     Norep("You kick %s.",
           !isgold ? singular(gk.kickedobj, doname) : doname(gk.kickedobj));
@@ -1108,6 +1116,7 @@ kick_nondoor(coordxy x, coordxy y, int avrg_attrib)
             return ECMD_TIME;
         }
         You("kick %s.", (Blind ? something : "the fountain"));
+        potion_splatter(x, y, POT_WATER, NON_PM);
         if (!rn2(3)) {
             kick_ouch(x, y, "");
             return ECMD_TIME;
@@ -2179,6 +2188,7 @@ dograpple(void)
 {
     coordxy x, y;
     struct monst *target;
+    struct obj *cloak;
     boolean touched = FALSE;
     char kbuf[BUFSZ];
     if (u.usticker) {
@@ -2219,12 +2229,16 @@ dograpple(void)
         You("shadowbox.");
         return ECMD_OK;
     }
-    /* Ok let's actually grapple! */
     if (target->mpeaceful && !target->mtame) {
         pline_mon(target, "%s does not want to roll with you!", Monnam(target));
         setmangry(target, TRUE);
     }
-    if (target->mtame && canseemon(target)) {
+    /* Ok let's actually grapple! */
+    cloak = which_armor(target, W_ARMC);
+    if (cloak && cloak->otyp == OILSKIN_CLOAK) {
+        You("try to grapple %s, but %s %s is too slippery.",
+            mon_nam(target), mhis(target), simpleonames(cloak));
+    } else if (target->mtame && canseemon(target)) {
         You("hug %s.", mon_nam(target));
         touched = TRUE;
     } else if (!unsolid(target->data) && rn2(3 + P_SKILL(P_GRAPPLING))) {

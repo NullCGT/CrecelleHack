@@ -1,4 +1,4 @@
-/* NetHack 3.7	mondata.h	$NHDT-Date: 1703845738 2023/12/29 10:28:58 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.63 $ */
+/* NetHack 5.0	mondata.h	$NHDT-Date: 1703845738 2023/12/29 10:28:58 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.63 $ */
 /* Copyright (c) 1989 Mike Threepoint                             */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -295,17 +295,22 @@
 #define likes_grappling(ptr) \
     ((ptr)->mlet == S_NAGA || (ptr)->mlet == S_ZOMBIE \
         || ptr == &mons[PM_GRAPPLER])
+#define likes_grass(ptr) \
+    (herbivorous(ptr) && !carnivorous(ptr))
 
 #define mud_hider(ptr) \
     ((!is_hider(ptr) && ptr->msize <= MZ_MEDIUM) \
         && !mindless(ptr))
 #define ash_kicker(ptr) (((ptr)->mflags4 & M4_KICK_ASHES) != 0L)
 #define is_climber(ptr) (((ptr)->mflags2 & M2_CLIMBER) != 0L)
+#define ignores_pets(ptr) (((ptr)->mflags2 & M2_IGNOREPETS) != 0L)
 #define resists_whack(ptr) (((ptr)->mflags4 & M4_RWHACK) != 0L)
 #define resists_pierce(ptr) (((ptr)->mflags4 & M4_RPIERCE) != 0L)
 #define resists_slash(ptr) (((ptr)->mflags4 & M4_RSLASH) != 0L)
 #define advanceable(ptr) (!unique_corpstat(ptr) \
             && (!humanoid(ptr) || mindless(ptr) || is_demon(ptr)))
+#define is_jouster(ptr) ((ptr)->mlet == S_CENTAUR \
+                            || (ptr)->mlet == S_QUADRUPED || is_rider(ptr))
 
 /* monkeys are tamable via bananas but not pacifiable via food,
    otherwise their theft attack could be nullified too easily;

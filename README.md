@@ -1,6 +1,6 @@
-# CrecelleHack: A NetHack 3.7 Variant
+# CrecelleHack: A NetHack 5.0 Variant
 
-CrecelleHack is an actively maintained variant of NetHack 3.7. Delve into
+CrecelleHack is an actively maintained variant of NetHack 5.0. Delve into
 a lush, growing dungeon filled with strange creatures and retrieve the
 Amulet of Yendor for your god.
 

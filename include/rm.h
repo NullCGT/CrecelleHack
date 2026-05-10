@@ -1,4 +1,4 @@
-/* NetHack 3.7	rm.h	$NHDT-Date: 1745114235 2025/04/19 17:57:15 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.120 $ */
+/* NetHack 5.0	rm.h	$NHDT-Date: 1745114235 2025/04/19 17:57:15 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.120 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Pasi Kallinen, 2017. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -92,7 +92,20 @@ enum levl_typ_types {
     CLOUD     = 36,
 
     MAX_TYPE  = 37,
+    /* for special levels */
     MATCH_WALL = 38,
+
+    /* these aren't levl[][].typ values, they're additional indices
+       into terrain_descr[] for status feedback */
+    xFLOOR     = 39,
+    xGROUND    = 40,
+    xOPENDOOR  = 41,
+    xSHUTDOOR  = 42,
+    xSWAMP     = 43,
+    xSUBMERGED = 44,
+    xSEA       = 45,
+    xWATERWALL = 46,
+
     INVALID_TYPE = 127
 };
 
@@ -506,6 +519,7 @@ struct levelflags {
     Bitfield(outdoors, 1);      /* is the level outdoors */
 
     schar temperature;         /* +1 == hot, -1 == cold */
+    long stasis_until;         /* wand of stasis effect lasts until when? */
 };
 
 typedef struct {

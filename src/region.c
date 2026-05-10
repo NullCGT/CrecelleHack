@@ -1,4 +1,4 @@
-/* NetHack 3.7	region.c	$NHDT-Date: 1727251269 2024/09/25 08:01:09 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.104 $ */
+/* NetHack 5.0	region.c	$NHDT-Date: 1727251269 2024/09/25 08:01:09 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.104 $ */
 /* Copyright (c) 1996 by Jean-Christophe Collet  */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -547,8 +547,11 @@ spread_bonfire(NhRegion *reg) {
             if (x == reg->bounding_box.lx && y == reg->bounding_box.ly) {
                 evaporate_potion_puddles(x, y);
             }
+            /* set faults */
             if (heros_fault(reg) && newreg)
                 set_heros_fault(newreg);
+            else if (newreg)
+                clear_heros_fault(newreg);
         }
     }
 }
@@ -1711,9 +1714,10 @@ inside_bonfire(genericptr_t p1, genericptr_t p2)
         wakeup(mtmp, heros_fault(reg));
         /* Message and complete burning */
         if (completelyburns(mtmp->data)) {
-            if (heros_fault(reg))
+            if (heros_fault(reg)) {
+                u.uconduct.pyro++;
                 killed(mtmp);
-            else
+            } else
                 monkilled(mtmp, "bonfire", AD_FIRE);
             return TRUE;
         } else if (canseemon(mtmp)) {
@@ -1733,9 +1737,10 @@ inside_bonfire(genericptr_t p1, genericptr_t p2)
         adjust_damage(mtmp, &dam, AD_FIRE);
         mtmp->mhp -= dam;
         if (DEADMONSTER(mtmp)) {
-            if (heros_fault(reg))
+            if (heros_fault(reg)) {
+                u.uconduct.pyro++;
                 killed(mtmp);
-            else
+            } else
                 monkilled(mtmp, "bonfire", AD_FIRE);
             if (DEADMONSTER(mtmp)) { /* not lifesaved */
                 return TRUE;

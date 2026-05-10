@@ -1,4 +1,4 @@
-/* NetHack 3.7	do_name.c	$NHDT-Date: 1737013431 2025/01/15 23:43:51 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.326 $ */
+/* NetHack 5.0	do_name.c	$NHDT-Date: 1737013431 2025/01/15 23:43:51 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.326 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Pasi Kallinen, 2018. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -452,7 +452,7 @@ objtyp_is_callable(int i)
 
     switch(objects[i].oc_class) {
     case AMULET_CLASS:
-        /* 3.7: calling these used to be allowed but that enabled the
+        /* 5.0: calling these used to be allowed but that enabled the
            player to tell whether two unID'd amulets of yendor were both
            fake or one was real by calling them distinct names and then
            checking discoveries to see whether first name was replaced
@@ -1033,6 +1033,9 @@ x_monnam(
         if (mtmp->data == &mons[PM_GIANT_MUSTELID] && (!has_mgivenname(mtmp) || called))
             strcat(buf, "giant ");
         pm_name = mustelid_types[mtmp->m_id % SIZE(mustelid_types)];
+    } else if (mtmp->data == &mons[PM_ACID_BLOB]) {
+        strcat(buf, OBJ_DESCR(objects[POT_ACID]));
+        pm_name = " blob";
     } else {
         pm_name = mon_pmname(mtmp);
     }
@@ -1467,7 +1470,7 @@ obj_pmname(struct obj *obj)
 #endif
     if ((obj->otyp == CORPSE || obj->otyp == STATUE || obj->otyp == FIGURINE
         || obj->otyp == SKULL || obj->otyp == SKULL_HELM
-        || obj->otyp == SKELETON)
+        || obj->otyp == SKELETON || obj->otyp == FOSSIL)
         && ismnum(obj->corpsenm)) {
         int cgend = (obj->spe & CORPSTAT_GENDER),
             mgend = ((cgend == CORPSTAT_MALE) ? MALE
@@ -1619,7 +1622,7 @@ static NEARDATA const char *const hliquids[] = {
     "caramel sauce", "ink", "aqueous humour", "milk substitute",
     "fruit juice", "glowing lava", "gastric acid", "mineral water",
     "cough syrup", "quicksilver", "sweet vitriol", "grey goo", "pink slime",
-    "cosmic latte",
+    "cosmic latte", "bone oil", "custard", "lard", "vinegar", "creosote",
     /* "new coke (tm)", --better not */
 };
 

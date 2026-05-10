@@ -1,4 +1,4 @@
-/* NetHack 3.7	steed.c	$NHDT-Date: 1720128167 2024/07/04 21:22:47 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.121 $ */
+/* NetHack 5.0	steed.c	$NHDT-Date: 1720128167 2024/07/04 21:22:47 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.121 $ */
 /* Copyright (c) Kevin Hugo, 1998-1999. */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -96,6 +96,8 @@ use_saddle(struct obj *otmp)
         chance -= 10 * mtmp->m_lev;
     if (Role_if(PM_KNIGHT))
         chance += 20;
+    if (otmp->oartifact)
+        chance += 20;
     switch (P_SKILL(P_RIDING)) {
     case P_ISRESTRICTED:
     case P_UNSKILLED:
@@ -159,6 +161,11 @@ put_saddle_on_mon(struct obj *saddle, struct monst *mtmp)
     mtmp->misc_worn_check |= W_SADDLE;
     saddle->owornmask = W_SADDLE;
     saddle->leashmon = mtmp->m_id;
+    if ((saddle->oartifact == ART_SELENIC_SEAT) && !mtmp->madvanced) {
+        if (canseemon(mtmp))
+            pline("%s glows with a silvery light!", Monnam(mtmp));
+        advance_monster(mtmp);
+    }
     update_mon_extrinsics(mtmp, saddle, TRUE, FALSE);
 }
 

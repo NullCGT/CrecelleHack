@@ -1,4 +1,4 @@
-/* NetHack 3.7	sp_lev.c	$NHDT-Date: 1737610109 2025/01/22 21:28:29 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.373 $ */
+/* NetHack 5.0	sp_lev.c	$NHDT-Date: 1737610109 2025/01/22 21:28:29 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.373 $ */
 /*      Copyright (c) 1989 by Jean-Christophe Collet */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -2171,6 +2171,14 @@ create_monster(monster *m, struct mkroom *croom)
             if (vampshifted(mtmp) && m->appear != M_AP_MONSTER)
                 (void) newcham(mtmp, &mons[mtmp->cham], NO_NC_FLAGS);
         }
+        if (m->m_lev_adj) {
+            if (mtmp->m_lev + m->m_lev_adj > 49)
+                mtmp->m_lev = 49;
+            else if (mtmp->m_lev + m->m_lev_adj < 0)
+                mtmp->m_lev = 0;
+            else
+                mtmp->m_lev += m->m_lev_adj;
+        }
         if (!(m->has_invent & DEFAULT_INVENT)) {
             /* guard against someone accidentally specifying e.g. quest nemesis
              * with custom inventory that lacks Bell or quest artifact but
@@ -3270,6 +3278,7 @@ lspo_monster(lua_State *L)
     tmpmons.has_invent = DEFAULT_INVENT;
     tmpmons.waiting = 0;
     tmpmons.mm_flags = NO_MM_FLAGS;
+    tmpmons.m_lev_adj = 0;
 
     if (argc == 1 && lua_type(L, 1) == LUA_TSTRING) {
         const char *paramstr = luaL_checkstring(L, 1);
@@ -3336,6 +3345,7 @@ lspo_monster(lua_State *L)
         tmpmons.confused = get_table_boolean_opt(L, "confused", FALSE);
         tmpmons.advanced = get_table_boolean_opt(L, "advanced", FALSE);
         tmpmons.waiting = get_table_boolean_opt(L, "waiting", FALSE);
+        tmpmons.m_lev_adj = get_table_int_opt(L, "m_lev_adj", 0);
         tmpmons.seentraps = 0; /* TODO: list of trap names to bitfield */
         keep_default_invent =
             get_table_boolean_opt(L, "keep_default_invent", -1);
@@ -3704,7 +3714,7 @@ lspo_object(lua_State *L)
 
     if (tmpobj.id == STATUE || tmpobj.id == EGG
         || tmpobj.id == CORPSE || tmpobj.id == TIN
-        || tmpobj.id == POT_BLOOD
+        || tmpobj.id == POT_BLOOD || tmpobj.id == FOSSIL
         || tmpobj.id == FIGURINE) {
         struct permonst *pm = NULL;
         boolean nonpmobj = FALSE;
@@ -3742,7 +3752,7 @@ lspo_object(lua_State *L)
             else if (!nonpmobj)
                 nhl_error(L, "Unknown montype");
         }
-        if (tmpobj.id == STATUE || tmpobj.id == CORPSE) {
+        if (tmpobj.id == STATUE || tmpobj.id == CORPSE || tmpobj.id == FOSSIL) {
             int lflags = 0;
 
             if (get_table_boolean_opt(L, "historic", 0))

@@ -1,3 +1,46 @@
+# 1.5.0
+## Dungeon
+- Rotting corpses rot more slowly in cold levels.
+- Fossils generate in the dungeon.
+  - These are from dNetHack, with some changes to bring them in line
+    with 3.7. Most notable are the following:
+      - Fossils appear very frequently in the caveman quest.
+      - Mimics sometimes mimic fossils.
+      - Fossils do not become skeletal monsters when raised due to the
+        current lack of templates.
+## New Artifacts
+- Chorister (Flamberge)
+  - Can invoke to change its oprop.
+  - Sings rumors upon wielding.
+- Selenic Seat (Silver Saddle)
+  - Provides cold resistance when carried.
+  - Provides cold resistance and reflection to a steed it is applied to.
+  - When put on a monster, advances that monster if it is not advanced.
+- Horn of the Horde (Tooled Horn)
+  - Summons a number of tame barbarians depending on the material of the
+    horn. Barbarians will automatically attack any enemies regardless of
+    level.
+  - The number of barbarians summoned depends on the material the horn is
+    made out of.
+## New Objects
+- Flamberge
+## Misc
+- Allow players to joust if in centuar or quadruped form.
+- Monsters pursue pets more aggressively.
+- Kicking a fountain sprays water across the floor.
+- Rename and recolor acid blobs depending on potion of acid appearance.
+- Potion of Honey enhancements:
+  - Bears spawn peaceful when the player is coated in honey.
+  - Honey vapors have a healing effect.
+- Herbivorous monsters and players polymorphed into them can eat grass.
+  - This makes herbivorous pets much easier to keep alive.
+## Options
+- Added dnh_enlightenment. This changes the attributes menu to a pick
+  list, as used in dnethack. Should be helpful for the extremely
+  lengthy statuses that can occur.
+- Added coatstatus. Takes advantage of new terrainstatus option to
+  display current coating on status line.
+
 # 1.4.2
 ## Monsters
 - Frostwurms are far more dangerous but only appear in snowy areas.
@@ -307,7 +350,7 @@
 
 ## Options
 - implicit_material: quash default material names.
-- shorten_buc: shortens full buc name to [B][U][C].
+- shorten_buc: shortens full buc name to +/-.
 - no_flipped_soko: stop sokoban levels from being flipped.
 - koboldname: Default name of starting pet if it is a kobold.
 
@@ -350,7 +393,6 @@
 - Reverted changes to reflection from 1.0.
 - New feedback for cracked and greasy mirrors. Cracked mirrors scare
   monsters more easily.
-- Support 4 status lines in curses.
 - Many additional options for config files.
   - obscure_role_obj_names is taken from dnethack.
 - Ported xnethack's player orientation patch, based on some ancient

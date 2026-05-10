@@ -1,4 +1,4 @@
-/* NetHack 3.7	mon.c	$NHDT-Date: 1770949988 2026/02/12 18:33:08 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.621 $ */
+/* NetHack 5.0	mon.c	$NHDT-Date: 1770949988 2026/02/12 18:33:08 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.621 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Derek S. Ray, 2015. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -6,6 +6,7 @@
 #include "hack.h"
 #include "mfndpos.h"
 
+staticfn void pet_sanity_check(struct monst *, const char *);
 staticfn void sanity_check_single_mon(struct monst *, boolean, const char *);
 staticfn struct obj *make_corpse(struct monst *, unsigned);
 staticfn int minliquid_core(struct monst *);
@@ -45,14 +46,28 @@ extern const struct shclass shtypes[]; /* defined in shknam.c */
      || !svl.level.flags.deathdrops    \
      || (svl.level.flags.graveyard && is_undead(mdat) && rn2(3)))
 
-
-#if 0
+#if 0   /* potentially of historical interest */
 /* part of the original warning code which was replaced in 3.3.1 */
 const char *warnings[] = {
     "white", "pink", "red", "ruby", "purple", "black"
 };
 #endif /* 0 */
 
+staticfn void
+pet_sanity_check(
+    struct monst *mtmp,
+    const char *msgarg)
+{
+    if (has_edog(mtmp)) {
+        struct edog *edog = EDOG(mtmp);
+
+        if (edog->droptime > svm.moves)
+            impossible("insane pet #%u has droptime (%ld)"
+                       " in the future (%ld) (%s)",
+                       mtmp->m_id, edog->droptime, svm.moves, msgarg);
+        /* TODO: verify some of the other edog fields */
+    }
+}
 
 staticfn void
 sanity_check_single_mon(
@@ -116,8 +131,12 @@ sanity_check_single_mon(
     if (mtmp->isminion && !has_emin(mtmp))
         impossible("minion without emin (%s)", msg);
     /* guardian angel on astral level is tame but has emin rather than edog */
-    if (mtmp->mtame && !has_edog(mtmp) && !mtmp->isminion)
-        impossible("pet without edog (%s)", msg);
+    if (mtmp->mtame) {
+        if (!has_edog(mtmp) && !mtmp->isminion)
+            impossible("pet without edog (%s)", msg);
+        else
+            pet_sanity_check(mtmp, msg);
+    }
     /* steed should be tame and saddled */
     if (mtmp == u.usteed) {
         const char *ns, *nt = !mtmp->mtame ? "not tame" : 0;
@@ -133,7 +152,7 @@ sanity_check_single_mon(
 
     if (mtmp->mtrapped) {
         if (mtmp->wormno) {
-            /* TODO: how to check worm in trap? */
+            ; /* TODO: how to check worm in trap? */
         } else if (!t_at(mx, my))
             impossible("trapped without a trap (%s)", msg);
     }
@@ -668,7 +687,7 @@ make_corpse(struct monst *mtmp, unsigned int corpseflags)
     case PM_COLOSSUS:
         num = d(2, 6);
         while (num--)
-            obj = mksobj_at(BRONZE_PLATE_MAIL, x, y, TRUE, FALSE);
+            obj = mksobj_at(ARCHAIC_PLATE_MAIL, x, y, TRUE, FALSE);
         free_mgivenname(mtmp);
         break;
         /*FALLTHRU*/
@@ -1232,7 +1251,7 @@ mcalcmove(
     if (mon->mspeed == MSLOW) {
         /* slow-monster effects work better against faster monsters: they
            lose 1/3 of their speed below 12 but 2/3 of their speed above */
-        if (mmove < 12)
+        if (mmove < NORMAL_SPEED)
             mmove = (2 * mmove + 1) / 3;
         else
             mmove = 4 + (mmove / 3);
@@ -2322,8 +2341,6 @@ mfndpos(
     poolok = ((!Is_waterlevel(&u.uz) && m_in_air(mon))
               || (is_swimmer(mdat) && !wantpool)
               || can_wwalk(mon));
-    /* note: floating eye is the only is_floater() so this could be
-       simplified, but then adding another floater would be error prone */
     lavaok = (m_in_air(mon) || likes_lava(mdat));
     if (mdat == &mons[PM_FLOATING_EYE]) /* prefers to avoid heat */
         lavaok = FALSE;
@@ -2589,6 +2606,8 @@ mm_2way_aggression(struct monst *magr, struct monst *mdef)
        them waking up early (e.g. because a zombie decided to attack the
        Wizard of Yendor). */
     if (zombie_maker(magr) && zombie_form(mdef->data) != NON_PM) {
+        if (magr->mgenmklev && mdef->mgenmklev)
+            return 0L;
         if (!Is_stronghold(&u.uz)
             && !unique_corpstat(magr->data) && !unique_corpstat(mdef->data))
             return (ALLOW_M | ALLOW_TM);
@@ -2621,6 +2640,8 @@ mm_aggression(
     if (mndx == PM_STRAW_GOLEM && is_bird(mdef->data))
         return ALLOW_M | ALLOW_TM;
     if (mndx == PM_TORNADO)
+        return ALLOW_M | ALLOW_TM;
+    if (!magr->mpeaceful && mdef->mtame && !ignores_pets(magr->data))
         return ALLOW_M | ALLOW_TM;
     /* Various other combinations such as dog vs cat, cat vs rat, and
        elf vs orc have been suggested.  For the time being we don't
@@ -3760,10 +3781,10 @@ xkilled(
     iflags.sad_feeling = FALSE;
 
     mtmp->mhp = 0; /* caller will usually have already done this */
-    if (!noconduct) /* KMH, conduct */
+    if (!noconduct) { /* KMH, conduct */
         if (!u.uconduct.killer++)
             livelog_printf(LL_CONDUCT, "killed for the first time");
-
+    }
     if (!nomsg) {
         boolean namedpet = has_mgivenname(mtmp) && !Hallucination;
 
@@ -5171,8 +5192,10 @@ decide_to_shapeshift(struct monst *mon)
 
     if (!is_vampshifter(mon)) {
         /* regular shapeshifter; 'ptr' is Null */
-        if (!rn2(6))
+        if (!mon->mspec_used && !rn2(6)) {
             dochng = TRUE;
+            mon->mspec_used = 3 + rn2(10);
+        }
     } else if (!(mon->mstrategy & STRAT_WAITFORU)) {
         /* The vampire has to be in good health (mhp) to maintain
          * its shifted form.
@@ -6262,6 +6285,14 @@ adj_midbosses(void)
     }
 }
 
+/* make adjustments to monster colors if needed. must be done at a
+   different time than rest of adjustments. */
+void
+adj_mon_colors(void)
+{
+    mons[PM_ACID_BLOB].mcolor = objects[POT_ACID].oc_color;
+}
+
 /* make erinyes more dangerous based on your alignment abuse */
 void
 adj_erinys(unsigned abuse)
@@ -6462,4 +6493,43 @@ erase_summons(struct monst *mtmp)
         }
     }
 }
+
+/*
+ * Maybe munch on grass. Handles pet eating as well.
+ * Return value: 0 => nothing happened, 1 => monster ate something,
+ * 2 => monster died somehow (currently not possible).
+ */
+int
+meatgrass(struct monst *mtmp)
+{
+    int vis;
+
+    /* Only eat grass if there actually is grass */
+    if (!has_coating(mtmp->mx, mtmp->my, COAT_GRASS))
+        return 0;
+
+    /* Don't eat blood-covered grass! That's gross. */
+    if (has_coating(mtmp->mx, mtmp->my, COAT_BLOOD))
+        return 0;
+
+    /* Eat the grass. We could add a sound effect for this, but eating
+       grass is both mundane and quiet. */
+    vis = canseemon(mtmp);
+    remove_coating(mtmp->mx, mtmp->my, COAT_GRASS);
+    if (has_edog(mtmp))
+        EDOG(mtmp)->hungrytime += 50;
+    else
+        mtmp->mnexthunger = svm.moves + 50;
+    if (vis) {
+        pline_mon(mtmp, "%s munches on some grass.", Monnam(mtmp));
+    }
+    return 0;
+}
+/* cleanup for 'onefile' processing */
+#undef LEVEL_SPECIFIC_NOCORPSE
+#undef KEEPTRAITS
+#undef mstoning
+#undef livelog_mon_nam
+#undef BREEDER_EGG
+
 /*mon.c*/

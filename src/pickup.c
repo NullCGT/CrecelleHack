@@ -1,4 +1,4 @@
-/* NetHack 3.7	pickup.c	$NHDT-Date: 1773373633 2026/03/12 19:47:13 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.386 $ */
+/* NetHack 5.0	pickup.c	$NHDT-Date: 1773373633 2026/03/12 19:47:13 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.386 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -555,7 +555,7 @@ allow_category(struct obj *obj)
      *  1) object class (armor, potion, &c);
      *  2) unpaid shop item;
      *  3) bless/curse state (blessed, uncursed, cursed, BUC-unknown).
-     * Version 3.7 added a fourth:
+     * Version 5.0 added a fourth:
      *  4) 'novelty' ('P' for just picked up items).
      * When only one type is present, the situation is simple:
      * to be accepted, obj's status must match one of the entries.
@@ -1914,11 +1914,17 @@ struct obj *
 pick_obj(struct obj *otmp)
 {
     struct obj *result;
-    int ox = otmp->ox, oy = otmp->oy;
-    boolean robshop = (!u.uswallow && otmp != uball && costly_spot(ox, oy));
+    coordxy ox, oy;
+    boolean robshop, fromfloor = otmp->where == OBJ_FLOOR;
 
+    /* otmp is either on the floor or in an engulfer's inventory; for the
+       latter, its <ox,oy> probably won't be set */
+    (void) get_obj_location(otmp, &ox, &oy, 0);
+
+    robshop = (!u.uswallow && otmp != uball && costly_spot(ox, oy));
     obj_extract_self(otmp);
-    newsym(ox, oy);
+    if (fromfloor)
+        newsym(ox, oy);
 
     /* for shop items, addinv() needs to be after addtobill() (so that
        object merger can take otmp->unpaid into account) but before
@@ -3115,6 +3121,13 @@ observe_quantum_cat(struct obj *box, boolean makecat, boolean givemsg)
             }
             box->owt = weight(box);
             box->spe = 0;
+
+            if (!svc.context.mon_moving) {
+                /* give experience points for releasing live cat; slightly
+                   different amount from what is given for "killing" it */
+                more_experienced(10, 20); /* 10:current exp; 20:score bonus */
+                newexplevel();
+            }
         }
     } else {
         box->spe = 0; /* now an ordinary box (with a cat corpse inside) */

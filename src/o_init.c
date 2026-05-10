@@ -1,4 +1,4 @@
-/* NetHack 3.7	o_init.c	$NHDT-Date: 1771216675 2026/02/15 20:37:55 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.101 $ */
+/* NetHack 5.0	o_init.c	$NHDT-Date: 1771216675 2026/02/15 20:37:55 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.101 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2011. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -692,16 +692,20 @@ disco_typename(int otyp)
     return result;
 }
 
-/* append typename(dis) to buf[], possibly truncating in the process */
+/* append typename(dis) to buf[], possibly truncating in the process;
+   also append price quote information if it fits */
 staticfn void
 disco_append_typename(char *buf, int dis)
 {
-    unsigned len = (unsigned) strlen(buf);
+    size_t len = strlen(buf);
     char *p, *typnm = disco_typename(dis);
+    size_t typnm_len = strlen(typnm);
+    char *eos;
 
-    if (len + (unsigned) strlen(typnm) < BUFSZ) {
+    if (len + typnm_len < BUFSZ) {
         /* ordinary */
         Strcat(buf, typnm);
+        eos = buf + len + typnm_len;
     } else if ((p = strrchr(typnm, '(')) != 0
                && p > typnm && p[-1] == ' ' && strchr(p, ')') != 0) {
         /* typename() returned "really long user-applied name (actual type)"
@@ -710,10 +714,14 @@ disco_append_typename(char *buf, int dis)
         --p; /* back up to space in front of open paren */
         (void) strncat(buf, typnm, BUFSZ - 1 - (len + (unsigned) strlen(p)));
         Strcat(buf, p);
+        eos = buf + strlen(buf);
     } else {
         /* unexpected; just truncate from end of typename */
         (void) strncat(buf, typnm, BUFSZ - 1 - len);
+        eos = buf + strlen(buf);
     }
+
+    append_price_quote(buf, &eos, dis);
 }
 
 /* minor fixup for Book of the Dead needed in more than one place */
@@ -760,9 +768,10 @@ int
 dodiscovered(void) /* free after Robert Viduya */
 {
     winid tmpwin;
-    char *s, *p, oclass, prev_class,
+    char *s, oclass, prev_class,
          classes[MAXOCLASSES], buf[BUFSZ],
          *sorted_lines[NUM_OBJECTS]; /* overkill */
+    const char *p;
     int i, dis, ct, uniq_ct, arti_ct, sorted_ct, uidx;
     long sortindx;  // should be ptrdiff_t, but we don't require that exists
     boolean alphabetized, alphabyclass, lootsort;
@@ -893,9 +902,10 @@ doclassdisco(void)
     winid tmpwin = WIN_ERR;
     menu_item *pick_list = 0;
     anything any;
-    char *p, *s, c, oclass, menulet, allclasses[MAXOCLASSES],
+    char *s, c, oclass, menulet, allclasses[MAXOCLASSES],
          discosyms[3 + MAXOCLASSES + 1], buf[BUFSZ],
          *sorted_lines[NUM_OBJECTS]; /* overkill */
+    const char *p;
     int i, ct, dis, xtras, sorted_ct, uidx;
     boolean traditional, alphabetized, lootsort;
     int clr = NO_COLOR;
@@ -1101,12 +1111,14 @@ doclassdisco(void)
         } else if (sorted_ct) {
             qsort(sorted_lines, sorted_ct, sizeof (char *), discovered_cmp);
             for (i = 0; i < sorted_ct; ++i) {
-                p = sorted_lines[i];
+                char *sl;
+
+                sl = sorted_lines[i];
                 if (lootsort) {
-                    p[6] = p[0]; /* '*' or ' ' */
-                    p += 6;
+                    sl[6] = sl[0]; /* '*' or ' ' */
+                    sl += 6;
                 }
-                putstr(tmpwin, 0, p);
+                putstr(tmpwin, 0, sl);
                 free(sorted_lines[i]), sorted_lines[i] = 0;
             }
         }
@@ -1129,6 +1141,7 @@ rename_disco(void)
     anything any;
     menu_item *selected = 0;
     int clr = NO_COLOR;
+    char buf[BUFSZ];
 
     any = cg.zeroany;
     tmpwin = create_nhwindow(NHW_MENU);
@@ -1162,9 +1175,10 @@ rename_disco(void)
                 prev_class = oclass;
             }
             any.a_int = dis;
+            *buf = '\0';
+            disco_append_typename(buf, dis);
             add_menu(tmpwin, &nul_glyphinfo, &any, 0, 0,
-                     ATR_NONE, clr,
-                     disco_typename(dis), MENU_ITEMFLAGS_NONE);
+                     ATR_NONE, clr, buf, MENU_ITEMFLAGS_NONE);
         }
     }
     if (ct == 0) {

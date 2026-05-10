@@ -1,5 +1,5 @@
 /* vim:set cin ft=c sw=4 sts=4 ts=8 et ai cino=Ls\:0t0(0 : -*- mode:c;fill-column:80;tab-width:8;c-basic-offset:4;indent-tabs-mode:nil;c-file-style:"k&r" -*-*/
-/* NetHack 3.7 cursinit.c */
+/* NetHack 5.0 cursinit.c */
 /* Copyright (c) Karl Garrison, 2010. */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -200,7 +200,7 @@ curses_create_main_windows(void)
         int inv_width = 0;
         int map_height = (term_rows - border_space);
         int map_width = (term_cols - border_space);
-        int statusheight = iflags.wc2_statuslines;
+        int statusheight = (iflags.wc2_statuslines < 3) ? 2 : 3;
         boolean status_vertical = (status_orientation == ALIGN_LEFT
                                    || status_orientation == ALIGN_RIGHT);
         boolean msg_vertical = (message_orientation == ALIGN_LEFT

@@ -1,4 +1,4 @@
-/* NetHack 3.7  artilist.h      $NHDT-Date: 1710957374 2024/03/20 17:56:14 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.30 $ */
+/* NetHack 5.0  artilist.h      $NHDT-Date: 1710957374 2024/03/20 17:56:14 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.30 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2017. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -221,18 +221,26 @@ static NEARDATA struct artifact artilist[] = {
      * Crecelle Artifacts
      *
      */
+    
+    A("Acidfall", LONG_SWORD, (SPFX_RESTR | SPFX_ATTK | SPFX_DEFN), 0, 0,
+      ACID(5, 0), ACID(0, 0), NO_CARY, STONEPROOF, A_NONE, NON_PM, NON_PM,
+      0, 5, 3000L, NO_COLOR, METAL, FUZZED_OTYP, ACIDFALL),
+
+    A("Chorister", FLAMBERGE, (SPFX_RESTR | SPFX_SPEAK),
+      0, 0, PHYS(5, 4), NO_DFNS, NO_CARY, CHORALE, A_NONE, NON_PM,
+      NON_PM, 0, 7, 3000L, NO_COLOR, DEFAULT_MAT, FIXED_OTYP, CHORISTER),
+
+    A("The Horn of the Horde", TOOLED_HORN, (SPFX_RESTR), 0, 0,
+      NO_ATTK, NO_DFNS, NO_CARY, 0, A_CHAOTIC, NON_PM, NON_PM, 0, 0,
+      1000L, NO_COLOR, DEFAULT_MAT, FIXED_OTYP, HORN_OF_THE_HORDE),
 
     A("Lucifer", MORNING_STAR, (SPFX_RESTR),
       0, 0, PHYS(4, 0), NO_DFNS, NO_CARY, 0, A_CHAOTIC, NON_PM, NON_PM,
       1, 3, 400L, NO_COLOR, BONE, FIXED_OTYP, LUCIFER),
 
-    A("Wrath of Sankis", PICK_AXE, (SPFX_RESTR | SPFX_DFLAGH | SPFX_DEFN),
-      0, MH_DWARF, PHYS(5, 0), FIRE(0, 0), NO_CARY, 0, A_NEUTRAL, NON_PM,
-      NON_PM, 2, 1, 200L, NO_COLOR, GOLD, FUZZED_OTYP, WRATH_OF_SANKIS),
-    
-    A("Acidfall", LONG_SWORD, (SPFX_RESTR | SPFX_ATTK | SPFX_DEFN), 0, 0,
-      ACID(5, 0), ACID(0, 0), NO_CARY, STONEPROOF, A_NONE, NON_PM, NON_PM,
-      0, 5, 3000L, NO_COLOR, METAL, FUZZED_OTYP, ACIDFALL),
+    A("Selenic Seat", SADDLE, (SPFX_RESTR), 0, 0, NO_ATTK, NO_DFNS,
+      CARY(AD_COLD), 0, A_NONE, NON_PM, NON_PM, 0, 0, 600L, HI_SILVER,
+      DEFAULT_MAT, FIXED_OTYP, SELENIC_SEAT),
 
     A("Skullcrusher", CLUB, (SPFX_RESTR),
       0, 0, PHYS(3, 0), NO_DFNS, NO_CARY,
@@ -243,6 +251,12 @@ static NEARDATA struct artifact artilist[] = {
       0, 0, PHYS(3, 4), NO_DFNS, NO_CARY,
       0, A_NEUTRAL, NON_PM, NON_PM, 2, 3, 1000L, NO_COLOR, DEFAULT_MAT,
       FUZZED_OTYP, SYMPATHY),
+
+    A("Wrath of Sankis", PICK_AXE, (SPFX_RESTR | SPFX_DFLAGH | SPFX_DEFN),
+      0, MH_DWARF, PHYS(5, 0), FIRE(0, 0), NO_CARY, 0, A_NEUTRAL, NON_PM,
+      NON_PM, 2, 1, 200L, NO_COLOR, GOLD, FUZZED_OTYP, WRATH_OF_SANKIS),
+
+    
 
     /*
      *      The artifacts for the quest dungeon, all self-willed.

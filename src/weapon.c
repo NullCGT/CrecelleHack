@@ -1,4 +1,4 @@
-/* NetHack 3.7	weapon.c	$NHDT-Date: 1725227810 2024/09/01 21:56:50 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.128 $ */
+/* NetHack 5.0	weapon.c	$NHDT-Date: 1725227810 2024/09/01 21:56:50 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.128 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2011. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -85,12 +85,16 @@ static NEARDATA const char kebabable[] = {
 staticfn void
 give_may_advance_msg(int skill)
 {
-    You_feel("more confident in your %s%sskills.",
-             (skill == P_NONE) ? ""
-                 : (skill <= P_LAST_WEAPON) ? "weapon"
-                     : (skill <= P_LAST_SPELL) ? "spell casting"
-                         : P_NAME(skill),
-             (skill == P_NONE) ? "" : " ");
+    if (skill >= P_FIRST_ATTR && skill <= P_LAST_ATTR) {
+        Norep("You feel more confident in your attributes.");
+    } else {
+        You_feel("more confident in your %s%sskills.",
+                (skill == P_NONE) ? ""
+                    : (skill <= P_LAST_WEAPON) ? "weapon"
+                        : (skill <= P_LAST_SPELL) ? "spell casting"
+                            : P_NAME(skill),
+                (skill == P_NONE) ? "" : " ");
+    }
     (void) handle_tip(TIP_ENHANCE);
 }
 
@@ -199,14 +203,10 @@ hitval(struct obj *otmp, struct monst *mon)
 
 /* Helper for dmgval(). Calculates the number of dice rolled for an attack.*/
 int
-dmgval_ndice(struct obj *otmp, struct monst *magr)
+dmgval_ndice(struct obj *otmp)
 {
     int otyp = otmp->otyp;
     int tmp = objects[otyp].oc_wndam;
-    int scaler = get_scaling_type(otmp);
-    if (magr == &gy.youmonst && scaler >= A_STR) {
-        tmp += AMOD(scaler);
-    }
     if (tmp < 1)
         tmp = 1;
     return tmp;
@@ -229,9 +229,10 @@ dmgval_nsides(struct obj *otmp)
 }
 
 int
-dmgval_dbonus(struct obj *otmp)
+dmgval_dbonus(struct obj *otmp, struct monst *magr)
 {
     int tmp = 0;
+    int scaler = get_scaling_type(otmp);
     if (otmp->oclass == WEAPON_CLASS || is_weptool(otmp))
         tmp += otmp->spe;
     /* It's debatable whether a rusted blunt instrument
@@ -240,6 +241,10 @@ dmgval_dbonus(struct obj *otmp)
         there ought to some penalty for using damaged gear
         so always subtract erosion even for blunt weapons. */
     tmp -= greatest_erosion(otmp);
+    /* adjust for scaling attribute */
+    if (magr == &gy.youmonst && scaler >= A_STR) {
+        tmp += AMOD(scaler);
+    }
     /* adjust for various materials */
     if ((otmp->material == GLASS || otmp->material == GEMSTONE
         || otmp->material == SALT)
@@ -282,9 +287,9 @@ dmgval_dbonus(struct obj *otmp)
 char *
 stringify_dmgval(char *buf, struct monst *mon, struct obj *otmp)
 {
-    int ndice = dmgval_ndice(otmp, mon);
+    int ndice = dmgval_ndice(otmp);
     int nsides = dmgval_nsides(otmp);
-    int bonus = dmgval_dbonus(otmp);
+    int bonus = dmgval_dbonus(otmp, mon);
     if (!otmp->known && (otmp->oclass == WEAPON_CLASS || is_weptool(otmp)))
         bonus -= otmp->spe;
     Sprintf(buf, "%s Damage: %dd%d%s%d%s%s%s",
@@ -333,8 +338,8 @@ dmgval(struct obj *otmp, struct monst *magr, struct monst *mdef)
         return 0;
 
     if (objects[otyp].oc_wndam && objects[otyp].oc_wddam)
-        tmp = d(dmgval_ndice(otmp, magr), dmgval_nsides(otmp));
-    tmp += dmgval_dbonus(otmp);
+        tmp = d(dmgval_ndice(otmp), dmgval_nsides(otmp));
+    tmp += dmgval_dbonus(otmp, magr);
 
     /* negative modifiers mustn't produce negative damage */
     if (tmp < 0)
@@ -848,7 +853,8 @@ monmightthrowwep(struct obj *obj)
 /* Weapons in order of preference */
 static const NEARDATA short hwep[] = {
     CORPSE, /* cockatrice corpse */
-    TSURUGI, RUNESWORD, DWARVISH_MATTOCK, FALCHION, TWO_HANDED_SWORD, DUAL_AXE, BATTLE_AXE,
+    TSURUGI, RUNESWORD, DWARVISH_MATTOCK, FALCHION, FLAMBERGE,
+    TWO_HANDED_SWORD, DUAL_AXE, BATTLE_AXE,
     KATANA, UNICORN_HORN, CRYSKNIFE, TRIDENT, LONG_SWORD, ELVEN_BROADSWORD,
     BROADSWORD, SCIMITAR, SABER, MORNING_STAR, ELVEN_SHORT_SWORD,
     DWARVISH_SHORT_SWORD, SHORT_SWORD, ORCISH_SHORT_SWORD, MACE, AXE,
@@ -1400,6 +1406,7 @@ add_skills_to_menu(winid win, boolean selectable, boolean speedy)
     char sklmaxnambuf[80];
     const char *prefix;
     int clr = NO_COLOR;
+    boolean dumping = program_state.gameover;
 
     /* Find the longest skill name. */
     for (longest = 0, i = 0; i < P_NUM_SKILLS; i++) {
@@ -1418,8 +1425,14 @@ add_skills_to_menu(winid win, boolean selectable, boolean speedy)
              i++) {
             /* Print headings for skill types */
             any = cg.zeroany;
-            if (i == skill_ranges[pass].first)
-                add_menu_heading(win, skill_ranges[pass].name);
+            if (i == skill_ranges[pass].first) {
+                if (dumping)
+                    /* html dumplogs: add_menu_heading does not permit
+                       formatting */
+                    putstr(win, ATR_SUBHEAD, skill_ranges[pass].name);
+                else
+                    add_menu_heading(win, skill_ranges[pass].name);
+            }
 
             if (P_RESTRICTED(i))
                 continue;
@@ -1482,7 +1495,7 @@ show_skills(void)
     winid win;
     menu_item *selected;
 
-    pline("Skills:");
+    putstr(0, ATR_HEADING, "Skills:");
     win = create_nhwindow(NHW_MENU);
     start_menu(win, MENU_BEHAVE_STANDARD);
     add_skills_to_menu(win, FALSE, FALSE);
@@ -1509,7 +1522,7 @@ enhance_weapon_skill(void)
     boolean speedy = FALSE;
 
     /* player knows about #enhance, don't show tip anymore */
-    svc.context.tips[TIP_ENHANCE] = TRUE;
+    svc.context.tips |= (1 << TIP_ENHANCE);
 
     if (wizard && y_n("Advance skills without practice?") == 'y')
         speedy = TRUE;
@@ -1556,8 +1569,8 @@ enhance_weapon_skill(void)
 
         Strcpy(buf, (to_advance > 0) ? "Pick a skill to advance:"
                                      : "Current skills:");
-        if (wizard && !speedy)
-            Sprintf(eos(buf), "  (%d slot%s available)", u.weapon_slots,
+        if (!speedy)
+            Sprintf(eos(buf), "  (%d point%s available)", u.weapon_slots,
                     plur(u.weapon_slots));
         end_menu(win, buf);
         n = select_menu(win, to_advance ? PICK_ONE : PICK_NONE, &selected);
@@ -1603,7 +1616,7 @@ use_skill(int skill, int degree)
     if (skill != P_NONE && !P_RESTRICTED(skill)) {
         advance_before = can_advance(skill, FALSE);
         /* Prevent looping to max via abuse */
-        if (degree >= 0 || P_ADVANCE(skill) > degree)
+        if (degree >= 0 || P_ADVANCE(skill) > abs(degree))
             P_ADVANCE(skill) += degree;
         if (!advance_before && can_advance(skill, FALSE)) {
             give_may_advance_msg(skill);

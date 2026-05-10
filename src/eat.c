@@ -1,4 +1,4 @@
-/* NetHack 3.7	eat.c	$NHDT-Date: 1740534854 2025/02/25 17:54:14 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.344 $ */
+/* NetHack 5.0	eat.c	$NHDT-Date: 1740534854 2025/02/25 17:54:14 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.344 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -854,7 +854,7 @@ cprefx(int pm)
         /* life-saving needed to reach here */
         exercise(A_WIS, FALSE);
         /* revive an actual corpse; can't do that if it was a tin;
-           3.7: this used to assume that such tins were impossible but
+           5.0: this used to assume that such tins were impossible but
            they can be wished for in wizard mode; they can't make it
            to normal play though because bones creation empties them */
         if (svc.context.victual.piece /* Null for tins */
@@ -1915,9 +1915,11 @@ eatcorpse(struct obj *otmp)
             rotted += 2L;
         else if (otmp->blessed)
             rotted -= 2L;
+        else if (svl.level.flags.temperature == -1)
+            rotted -= 10L;
     }
 
-    /* 3.7: globs don't become tainted, they shrink away */
+    /* 5.0: globs don't become tainted, they shrink away */
     if (!glob && !stoneable && !slimeable && rotted > 5L) {
         boolean cannibal = maybe_cannibal(mnum, FALSE);
 
@@ -2204,7 +2206,7 @@ fprefx(struct obj *otmp)
         } else if (otmp->otyp == APPLE && otmp->cursed && !Sleep_resistance) {
             ; /* skip core joke; feedback deferred til fpostfx() */
 
-#if defined(MAC) || defined(MACOS)
+#if defined(MACOS9) || defined(MACOS)
         /* KMH -- Why should Unix have all the fun?
            We check MACOS before UNIX to get the Apple-specific apple
            message; the '#if UNIX' code will still kick in for pear. */
@@ -2672,7 +2674,7 @@ edibility_prompts(struct obj *otmp)
      */
     char buf[BUFSZ], foodsmell[BUFSZ],
          it_or_they[QBUFSZ];
-    /* 3.7: decaying globs don't become tainted anymore; in 3.6, they did */
+    /* 5.0: decaying globs don't become tainted anymore; in 3.6, they did */
     boolean cadaver = (otmp->otyp == CORPSE), stoneorslime = FALSE;
     int material = otmp->material, mnum = otmp->corpsenm;
     long rotted = 0L;
@@ -2892,15 +2894,23 @@ doeat(void)
         }
     }
 
-    /* from floorfood(), &hands_obj means iron bars at current spot */
+    /* from floorfood(), &hands_obj means iron bars at current spot, or
+       grass at current spot */
     if (otmp == &hands_obj) {
-        /* hero in metallivore form is eating [diggable] iron bars
-           at current location so skip the other assorted checks;
-           operates as if digging rather than via the eat occupation */
-        if (still_chewing(u.ux, u.uy) && levl[u.ux][u.uy].typ == IRONBARS) {
-            /* this is verbose, but player will see the hero rather than the
-               bars so wouldn't know that more turns of eating are required */
-            You("pause to swallow.");
+        if (levl[u.ux][u.uy].typ == IRONBARS) {
+            /* hero in metallivore form is eating [diggable] iron bars
+            at current location so skip the other assorted checks;
+            operates as if digging rather than via the eat occupation */
+            if (still_chewing(u.ux, u.uy) && levl[u.ux][u.uy].typ == IRONBARS) {
+                /* this is verbose, but player will see the hero rather than the
+                bars so wouldn't know that more turns of eating are required */
+                You("pause to swallow.");
+            }
+        } else {
+            /* Herbivorous hero is eating */
+            You("munch on some grass.");
+            remove_coating(u.ux, u.uy, COAT_GRASS);
+            lesshungry(50);
         }
         return ECMD_TIME;
     }
@@ -3226,7 +3236,7 @@ gethungry(void)
         u.uhunger--; /* ordinary food consumption */
 
     /*
-     * 3.7:  trigger is randomized instead of (moves % N).  Makes
+     * 5.0:  trigger is randomized instead of (moves % N).  Makes
      * ring juggling (using the 'time' option to see the turn counter
      * in order to time swapping of a pair of rings of slow digestion,
      * wearing one on one hand, then putting on the other and taking
@@ -3256,7 +3266,7 @@ gethungry(void)
          * Possessing the real Amulet imposes a separate hunger penalty
          * from wearing an amulet (so gets a double penalty when worn).
          *
-         * 3.7.0:  Worn meat rings don't affect hunger.
+         * 5.0.0:  Worn meat rings don't affect hunger.
          * Same with worn cheap plastic imitation of the Amulet.
          * +0 ring of protection might do something (enhanced "magical
          * cancellation") if hero doesn't have protection from some
@@ -3269,7 +3279,7 @@ gethungry(void)
          */
         switch (accessorytime) { /* note: use even cases among 0..19 only */
         case 0:
-            /* 3.7: if not wearing a ring of slow digestion, obtaining
+            /* 5.0: if not wearing a ring of slow digestion, obtaining
                that property from worn armor (white dragon scales/mail)
                causes the armor to burn nutrition; since it's not
                actually a ring, we don't check for it on the ring
@@ -3715,6 +3725,13 @@ floorfood(
             }
             ++getobj_else;
         }
+    }
+
+    if (feeding && likes_grass(uptr)
+        && has_coating(u.ux, u.uy, COAT_GRASS)
+        && !has_coating(u.ux, u.uy, COAT_BLOOD)
+        && y_n("There is some grass here. Eat it?") == 'y') {
+        return &hands_obj;
     }
 
     /* Is there some food (probably a heavy corpse) here on the ground? */

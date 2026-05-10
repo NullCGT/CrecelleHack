@@ -4634,6 +4634,9 @@ char *
 coat_status(char *coatbuf)
 {
     int i;
+    char bonus_buf[16];
+    boolean on_loved = FALSE;
+    boolean on_hated = FALSE;
     if (!IS_COATABLE(levl[u.ux][u.uy].typ)
         || !levl[u.ux][u.uy].coat_info) {
         Sprintf(coatbuf, "Clean");
@@ -4647,6 +4650,23 @@ coat_status(char *coatbuf)
         } else {
             Sprintf(coatbuf, "Mix");
         }
+    }
+    /* Display bonuses */
+    on_loved = on_loved_terrain();
+    on_hated = on_hated_terrain();
+    if (on_loved || on_hated) {
+        switch(u.ualign.type) {
+        case A_LAWFUL:
+            Sprintf(bonus_buf, "[AC%s]", on_loved ? "++" : "--");
+            break;
+        case A_CHAOTIC:
+            Sprintf(bonus_buf, "[Speed%s]", on_loved ? "++" : "--");
+            break;
+        case A_NEUTRAL:
+            Sprintf(bonus_buf, "[Pw%s]", on_loved ? "++" : "--");
+            break;
+        }
+        Sprintf(coatbuf, "%s", bonus_buf);
     }
     return upstart(coatbuf);
 }

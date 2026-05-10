@@ -677,7 +677,8 @@ regen_pw(int wtcap)
              && (!(svm.moves % ((MAXULEV + 8 - u.ulevel)
                               * (Role_if(PM_WIZARD) ? 3 : 4)
                               / 6)))) || Energy_regeneration
-                                      || (on_loved_terrain() && !rn2(3)))) {
+                                      || (u.ualign.type == A_NEUTRAL
+                                            && on_loved_terrain() && !rn2(3)))) {
         int upper = (int) (ACURR(A_WIS) + ACURR(A_INT)) / 15 + 1;
 
         if (EMagical_breathing)

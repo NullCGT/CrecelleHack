@@ -782,12 +782,10 @@ background_enlightenment(int unused_mode UNUSED, int final)
     }
 
     /* terrain boosts */
-    if (!Race_if(PM_HUMAN)) {
-        Sprintf(buf, " Your %s depends on terrain:", u.ualign.type == A_CHAOTIC ? "speed"
-                                                    : u.ualign.type == A_LAWFUL ? "AC"
-                                                        : "energy regeneration");
-        enlght_out(buf);
-    }
+    Sprintf(buf, " Your %s depends on terrain:", u.ualign.type == A_CHAOTIC ? "speed"
+                                                : u.ualign.type == A_LAWFUL ? "AC"
+                                                    : "energy regeneration");
+    enlght_out(buf);
     if (Race_if(PM_DWARF)) {
         Snprintf(buf, sizeof(buf), "a preference for bare earth");
         you_have(buf, "");

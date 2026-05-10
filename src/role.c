@@ -640,7 +640,7 @@ const struct Race races[NUM_RACES + 1] = {
         MH_HUMAN,
         0,
         MH_GNOME | MH_ORC | MH_KOBOLD,
-        0, 0,
+        COAT_FROST, COAT_MUD,
         /*    Str     Int Wis Dex Con Cha */
         { 3, 3, 3, 3, 3, 3 },
         { STR18(100), 18, 18, 18, 18, 18 },

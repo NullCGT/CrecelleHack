@@ -4,7 +4,7 @@ default values in [].)
 Boolean Crecelle Options
 altstarts               gnomes start in gnomish mines              [True]
 bold_coatings           indicate coated areas using bold           [True]
-char_blurbs             display character creation info blurbs     [True]
+char_blurbs             display character creation info blurbs     [False]
 coatstatus              display coating info in status if
                         terrainstatus is enabled.                  [True]
 color_coatings          indicate coated areas using color          [True]

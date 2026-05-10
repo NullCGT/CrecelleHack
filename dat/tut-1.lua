@@ -70,11 +70,10 @@ des.replace_terrain({ region={01,01, 03,02}, fromterrain=".", toterrain=".", coa
 des.engraving({ coord = { 15, 11 }, type = "engrave", text = "You have found secret area #2/2", degrade = false });
 des.engraving({ coord = { 15, 13 }, type = "engrave", text = "Use the #taunt command to taunt", degrade = false });
 des.engraving({ coord = { 11, 16 }, type = "engrave", text = "A custom taunt can be defined in your config file", degrade = false });
-des.monster({ coord = { 11, 9 }, id = "mountain nymph", peaceful = 1, asleep = 1 });
 ---------- Introductions ----------
-des.engraving({ coord = { 3, 11 }, type = "engrave", text = "Welcome to the CrecelleHack Tutorial. This tutorial is modeled off the 3.7 tutorial", degrade = false });
+des.engraving({ coord = { 3, 11 }, type = "engrave", text = "Welcome to the CrecelleHack Tutorial. This tutorial is modeled off the 5.0 tutorial", degrade = false });
 des.engraving({ coord = { 3, 13 }, type = "engrave", text = "This tutorial will walk you through a few key differences between this variant and vanilla", degrade = false });
-des.engraving({ coord = { 3, 15 }, type = "engrave", text = "If you have not played NetHack before, please familiarize yourself with NetHack 3.7 first", degrade = false });
+des.engraving({ coord = { 3, 15 }, type = "engrave", text = "If you have not played NetHack before, please familiarize yourself with NetHack 5.0 first", degrade = false });
 if (u.race == "kobold") then
     des.engraving({ coord = { 5, 16 }, type = "engrave", text = "As a kobold, your face a special challenge: your ability scores are mediocre and all status effects time out twice as fast", degrade = false });
 else
@@ -165,13 +164,41 @@ des.engraving({ coord = { 37, 15 }, type = "engrave", text = "Many weapon skills
 des.object({ coord = { 38, 15 }, id = "statue", montype = "elvenking", historic = true });
 des.door({ coord = { 35, 16 }, state = "closed" });
 des.engraving({ coord = { 34, 16 }, type = "engrave", text = "You may use this area to experiment with the combat system.", degrade = false });
-des.monster({ coord = { 28, 14 }, id = "jackal", peaceful = 0, asleep = 1 });
 des.object({ coord = { 17, 12 }, id = "dagger", buc = "not-cursed" });
 des.object({ coord = { 18, 12 }, id = "short sword", buc = "not-cursed" });
 des.object({ coord = { 19, 12 }, id = "long sword", buc = "not-cursed" });
 des.object({ coord = { 20, 12 }, id = "two-handed sword", buc = "not-cursed" });
 des.object({ coord = { 21, 12 }, id = "quarterstaff", buc = "not-cursed" });
 des.object({ coord = { 22, 12 }, id = "mace", buc = "not-cursed" });
+------------- Combat area ---------------
+if (u.race == "kobold") then
+   des.engraving({ coord = { 31, 15 }, type = "engrave", text = "As a kobold, you prefer muddy terrain.", degrade = false });
+   des.engraving({ coord = { 21, 15 }, type = "engrave", text = "As a kobold, you loathe snowy terrain.", degrade = false });
+   des.replace_terrain({ region={30,14, 32,16}, fromterrain=".", toterrain=".", coat="mud" })
+   des.replace_terrain({ region={20,14, 22,16}, fromterrain=".", toterrain=".", coat="snow" })
+elseif (u.race == "human") then
+   des.engraving({ coord = { 31, 15 }, type = "engrave", text = "As a human, you prefer snowy terrain.", degrade = false });
+   des.engraving({ coord = { 21, 15 }, type = "engrave", text = "As a human, you loathe muddy terrain.", degrade = false });
+elseif (u.race == "elf") then
+   des.engraving({ coord = { 31, 15 }, type = "engrave", text = "As an elf, you prefer grassy terrain.", degrade = false });
+   des.engraving({ coord = { 21, 15 }, type = "engrave", text = "As an elf, you loathe ashen terrain.", degrade = false });
+elseif (u.race == "dwarf") then
+   des.engraving({ coord = { 31, 15 }, type = "engrave", text = "As a dwarf, you prefer bare stone terrain.", degrade = false });
+   des.engraving({ coord = { 21, 15 }, type = "engrave", text = "As a dwarf, you loathe grassy terrain.", degrade = false });
+elseif (u.race == "gnome") then
+   des.engraving({ coord = { 31, 15 }, type = "engrave", text = "As a gnome, you prefer potion-spattered terrain.", degrade = false });
+   des.engraving({ coord = { 21, 15 }, type = "engrave", text = "As a gnome, you loathe fungal terrain.", degrade = false });
+elseif (u.race == "orc") then
+   des.engraving({ coord = { 31, 15 }, type = "engrave", text = "As an orc, you prefer bloody terrain.", degrade = false });
+   des.engraving({ coord = { 21, 15 }, type = "engrave", text = "As an orc, you loathe muddy terrain.", degrade = false });
+end
+--
+des.altar({ x = 24, y = 14, align="law", type="shrine" });
+des.altar({ x = 25, y = 14, align="neutral", type="shrine" });
+des.altar({ x = 26, y = 14, align="chaos", type="shrine" });
+des.engraving({ coord = { 24, 15 }, type = "engrave", text = "Lawful characters receive a terrain-dependent bonus or penalty to armor class.", degrade = false });
+des.engraving({ coord = { 25, 15 }, type = "engrave", text = "Neutral characters receive a terrain-dependent bonus or penalty to energy regeneration.", degrade = false });
+des.engraving({ coord = { 26, 15 }, type = "engrave", text = "Chaotic characters receive a terrain-dependent bonus or penalty to speed.", degrade = false });
 
 ------------ Unfinished ------------------
 des.engraving({ coord = { 40, 6 }, type = "engrave", text = "Unfinished Area", degrade = false });

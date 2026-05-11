@@ -151,7 +151,14 @@ enum achivements {
     ACH_RNK1 = 23, ACH_RNK2 = 24, ACH_RNK3 = 25, ACH_RNK4 = 26,
     ACH_RNK5 = 27, ACH_RNK6 = 28, ACH_RNK7 = 29, ACH_RNK8 = 30,
     ACH_TUNE = 31, /* discovered the castle drawbridge's open/close tune */
-    N_ACH = 32     /* allocate room for 31 plus a slot for 0 terminator */
+    /* achieve2 starts here */
+    ACH_MAZE = 32, /* sent to the Maze */
+    ACH_MTEMPLE = 33, /* entered the temple of moloch */
+    ACH_JUN_ALC = 34, /* performed floor alchemy */
+    ACH_PYRO = 35, /* indirectly slay a monster with a bonfire */
+    ACH_LOST_BOOT = 36, /* get your boots removed by honey */
+    ACH_BPEEL = 37, /* slip on a banana peel */
+    N_ACH = 38     /* allocate room for 63 plus a slot for 0 terminator */
 };
     /*
      * Other potential achievements to track (this comment briefly resided
@@ -211,11 +218,11 @@ struct u_conduct {     /* number of times... */
     long conflicting;  /* generated conflict */
     long holy_water;   /* blessed an object with holy water */
     long dyer;         /* player has explicitly dyed an item */
-    long pyro;         /* player indirectly killed a monster with a bonfire */
-    long junior_alchemist; /* player has used floor alchemy */
     /* genocides already listed at end of game */
     long reserved1;
     long reserved2;
+    long reserved3;
+    long reserved4;
 };
 
 struct u_roleplay {

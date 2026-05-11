@@ -1936,6 +1936,8 @@ coateffects(coordxy x, coordxy y, struct monst *mon) {
             gm.multi_reason = "slipping on something";
             gn.nomovemsg = "You regain your footing.";
             if (!banana_peel) makeknown(POT_OIL);
+            if (banana_peel)
+                record_achievement(ACH_BPEEL);
             make_prone();
         } else {
             if (canseemon(mon)) {
@@ -1959,6 +1961,7 @@ coateffects(coordxy x, coordxy y, struct monst *mon) {
                 otmp = uarmf;
                 remove_worn_item(otmp, TRUE);
                 dropx(otmp);
+                record_achievement(ACH_LOST_BOOT);
             } else {
                 pline("Some %s sticks to your %s.", buf, body_part(FOOT));
             }
@@ -2108,7 +2111,7 @@ floor_alchemy(int x, int y, short otyp) {
         remove_coating(x, y, COAT_POTION);
         explode(x, y, PHYS_EXPL_TYPE, d(1, 10), 0, EXPL_NOXIOUS);
         if (!gi.in_mklev && !svc.context.mon_moving)
-            u.uconduct.junior_alchemist++;
+            record_achievement(ACH_JUN_ALC);
         return 0;
     } else {
         /* potion coatings are handled by floor_spillage() */

@@ -2585,6 +2585,24 @@ show_achievements(
             you_have_X(buf);
             break;
 
+        case ACH_MAZE:
+            you_have_X("been transported to the Maze");
+            break;
+        case ACH_MTEMPLE:
+            you_have_X("entered the Temple of Moloch");
+            break;
+        case ACH_JUN_ALC:
+            you_have_X("performed alchemy on the floor");
+            break;
+        case ACH_PYRO:
+            you_have_X("indirectly slain a monster using fire");
+            break;
+        case ACH_LOST_BOOT:
+            you_have_X("lost your boots to honey");
+            break;
+        case ACH_BPEEL:
+            you_have_X("slipped on a banana peel");
+            break;
         default:
             Sprintf(buf, " [Unexpected achievement #%d.]", achidx);
             enlght_out(buf);

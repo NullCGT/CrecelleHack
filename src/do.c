@@ -1978,6 +1978,12 @@ goto_level(
     } else if (In_mines(&u.uz)) {
         if (newdungeon)
             record_achievement(ACH_MINE);
+    } else if (In_magicmaze(&u.uz)) {
+        if (newdungeon)
+            record_achievement(ACH_MAZE);
+    } else if (In_mtemple(&u.uz)) {
+        if (newdungeon)
+            record_achievement(ACH_MTEMPLE);
     } else if (In_sokoban(&u.uz)) {
         if (newdungeon) {
             record_achievement(ACH_SOKO);

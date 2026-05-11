@@ -365,9 +365,9 @@ writexlentry(FILE *rfile, struct toptenentry *tt, int how)
     if (gm.multi < 0)
         Fprintf(rfile, "%cwhile=%s", XLOG_SEP,
                 gm.multi_reason ? gm.multi_reason : "helpless");
-    Fprintf(rfile, "%cconduct=0x%lx%cturns=%ld%cachieve=0x%lx", XLOG_SEP,
+    Fprintf(rfile, "%cconduct=0x%lx%cturns=%ld%cachieve=0x%lx%cachieve2=0x%lx", XLOG_SEP,
             encodeconduct(), XLOG_SEP, svm.moves, XLOG_SEP,
-            encodeachieve(FALSE));
+            encodeachieve(FALSE), XLOG_SEP, encodeachieve(TRUE));
     Fprintf(rfile, "%cachieveX=%s", XLOG_SEP,
             encode_extended_achievements(achbuf));
     Fprintf(rfile, "%cconductX=%s", XLOG_SEP,
@@ -455,10 +455,6 @@ encodeconduct(void)
         e |= 1L << 16;
     if (u.uconduct.dyer)
         e |= 1L << 17;
-    if (u.uconduct.pyro)
-        e |= 1L << 18;
-    if (u.uconduct.junior_alchemist)
-        e |= 1L << 19;
 
     return e;
 }
@@ -583,6 +579,24 @@ encode_extended_achievements(char *buf)
             strNsubst(rnkbuf, " ", "_", 0); /* replace every ' ' with '_' */
             achievement = lcase(rnkbuf);
             break;
+        case ACH_MAZE:
+            achievement = "entered_maze";
+            break;
+        case ACH_MTEMPLE:
+            achievement = "entered_mtemple";
+            break;
+        case ACH_JUN_ALC:
+            achievement = "junior_alchemist";
+            break;
+        case ACH_PYRO:
+            achievement = "pyro";
+            break;
+        case ACH_LOST_BOOT:
+            achievement = "lost_boot";
+            break;
+        case ACH_BPEEL:
+            achievement = "banana_peel";
+            break;
         default:
             continue;
         }
@@ -620,8 +634,6 @@ encode_extended_conducts(char *buf)
     add_achieveX(buf, "conflictless", !u.uconduct.conflicting);
     add_achieveX(buf, "blessless",    !u.uconduct.holy_water);
     add_achieveX(buf, "dyer",         u.uconduct.dyer);
-    add_achieveX(buf, "pyro",         u.uconduct.pyro);
-    add_achieveX(buf, "junior alchemist", u.uconduct.junior_alchemist);
     add_achieveX(buf, "unrerolled",   !u.uroleplay.reroll);
 
     return buf;

@@ -1715,7 +1715,7 @@ inside_bonfire(genericptr_t p1, genericptr_t p2)
         /* Message and complete burning */
         if (completelyburns(mtmp->data)) {
             if (heros_fault(reg)) {
-                u.uconduct.pyro++;
+                record_achievement(ACH_PYRO);
                 killed(mtmp);
             } else
                 monkilled(mtmp, "bonfire", AD_FIRE);
@@ -1738,7 +1738,7 @@ inside_bonfire(genericptr_t p1, genericptr_t p2)
         mtmp->mhp -= dam;
         if (DEADMONSTER(mtmp)) {
             if (heros_fault(reg)) {
-                u.uconduct.pyro++;
+                record_achievement(ACH_PYRO);
                 killed(mtmp);
             } else
                 monkilled(mtmp, "bonfire", AD_FIRE);

@@ -36,7 +36,7 @@ for i = 1, 30 do
   o:stop_timer("rot-corpse");
   o:start_timer("zombify-mon", math.random(56, 150));
 end
-des.region({ region={00,00, 56,19},lit=0,type="morgue",filled=0,irregular=1 })
+des.region({ region={03,00, 56,19},lit=0,type="morgue",filled=0,irregular=1 })
 local fields = selection.floodfill(00,00);
 for i = 1, 20 do
   des.grave({ coord = fields:rndcoord(1) });

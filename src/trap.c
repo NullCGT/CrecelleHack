@@ -1331,7 +1331,7 @@ trapeffect_arrow_trap(
         boolean see_it = cansee(mtmp->mx, mtmp->my);
         boolean trapkilled = FALSE;
 
-        if (trap->once && trap->tseen && !trap->ammo) {
+        if (!trap->ammo) {
             if (in_sight && see_it)
                 pline_mon(mtmp,
                       "%s triggers a trap but nothing happens.",

@@ -1,7 +1,7 @@
 achieveXname,name,description,icon,source,
 pyro,Pyromaniac,indirectly slay a monster with a bonfire,pyro.png,crecelle,
 dyer,You dye...,dye an item,dyer.png,crecelle,
-blessless,Bless Less,ascended without praying for holy water,blessless.png,crecelle,
+blessless,Bless Less,ascended without blessing an item with holy water,blessless.png,crecelle,
 conflictless,Conflict Averse,ascended without generating conflict,conflictless.png,crecelle
 petless,No Pets Allowed,ascended without having a pet,petless.png,evil,
 artifactless,Artifactless,ascended without touching an artifact,artifactless.png,evil,

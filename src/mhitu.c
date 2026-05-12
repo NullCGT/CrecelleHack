@@ -778,9 +778,12 @@ mattacku(struct monst *mtmp)
         return 0;
     }
 
-    /* monster might grapple you to gain an advantage */
+    /* monster might grapple you to gain an advantage.
+       this is disabled when fuzzing because otherwise the player tends
+       to get stuck in loops of getting grabbed and killed repeatedly. */
     if (!ranged && !u.ustuck && !mtmp->mundetected
-        && can_grapple(mtmp->data) && !critically_low_hp(FALSE)) {
+        && can_grapple(mtmp->data) && !critically_low_hp(FALSE)
+        && !iflags.debug_fuzzer) {
         int grapple_chance = 1;
         if (u.utrap && u.utraptype == TT_LAVA) grapple_chance += 20;
         /* if (region_danger()) grapple_chance += 20; */

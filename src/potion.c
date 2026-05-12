@@ -2038,8 +2038,9 @@ floor_spillage(int x, int y, short otyp, int corpsenm) {
                 water_damage_chain(objchain, TRUE);
             else if (otyp == POT_ACID) {
                 while (objchain) {
-                    acid_damage(objchain);
+                    oldchain = objchain;
                     objchain = objchain->nexthere;
+                    acid_damage(oldchain);
                 }
             } else if (otyp == POT_ALKAHEST) {
                 while (objchain) {

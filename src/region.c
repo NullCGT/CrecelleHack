@@ -517,8 +517,8 @@ run_regions(void)
 void
 spread_bonfire(NhRegion *reg) {
     NhRegion *newreg = NULL;
-    int startx = max(0, reg->bounding_box.lx - 1);
-    int starty = max(0, reg->bounding_box.ly - 1);
+    int startx = max(1, reg->bounding_box.lx - 1);
+    int starty = max(1, reg->bounding_box.ly - 1);
     int stopx = min(COLNO - 1, reg->bounding_box.hx + 1);
     int stopy = min(ROWNO - 1, reg->bounding_box.hy + 1);
     for (int x = startx; x <= stopx; x++) {

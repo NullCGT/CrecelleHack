@@ -59,6 +59,7 @@ void windows_nhbell(void);
 int windows_nh_poskey(int *, int *, int *);
 void windows_raw_print(const char *);
 char windows_yn_function(const char *, const char *, char);
+boolean portable = FALSE;
 /* static void windows_getlin(const char *, char *); */
 
 #ifdef WIN32CON
@@ -206,8 +207,11 @@ _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);*/
     }
     gh.hname = "CrecelleHack"; /* used for syntax messages */
     set_default_prefix_locations(
-        argv[0]); /* must be re-done after initoptions_init()
-                   * which clears out gp.fqn_prefix[] */
+        argv[0]); /* must be re-done again after initoptions_init()
+                   * because that function clears out gp.fqn_prefix[] */
+    allopt_array_init();  /* we do this here, so allopt doesn't get cleared
+                             after we disregard some */
+
     copy_sysconf_content();
     copy_symbols_content();
     /* Now that sysconf has had a chance to set the TROUBLEPREFIX, don't
@@ -250,6 +254,9 @@ _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);*/
         error("CrecelleHack: current directory path too long");
 #endif
     getreturn_enabled = TRUE;
+#ifdef MSWIN_GRAPHICS
+    disregard_some_mswin_options();
+#endif
     initoptions_init(); // This allows OPTIONS in syscf on Windows.
     set_default_prefix_locations(
         argv[0]); /* must be re-done after initoptions_init()
@@ -260,9 +267,7 @@ _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);*/
     early_options(&argc, &argv, &dir);
 
     program_state.early_options = 0;
-#ifdef MSWIN_GRAPHICS
-    disregard_some_mswin_options();
-#endif
+
     initoptions();
 #if defined(CHDIR) && !defined(NOCWD_ASSUMPTIONS)
     chdir(gf.fqn_prefix[HACKPREFIX]);
@@ -806,15 +811,19 @@ copy_symbols_content(void)
 void
 copy_sysconf_content(void)
 {
-    /* Using the SYSCONFPREFIX path, lock it so that it does not change */
-    fqn_prefix_locked[SYSCONFPREFIX] = TRUE;
+    if (sysopt.portable_device_paths) {
+        portable = TRUE;
+    } else {
+        /* Using the SYSCONFPREFIX path, lock it so that it does not change */
+        fqn_prefix_locked[SYSCONFPREFIX] = TRUE;
 
-    update_file(gf.fqn_prefix[SYSCONFPREFIX], SYSCF_TEMPLATE,
-                gf.fqn_prefix[DATAPREFIX], SYSCF_TEMPLATE, FALSE);
+        update_file(gf.fqn_prefix[SYSCONFPREFIX], SYSCF_TEMPLATE,
+                    gf.fqn_prefix[DATAPREFIX], SYSCF_TEMPLATE, FALSE);
 
-    /* If the required early game file does not exist, copy it */
-    copy_file(gf.fqn_prefix[SYSCONFPREFIX], SYSCF_FILE,
-              gf.fqn_prefix[DATAPREFIX], SYSCF_TEMPLATE, FALSE);
+        /* If the required early game file does not exist, copy it */
+        copy_file(gf.fqn_prefix[SYSCONFPREFIX], SYSCF_FILE,
+                  gf.fqn_prefix[DATAPREFIX], SYSCF_TEMPLATE, FALSE);
+    }
 }
 
 void

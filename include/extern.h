@@ -371,6 +371,10 @@ extern void disregard_this_config_statement(int);
 extern boolean config_unmatched_ignored(void);
 extern void clear_ignore_errors_on_unmatched(void);
 extern void set_ignore_errors_on_unmatched(void);
+extern void rcfile_only_this_statement(int);
+#ifdef WIN32
+extern boolean check_for_portable_config(void);
+#endif
 #ifdef MSWIN_GRAPHICS
 extern void disregard_some_mswin_options(void);
 extern void rcfile_only_some_mswin_options(void);
@@ -1031,7 +1035,7 @@ extern void done1(int);
 extern int done2(void);
 extern void done_in_by(struct monst *, int) NONNULLARG1;
 extern void done_object_cleanup(void);
-extern void NH_abort(char *);
+extern void NH_abort(const char *);
 #endif /* !MAKEDEFS_C && MDLIB_C && !CPPREGEX_C */
 #if !defined(CPPREGEX_C)
 ATTRNORETURN extern void panic(const char *, ...) PRINTF_F(1, 2) NORETURN;

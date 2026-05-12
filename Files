@@ -132,11 +132,6 @@ wceconf.h
 mac-carbon.h  mac-qt.h      mac-term.h    macconf.h     macpopup.h
 mactty.h      macwin.h      mttypriv.h
 
-outdated/sys/amiga:
-(files for Amiga versions - untested for 5.0)
-Build.ami     Install.ami   Makefile.agc  Makefile.ami  NetHack.cnf
-ifchange      mkdmake       txt2iff.c     xpm2iff.c
-
 outdated/sys/atari:
 (files for Atari version - untested for 5.0)
 Install.tos   atarifnt.uue  nethack.mnu   setup.g       tos.c
@@ -309,15 +304,14 @@ CHKSUMS      lua          pdcurses     pdcursesmod
 
 sys/amiga:
 (files for Amiga versions)
-NHinfo.uu        README.amiga     amidos.c         amidos.p
-amifont.uu       amifont8.uu      amigst.c         amii.hlp
-amimenu.c        amirip.c         amistack.c       amitty.c
-amiwind.c        amiwind.p        bmp2iff_host.c   clipwin.c
+NHinfo.uu        README.amiga     amidos.c         amifont.uu
+amifont8.uu      amii.hlp         amimenu.c        amirip.c
+amistack.c       amiwind.c        bmp2iff_host.c   clipwin.c
 cnf-info.uu      colorwin.c       drawer-info.uu   grave16.xpm
 license-info.uu  nethack.cnf      readme-info.uu   txt-info.uu
-winamenu.c       winami.c         winami.p         winchar.c
-windefs.h        winext.h         winfuncs.c       winkey.c
-winproto.h       winreq.c         winstr.c         xpm2iff_host.c
+winamenu.c       winami.c         winchar.c        windefs.h
+winext.h         winfuncs.c       winkey.c         winproto.h
+winreq.c         winstr.c         xpm2iff_host.c
 
 sys/libnh:
 (files in top directory)

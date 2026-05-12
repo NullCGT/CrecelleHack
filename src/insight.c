@@ -400,7 +400,6 @@ enlightenment_dnh(int mode)
     int i, n;
     
     ge.en_win = create_nhwindow(NHW_MENU);
-    ge.en_via_menu = TRUE;
     start_menu(ge.en_win, MENU_BEHAVE_STANDARD);
     if (mode & BASICENLIGHTENMENT) {
         any.a_char = 'g';
@@ -427,9 +426,10 @@ enlightenment_dnh(int mode)
     end_menu(ge.en_win, "View which attributes:");
     n = select_menu(ge.en_win, PICK_ANY, &pick_list);
     destroy_nhwindow(ge.en_win);
-    ge.en_win = create_nhwindow(NHW_MENU);
     if (n > 0) {
-        start_menu(ge.en_win, MENU_BEHAVE_STANDARD);
+        ge.en_win = create_nhwindow(NHW_MENU);
+        if (ge.en_via_menu)
+            start_menu(ge.en_win, MENU_BEHAVE_STANDARD);
         enlght_out_attr(ATR_HEADING, "Selected Attributes:");
         for (i = 0; i < n; i++) {
             switch (pick_list[i].item.a_char) {

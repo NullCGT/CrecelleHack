@@ -99,6 +99,12 @@ static struct ll_achieve_msg achieve_msg [] = {
     { LL_ACHIEVE, "" }, /* Xp 26 */
     { LL_ACHIEVE, "" }, /* Xp 30 */
     { LL_MINORAC, "learned castle drawbridge's tune" }, /* achievement #31 */
+    { LL_MINORAC, "was cast into the Maze" },
+    { LL_ACHIEVE, "entered the Temple to Moloch" },
+    { 0, "performed floor alchemy for the first time" },
+    { 0, "indirectly killed a monster with a bonfire" },
+    { 0, "lost a pair of boots to honey" },
+    { LL_MINORAC, "slipped on a banana peel" }, /* funny to livelog */
     { 0, "" } /* keep this one at the end */
 };
 

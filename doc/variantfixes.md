@@ -10,6 +10,7 @@
 - Properly update carrying capacity display when increasing attributes via
   skill.
 - Update display on time change.
+- Fix Sokoban entrance livelog message.
 
 # 1.5.0
 ## Dungeon

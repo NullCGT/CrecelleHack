@@ -83,9 +83,9 @@ static struct ll_achieve_msg achieve_msg [] = {
     { LL_MINORAC, "entered a temple" },
     { LL_ACHIEVE, "consulted the Oracle" }, /* minor, but rare enough */
     { LL_MINORAC | LL_DUMP, "read a Discworld novel" }, /* even more so */
-    { LL_ACHIEVE, "" }, /* keep as major for turn comparison
-                                        * with completed sokoban. Blank
-                                        * for snowkoban purposes. */
+    { LL_ACHIEVE, "entered" }, /* keep as major for turn comparison
+                                        * with completed sokoban. Shortened
+                                        * for Snowkoban purposes. */
     { LL_ACHIEVE, "entered the Bigroom" },
     /* The following 8 are for advancing through the ranks
        and messages differ by role so are created on the fly;
@@ -2685,6 +2685,9 @@ record_achievement(schar achidx)
            but that's not true in the general case */
         livelog_printf(achieve_msg[achidx].llflag, "%s %s",
                        achieve_msg[achidx].msg, OBJ_NAME(objects[otyp]));
+    } else if (achidx == ACH_SOKO) {
+        livelog_printf(achieve_msg[absidx].llflag, "%s %s",
+                       achieve_msg[achidx].msg, snowkoban());
     } else {
         livelog_printf(achieve_msg[absidx].llflag, "%s",
                        achieve_msg[absidx].msg);

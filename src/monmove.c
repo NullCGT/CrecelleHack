@@ -773,7 +773,8 @@ m_everyturn_effect(struct monst *mtmp)
         if (mtmp->mdriptype > 0) floor_spillage(x, y, mtmp->mdriptype, NON_PM);
         else add_coating(x, y, COAT_BLOOD, -1 * mtmp->mdriptype);
     } else if (mtmp->data == &mons[PM_ACID_BLOB] 
-            || mtmp->data == &mons[PM_GELATINOUS_CUBE]) {
+            || mtmp->data == &mons[PM_GELATINOUS_CUBE]
+            || mtmp->data == &mons[PM_OCHRE_JELLY]) {
         floor_spillage(x, y, POT_ACID, NON_PM);
     }
 }

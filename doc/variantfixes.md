@@ -6,6 +6,7 @@
   - Zapping at a sink creates a fountain.
   - Zapping at oneself can cause you to be released by a monster.
 - Zapping wands of growth and aqua bolt at the floor now works properly.
+- Ochre jellies now properly drip with acid.
 
 # 1.5.0
 ## Dungeon

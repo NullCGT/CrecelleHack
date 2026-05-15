@@ -9,6 +9,7 @@
 - Ochre jellies now properly drip with acid.
 - Properly update carrying capacity display when increasing attributes via
   skill.
+- Update display on time change.
 
 # 1.5.0
 ## Dungeon

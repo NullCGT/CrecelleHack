@@ -624,6 +624,8 @@ timechange_message(boolean new_game)
             pline("%s dully.", Tobjnam(uwep, "glint"));
         }
     }
+    /* Update display */
+    disp.botl = TRUE;
 }
 
 void

@@ -14,6 +14,7 @@
 - Prevent travel and run commands from taking the player over dangerous
   coatings.
 - Pets mildly balk at stepping on mold.
+- Remove randomization from pet handling training when pet kills monsters.
 
 # 1.5.0
 ## Dungeon

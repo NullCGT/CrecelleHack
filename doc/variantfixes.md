@@ -1,3 +1,12 @@
+# 1.5.1
+### Misc
+- Many improvements to wands of growth.
+  - Zapping at preexisting grass creates a tree.
+  - Zapping at a fountain causes it to overflow.
+  - Zapping at a sink creates a fountain.
+  - Zapping at oneself can cause you to be released by a monster.
+- Zapping wands of growth and aqua bolt at the floor now works properly.
+
 # 1.5.0
 ## Dungeon
 - Rotting corpses rot more slowly in cold levels.

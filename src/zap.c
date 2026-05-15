@@ -402,9 +402,9 @@ bhitm(struct monst *mtmp, struct obj *otmp)
         learn_it = TRUE;
         break;
     case WAN_GROWTH:
-        if (!mtmp->mtame || !rn2(8)) {
-            grow_up(mtmp, (struct monst *) 0);
-        }
+        if (canseemon(mtmp))
+            pline_mon(mtmp, "%s looks bigger.", Monnam(mtmp));
+        grow_up(mtmp, (struct monst *) 0);
         wake = FALSE;
         reveal_invis = FALSE;
         helpful_gesture = TRUE;
@@ -3104,11 +3104,13 @@ zapyourself(struct obj *obj, boolean ordinary)
         break;
     case WAN_GROWTH: {
         struct obj *otmp, *onxt;
+        pline("Your muscles bulge!");
+        release_hold();
         for (otmp = gi.invent; otmp; otmp = onxt) {
             onxt = otmp->nobj;
-            if (bhito(otmp, obj))
-                learn_it = TRUE;
+            bhito(otmp, obj);
         }
+        learn_it = TRUE;
         break;
     }
     case WAN_DIGGING:
@@ -3465,20 +3467,13 @@ zap_updown(struct obj *obj) /* wand or spell, nonnull */
         }
         break;
     case WAN_GROWTH:
-        if (u.dz > 0) {
-            if (Blind && !uarmf)
-                You_feel("some grass tickle your %s.", body_part(FOOT));
-            else if (!Blind)
-                pline("Some grass grows.");
-            add_coating(x, y, COAT_GRASS, 0);
+        if (u.dz < 0) {
+            pline("The world is already big enough.");
         }
         break;
     case WAN_AQUA_BOLT:
     case SPE_AQUA_BOLT:
-        if (u.dz > 0) {
-            pline("Water sprays downward.");
-            add_coating(x, y, COAT_POTION, POT_WATER);
-        } else if (u.dz < 0) {
+        if (u.dz < 0) {
             pline("You make it rain!");
         }
         break;
@@ -3924,33 +3919,48 @@ zap_map(
                 break;
             }
         } /* find_drawbridge */
-        if (obj->otyp == WAN_GROWTH) {
-            if (cansee(x, y) && !has_coating(x, y, COAT_GRASS)
-                && add_coating(x, y, COAT_GRASS, 0)) {
-                Norep("You see some grass grow.");
-                learn_it = TRUE;
-            }
-            if (IS_TREE(levl[x][y].typ)) {
-                if (levl[x][y].flags & T_LOOTED) {
-                    levl[x][y].flags &= ~T_LOOTED;
-                }
-            }
-            if (has_coating(x, y, COAT_FUNGUS)){
-                if (rn2(3))
-                    makemon(&mons[levl[x][y].pindex],
-                            x, y, MM_NOCOUNTBIRTH);
-                spread_mold(x, y, &mons[levl[x][y].pindex]);
-            }
-        } else if (obj->otyp == WAN_AQUA_BOLT
-                    || obj->otyp == SPE_AQUA_BOLT) {
-            if (cansee(x, y))
-                Norep("The %s gets wet.", surface(x, y));
-            floor_spillage(x, y, POT_WATER, 0);
-            learn_it = TRUE;
-        }
     } /* !u.uz */
 
-    if (obj->otyp == WAN_PROBING) {
+    if (obj->otyp == WAN_GROWTH) {
+        if (cansee(x, y) && !has_coating(x, y, COAT_GRASS)
+            && add_coating(x, y, COAT_GRASS, 0)) {
+            Norep("You see some grass grow.");
+            learn_it = TRUE;
+        } else if (has_coating(x, y, COAT_GRASS)
+                    && set_levltyp(x, y, TREE)) {
+                if (cansee(x, y))
+                    pline("A tree sprouts from the ground!");
+                block_point(x, y);
+                newsym(x, y);
+        }
+
+        if (IS_TREE(levl[x][y].typ)) {
+            if (levl[x][y].flags & T_LOOTED) {
+                levl[x][y].flags &= ~T_LOOTED;
+            }
+        }
+        if (IS_FOUNTAIN(levl[x][y].typ)) {
+            dogushforth(FALSE);
+        }
+        if (IS_SINK(levl[x][y].typ)
+            && set_levltyp(x, y, FOUNTAIN)) {
+            if (cansee(x, y))
+                pline("The sink grows up into a fountain!");
+            newsym(x, y);
+        }
+        if (has_coating(x, y, COAT_FUNGUS)){
+            if (rn2(3))
+                makemon(&mons[levl[x][y].pindex],
+                        x, y, MM_NOCOUNTBIRTH);
+            spread_mold(x, y, &mons[levl[x][y].pindex]);
+        }
+    } else if (obj->otyp == WAN_AQUA_BOLT
+                || obj->otyp == SPE_AQUA_BOLT) {
+        if (cansee(x, y))
+            Norep("The %s gets wet.", surface(x, y));
+        floor_spillage(x, y, POT_WATER, 0);
+        learn_it = TRUE;
+    } else if (obj->otyp == WAN_PROBING) {
         /*
          * Probing, either up/down or lateral.
          */

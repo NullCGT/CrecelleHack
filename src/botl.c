@@ -733,7 +733,7 @@ static struct istat_s initblstats[MAXBLSTATS] = {
        available mostly for screenshots or someone looking over shoulder;
        blstat[][BL_VERS] is actually an int copy of flags.versinfo (0...7) */
     INIT_BLSTAT("version", " %s", ANY_STR, MAXVALWIDTH, BL_VERS),
-    INIT_BLSTAT("time", "%s", ANY_STR, MAXVALWIDTH, BL_TOD),
+    INIT_BLSTAT("time", " %s", ANY_INT, 20, BL_TOD),
     /* weapon and armor are constructed strings with no particular numeric
        equivalent */
     INIT_BLSTAT("weapon", " %s", ANY_STR, 20, BL_WEAPON),
@@ -1036,7 +1036,9 @@ bot_via_windowport(void)
                                                : "Lawful");
 
     /* Weather */
-    Sprintf(gb.blstats[idx][BL_TOD].val, " %s", tod_string());
+    gb.blstats[idx][BL_TOD].a.a_int = u.uenvirons.tod;
+    Strcpy(gb.blstats[idx][BL_TOD].val, tod_string());
+    gv.valset[BL_TOD] = TRUE;
 
     /* Score */
     gb.blstats[idx][BL_SCORE].a.a_long =
@@ -3787,6 +3789,7 @@ status_hilite_menu_choose_behavior(int fld)
     }
 
     if (fld != BL_CAP && fld != BL_HUNGER
+        && fld != BL_TOD
         && (at == ANY_INT || at == ANY_LONG)) {
         any = cg.zeroany;
         any.a_int = onlybeh = BL_TH_VAL_ABSOLUTE;
@@ -3814,7 +3817,8 @@ status_hilite_menu_choose_behavior(int fld)
     }
 
     if (initblstats[fld].anytype == ANY_STR
-        || fld == BL_CAP || fld == BL_HUNGER) {
+        || fld == BL_CAP || fld == BL_HUNGER
+        || fld == BL_TOD) {
         any = cg.zeroany;
         any.a_int = onlybeh = BL_TH_TEXTMATCH;
         Sprintf(buf, "%s text match", initblstats[fld].fldname);

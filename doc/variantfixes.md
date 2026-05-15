@@ -15,6 +15,7 @@
   coatings.
 - Pets mildly balk at stepping on mold.
 - Remove randomization from pet handling training when pet kills monsters.
+- Reduce scroll of control weather probability to zero.
 
 # 1.5.0
 ## Dungeon

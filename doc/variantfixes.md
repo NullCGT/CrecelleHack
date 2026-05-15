@@ -13,6 +13,7 @@
 - Fix Sokoban entrance livelog message.
 - Prevent travel and run commands from taking the player over dangerous
   coatings.
+- Pets mildly balk at stepping on mold.
 
 # 1.5.0
 ## Dungeon

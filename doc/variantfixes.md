@@ -11,6 +11,8 @@
   skill.
 - Update display on time change.
 - Fix Sokoban entrance livelog message.
+- Prevent travel and run commands from taking the player over dangerous
+  coatings.
 
 # 1.5.0
 ## Dungeon

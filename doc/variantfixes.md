@@ -16,6 +16,7 @@
 - Pets mildly balk at stepping on mold.
 - Remove randomization from pet handling training when pet kills monsters.
 - Reduce scroll of control weather probability to zero.
+- Partial poison resistance protects against poisonous corpses.
 
 # 1.5.0
 ## Dungeon

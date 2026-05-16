@@ -1,4 +1,4 @@
-/* NetHack 5.0	extern.h	$NHDT-Date: 1770949988 2026/02/12 18:33:08 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.1523 $ */
+/* NetHack 5.0	extern.h	$NHDT-Date: 1778886716 2026/05/15 15:11:56 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.1558 $ */
 /* Copyright (c) Steve Creps, 1988.                               */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -719,7 +719,8 @@ extern void free_mgivenname(struct monst *) NONNULLARG1;
 extern void new_oname(struct obj *, int) NONNULLARG1;
 extern void free_oname(struct obj *) NONNULLARG1;
 extern const char *safe_oname(struct obj *) NONNULLARG1;
-extern struct monst *christen_monst(struct monst *, const char *) NONNULLARG1;
+extern struct monst *christen_monst(struct monst *, const char *) NONNULL
+                                                                   NONNULLARG1;
 extern struct obj *oname(struct obj *, const char *, unsigned) NONNULLPTRS;
 extern boolean objtyp_is_callable(int);
 extern int name_ok(struct obj *);
@@ -2125,6 +2126,10 @@ extern int win32_cr_helper(char, struct CRctxt *, void *, int);
 extern int win32_cr_gettrace(int, char *, int);
 extern int *win32_cr_shellexecute(const char *);
 # endif
+#ifdef MSWIN_GRAPHICS
+extern int get_approx_window_column_width(void);
+extern int get_approx_window_rows(void);
+#endif
 #endif /* WIN32 */
 
 #endif /* MICRO || WIN32 */
@@ -2275,7 +2280,9 @@ void console_g_putch(int in_ch);
 extern void set_output_mode(int);
 extern void synch_cursor(void);
 extern void nethack_enter_consoletty(void);
-extern void consoletty_exit(void);
+extern int get_console_width(void);
+extern int get_console_height(void);
+extern void console_exit(void);
 extern int set_keyhandling_via_option(void);
 #ifdef ENHANCED_SYMBOLS
 extern void tty_utf8graphics_fixup(void);

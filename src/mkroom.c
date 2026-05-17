@@ -616,6 +616,8 @@ mkswamp(void) /* Michiel Huisjes & Fred de Wilde */
     }
 }
 
+/* return center of room, or a random free location
+   if center is blocked */
 staticfn coord *
 shrine_pos(int roomno)
 {
@@ -634,6 +636,14 @@ shrine_pos(int roomno)
     buf.y = troom->ly + delta / 2;
     if ((delta % 2) && rn2(2))
         buf.y++;
+
+    /* irregular room or the location is blocked */
+    if (roomno != (int) levl[buf.x][buf.y].roomno
+        || (levl[buf.x][buf.y].typ != ROOM
+            && levl[buf.x][buf.y].typ != ICE
+            && levl[buf.x][buf.y].typ != CLOUD))
+        (void) somexyspace(troom, &buf);
+
     return &buf;
 }
 

@@ -367,7 +367,7 @@ moveloop_core(void)
                     }
                 }
 
-                if (u.ualign.type == A_NEUTRAL && !on_hated_terrain())
+                if (!(u.ualign.type == A_NEUTRAL && on_hated_terrain()))
                     regen_pw(mvl_wtcap);
 
                 if (!u.uinvulnerable) {

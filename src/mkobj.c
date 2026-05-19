@@ -1093,6 +1093,9 @@ mksobj_init(struct obj **obj, boolean artif)
             otmp->quan = 1L + (long) (rn2(2) ? rn2(7) : 0);
             blessorcurse(otmp, 5);
             break;
+        case LOCK_PICK:
+            otmp->quan = rn1(5, 5);
+            break;
         case LANTERN:
         case OIL_LAMP:
             otmp->spe = 1;

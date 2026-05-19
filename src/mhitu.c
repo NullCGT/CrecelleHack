@@ -1868,10 +1868,15 @@ gazemu(struct monst *mtmp, struct attack *mattk)
                 int conf = d(3, 4);
 
                 mtmp->mspec_used = mtmp->mspec_used + (conf + rn2(6));
-                if (!Confusion)
-                    pline_mon(mtmp, "%s gaze confuses you!",
-                              s_suffix(Monnam(mtmp)));
-                else
+                if (!Confusion) {
+                    if (mtmp->data == &mons[PM_SCROLEM]) {
+                        pline_mon(mtmp, "The scrawlings on %s confuse you!",
+                                    Monnam(mtmp));
+                    } else {
+                        pline_mon(mtmp, "%s gaze confuses you!",
+                                s_suffix(Monnam(mtmp)));
+                    }
+                } else
                     You("are getting more and more confused.");
                 make_confused(HConfusion + conf, FALSE);
                 stop_occupation();

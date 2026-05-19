@@ -5,6 +5,9 @@
 - Cursed scrolls of transmute material now select from a list of "bad" materials
   rather than just changing items to plastic.
 
+## Monsters
+- Rebalance some monsters that were too strong.
+
 # 1.5.0-fix
 ## Misc
 - Many improvements to wands of growth.

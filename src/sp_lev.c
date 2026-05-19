@@ -2315,7 +2315,7 @@ create_object(object *o, struct mkroom *croom)
 
     /* set the material and object property */
     if (o->omat.str) {
-        omat = lookup_material_by_name(o->omat.str, &omat);
+        omat = lookup_material_by_name(o->omat.str, &omat, TRUE);
         if (omat) set_material(otmp, omat);
     }
     if (o->oprop.str){

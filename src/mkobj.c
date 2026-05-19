@@ -4591,7 +4591,10 @@ transmute_obj(struct obj *otmp, int newmat)
         pline("%s!", Yobjnam2(otmp, "vibrate"));
     force_material(otmp, newmat);
     if (in_invent) {
-        pline("It is now %s.", an(xname(otmp)));
+        if (otmp->quan > 1)
+            pline("They are now %s.", xname(otmp));
+        else
+            pline("It is now %s.", an(xname(otmp)));
         retouch_object(&otmp, FALSE, FALSE);
         disp.botl = TRUE;
         update_inventory();

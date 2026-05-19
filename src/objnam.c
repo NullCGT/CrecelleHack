@@ -4356,7 +4356,7 @@ readobjnam_preparse(struct _readobjnam_data *d)
                  * interpreted as gold */
                 break;
             }
-            mat = lookup_material_by_name(d->bp, &l);
+            mat = lookup_material_by_name(d->bp, &l, FALSE);
             if (mat) {
                 d->material = mat;
                 l += 1;
@@ -6064,13 +6064,13 @@ lookup_oprop_by_name(char *buf, int *l)
 /* Look up a material via its name. Pulled out into a function so we can
    do this in special levels. */
 int
-lookup_material_by_name(char *buf, int *l)
+lookup_material_by_name(char *buf, int *l, boolean bypass)
 {
     /* doesn't currently catch "wood" for wooden */
     for (int i = 1; i < NUM_MATERIAL_TYPES; i++) {
-        if (!strncmpi(buf, MAT_NAME(i), *l = strlen(MAT_NAME(i)))
-            && !not_spec_material(buf, i)){
-            return i;
+        if (!strncmpi(buf, MAT_NAME(i), *l = strlen(MAT_NAME(i)))) {
+            if (bypass || !not_spec_material(buf, i))
+                return i;
         }
     }
     return 0;   

@@ -2406,7 +2406,7 @@ extern char *safe_qbuf(char *, const char *, const char *, struct obj *,
                        const char *) NONNULL NONNULLARG14;
 extern int shiny_obj(char);
 extern int lookup_oprop_by_name(char *, int *);
-extern int lookup_material_by_name(char *, int *);
+extern int lookup_material_by_name(char *, int *, boolean);
 
 /* ### options.c ### */
 

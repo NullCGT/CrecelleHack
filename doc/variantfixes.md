@@ -1,5 +1,12 @@
 # 1.5.1
-### Misc
+## Objects
+- Scrolls of transmute material now allow the player to select the material
+  for transmutation.
+- Cursed scrolls of transmute material now select from a list of "bad" materials
+  rather than just changing items to plastic.
+
+# 1.5.0-fix
+## Misc
 - Many improvements to wands of growth.
   - Zapping at preexisting grass creates a tree.
   - Zapping at a fountain causes it to overflow.

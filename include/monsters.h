@@ -1933,7 +1933,8 @@
         SIZ(50, 30, MS_SILENT, MZ_SMALL), 0, 0,
         M1_BREATHLESS | M1_NOEYES | M1_NOLIMBS | M1_NOHEAD
             | M1_NOTAKE | M1_POIS,
-        M2_HOSTILE | M2_NEUTER, 0, 0, 0, 5, CLR_ORANGE, ORANGE_FUNGUS),
+        M2_HOSTILE | M2_NEUTER, 0, M4_BST_FUNGI,
+        0, 5, CLR_ORANGE, ORANGE_FUNGUS),
     MON(NAM("gray fungus"), S_FUNGUS,
         LVL(3, 0, 7, 0, 0), (G_GENO | 2),
         A(ATTK(AT_NONE, AD_DISE, 0, 2),

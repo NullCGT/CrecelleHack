@@ -1139,7 +1139,6 @@ FOOD("melon",                 7,  1,  5, 0, VEGGY, 100, CLR_BRIGHT_GREEN,
 FOOD("pumpkin",               3,  1,  5, 0, VEGGY, 100, CLR_ORANGE,
                                                           PUMPKIN),
 FOOD("banana",               10,  1,  2, 0, VEGGY,  80, CLR_YELLOW, BANANA),
-FOOD("banana peel",           0,  1,  2, 0, VEGGY,  10, CLR_YELLOW, BANANA_PEEL),
 FOOD("carrot",               15,  1,  2, 0, VEGGY,  50, CLR_ORANGE, CARROT),
 FOOD("sprig of wolfsbane",    7,  1,  1, 0, VEGGY,  40, CLR_GREEN,
                                                           SPRIG_OF_WOLFSBANE),
@@ -1736,6 +1735,9 @@ OBJECT(OBJ("empty bottle", NoDes),
 OBJECT(OBJ("snowball", NoDes),
        BITS(1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, P_NONE, ICECRYSTAL), 0,
        CHAIN_CLASS, 1000, 0, 1, 0, 0, 0, 0, 0, 0, CLR_WHITE, SNOWBALL),
+OBJECT(OBJ("banana peel", NoDes),
+       BITS(1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, P_NONE, VEGGY), 0,
+       CHAIN_CLASS, 1000, 0, 2, 0, 0, 0, 0, 0,  0, CLR_YELLOW, BANANA_PEEL),
         /* +1 both l & s */
 
 /* Venom is normally a transitory missile (spit by various creatures)

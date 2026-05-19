@@ -100,7 +100,7 @@ is_edible(struct obj *obj)
         return TRUE;
 
     /* We don't want anyone digesting a skeleton, including gelatinous cubes. */
-    if (obj->otyp == SKELETON || obj->otyp == BANANA_PEEL)
+    if (obj->otyp == SKELETON)
         return FALSE;
 
     if (metallivorous(gy.youmonst.data) && is_metallic(obj)

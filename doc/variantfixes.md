@@ -5,6 +5,7 @@
 - Cursed scrolls of transmute material now select from a list of "bad" materials
   rather than just changing items to plastic.
 - Move snowballs and bottles into the chain class, renamed the junk class of items.
+- Slipping on a banana peel actually makes one hurtle.
 
 ## Monsters
 - Rebalance some monsters that were too strong.

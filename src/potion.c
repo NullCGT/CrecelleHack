@@ -1932,7 +1932,7 @@ coateffects(coordxy x, coordxy y, struct monst *mon) {
         }
         if (isyou) {
             You("slip on %s%s!", banana_peel ? "" : "a patch of ", buf);
-            nomul(-1);
+            hurtle(u.dx, u.dy, 1, FALSE);
             gm.multi_reason = "slipping on something";
             gn.nomovemsg = "You regain your footing.";
             if (!banana_peel) makeknown(POT_OIL);
@@ -1945,8 +1945,7 @@ coateffects(coordxy x, coordxy y, struct monst *mon) {
                 pline_mon(mon, "%s slips on %s%s!",
                             Monnam(mon), banana_peel ? "" : "a patch of ", buf);
             }
-            mon->mfrozen = 1;
-            mon->mcanmove = 0;
+            mhurtle(mon, mon->mx - x, mon->my - y, 1);
             make_mon_prone(mon);
         }
     } else if (stepper && isyou && has_coating(x, y, COAT_POTION)

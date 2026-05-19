@@ -249,6 +249,7 @@ static const struct inv_sub {
     { PM_ELF, BOW, ELVEN_BOW },
     { PM_ELF, ARROW, ELVEN_ARROW },
     { PM_ELF, HELMET, ELVEN_HELM },
+    { PM_ELF, SPE_FORCE_BOLT, SPE_AQUA_BOLT },
     /* { PM_ELF, ROUNDSHIELD, ELVEN_SHIELD }, */
     { PM_ELF, CLOAK_OF_DISPLACEMENT, ELVEN_CLOAK },
     { PM_ELF, CRAM_RATION, LEMBAS_WAFER },
@@ -280,7 +281,6 @@ static const struct inv_sub {
     { PM_KOBOLD, ARROW, CROSSBOW_BOLT },
     { PM_KOBOLD, CRAM_RATION, TRIPE_RATION },
     { PM_KOBOLD, FOOD_RATION, TRIPE_RATION },
-    { PM_KOBOLD, SPE_FORCE_BOLT, SPE_AQUA_BOLT },
     { NON_PM, STRANGE_OBJECT, STRANGE_OBJECT }
 };
 
@@ -981,7 +981,7 @@ pauper_reinit(void)
         preknown = SPE_PROTECTION;
         break;
     case PM_WIZARD:
-        preknown = Race_if(PM_KOBOLD) ? SPE_AQUA_BOLT : SPE_FORCE_BOLT;
+        preknown = Race_if(PM_ELF) ? SPE_AQUA_BOLT : SPE_FORCE_BOLT;
         break;
     case PM_ARCHEOLOGIST:
         preknown = TOUCHSTONE;

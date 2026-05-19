@@ -9,6 +9,9 @@
 ## Monsters
 - Rebalance some monsters that were too strong.
 
+## Races
+- Elven wizards recieve aqua bolt instead of kobold wizards.
+
 # 1.5.0-fix
 ## Misc
 - Many improvements to wands of growth.

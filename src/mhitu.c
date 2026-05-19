@@ -1871,7 +1871,7 @@ gazemu(struct monst *mtmp, struct attack *mattk)
                 if (!Confusion) {
                     if (mtmp->data == &mons[PM_SCROLEM]) {
                         pline_mon(mtmp, "The scrawlings on %s confuse you!",
-                                    Monnam(mtmp));
+                                    mon_nam(mtmp));
                     } else {
                         pline_mon(mtmp, "%s gaze confuses you!",
                                 s_suffix(Monnam(mtmp)));

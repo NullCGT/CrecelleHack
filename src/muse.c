@@ -3046,8 +3046,9 @@ searches_for_item(struct monst *mon, struct obj *obj)
         if (typ == EGG && ismnum(obj->corpsenm))
             return (boolean) touch_petrifies(&mons[obj->corpsenm]);
         break;
-    case BOTTLE_CLASS:
-        return TRUE;
+    case CHAIN_CLASS:
+        if (typ != IRON_CHAIN)
+            return TRUE;
     default:
         break;
     }

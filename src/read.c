@@ -3226,7 +3226,7 @@ punish(struct obj *sobj)
         }
         return;
     }
-    setworn(mkobj(CHAIN_CLASS, TRUE), W_CHAIN);
+    setworn(mksobj(IRON_CHAIN, FALSE, FALSE), W_CHAIN);
     if (!reuse_ball)
         setworn(mkobj(BALL_CLASS, TRUE), W_BALL);
     else

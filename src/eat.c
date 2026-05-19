@@ -2791,7 +2791,7 @@ doeat_nonfood(struct obj *otmp)
     if (otmp->oclass == COIN_CLASS)
         basenutrit = ((otmp->quan > 200000L) ? 2000
                       : (int) (otmp->quan / 100L));
-    else if (otmp->oclass == BALL_CLASS || otmp->oclass == CHAIN_CLASS || otmp->oclass == BOTTLE_CLASS)
+    else if (otmp->oclass == BALL_CLASS || otmp->oclass == CHAIN_CLASS)
         basenutrit = weight(otmp);
     /* oc_nutrition is usually weight anyway */
     else

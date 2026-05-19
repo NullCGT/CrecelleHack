@@ -1181,7 +1181,6 @@ mksobj_init(struct obj **obj, boolean artif)
         break;
     case VENOM_CLASS:
     case CHAIN_CLASS:
-    case BOTTLE_CLASS:
     case BALL_CLASS:
         break;
     case POTION_CLASS: /* note: potions get some additional init below */

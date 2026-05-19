@@ -118,7 +118,7 @@ static NEARDATA const char *OptS_type[OptS_Advanced+1] = {
 static const char def_inv_order[MAXOCLASSES] = {
     COIN_CLASS, AMULET_CLASS, WEAPON_CLASS, ARMOR_CLASS, FOOD_CLASS,
     SCROLL_CLASS, SPBOOK_CLASS, POTION_CLASS, RING_CLASS, WAND_CLASS,
-    TOOL_CLASS, GEM_CLASS, ROCK_CLASS, BOTTLE_CLASS, BALL_CLASS, CHAIN_CLASS, 0,
+    TOOL_CLASS, GEM_CLASS, ROCK_CLASS, BALL_CLASS, CHAIN_CLASS, 0,
 };
 
 static const char none[] = "(none)", randomrole[] = "random",

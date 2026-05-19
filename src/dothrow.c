@@ -2664,7 +2664,6 @@ breakmsg(struct obj *obj, boolean in_view)
 
     to_pieces = "";
     switch (obj->oclass == POTION_CLASS ? POT_WATER :
-            obj->otyp == SNOWBALL ? obj->otyp :
             obj->oclass == GEM_CLASS ? WORTHLESS_VIOLET_GLASS : obj->otyp) {
     default: /* glass or crystal wand */
         if (obj->material != GLASS && obj->material != ICECRYSTAL)

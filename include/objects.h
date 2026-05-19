@@ -97,10 +97,9 @@ GENERIC("wand",       WAND_CLASS,    GENERIC_WAND),    /* [11] */
 GENERIC("coin",       COIN_CLASS,    GENERIC_COIN),    /* [12] */
 GENERIC("gem",        GEM_CLASS,     GENERIC_GEM),     /* [13] */
 GENERIC("large rock", ROCK_CLASS,    GENERIC_ROCK),    /* [14] bldr+statue */
-GENERIC("bottle",     BOTTLE_CLASS,  GENERIC_BOTTLE),  /* [15] */
-GENERIC("iron ball",  BALL_CLASS,    GENERIC_BALL),    /* [16] */
-GENERIC("iron chain", CHAIN_CLASS,   GENERIC_CHAIN),   /* [17] */
-GENERIC("venom",      VENOM_CLASS,   GENERIC_VENOM),   /* [18] */
+GENERIC("iron ball",  BALL_CLASS,    GENERIC_BALL),    /* [15] */
+GENERIC("junk",       CHAIN_CLASS,   GENERIC_CHAIN),   /* [16] */
+GENERIC("venom",      VENOM_CLASS,   GENERIC_VENOM),   /* [17] */
 #undef GENERIC
 /* FIRST_OBJECT: it would be simpler just to use MARKER(FIRST_OBJECT,ARROW)
    below but that is vulnerable to neglecting to update the marker enum
@@ -1704,8 +1703,6 @@ ROCK("flint", "gray",      0,  10,  10,  1, 6, 6, 0, 10, 7, MINERAL, CLR_GRAY,
                                                                     FLINT),
 ROCK("rock", NoDes,         1, 100,  10,  0, 3, 3, 0, 10, 7, MINERAL, CLR_GRAY,
                                                                     ROCK),
-ROCK("snowball", NoDes,     1,  0,  5,  0, 3, 3, 0, 10, 7, ICECRYSTAL, CLR_WHITE,
-                                                                    SNOWBALL),
 #undef GEM
 #undef ROCK
 
@@ -1725,10 +1722,6 @@ OBJECT(OBJ("fossil", NoDes),
        BITS(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, P_NONE, MINERAL), 0,
 	ROCK_CLASS, 100, 0, 2500, 0, 20, 20, 0, 0, 2500, CLR_BROWN, FOSSIL),
 
-OBJECT(OBJ("empty bottle", NoDes),
-       BITS(1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, P_NONE, GLASS), 0,
-       BOTTLE_CLASS, 1000, 0, 2, 0, 0, 0, 0, 0, 10, HI_GLASS, BOTTLE),
-
 OBJECT(OBJ("heavy iron ball", NoDes),
        BITS(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, WHACK, P_NONE, IRON), 0,
        BALL_CLASS, 1000, 0, 480, 10, 25, 25, 0, 0, 200, HI_METAL,
@@ -1737,6 +1730,12 @@ OBJECT(OBJ("heavy iron ball", NoDes),
 OBJECT(OBJ("iron chain", NoDes),
        BITS(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, WHACK, P_NONE, IRON), 0,
        CHAIN_CLASS, 1000, 0, 120, 0, 4, 4, 0, 0, 200, HI_METAL, IRON_CHAIN),
+OBJECT(OBJ("empty bottle", NoDes),
+       BITS(1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, P_NONE, GLASS), 0,
+       CHAIN_CLASS, 1000, 0, 2, 0, 0, 0, 0, 0, 10, HI_GLASS, BOTTLE),
+OBJECT(OBJ("snowball", NoDes),
+       BITS(1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, P_NONE, ICECRYSTAL), 0,
+       CHAIN_CLASS, 1000, 0, 1, 0, 0, 0, 0, 0, 0, CLR_WHITE, SNOWBALL),
         /* +1 both l & s */
 
 /* Venom is normally a transitory missile (spit by various creatures)

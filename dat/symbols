@@ -75,7 +75,6 @@ start: Blank
         S_book: \032
         S_boomleft: \032
         S_boomright: \032
-				S_bottle:	\032
         S_boulder: \032
         S_brcorn: \032
         S_centaur: \032
@@ -476,7 +475,6 @@ start: RogueIBM
 	S_amulet: \x2c
 	S_food: \x3a
 	S_potion: \xad
-	S_bottle: \xad
 	S_scroll: \x3f
 	S_book: \x2b
 	S_wand: \xe7
@@ -569,7 +567,6 @@ start: RogueEpyx
 	S_coin: \x0f			# yes it's the same as gems
 	S_gem: \x0f			# fancy '*'
 	S_rock: \x60
-	S_bottle: \xad
 	S_ball: \x30
 	S_chain: \x5f
 	S_venom: \x2e
@@ -587,7 +584,6 @@ start: RogueWindows
 	S_amulet: \x2c
 	S_food: \x3a
 	S_potion: \xad
-	S_bottle: \xad
 	S_scroll: \x3f
 	S_book: \x2b
 	S_wand: \xe7

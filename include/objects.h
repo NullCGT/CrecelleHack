@@ -1717,13 +1717,13 @@ ROCK("snowball", NoDes,     1,  0,  5,  0, 3, 3, 0, 10, 7, ICECRYSTAL, CLR_WHITE
  */
 OBJECT(OBJ("boulder", NoDes),
        BITS(1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, P_NONE, MINERAL), 0,
-       ROCK_CLASS, 100, 0, 6000, 0, 20, 20, 0, 0, 2000, HI_MINERAL, BOULDER),
+       ROCK_CLASS, 100, 0, 6000, 0, 1, 20, 0, 0, 2000, HI_MINERAL, BOULDER),
 OBJECT(OBJ("statue", NoDes),
        BITS(1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, P_NONE, MINERAL), 0,
-       ROCK_CLASS, 800, 0, 2500, 0, 20, 20, 0, 0, 2500, CLR_WHITE, STATUE),
+       ROCK_CLASS, 800, 0, 2500, 0, 1, 20, 0, 0, 2500, CLR_WHITE, STATUE),
 OBJECT(OBJ("fossil", NoDes),
        BITS(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, P_NONE, MINERAL), 0,
-	ROCK_CLASS, 100, 0, 2500, 0, 20, 20, 0, 0, 2500, CLR_BROWN, FOSSIL),
+	ROCK_CLASS, 100, 0, 2500, 0, 1, 20, 0, 0, 2500, CLR_BROWN, FOSSIL),
 
 OBJECT(OBJ("empty bottle", NoDes),
        BITS(1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, P_NONE, GLASS), 0,
@@ -1731,7 +1731,7 @@ OBJECT(OBJ("empty bottle", NoDes),
 
 OBJECT(OBJ("heavy iron ball", NoDes),
        BITS(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, WHACK, P_NONE, IRON), 0,
-       BALL_CLASS, 1000, 0, 480, 10, 25, 25, 0, 0, 200, HI_METAL,
+       BALL_CLASS, 1000, 0, 480, 10, 1, 25, 0, 0, 200, HI_METAL,
                                                             HEAVY_IRON_BALL),
         /* +d4 when "very heavy" */
 OBJECT(OBJ("iron chain", NoDes),
@@ -1747,7 +1747,7 @@ OBJECT(OBJ("splash of blinding venom", "splash of venom"),
        VENOM_CLASS, 500, 0, 1, 0, 0, 0, 0, 0, 0, HI_ORGANIC, BLINDING_VENOM),
 OBJECT(OBJ("splash of acid venom", "splash of venom"),
        BITS(0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, P_NONE, LIQUID), 0,
-       VENOM_CLASS, 500, 0, 1, 0, 6, 6, 0, 0, 0, HI_ORGANIC, ACID_VENOM),
+       VENOM_CLASS, 500, 0, 1, 0, 1, 6, 0, 0, 0, HI_ORGANIC, ACID_VENOM),
         /* +d6 small or large */
 
 #if defined(OBJECTS_DESCR_INIT) || defined(OBJECTS_INIT)

@@ -4197,8 +4197,7 @@ status_hilite_menu_add(int origfld)
             Strcpy(hilite.textmatch, aligntxt[rv]);
         } else if (fld == BL_TOD) {
             static const char *const todtxt[] = {
-                "Morning", "Midday", "Evening",
-                "Night", "Midnight"
+                "Morning", "Afternoon", "Night", "Late night"
             };
             int rv = query_arrayvalue(qry_buf,
                                       todtxt, 0, 5);

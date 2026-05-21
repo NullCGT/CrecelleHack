@@ -2040,7 +2040,8 @@ trapeffect_spark_trap(
     } else {
         if (cansee(tx, ty))
             seetrap(trap);
-        pline("%s triggers a pressure plate!", Monnam(mtmp));
+        if (canseemon(mtmp))
+            pline("%s triggers a pressure plate!", Monnam(mtmp));
         You_hear("something begin to tick.");
     }
     (void) start_timer((long) rn1(4, 3), TIMER_LEVEL, SPARK_DELAY,

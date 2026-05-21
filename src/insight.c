@@ -714,13 +714,12 @@ background_enlightenment(int unused_mode UNUSED, int final)
     /* for gameover, these have been obtained in really_done() so that they
        won't vary if user leaves a disclosure prompt or --More-- unanswered
        long enough for the dynamic value to change between then and now */
-    if (final ? iflags.at_midnight : midnight()) {
-        enl_msg("It ", "is ", "was ", "the midnight hour", "");
-    } else if (final ? iflags.at_night : night()) {
-        enl_msg("It ", "is ", "was ", "nighttime", "");
-    } else {
-        enl_msg("It ", "is ", "was  ", "daytime", "");
-    }
+    Sprintf(buf, (final ? iflags.at_midnight : midnight()) ? "the midnight hour"
+                    : (final ? iflags.at_night : night()) ? "nighttime"
+                        : "daytime");
+    if (wizard)
+        Sprintf(eos(buf), " <%d>", u.uenvirons.tod_cnt);
+    enl_msg("It ", "is ", "was ", buf, "");
     /* Weather */
     if (exposed_to_elements(&u.uz) && IS_RAINING) {
         enl_msg("It ", "is ", "was ", "raining", "");

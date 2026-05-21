@@ -2660,7 +2660,9 @@ map_glyphinfo(
         && flags.color_coatings && cansee(x, y)) {
         /* Order matters here. Generally the more important the coating, the higher
             priority it gets. Potions are the highest because they could kill the player. */
-        if ((levl[x][y].coat_info & COAT_POTION) != 0) {
+        if (Hallucination) {
+            glyphinfo->gm.sym.color = rn2_on_display_rng(CLR_MAX);
+        } else if ((levl[x][y].coat_info & COAT_POTION) != 0) {
             if (levl[x][y].pindex == POT_WATER)
                 glyphinfo->gm.sym.color = CLR_BLUE;
             else

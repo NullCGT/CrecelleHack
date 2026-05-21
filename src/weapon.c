@@ -528,7 +528,7 @@ searmsg(struct monst *magr UNUSED, struct monst *mdef,
     if (!youdefend && !canspotmon(mdef))
         return;
 
-    if (obj == &cg.zeroobj) {
+    if (obj == &cg.zeroobj || obj == &hands_obj) {
         if (youattack) {
             Strcpy(whose, "your ");
         } else if (!magr) {

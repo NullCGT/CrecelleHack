@@ -1226,7 +1226,7 @@ mksobj_init(struct obj **obj, boolean artif)
 #endif
         }
         /* Armor has a slightly lower chance than weapons of being harmonic */
-        if (!rn2(80)) {
+        if (!rn2(65)) {
             add_oprop_to_object(otmp, 0);
         }
         break;

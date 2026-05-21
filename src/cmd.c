@@ -2014,7 +2014,7 @@ struct ext_func_tab extcmdlist[] = {
     { '\0',   "wiztelekinesis", "telekinesis",
               wiz_telekinesis, IFBURIED | AUTOCOMPLETE | WIZMODECMD, NULL },
     { '\0',   "wiztime", "advance the time of day",
-              wiz_time, IFBURIED | AUTOCOMPLETE | WIZMODECMD, NULL },
+              wiz_time, IFBURIED | AUTOCOMPLETE | WIZMODECMD, "wiztod" },
     { '\0',   "wizweather", "show locations of special levels",
               wiz_weather, IFBURIED | AUTOCOMPLETE | WIZMODECMD, NULL },
     { '\0',   "wizwhere", "show locations of special levels",

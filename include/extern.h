@@ -4068,7 +4068,6 @@ extern int wiz_show_vision(void);
 extern int wiz_show_wmodes(void);
 extern int wiz_smell(void);
 extern int wiz_telekinesis(void);
-extern int wiz_weather(void);
 extern int wiz_where(void);
 extern int wiz_wish(void);
 extern void makemap_remove_mons(void);
@@ -4082,6 +4081,8 @@ extern int wiz_objprobs(void);
 extern int wiz_show_nhuuid(void);
 #endif
 extern void sanity_check(void);
+extern int wiz_time(void);
+extern int wiz_weather(void);
 
 /* ### worm.c ### */
 

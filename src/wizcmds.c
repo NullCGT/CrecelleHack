@@ -252,32 +252,6 @@ wiz_genesis(void)
     return ECMD_OK;
 }
 
-/* #wizweather command - display weather info */
-int
-wiz_weather(void)
-{
-    winid win;
-    char buf[BUFSZ];
-    buf[0] = '\0';
-    win = create_nhwindow(NHW_MENU);
-    putstr(win, 0, "Weather Information:");
-    putstr(win, 0, "");
-    Sprintf(buf, "Turns until precip change: %d", u.uenvirons.precip_cnt);
-    putstr(win, 0, buf);
-    Sprintf(buf, "Turns until wind change: %d", u.uenvirons.wind_cnt);
-    putstr(win, 0, buf);
-    Sprintf(buf, "Next Precip: %d", u.uenvirons.inc_precip.def);
-    putstr(win, 0, buf);
-    Sprintf(buf, "Next Wind: %d", u.uenvirons.inc_wind.def);
-    putstr(win, 0, buf);
-    Sprintf(buf, "Current Weather: %hd", u.uenvirons.curr_weather);
-    putstr(win, 0, buf);
-    display_nhwindow(win, FALSE);
-    destroy_nhwindow(win);
-    if (y_n("Change the weather?") == 'y') weather_choice_menu();
-    return ECMD_OK;
-}
-
 /* #wizwhere command - display dungeon layout */
 int
 wiz_where(void)
@@ -2096,6 +2070,43 @@ wizcustom_callback(winid win, int glyphnum, char *id)
         }
     }
     return;
+}
+
+
+/* #wiztime command - advance the current time to the next quarter */
+int
+wiz_time(void)
+{
+    pline("Advanced the calendar by %d turns.", u.uenvirons.tod_cnt);
+    u.uenvirons.tod_cnt = 1;
+    doenvirons();
+    return ECMD_OK;
+}
+
+/* #wizweather command - display weather info */
+int
+wiz_weather(void)
+{
+    winid win;
+    char buf[BUFSZ];
+    buf[0] = '\0';
+    win = create_nhwindow(NHW_MENU);
+    putstr(win, 0, "Weather Information:");
+    putstr(win, 0, "");
+    Sprintf(buf, "Turns until precip change: %d", u.uenvirons.precip_cnt);
+    putstr(win, 0, buf);
+    Sprintf(buf, "Turns until wind change: %d", u.uenvirons.wind_cnt);
+    putstr(win, 0, buf);
+    Sprintf(buf, "Next Precip: %d", u.uenvirons.inc_precip.def);
+    putstr(win, 0, buf);
+    Sprintf(buf, "Next Wind: %d", u.uenvirons.inc_wind.def);
+    putstr(win, 0, buf);
+    Sprintf(buf, "Current Weather: %hd", u.uenvirons.curr_weather);
+    putstr(win, 0, buf);
+    display_nhwindow(win, FALSE);
+    destroy_nhwindow(win);
+    if (y_n("Change the weather?") == 'y') weather_choice_menu();
+    return ECMD_OK;
 }
 
 /*wizcmds.c*/

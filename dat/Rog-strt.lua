@@ -10,7 +10,7 @@
 --
 des.level_init({ style = "solidfill", fg = " " });
 
-des.level_flags("mazelevel", "noteleport", "hardfloor", "nommap", "outdoors")
+des.level_flags("mazelevel", "noteleport", "hardfloor", "nommap")
 
 --         1         2         3         4         5         6         7
 --123456789012345678901234567890123456789012345678901234567890123456789012345

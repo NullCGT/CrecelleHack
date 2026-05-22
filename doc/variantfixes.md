@@ -13,6 +13,9 @@
 ## Races
 - Elven wizards recieve aqua bolt instead of kobold wizards.
 
+## Level Generation
+- Improve coatings in special levels.
+
 ## Misc
 - Added a wizmode command for advancing the time of day.
 

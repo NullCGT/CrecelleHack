@@ -1631,7 +1631,8 @@ coat_floors(void)
             if (!IS_COATABLE(levl[x][y].typ) || IS_STWALL(levl[x][y].typ))
                 continue;
             if (!has_ceiling(&u.uz) && !rn2(3)) 
-                add_coating(x, y,  COAT_GRASS, 0);
+                add_coating(x, y, (svl.level.flags.temperature == -1)
+                                    ? COAT_FROST : COAT_GRASS, 0);
             if (IS_BIOME(BIOME_SNOWY))
                 add_coating(x, y, COAT_FROST, 0);
             if (IS_BIOME(BIOME_SEWER)) {

@@ -13,6 +13,13 @@
 ## Races
 - Elven wizards recieve aqua bolt instead of kobold wizards.
 
+## Roles
+- The rogue quest is now to steal the quest artifact from another role, determined
+  randomly at the beginning of the game.
+  - Instead of the Wizard of Yendor, the player will be met at the Plane of Earth
+    by the quest leader whose artifact they stole.
+  - The planes are populated with player monsters of the role which was stolen from.
+
 ## Level Generation
 - Improve coatings in special levels.
 

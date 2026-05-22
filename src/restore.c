@@ -738,6 +738,7 @@ restgamestate(NHFILE *nhfp)
     relink_timers(FALSE);
     relink_light_sources(FALSE);
     adj_erinys(u.ualign.abuse);
+    adj_midbosses();
 #ifdef WHEREIS_FILE
     touch_whereis();
 #endif

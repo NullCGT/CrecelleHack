@@ -6264,9 +6264,10 @@ adj_midbosses(void)
     int index = PM_LORD_CARNARVON - 1;
     struct permonst *pm;
 
-    while (index < PM_APPRENTICE) {
+    while (index <= PM_APPRENTICE) {
         index++;
-        if (index == gu.urole.neminum || index == gu.urole.ldrnum) {
+        if (index == gu.urole.neminum || index == gu.urole.ldrnum
+            || index == gu.urole.guardnum) {
             continue;
         }
         pm = &mons[index];
@@ -6275,9 +6276,11 @@ adj_midbosses(void)
         pm->mflags3 &= ~M3_WANTSARTI;
         pm->mflags3 &= ~M3_WAITFORU;
         pm->mflags3 &= ~M3_CLOSE;
-        if (index < PM_ATTENDANT) {
+        if (index <= PM_DARK_ONE) {
+            if (!(Role_if(PM_ROGUE) && index == roles[flags.rogvictim].ldrnum)) {
+                pm->geno &= ~G_NOGEN;
+            }
             pm->msound = MS_SILENT;
-            pm->geno &= ~G_NOGEN;
             pm->geno |= G_SQUAD;
             pm->geno |= G_LGROUP;
             pm->geno |= G_MIDBOSS;

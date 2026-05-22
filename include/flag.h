@@ -175,6 +175,7 @@ struct flag {
     boolean showrace;  /* show hero glyph by race rather than by role */
     boolean travelcmd; /* allow travel command */
     int runmode;       /* update screen display during run moves */
+    int rogvictim;
 
     int reserved1;
     int reserved2;

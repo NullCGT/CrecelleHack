@@ -371,7 +371,7 @@ const struct Role roles[NUM_ROLES+1] = {
       "Issek", "Mog", "Kos", /* Nehwon */
       "Rog",
       "the Thieves' Guild Hall",
-      "the Assassins' Guild Hall",
+      "the Secret Passageway",
       PM_ROGUE,
       NON_PM,
       PM_MASTER_OF_THIEVES,
@@ -2135,6 +2135,17 @@ role_init(void)
             is_neuter(pm) ? 2 : is_female(pm) ? 1 : is_male(pm)
                                                         ? 0
                                                         : (rn2(100) < 50);
+    }
+
+    /* If a rogue, select the quest nemesis */
+    if (Role_if(PM_ROGUE)) {
+        if (flags.rogvictim == -1) {
+            do {
+                flags.rogvictim = randrole(FALSE);
+            } while (roles[flags.rogvictim].neminum == PM_MASTER_OF_THIEVES);
+        }
+        gu.urole.neminum = roles[flags.rogvictim].neminum;
+        gu.urole.questarti = roles[flags.rogvictim].questarti;
     }
 
     /* Fix up the quest guardians */

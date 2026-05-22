@@ -856,6 +856,7 @@ newgame(void)
     adj_mon_colors(); /* must happen earlier than earlier adjs */
 
     flags.pantheon = -1; /* role_init() will reset this */
+    flags.rogvictim = -1; /* role_init() will reset this */
     role_init();         /* must be before init_dungeons(), u_init(),
                           * and init_artifacts() */
 

@@ -303,7 +303,9 @@ _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);*/
 #ifdef WINCHAIN
     commit_windowchain();
 #endif
+
     init_nhwindows(&argc, argv);
+
 #ifdef TTY_GRAPHICS
     if WINDOWPORT(tty) {
         int i;
@@ -1269,7 +1271,11 @@ other_self_recover_prompt(void)
     int c, ci, ct, pl, retval = 0;
     boolean ismswin = WINDOWPORT(mswin),
             iscurses = WINDOWPORT(curses);
+    int save_popupdialog = iflags.wc_popup_dialog;
 
+    if (WINDOWPORT(curses)) {
+        iflags.wc_popup_dialog = TRUE;
+    }
     pl = 1;
     c = 'n';
     ct = 0;
@@ -1319,6 +1325,9 @@ other_self_recover_prompt(void)
             retval = -1;  /* yes, do destroy the old game anyway */
         else
             retval = 1;   /* yes, do recover the old game */
+    }
+    if (WINDOWPORT(curses)) {
+        iflags.wc_popup_dialog = save_popupdialog;
     }
     return retval;
 }

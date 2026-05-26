@@ -344,6 +344,7 @@ struct instance_globals_d {
     /* new */
     boolean deferred_showpaths;
     char *deferred_showpaths_dir;
+    boolean disable_glyphname_hash_indices_prefill;
 
     boolean havestate;
 };

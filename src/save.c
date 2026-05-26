@@ -1195,8 +1195,8 @@ freedynamicdata(void)
     if (options_set_window_colors_flag)
         options_free_window_colors();
 
-    if (glyphid_cache_status())
-        free_glyphid_cache();
+    if (glyphname_hash_indices_loaded())
+        empty_glyphname_hash_indices();
 
     if (tnhfp) {
         close_nhfile(tnhfp);

@@ -895,7 +895,7 @@ gcrownu(void)
         /* not an artifact, but treat like one for this situation;
            classify as a spoiler in case player hasn't IDed the book yet */
         livelog_printf(LL_DIVINEGIFT | LL_ARTIFACT | LL_SPOILER,
-                       "was bestowed with %s, %s", bbuf, an(OBJ_NAME(objects[obj->otyp])));
+                       "was bestowed with %s", bbuf);
 
         /* when getting a new book for known spell, enhance
            currently wielded weapon rather than the book */

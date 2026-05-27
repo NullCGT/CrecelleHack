@@ -120,6 +120,11 @@ des.engraving({ coord = { 15, 8 }, type = "engrave", text = "Unlocking tools can
 des.object({ coord = { 15, 9 }, id = "lock pick", quantity = 5, buc = "not-cursed" });
 des.object({ coord = { 15, 9 }, id = "chest", trapped = 0, locked = 1, buc = "not-cursed" });
 des.door({ coord = { 15, 10 }, state = "locked"});
+-- Niche
+des.engraving({ coord = { 21, 8 }, type = "engrave", text = "Intrinsic and extrinsic resistances halve damage.", degrade = false });
+des.engraving({ coord = { 21, 9 }, type = "engrave", text = "You need both in order to become immune.", degrade = false });
+des.object({ coord = { 21, 9 }, id = "red dragon scales" });
+des.object({ coord = { 21, 9 }, id = "corpse", montype = "red dragon" });
 
 des.engraving({ coord = { 22, 7 }, type = "engrave", text = "Please note that this is not a comprehensive list of changes, merely a few salient ones.", degrade = false });
 des.door({ coord = { 23, 7 }, state = "closed" });

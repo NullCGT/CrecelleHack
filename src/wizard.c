@@ -553,9 +553,9 @@ pick_nasty(struct monst *summoner,
     int alt, res;
 
     /* The list we roll from depends on the summoner. */
-    if (summoner->data == &mons[PM_DEMOGORGON])
+    if (summoner && summoner->data == &mons[PM_DEMOGORGON])
         res = ROLL_FROM(demo_nasties);
-    else if (summoner->data->mlet == S_DRAGON)
+    else if (summoner && summoner->data->mlet == S_DRAGON)
         res = ROLL_FROM(dragon_nasties);
     else
         res = ROLL_FROM(nasties);

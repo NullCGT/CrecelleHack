@@ -1276,9 +1276,7 @@ use_mirror(struct obj *obj)
             return ECMD_TIME;
         }
         if (vis)
-            pline("%s is turned to stone!", Monnam(mtmp));
-        gs.stoned = TRUE;
-        killed(mtmp);
+            pline("%s averts %s gaze.", Monnam(mtmp), mhis(mtmp));
     } else if (monable && mtmp->data == &mons[PM_FLOATING_EYE]) {
         int tmp = d((int) mtmp->m_lev, (int) mtmp->data->mattk[0].damd);
         if (!rn2(4))

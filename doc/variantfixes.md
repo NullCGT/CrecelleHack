@@ -9,6 +9,7 @@
 
 ## Monsters
 - Rebalance some monsters that were too strong.
+- Fix Medusa being killed by some forms of reflection.
 - New Monsters:
   - Giant Silverfish
     - Eats paper and cloth objects.

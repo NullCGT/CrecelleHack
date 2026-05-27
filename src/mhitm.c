@@ -787,8 +787,7 @@ gazemm(struct monst *magr, struct monst *mdef, struct attack *mattk)
                 return M_ATTK_MISS;
             }
             if (canseemon(magr))
-                pline("%s is turned to stone!", Monnam(magr));
-            monstone(magr);
+                pline("%s averts %s eyes.", Monnam(magr), mhis(magr));
             if (!DEADMONSTER(magr))
                 return M_ATTK_MISS;
             return M_ATTK_AGR_DIED;

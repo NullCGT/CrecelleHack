@@ -1838,10 +1838,15 @@ gazemu(struct monst *mtmp, struct attack *mattk)
                           Monnam(mtmp), mhis(mtmp));
                 break;
             }
-            if (useeit)
-                pline("%s is turned to stone!", Monnam(mtmp));
-            gs.stoned = TRUE;
-            killed(mtmp);
+            if (is_medusa) {
+                if (useeit)
+                    pline("%s avoids %s reflected gaze.", Monnam(mtmp), mhis(mtmp));
+            } else {
+                if (useeit)
+                    pline("%s is turned to stone!", Monnam(mtmp));
+                gs.stoned = TRUE;
+                killed(mtmp);
+            }
 
             if (!DEADMONSTER(mtmp))
                 break;

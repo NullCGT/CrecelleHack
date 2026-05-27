@@ -1846,6 +1846,11 @@ postmov(
                 if (meatmetal(mtmp) == 2)
                     return MMOVE_DIED; /* it died */
             }
+            /* Maybe a silverfish just ate some paper or cloth */
+            if (paper_eater(ptr)) {
+                if (meatpaper(mtmp) == 2)
+                    return MMOVE_DIED; /* it died */
+            }
             /* Maybe a cube ate just about anything */
             if (ptr == &mons[PM_GELATINOUS_CUBE]) {
                 if ((etmp = meatobj(mtmp)) >= 2)

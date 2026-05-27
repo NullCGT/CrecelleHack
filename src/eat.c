@@ -107,6 +107,10 @@ is_edible(struct obj *obj)
         && (gy.youmonst.data != &mons[PM_RUST_MONSTER] || is_rustprone(obj)))
         return TRUE;
 
+    if (paper_eater(gy.youmonst.data)
+        && (obj->material == PAPER || obj->material == CLOTH))
+        return TRUE;
+
     /* Ghouls only eat non-veggy corpses or eggs (see dogfood()) */
     if (u.umonnum == PM_GHOUL)
         return (boolean)((obj->otyp == CORPSE
@@ -3231,7 +3235,8 @@ gethungry(void)
     if ((!Unaware || !rn2(10)) /* slow metabolic rate while asleep */
         && (carnivorous(gy.youmonst.data)
             || herbivorous(gy.youmonst.data)
-            || metallivorous(gy.youmonst.data))
+            || metallivorous(gy.youmonst.data)
+            || paper_eater(gy.youmonst.data))
         && !(Slow_digestion || Race_if(PM_GNOME)))
         u.uhunger--; /* ordinary food consumption */
 

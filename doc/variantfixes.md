@@ -9,6 +9,9 @@
 
 ## Monsters
 - Rebalance some monsters that were too strong.
+- New Monsters:
+  - Giant Silverfish
+    - Eats paper and cloth objects.
 
 ## Races
 - Elven wizards recieve aqua bolt instead of kobold wizards.

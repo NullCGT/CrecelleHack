@@ -297,6 +297,8 @@
         || ptr == &mons[PM_GRAPPLER])
 #define likes_grass(ptr) \
     (herbivorous(ptr) && !carnivorous(ptr))
+#define paper_eater(ptr) \
+    (ptr == &mons[PM_GIANT_SILVERFISH])
 
 #define mud_hider(ptr) \
     ((!is_hider(ptr) && ptr->msize <= MZ_MEDIUM) \

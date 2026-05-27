@@ -4063,7 +4063,8 @@ mhitm_ad_famn(
         /* mhitm; it's possible for Famine to hit another monster;
            if target is something that doesn't eat, it won't be harmed;
            otherwise, just inflict the normal damage */
-        if (!(carnivorous(pd) || herbivorous(pd) || metallivorous(pd)))
+        if (!(carnivorous(pd) || herbivorous(pd) || metallivorous(pd)
+                || paper_eater(pd)))
             mhm->damage = 0;
     }
 }

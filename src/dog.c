@@ -1167,6 +1167,9 @@ dogfood(struct monst *mon, struct obj *obj)
             return (is_rustprone(obj) && !obj->oerodeproof) ? DOGFOOD
                                                             : ACCFOOD;
         }
+        if (paper_eater(mptr)
+            && (obj->material == PAPER || obj->material == CLOTH))
+            return (obj->oclass == SPBOOK_CLASS) ? DOGFOOD : ACCFOOD;
         if (!obj->cursed
             && obj->oclass != BALL_CLASS
             && obj->oclass != CHAIN_CLASS)

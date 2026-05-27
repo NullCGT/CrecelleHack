@@ -816,7 +816,8 @@ make_corpse(struct monst *mtmp, unsigned int corpseflags)
 
 #if (NH_DEVEL_STATUS != NH_STATUS_RELEASED)
     case PM_GIANT_ANT: case PM_KILLER_BEE: case PM_SOLDIER_ANT:
-    case PM_FIRE_ANT: case PM_SNOW_ANT: case PM_GIANT_BEETLE: case PM_QUEEN_BEE:
+    case PM_FIRE_ANT: case PM_SNOW_ANT: case PM_GIANT_BEETLE:
+    case PM_GIANT_SILVERFISH: case PM_QUEEN_BEE:
 
     case PM_QUIVERING_BLOB: case PM_ACID_BLOB: case PM_GELATINOUS_CUBE:
     case PM_BLOB:
@@ -6525,6 +6526,56 @@ meatgrass(struct monst *mtmp)
         mtmp->mnexthunger = svm.moves + 50;
     if (vis) {
         pline_mon(mtmp, "%s munches on some grass.", Monnam(mtmp));
+    }
+    return 0;
+}
+
+/*
+ * Based on meatmetal()
+ * Return value: 0 => nothing happened, 1 => monster ate something,
+ * 2 => monster died (it must have grown into a genocided form, but
+ * that can't happen at present because nothing which eats objects
+ * has young and old forms).
+ */
+int
+meatpaper(struct monst *mtmp)
+{
+    struct obj *otmp;
+    char *otmpname;
+
+    /* If a pet, eating is handled separately, in dog.c */
+    if (mtmp->mtame)
+        return 0;
+
+    /* Eats topmost papery object if it is there */
+    for (otmp = svl.level.objects[mtmp->mx][mtmp->my]; otmp;
+         otmp = otmp->nexthere) {
+        /* Don't eat indigestible/choking/inappropriate objects */
+        if (otmp->otyp == SPE_BOOK_OF_THE_DEAD)
+            continue;
+        if ((otmp->material == CLOTH || otmp->material == PAPER)
+            && !obj_resists(otmp, 5, 95)
+            && touch_artifact(otmp, mtmp)) {
+            
+            if (cansee(mtmp->mx, mtmp->my)) {
+                /* (see above; format even if it won't be printed) */
+                otmpname = distant_name(otmp, doname);
+                if (flags.verbose)
+                    pline_mon(mtmp, "%s devours %s!",
+                                Monnam(mtmp), otmpname);
+            } else {
+                if (flags.verbose) {
+                    Soundeffect(se_crunching_sound, 50);
+                    You_hear("a ruffling sound.");
+                }
+            }
+            mtmp->meating = otmp->owt / 2 + 1;
+            m_consume_obj(mtmp, otmp);
+            if (DEADMONSTER(mtmp))
+                return 2;
+            newsym(mtmp->mx, mtmp->my);
+            return 1;
+        }
     }
     return 0;
 }

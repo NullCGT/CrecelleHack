@@ -364,12 +364,17 @@ dosounds(void)
                 "someone cursing shoplifters.",
                 "the chime of a cash register.", "Neiman and Marcus arguing!",
             };
+            static const char *const night_shop_msg[3] = {
+                "someone doing inventory",
+                "the counting of money", "neon signs buzzing!"
+            };
             static const char *const rainy_shop_msg[3] = {
                 "someone cursing the rain.",
                 "a tarp being aired out.", "a rainy day sale!",
             };
             You_hear1(IS_RAINING ? rainy_shop_msg[rn2(2) + hallu]
-                                 : shop_msg[rn2(2) + hallu]);
+                                    : night() ? night_shop_msg[rn2(2) + hallu]
+                                        : shop_msg[rn2(2) + hallu]);
             noisy_shop(sroom);
         }
         return;

@@ -4,6 +4,9 @@
 - New Monsters:
   - (Head) Butler/Maid/Servant
 
+## Misc
+- YAFM for closed shops.
+
 # 1.5.1
 ## Objects
 - Scrolls of transmute material now allow the player to select the material

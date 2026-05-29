@@ -438,6 +438,7 @@ make_hallucinated(
             see_monsters();
             see_objects();
             see_traps();
+            docrt();
         }
 
         /* for perm_inv and anything similar

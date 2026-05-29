@@ -617,6 +617,7 @@ maybe_gasp(struct monst *mon)
     case MS_SOLDIER: /* solider, watchman */
     case MS_GUARD: /* vault guard */
     case MS_NURSE:
+    case MS_SERVANT:
     case MS_SEDUCE: /* nymph, succubus/incubus */
     case MS_LEADER: /* quest leader */
     case MS_GUARDIAN: /* leader's guards */
@@ -1236,6 +1237,13 @@ domonnoise(struct monst *mtmp)
             verbl_msg = "Take off your shirt, please.";
         else
             verbl_msg = "Relax, this won't hurt a bit.";
+        break;
+    case MS_SERVANT:
+        verbl_msg_mcan = "Ugh, I quit!";
+        if (mtmp->mpeaceful)
+            verbl_msg = "This place is positively filthy!";
+        else
+            verbl_msg = "Would it kill you to clean up after yourself?";
         break;
     case MS_GUARD:
         if (money_cnt(gi.invent))

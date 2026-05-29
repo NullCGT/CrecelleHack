@@ -848,6 +848,13 @@ m_postmove_effect(struct monst *mtmp)
             }
         }
     }
+    /* Servants mop up gross things */
+    if (is_cleaner(mtmp->data) && !is_u
+        && has_coating(x, y, COAT_DIRTY)) {
+        remove_coating(x, y, COAT_DIRTY);
+        if (flags.verbose && canseemon(mtmp))
+            pline_mon(mtmp, "%s mops up the %s.", Monnam(mtmp), surface(x, y));
+    }
 }
 
 /* returns 1 if monster died moving, 0 otherwise */
@@ -1176,6 +1183,8 @@ mon_would_take_item(struct monst *mtmp, struct obj *otmp)
         return FALSE;
     if (mtmp->mtame && otmp->cursed)
         return FALSE; /* note: will get overridden if mtmp will eat otmp */
+    if (is_cleaner(mtmp->data) && pctload < 80)
+        return TRUE;
     if (is_unicorn(mtmp->data) && otmp->material != GEMSTONE)
         return FALSE;
     if (!mindless(mtmp->data) && !is_animal(mtmp->data) && pctload < 75
@@ -1615,6 +1624,11 @@ m_search_items(
     }
 
  finish_search:
+    if (minr < SQSRCHRADIUS && *appr == 0) {
+        /* This is specifically for servants and other peaceful
+           monsters that still seek out items. */
+        *appr = 1;
+    }
     if (minr < SQSRCHRADIUS && *appr == -1) {
         if (distmin(omx, omy, mtmp->mux, mtmp->muy) <= 3) {
             *ggx = mtmp->mux;
@@ -2134,6 +2148,9 @@ m_move(struct monst *mtmp, int after)
             getitems = TRUE;
         }
     }
+    
+    if (is_cleaner(mtmp->data) && mtmp->mpeaceful)
+        getitems = TRUE;
 
     if (getitems && m_search_items(mtmp, &ggx, &ggy, &mmoved, &appr))
         return postmov(mtmp, ptr, omx, omy, mmoved,

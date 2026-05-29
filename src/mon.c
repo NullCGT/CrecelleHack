@@ -947,6 +947,7 @@ make_corpse(struct monst *mtmp, unsigned int corpseflags)
     case PM_GUARD: case PM_PRISONER: case PM_ORACLE:
     case PM_ALIGNED_CLERIC: case PM_HIGH_CLERIC:
     case PM_SOLDIER: case PM_SERGEANT: case PM_NURSE:
+    case PM_SERVANT: case PM_HEAD_SERVANT:
     case PM_LIEUTENANT: case PM_CAPTAIN: case PM_WATCHMAN:
     case PM_WATCH_CAPTAIN:
 
@@ -1992,6 +1993,7 @@ mpickstuff(struct monst *mtmp)
         if (mon_would_take_item(mtmp, otmp)) {
 
             if (otmp->otyp == CORPSE && mtmp->data->mlet != S_NYMPH 
+                && !is_cleaner(mtmp->data)
                 && mtmp->data != &mons[PM_BLACK_HOLE]
                 && mtmp->data != &mons[PM_TORNADO]
                 /* let a handful of corpse types thru to can_carry() */
@@ -2159,6 +2161,9 @@ can_carry(struct monst *mtmp, struct obj *otmp)
         return 0;
     if (mtmp->isshk)
         return iquan; /* no limit */
+    if (is_cleaner(mdat) || mtmp->data == &mons[PM_BLACK_HOLE]
+         || mtmp->data == &mons[PM_TORNADO])
+        return (otmp->oclass == ROCK_CLASS) ? 0 : iquan;
     if (mtmp->mpeaceful && !mtmp->mtame)
         return 0;
     /* otherwise players might find themselves obligated to violate

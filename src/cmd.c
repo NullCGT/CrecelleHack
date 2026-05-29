@@ -941,6 +941,9 @@ domonability(void)
                 && uptr != &mons[PM_BLOOD_IMP])
                 || is_vampshifter(&gy.youmonst)) {
         return dopoly();
+    } else if (is_cleaner(uptr) && can_reach_floor(FALSE)) {
+        You("mop up the %s.", surface(u.ux, u.uy));
+        remove_coating(u.ux, u.uy, COAT_DIRTY);
     } else if (u.usteed && can_breathe(u.usteed->data)) {
         (void) pet_ranged_attk(u.usteed, TRUE);
         return ECMD_TIME;

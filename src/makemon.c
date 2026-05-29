@@ -322,6 +322,8 @@ m_initweap(struct monst *mtmp)
             (void) mongets(mtmp, rn2(4) ? SHORT_SWORD : AXE);
         } else if (mm == PM_MASTER_KAEN) {
             (void) mongets(mtmp, SHURIKEN);
+        } else if (mm == PM_SERVANT || mm == PM_HEAD_SERVANT) {
+            m_initthrow(mtmp, KNIFE, 8);
         } else if (ptr->msound == MS_GUARDIAN) {
             /* quest "guardians" */
             switch (mm) {

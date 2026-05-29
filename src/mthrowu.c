@@ -225,6 +225,8 @@ monmulti(
         /* fake players treated as skilled (regardless of role limits) */
         else if (is_mplayer(mtmp->data))
             multishot++;
+        else if (is_cleaner(mtmp->data))
+            multishot++;
 
         /* this portion is different from hero multishot; from slash'em?
          */

@@ -1049,6 +1049,8 @@ polymon(int mntmp)
             pline(use_thec, monsterc, "shriek");
         if (is_vampire(uptr) || is_vampshifter(&gy.youmonst))
             pline(use_thec, monsterc, "change shape");
+        if (is_cleaner(uptr))
+            pline(use_thec, monsterc, "clean up the floor");
 
         if (lays_eggs(uptr) && flags.female
             && !(uptr == &mons[PM_GIANT_EEL]

@@ -178,6 +178,7 @@ struct floor_coating {
     short val;
 };
 extern struct floor_coating all_coatings[];
+#define COAT_DIRTY (COAT_BLOOD | COAT_POTION | COAT_ASHES | COAT_SHARDS | COAT_FUNGUS)
 
 
 /*

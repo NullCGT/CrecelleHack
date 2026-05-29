@@ -1,3 +1,9 @@
+# 1.6
+
+## Monsters
+- New Monsters:
+  - (Head) Butler/Maid/Servant
+
 # 1.5.1
 ## Objects
 - Scrolls of transmute material now allow the player to select the material

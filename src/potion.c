@@ -3206,7 +3206,7 @@ dodip(void)
                 } else if (obj->oclass == GEM_CLASS) {
                     floor_alchemy(u.ux, u.uy, obj->otyp);
                 } else {
-                    pline("The liquid here is spread to thin for things to get interesting...");
+                    pline("The liquid here is spread too thin for things to get interesting...");
                 }
                 return ECMD_TIME;
             }

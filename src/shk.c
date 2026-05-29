@@ -6163,7 +6163,7 @@ close_shops(boolean loud)
     struct monst *shkp;
 
     for (shkp = next_shkp(fmon, FALSE); shkp;
-         shkp = next_shkp(shkp->nmon, FALSE)) {
+        shkp = next_shkp(shkp->nmon, FALSE)) {
         if (on_level(&(ESHK(shkp)->shoplevel), &u.uz))
             close_up_shop(shkp, loud);
     }
@@ -6178,6 +6178,7 @@ close_up_shop(struct monst *shkp, boolean loud)
     int fdoor = sroom->fdoor;
     int rt = sroom->rtype;
     coord cc = svd.doors[fdoor];
+    struct monst *shkp2;
 
     /* Can't close up */
     if (shk_impaired(shkp) || ANGRY(shkp))
@@ -6195,17 +6196,30 @@ close_up_shop(struct monst *shkp, boolean loud)
     if (night()
         && (levl[cc.x][cc.y].doormask == D_ISOPEN
             || levl[cc.x][cc.y].doormask == D_CLOSED)) {
-        if (loud) {
-            if (canseemon(shkp))
-                pline("%s claps %s hands.", Shknam(shkp), mhis(shkp));
-            verbalize("%s %s is now closed for the evening!",
-                        s_suffix(shkname(shkp)), shtypes[rt - SHOPBASE].name);
-            if (cansee(cc.x, cc.y))
-                pline("The shop door locks.");
+        shkp2 = shop_keeper(*in_rooms(u.ux, u.uy, SHOPBASE));
+        if (shkp == shkp2) {
+            if (canseemon(shkp)) { 
+                if (Deaf) {
+                    pline("%s rolls %s eyes and gestures at the door.",
+                            Monnam(shkp), mhis(shkp));
+                } else {
+                    pline("%s sighs loudly.", Shknam(shkp));
+                    verbalize("I should really be closing up about now...");
+                }
+            }
+        } else {
+            if (loud) {
+                if (canseemon(shkp))
+                    pline("%s claps %s hands.", Shknam(shkp), mhis(shkp));
+                verbalize("%s %s is now closed for the evening!",
+                            s_suffix(shkname(shkp)), shtypes[rt - SHOPBASE].name);
+                if (cansee(cc.x, cc.y))
+                    pline("The shop door locks.");
+            }
+            levl[cc.x][cc.y].doormask = D_LOCKED;
+            newsym(cc.x, cc.y);
+            block_point(cc.x, cc.y);
         }
-        levl[cc.x][cc.y].doormask = D_LOCKED;
-        newsym(cc.x, cc.y);
-        block_point(cc.x, cc.y);
     } else if (!night()
                 && (levl[cc.x][cc.y].doormask == D_LOCKED
                     || levl[cc.x][cc.y].doormask == D_LOCKED)) {

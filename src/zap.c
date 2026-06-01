@@ -3105,7 +3105,8 @@ zapyourself(struct obj *obj, boolean ordinary)
     case WAN_GROWTH: {
         struct obj *otmp, *onxt;
         pline("Your muscles bulge!");
-        release_hold();
+        if (u.ustuck)
+            release_hold();
         for (otmp = gi.invent; otmp; otmp = onxt) {
             onxt = otmp->nobj;
             bhito(otmp, obj);

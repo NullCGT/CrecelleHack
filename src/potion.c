@@ -1999,6 +1999,7 @@ moldeffects(coordxy x, coordxy y, struct monst *mon)
     if (isyou) {
         passive(&fakemon, flier ? NULL : uarmf,
             TRUE, TRUE, AT_KICK, FALSE);
+        end_running(TRUE);
     } else {
         passivemm(mon, &fakemon, TRUE, FALSE,
                     flier ? NULL : which_armor(mon, W_ARMF));

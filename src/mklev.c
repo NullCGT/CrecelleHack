@@ -1637,7 +1637,7 @@ coat_floors(void)
                 add_coating(x, y, COAT_FROST, 0);
             if (IS_BIOME(BIOME_SEWER)) {
                 if (!rn2(10))
-                    add_coating(x, y, COAT_FUNGUS, PM_GREEN_MOLD);
+                    add_coating(x, y, COAT_FUNGUS, PM_LICHEN);
                 else if (!rn2(4))
                     add_coating(x, y, COAT_POTION, POT_WATER);
             }

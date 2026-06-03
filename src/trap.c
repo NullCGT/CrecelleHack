@@ -1172,7 +1172,7 @@ wearing_iron_shoes(struct monst *mtmp)
     if (!mtmp)
         return FALSE;
     if (mtmp == &gy.youmonst)
-        return (uarmf != NULL);
+        return (uarmf && uarmf->material == IRON);
     struct obj *armf = which_armor(mtmp, W_ARMF);
     return armf && armf->material == IRON;
 }

@@ -131,7 +131,8 @@ collateral_damage(struct monst *mtmp, struct attack *mattk)
                         MAY_DESTROY | MAY_HIT | VIS_EFFECTS,
                         (struct obj *) 0);
     }
-    if (slice && remove_coating(u.ux, u.uy, COAT_GRASS)
+    if (slice && has_coating(u.ux, u.uy, COAT_GRASS)
+        && remove_coating(u.ux, u.uy, COAT_GRASS)
         && flags.verbose) {
         pline("Grass flies through the air.");
     }

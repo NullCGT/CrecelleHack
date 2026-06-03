@@ -274,10 +274,10 @@ castmu(
     if (!foundyou && thinks_it_foundyou
         && !is_undirected_spell(spellnum)) {
         pline_mon(mtmp, "%s casts %s at %s!",
+                 canseemon(mtmp) ? Monnam(mtmp) : "Something",
                  ((Role_if(PM_WIZARD) && mattk->adtyp == AD_SPEL)
                     || (Role_if(PM_CLERIC) && mattk->adtyp == AD_CLRC))
                         ? mcast_data[spellnum].name : "a spell",
-                 canseemon(mtmp) ? Monnam(mtmp) : "Something",
                  is_waterwall(mtmp->mux, mtmp->muy) ? "empty water"
                                                     : "thin air");
         return M_ATTK_MISS;
@@ -530,7 +530,9 @@ mcast_raise_dead(struct monst *mtmp)
     mm.y = mtmp->my;
     if (!rn2(3))
         (void) unturn_dead(&gy.youmonst);
-    mkundead(&mm, TRUE, NO_MINVENT);
+    if (!has_esum(mtmp))
+        newesum(mtmp);
+    mkundead(mtmp, &mm, TRUE, NO_MINVENT | MM_ESUM);
 }
 
 staticfn void

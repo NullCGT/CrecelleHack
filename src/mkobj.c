@@ -986,7 +986,9 @@ mksobj_init(struct obj **obj, boolean artif)
             tryct = 50;
             do
                 otmp->corpsenm = undead_to_corpse(rndmonnum());
-            while ((svm.mvitals[otmp->corpsenm].mvflags & G_NOCORPSE)
+            while (((svm.mvitals[otmp->corpsenm].mvflags & G_NOCORPSE)
+                        || (otmp->otyp == SKELETON
+                            && !has_bones(&mons[otmp->corpsenm])))
                    && (--tryct > 0));
             if (tryct == 0) {
                 /* perhaps rndmonnum() only wants to make G_NOCORPSE

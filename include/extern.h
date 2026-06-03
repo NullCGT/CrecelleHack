@@ -1835,7 +1835,7 @@ extern int somey(struct mkroom *) NONNULLARG1;
 extern boolean inside_room(struct mkroom *, coordxy, coordxy) NONNULLARG1;
 extern boolean somexy(struct mkroom *, coord *) NONNULLARG12;
 extern boolean somexyspace(struct mkroom *, coord *) NONNULLARG12;
-extern void mkundead(coord *, boolean, int) NONNULLARG1;
+extern void mkundead(struct monst *, coord *, boolean, int) NONNULLARG2;
 extern struct permonst *courtmon(struct monst *);
 extern void save_rooms(NHFILE *) NONNULLARG1;
 extern void rest_rooms(NHFILE *) NONNULLARG1;

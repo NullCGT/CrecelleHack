@@ -484,6 +484,7 @@ fill_zoo(struct mkroom *sroom)
 /* make a swarm of undead around mm */
 void
 mkundead(
+    struct monst *summoner,
     coord *mm,
     boolean revive_corpses,
     int mm_flags)
@@ -492,14 +493,18 @@ mkundead(
     struct permonst *mdat;
     struct obj *otmp;
     coord cc;
+    struct monst *mtmp;
 
     while (cnt--) {
         mdat = morguemon();
         if (mdat && enexto(&cc, mm->x, mm->y, mdat)
             && (!revive_corpses
                 || !(otmp = sobj_at(CORPSE, cc.x, cc.y))
-                || !revive(otmp, FALSE)))
-            (void) makemon(mdat, cc.x, cc.y, mm_flags);
+                || !revive(otmp, FALSE))) {
+            mtmp = makemon(mdat, cc.x, cc.y, mm_flags);
+            if (mtmp && summoner && has_esum(mtmp))
+                ESUM(mtmp)->ownermid = summoner->m_id;
+        }
     }
     svl.level.flags.graveyard = TRUE; /* reduced chance for undead corpse */
 }

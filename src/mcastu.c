@@ -530,7 +530,9 @@ mcast_raise_dead(struct monst *mtmp)
     mm.y = mtmp->my;
     if (!rn2(3))
         (void) unturn_dead(&gy.youmonst);
-    mkundead(&mm, TRUE, NO_MINVENT);
+    if (!has_esum(mtmp))
+        newesum(mtmp);
+    mkundead(mtmp, &mm, TRUE, NO_MINVENT | MM_ESUM);
 }
 
 staticfn void

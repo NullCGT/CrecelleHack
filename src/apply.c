@@ -1416,7 +1416,7 @@ use_bell(struct obj **optr)
 
             mm.x = u.ux;
             mm.y = u.uy;
-            mkundead(&mm, FALSE, NO_MINVENT);
+            mkundead((struct monst *) NULL, &mm, FALSE, NO_MINVENT);
             wakem = TRUE;
 
         } else if (invoking) {

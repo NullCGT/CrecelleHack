@@ -4806,7 +4806,8 @@ avoid_moving_on_coating(coordxy x, coordxy y, boolean msg)
     if (IS_COATABLE(levl[x][y].typ)
         && !Blind && !Levitation && !Flying
         && ((has_coating(x, y, COAT_FUNGUS)
-             && levl[x][y].pindex != PM_NIGHTCRUST)
+             && levl[x][y].pindex != PM_NIGHTCRUST
+             && levl[x][y].pindex != PM_LICHEN)
             || has_coating(x, y, COAT_SHARDS))) {
         if (msg && flags.mention_walls) {
             set_msg_xy(x, y);

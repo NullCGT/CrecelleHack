@@ -4093,8 +4093,10 @@ o_trigger_trap(struct obj *obj, int x, int y)
     struct trap *trap = t_at(x, y);
     struct monst *mtmp = m_at(x, y);
     /* Rolling boulder traps should not be triggered by rolling boulders,
-       since it causes the trap to be prematurely destroyed. */
+       since it causes the trap to be prematurely destroyed.
+       Pits, spiked pits, and holes should also not be triggered. */
     if (!trap ||
+	(trap->ttyp == PIT || trap->ttyp == SPIKED_PIT || trap->ttyp == HOLE) ||
         (trap->ttyp == ROLLING_BOULDER_TRAP && obj->otyp == BOULDER))
         return 0;
     if (x == u.ux && y == u.uy) {

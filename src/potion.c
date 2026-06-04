@@ -1979,7 +1979,9 @@ coateffects(coordxy x, coordxy y, struct monst *mon) {
             minstapetrify(mon, FALSE);
         }
         remove_coating(x, y, COAT_BLOOD);
-    } else if (has_coating(x, y, COAT_FUNGUS)) {
+    } else if (has_coating(x, y, COAT_FUNGUS)
+                && !(isyou && (Levitation || Flying))
+                && !(!isyou && !grounded(mon->data))) {
         return moldeffects(x, y, mon);
     }
     return DEADMONSTER(mon);

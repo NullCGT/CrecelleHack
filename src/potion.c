@@ -1993,15 +1993,18 @@ moldeffects(coordxy x, coordxy y, struct monst *mon)
     boolean isyou = (mon == &gy.youmonst);
     boolean flier = (!grounded(mon->data) || (isyou && (Levitation || Flying)));
     struct monst fakemon = cg.zeromonst;
+    int pindex = levl[x][y].pindex;
 
     fakemon.mx = u.ux;
     fakemon.my = u.uy;
-    fakemon.cham = levl[x][y].pindex;
-    set_mon_data(&fakemon, &mons[levl[x][y].pindex]);
+    fakemon.cham = pindex;
+    set_mon_data(&fakemon, &mons[pindex]);
     if (isyou) {
         passive(&fakemon, flier ? NULL : uarmf,
             TRUE, TRUE, AT_KICK, FALSE);
-        end_running(TRUE);
+        if (pindex != PM_NIGHTCRUST
+            && pindex != PM_LICHEN)
+            end_running(TRUE);
     } else {
         passivemm(mon, &fakemon, TRUE, FALSE,
                     flier ? NULL : which_armor(mon, W_ARMF));

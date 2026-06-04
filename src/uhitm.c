@@ -6146,6 +6146,7 @@ passive(
     int mhit = mhitb ? M_ATTK_HIT : M_ATTK_MISS;
     int malive = maliveb ? M_ATTK_HIT : M_ATTK_MISS;
     boolean learn_it = FALSE;
+    boolean resisted = FALSE;
 
     for (i = 0;; i++) {
         if (i >= NATTK)
@@ -6355,6 +6356,7 @@ passive(
                     You_feel("a mild chill.");
                     monstseesu(M_SEEN_COLD);
                     ugolemeffects(AD_COLD, tmp);
+                    resisted = TRUE;
                     break;
                 }
                 monstunseesu(M_SEEN_COLD);
@@ -6388,6 +6390,7 @@ passive(
                     You_feel("mildly warm.");
                     monstseesu(M_SEEN_FIRE);
                     ugolemeffects(AD_FIRE, tmp);
+                    resisted = TRUE;
                     break;
                 }
                 monstunseesu(M_SEEN_FIRE);
@@ -6403,6 +6406,7 @@ passive(
                 You_feel("a mild tingle.");
                 monstseesu(M_SEEN_ELEC);
                 ugolemeffects(AD_ELEC, tmp);
+                resisted = TRUE;
                 break;
             }
             monstunseesu(M_SEEN_ELEC);
@@ -6420,9 +6424,10 @@ passive(
         }
     }
     /* kludge to avoid damage for non-damaging passives. - K*/
-    if (ptr->mattk[i].adtyp == AD_FIRE
-        || ptr->mattk[i].adtyp == AD_COLD
-        || ptr->mattk[i].adtyp == AD_ELEC) {
+    if (!resisted
+        && (ptr->mattk[i].adtyp == AD_FIRE
+            || ptr->mattk[i].adtyp == AD_COLD
+            || ptr->mattk[i].adtyp == AD_ELEC)) {
         adjust_damage(&gy.youmonst, &tmp, ptr->mattk[i].adtyp);
         mdamageu(mon, tmp);
     }

@@ -1151,6 +1151,10 @@ mcast_spell(struct monst *mtmp, int dmg, int spellnum)
         litroom(FALSE, (struct obj *) 0);
         dmg = 0;
         break;
+    case MCAST_TELEPORT:
+        mnexto(mtmp, RLOC_MSG);
+        dmg = 0;
+        break;
     }
     if (adtyp)
         adjust_damage(&gy.youmonst, &dmg, adtyp);
@@ -1207,7 +1211,7 @@ spell_would_be_useless(struct monst *mtmp, int spellnum)
             return TRUE;
         break;
     case MCAST_TELEPORT:
-        if ((distu(mtmp->mx, mtmp->my) > 4) || mtmp->mhp * 3 < mtmp->mhpmax)
+        if ((distu(mtmp->mx, mtmp->my) > 9) && mtmp->mhp * 3 > mtmp->mhpmax)
             return TRUE;
         break;
     case MCAST_LEVITATE_YOU:

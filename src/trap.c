@@ -2725,7 +2725,7 @@ trapeffect_poly_trap(
             You_feel("a change coming over you.");
             polyself(POLY_NOFLAGS);
         }
-    } else {
+    } else if (mtmp) {
         boolean in_sight = canseemon(mtmp) || (mtmp == u.usteed);
 
         if (wearing_iron_shoes(mtmp)) {
@@ -2737,7 +2737,7 @@ trapeffect_poly_trap(
                 return Trap_Effect_Finished;
             }
             shoes = poly_obj(
-                shoes, !objects[uarmf->otyp].oc_magic ? KICKING_BOOTS : DWARVISH_BOOTS);
+                shoes, !objects[shoes->otyp].oc_magic ? KICKING_BOOTS : DWARVISH_BOOTS);
             /* now equip them again */
             if (shoes) {
                 mtmp->misc_worn_check |= W_ARMF;

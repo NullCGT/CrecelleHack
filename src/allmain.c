@@ -498,6 +498,7 @@ moveloop_core(void)
             under_ground(0);
 
         see_nearby_monsters();
+        m_everyturn_effect(&gy.youmonst);
     } /* actual time passed */
 
     /****************************************/
@@ -542,7 +543,6 @@ moveloop_core(void)
         curs_on_u();
     }
 
-    m_everyturn_effect(&gy.youmonst);
 
     svc.context.move = 1;
 

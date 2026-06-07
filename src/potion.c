@@ -2741,7 +2741,7 @@ potionbreathe(struct obj *obj)
     case POT_ALKAHEST:
     case POT_ACID: {
         int dmg = rnd((obj->otyp == POT_ACID) ? 8 : 16);
-        if (!Acid_immunity) {
+        if (!Acid_immunity && !u.uinvulnerable) {
             You("are dissolving!");
             adjust_damage(&gy.youmonst, &dmg, AD_ACID);
             losehp(dmg, "acidic vapors", KILLED_BY);

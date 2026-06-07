@@ -737,6 +737,7 @@ restgamestate(NHFILE *nhfp)
     /* must come after all mons & objs are restored */
     relink_timers(FALSE);
     relink_light_sources(FALSE);
+    adj_mon_colors();
     adj_erinys(u.ualign.abuse);
     adj_midbosses();
 #ifdef WHEREIS_FILE

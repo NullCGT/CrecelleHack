@@ -4961,6 +4961,9 @@ acid_damage(struct obj *obj)
         obj->spe = 0;
         obj->dknown = 0;
     } else
+	/* erode_obj() relies on gb.bhitpos, unfortunately. */
+        gb.bhitpos.x = obj->ox;
+        gb.bhitpos.y = obj->oy;
         erode_obj(obj, (char *) 0, ERODE_CORRODE, EF_GREASE | EF_DESTROY);
 }
 

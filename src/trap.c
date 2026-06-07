@@ -321,6 +321,29 @@ erode_obj(
         if (ef_flags & EF_PAY)
             costly_alteration(otmp, cost_type);
 
+        /* similar to lava, extract all items before deleting any containers */
+        if (Has_contents(otmp)) {
+            struct obj *curr, *ncobj;
+            coordxy cx, cy;
+
+            if (uvictim)
+                cx = u.ux, cy = u.uy;
+            else if (victim)
+                cx = victim->mx, cy = victim->my;
+            else
+                cx = otmp->ox, cy = otmp->oy;
+
+            if (uvictim || vismon || visobj)
+                pline("Its contents fall out.");
+
+            for (curr = otmp->cobj; curr; curr = ncobj) {
+                ncobj = curr->nobj;
+                obj_extract_self(curr);
+                if (!flooreffects(curr, cx, cy, ""))
+                    place_object(curr, cx, cy);
+            }
+        }
+
         if (otmp->owornmask) {
             /* unwear otmp before deleting it */
             if (carried(otmp)) {
@@ -4961,7 +4984,7 @@ acid_damage(struct obj *obj)
         obj->spe = 0;
         obj->dknown = 0;
     } else
-	/* erode_obj() relies on gb.bhitpos, unfortunately. */
+        /* erode_obj() relies on gb.bhitpos, unfortunately. */
         gb.bhitpos.x = obj->ox;
         gb.bhitpos.y = obj->oy;
         erode_obj(obj, (char *) 0, ERODE_CORRODE, EF_GREASE | EF_DESTROY);

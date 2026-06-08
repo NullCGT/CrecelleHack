@@ -3197,7 +3197,7 @@ set_cost(struct obj *obj, struct monst *shkp)
                 || is_worthless_glass(obj)) {
                 tmp = (obj->otyp % (6 - shkp->m_id % 3));
                 tmp = (tmp + 3) * obj->quan;
-                divisor = 1L;
+                multiplier = divisor = 1L;
             }
         } else if (tmp > 1L && !(shkp->m_id % 4))
             multiplier *= 3L, divisor *= 4L;

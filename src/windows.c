@@ -25,7 +25,7 @@ extern struct window_procs Qt_procs;
 #ifdef GEM_GRAPHICS
 /*#include "wingem.h"*/
 #endif
-#ifdef MACOS9
+#ifdef MAC68K
 extern struct window_procs mac_procs;
 #endif
 #ifdef BEOS_GRAPHICS
@@ -134,7 +134,7 @@ static struct win_choices {
 #ifdef GEM_GRAPHICS
     { &Gem_procs, win_Gem_init CHAINR(0) },
 #endif
-#ifdef MACOS9
+#ifdef MAC68K
     { &mac_procs, 0 CHAINR(0) },
 #endif
 #ifdef BEOS_GRAPHICS
@@ -566,7 +566,7 @@ staticfn void hup_cliparound(int, int);
 #endif
 #ifdef CHANGE_COLOR
 staticfn void hup_change_color(int, long, int);
-#ifdef MACOS9
+#ifdef MAC68K
 staticfn short hup_set_font_name(winid, char *);
 #endif
 staticfn char *hup_get_color_string(void);
@@ -615,7 +615,7 @@ static struct window_procs hup_procs = {
     hup_void_ndecl,                                   /* nh_delay_output  */
 #ifdef CHANGE_COLOR
     hup_change_color,
-#ifdef MACOS9
+#ifdef MAC68K
     hup_void_fdecl_int,                               /* change_background */
     hup_set_font_name,
 #endif
@@ -818,14 +818,14 @@ hup_change_color(int color UNUSED, long rgb UNUSED, int reverse UNUSED)
     return;
 }
 
-#ifdef MACOS9
+#ifdef MAC68K
 /*ARGSUSED*/
 staticfn short
 hup_set_font_name(winid window UNUSED, char *fontname UNUSED)
 {
     return 0;
 }
-#endif /* MACOS9 */
+#endif /* MAC68K */
 
 staticfn char *
 hup_get_color_string(void)
@@ -901,7 +901,6 @@ hup_ctrl_nhwindow(
 }
 
 #endif /* HANGUPHANDLING */
-
 
 /****************************************************************************/
 /* genl backward compat stuff                                               */
@@ -1294,7 +1293,7 @@ dump_fmtstr(
 #define BLNK_S "<i>"
 #define BLNK_E "</i>"
 #define SPAN_E "</span>"
-#define LINEBREAK "<br />"
+#define LINEBREAK "<br>"
 
 /** HTML putstr() handling **/
 
@@ -1353,7 +1352,7 @@ html_write_tags(
     }
     /* after string is written */
     if (in_preform) {
-        fprintf(fp, LINEBREAK); /* preform still gets <br /> at end of line */
+        fprintf(fp, LINEBREAK); /* preform still gets <br> at end of line */
         return; /* don't write </pre> until we get the next thing */
     }
     if (in_list) {
@@ -1389,7 +1388,7 @@ html_dump_char(
         fprintf(fp, "&#39;");
         break;
     case '\n':
-        fprintf(fp, "<br />\n");
+        fprintf(fp, "<br>\n");
         break;
     default:
         fprintf(fp, "%c", c);
@@ -1552,8 +1551,10 @@ html_print_glyph(
     char buf[BUFSZ]; /* do_screen_description requires this :( */
     const char *firstmatch = "unknown"; /* and this */
     coord cc;
-    int desc_found = 0;
+    int desc_found = 0, color;
     unsigned attr;
+    uint32 custclr;
+    unsigned long rgb = 0UL; /* nonzero => emit inline 24-bit RGB span */
 
     if (!dumphtml_file)
         return;
@@ -1567,12 +1568,63 @@ html_print_glyph(
     if (desc_found)
         fprintf(dumphtml_file, "<div class=\"tooltip\">");
     attr = mg_hl_attr(glyphinfo->gm.glyphflags);
-    dump_set_color_attr(glyphinfo->gm.sym.color, attr, TRUE);
-    if (htmlsym[glyphinfo->gm.sym.symidx])
-        fprintf(dumphtml_file, "&#%d;", htmlsym[glyphinfo->gm.sym.symidx]);
-    else
-        html_dump_char(dumphtml_file, (char)glyphinfo->ttychar);
-    dump_set_color_attr(glyphinfo->gm.sym.color, attr, FALSE);
+    /* honor CUSTOMCOLOR: NH50 stores the resolved colour directly in the
+       glyph_map.  A non-zero customcolor with NH_BASIC_COLOR set is just a
+       0-15 override; without it, the low 24 bits are a raw RGB which HTML
+       can render exactly via an inline style. */
+    color = glyphinfo->gm.sym.color;
+    custclr = iflags.customcolors ? glyphinfo->gm.customcolor : 0;
+    if (custclr != 0) {
+        if ((custclr & NH_BASIC_COLOR) != 0)
+            color = (int) COLORVAL(custclr);
+        else
+            rgb = (unsigned long) COLORVAL(custclr);
+    }
+    /* highlight the hero's tile with a green background, mimicking the
+       terminal cursor's "you are here" cue on every other windowport */
+    if (x == u.ux && y == u.uy)
+        fprintf(dumphtml_file, "<span class=\"nh_player\">");
+    if (rgb) {
+        /* keep the bold/uline/blink wrappers from dump_set_color_attr but
+           supply the colour inline; render inverse video as a coloured
+           background here so no nh_inv_N class (0-15 only) is needed */
+        dump_set_color_attr(NO_COLOR, attr & ~HL_INVERSE, TRUE);
+        if (attr & HL_INVERSE)
+            fprintf(dumphtml_file,
+                    "<span style=\"color:#000;background-color:#%06lX;\">",
+                    rgb);
+        else
+            fprintf(dumphtml_file, "<span style=\"color:#%06lX;\">", rgb);
+    } else {
+        dump_set_color_attr(color, attr, TRUE);
+    }
+    {
+        /* prefer the player's own glyph: a UTF8 symset (e.g. Enhanced1)
+           stores its codepoint in gm.u, so the dump matches the screen;
+           otherwise fall back to the html line-drawing table, then the
+           default tty character */
+        long cp = 0;
+
+#ifdef ENHANCED_SYMBOLS
+        if (glyphinfo->gm.u && glyphinfo->gm.u->utf32ch)
+            cp = (long) glyphinfo->gm.u->utf32ch;
+        else
+#endif
+        if (htmlsym[glyphinfo->gm.sym.symidx])
+            cp = htmlsym[glyphinfo->gm.sym.symidx];
+        if (cp)
+            fprintf(dumphtml_file, "&#%ld;", cp);
+        else
+            html_dump_char(dumphtml_file, (char) glyphinfo->ttychar);
+    }
+    if (rgb) {
+        fprintf(dumphtml_file, SPAN_E);
+        dump_set_color_attr(NO_COLOR, attr & ~HL_INVERSE, FALSE);
+    } else {
+        dump_set_color_attr(color, attr, FALSE);
+    }
+    if (x == u.ux && y == u.uy)
+        fprintf(dumphtml_file, SPAN_E);
     if (desc_found)
        fprintf(dumphtml_file,
                "<span class=\"tooltiptext\">%s</span></div>", firstmatch);
@@ -1938,14 +1990,22 @@ dump_headers(void)
         return;
 
     fprintf(dumphtml_file, "<!DOCTYPE html>\n");
-    fprintf(dumphtml_file, "<head>\n");
-    fprintf(dumphtml_file, "<title>CrecelleHack %s (%s)</title>\n",  version_string(vers, sizeof vers), svp.plname);
-    fprintf(dumphtml_file, "<meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\" />\n");
-    fprintf(dumphtml_file, "<meta name=\"generator\" content=\"CrecelleHack %s (%s)\" />\n", vers, svp.plname);
-    fprintf(dumphtml_file, "<meta name=\"date\" content=\"%s\" />\n", iso8601);
-    fprintf(dumphtml_file, "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n");
-    fprintf(dumphtml_file, "<link href=\"https://cdn.jsdelivr.net/gh/maxwell-k/dejavu-sans-mono-web-font@2.37/index.css\" title=\"Default\" rel=\"stylesheet\" type=\"text/css\" media=\"all\" />\n");
-    fprintf(dumphtml_file, "<style type=\"text/css\">\n");
+    fprintf(dumphtml_file, "<html lang=\"en\">\n<head>\n");
+    fprintf(dumphtml_file, "<meta charset=\"utf-8\">\n");
+    fprintf(dumphtml_file, "<title>CrecelleHack %s (%s)</title>\n",
+            version_string(vers, sizeof vers), svp.plname);
+    fprintf(dumphtml_file,
+            "<meta name=\"generator\" content=\"CrecelleHack %s (%s)\">\n",
+            vers, svp.plname);
+    fprintf(dumphtml_file, "<meta name=\"date\" content=\"%s\">\n", iso8601);
+    fprintf(dumphtml_file,
+            "<meta name=\"viewport\""
+            " content=\"width=device-width, initial-scale=1.0\">\n");
+    fprintf(dumphtml_file,
+            "<link href=\"https://cdn.jsdelivr.net/gh/maxwell-k/"
+            "dejavu-sans-mono-web-font@2.37/index.css\""
+            " title=\"Default\" rel=\"stylesheet\" media=\"all\">\n");
+    fprintf(dumphtml_file, "<style>\n");
     dump_css();
     fprintf(dumphtml_file, "</style>\n</head>\n<body>\n");
 
@@ -2406,7 +2466,6 @@ decode_mixed(char *buf, const char *str)
     *put = '\0';
     return buf;
 }
-
 
 /*
  * This differs from putstr() because the str parameter can

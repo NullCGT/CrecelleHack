@@ -10,10 +10,9 @@ SOURCEINSTALL=1
 # -----------------------------------------
 ifeq "$(WHICH_OS)" "Linux"
 
-PREFIX ?=/opt/nethack/chroot
-HACKDIR ?=/nh500.0-hdf
-INSTDIR ?=$(PREFIX)$(HACKDIR)
-VARDIR ?=$(INSTDIR)/var
+HACKDIR ?=$(PREFIX)/playground
+INSTDIR ?=$(HACKDIR)
+VARDIR ?=$(HACKDIR)
 
 GAMEPERM ?= 0755
 VARFILEPERM ?= 0600

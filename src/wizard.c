@@ -681,9 +681,11 @@ nasty(struct monst *summoner)
                 if ((mtmp = makemon(&mons[makeindex], bypos.x, bypos.y,
                                     mmflags)) != 0) {
                     mtmp->msleeping = mtmp->mpeaceful = mtmp->mtame = 0;
-                    if (!has_esum(summoner))
-                        newesum(summoner);
-                    ESUM(mtmp)->ownermid = summoner->m_id;
+                    if (summoner) {
+                        if (!has_esum(summoner))
+                            newesum(summoner);
+                        ESUM(mtmp)->ownermid = summoner->m_id;
+                    }
                     set_malign(mtmp);
                 } else {
                     /* random monster to substitute for geno'd selection;

@@ -27,7 +27,6 @@ staticfn void interrupt_multi(const char *);
 static long prev_dgl_extrainfo = 0;
 #endif
 
-
 /*ARGSUSED*/
 void
 early_init(int argc, char *argv[])
@@ -498,6 +497,7 @@ moveloop_core(void)
             under_ground(0);
 
         see_nearby_monsters();
+        m_everyturn_effect(&gy.youmonst);
     } /* actual time passed */
 
     /****************************************/
@@ -542,7 +542,6 @@ moveloop_core(void)
         curs_on_u();
     }
 
-    m_everyturn_effect(&gy.youmonst);
 
     svc.context.move = 1;
 
@@ -809,7 +808,7 @@ init_sound_disp_gamewindows(void)
        ever having been used, use it here to pacify the Qt interface */
     start_menu(WIN_INVEN, menu_behavior), end_menu(WIN_INVEN, (char *) 0);
 
-#ifdef MACOS9
+#ifdef MAC68K
     /* This _is_ the right place for this - maybe we will
      * have to split init_sound_disp_gamewindows into
      * create_gamewindows and show_gamewindows to get rid of this ifdef...

@@ -57,14 +57,14 @@ MAXPLAYERS=0
 
 # Limit the number of rerolls per second when using the reroll option.
 # 0 means that there is no limit on how quickly the user can reroll.
-MAX_REROLL_RATE=0
+MAX_REROLL_RATE=10
 
 # If not null, added to string "To get local support, " in the support
 # information help.
 SUPPORT=Contact K2 or Tangles on Libera irc channel #hardfought
 
 # If not null, displayed at the end of a panic-save sequence.
-#RECOVER=Run the recover program.
+RECOVER=Run the recover program.
 
 # Uncomment the next line to disable the SEDUCE option, causing succubi and
 # incubi to use nymphs' charm behavior rather than their own seduce behavior.
@@ -199,7 +199,7 @@ OPTIONS=disclose:yi ya yv yg yc yo
 OPTIONS=bones,color,lit_corridor,dark_room,autodig,autoopen
 OPTIONS=boulder:0,pickup_burden:unencumbered
 OPTIONS=!autopickup,hilite_pet,hilite_pile,time,use_darkgray
-OPTIONS=msg_window:reversed,number_pad:0,sortloot:full
+OPTIONS=msg_window:reversed,number_pad:1,sortloot:full
 OPTIONS=menu_objsyms,perm_invent,hitpointbar,quick_farsight
 
 # Various MSGTYPE examples

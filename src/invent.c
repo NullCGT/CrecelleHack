@@ -2628,15 +2628,6 @@ reroll_menu(void)
     }
     destroy_nhwindow(win);
 
-    /* rate-limit rerolls to prevent CPU abuse */
-#if defined(WIN32)
-        Sleep(1000);
-#elif defined(MSDOS) && defined(TIMED_DELAY)
-        msleep(1000);
-#else
-        /* Unix, macOS, VMS, and other POSIX-like systems */
-        sleep(1);
-#endif
     return option == 'y';
 }
 

@@ -1979,7 +1979,9 @@ coateffects(coordxy x, coordxy y, struct monst *mon) {
             minstapetrify(mon, FALSE);
         }
         remove_coating(x, y, COAT_BLOOD);
-    } else if (has_coating(x, y, COAT_FUNGUS)) {
+    } else if (has_coating(x, y, COAT_FUNGUS)
+                && !(isyou && (Levitation || Flying))
+                && !(!isyou && !grounded(mon->data))) {
         return moldeffects(x, y, mon);
     }
     return DEADMONSTER(mon);
@@ -1991,15 +1993,18 @@ moldeffects(coordxy x, coordxy y, struct monst *mon)
     boolean isyou = (mon == &gy.youmonst);
     boolean flier = (!grounded(mon->data) || (isyou && (Levitation || Flying)));
     struct monst fakemon = cg.zeromonst;
+    int pindex = levl[x][y].pindex;
 
     fakemon.mx = u.ux;
     fakemon.my = u.uy;
-    fakemon.cham = levl[x][y].pindex;
-    set_mon_data(&fakemon, &mons[levl[x][y].pindex]);
+    fakemon.cham = pindex;
+    set_mon_data(&fakemon, &mons[pindex]);
     if (isyou) {
         passive(&fakemon, flier ? NULL : uarmf,
             TRUE, TRUE, AT_KICK, FALSE);
-        end_running(TRUE);
+        if (pindex != PM_NIGHTCRUST
+            && pindex != PM_LICHEN)
+            end_running(TRUE);
     } else {
         passivemm(mon, &fakemon, TRUE, FALSE,
                     flier ? NULL : which_armor(mon, W_ARMF));
@@ -2736,7 +2741,7 @@ potionbreathe(struct obj *obj)
     case POT_ALKAHEST:
     case POT_ACID: {
         int dmg = rnd((obj->otyp == POT_ACID) ? 8 : 16);
-        if (!Acid_immunity) {
+        if (!Acid_immunity && !u.uinvulnerable) {
             You("are dissolving!");
             adjust_damage(&gy.youmonst, &dmg, AD_ACID);
             losehp(dmg, "acidic vapors", KILLED_BY);

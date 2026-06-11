@@ -544,6 +544,7 @@ extern void destroy_drawbridge(coordxy, coordxy);
 /* ### decl.c ### */
 
 extern void program_state_init(void);
+extern void level_status_init(void);
 extern void decl_globals_init(void);
 extern void sa_victual(volatile struct victual_info *);
 
@@ -1143,7 +1144,7 @@ extern NHFILE *get_freeing_nhfile(void);
 extern NHFILE *restore_saved_game(void);
 extern int check_panic_save(void);
 #ifdef SELECTSAVED
-extern char *plname_from_file(const char *, boolean) NONNULLARG1;
+extern char *plname_from_file(const char *, boolean, int) NONNULLARG1;
 #endif
 extern char **get_saved_games(void);
 extern void free_saved_games(char **);
@@ -1515,7 +1516,7 @@ extern boolean stumble_on_door_mimic(coordxy, coordxy);
 extern int doopen_indir(coordxy, coordxy);
 extern int doclose(void);
 
-#ifdef MACOS9
+#ifdef MAC68K
 /* outdated functions removed */
 /* ### macfile.c ### */
 /* ### macmain.c ### */
@@ -2888,6 +2889,15 @@ void restore_msghistory(NHFILE *);
 extern void rest_adjust_levelflags(void);
 extern void moves_to_relative_time(long *);
 extern void relative_time_to_moves(long *);
+extern boolean revision_increment(int, int, uchar *);
+
+/* ### revision.c ### */
+
+extern boolean revision_increment(int, int, uchar *);
+#ifdef DEMO_UPLIFTS
+void uplift_mystruct_rev0_to_mystruct(struct mystruct_rev0 *rev0,
+                                      struct mystruct *rev1);
+#endif /* DEMO_UPLIFTS */
 
 /* ### rip.c ### */
 
@@ -3751,7 +3761,7 @@ extern void dump_version_info(void);
 extern void store_critical_bytes(NHFILE *) NONNULLARG1;
 extern int compare_critical_bytes(NHFILE *, int *, unsigned long) NONNULLARG1;
 extern int get_critical_size_count(void);
-extern int validate(NHFILE *, const char *, boolean) NONNULLARG1;
+extern int validate(NHFILE *, const char *, boolean, int) NONNULLARG1;
 
 /* ### video.c ### */
 

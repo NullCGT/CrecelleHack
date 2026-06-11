@@ -321,6 +321,29 @@ erode_obj(
         if (ef_flags & EF_PAY)
             costly_alteration(otmp, cost_type);
 
+        /* similar to lava, extract all items before deleting any containers */
+        if (Has_contents(otmp)) {
+            struct obj *curr, *ncobj;
+            coordxy cx, cy;
+
+            if (uvictim)
+                cx = u.ux, cy = u.uy;
+            else if (victim)
+                cx = victim->mx, cy = victim->my;
+            else
+                cx = otmp->ox, cy = otmp->oy;
+
+            if (uvictim || vismon || visobj)
+                pline("Its contents fall out.");
+
+            for (curr = otmp->cobj; curr; curr = ncobj) {
+                ncobj = curr->nobj;
+                obj_extract_self(curr);
+                if (!flooreffects(curr, cx, cy, ""))
+                    place_object(curr, cx, cy);
+            }
+        }
+
         if (otmp->owornmask) {
             /* unwear otmp before deleting it */
             if (carried(otmp)) {
@@ -1205,6 +1228,9 @@ m_harmless_trap(struct monst *mtmp, struct trap *ttmp)
     case LANDMINE:
         break;
     case ROLLING_BOULDER_TRAP:
+        /* the Sokoban rolling boulder traps are not dangerous */
+        if (In_sokoban(&u.uz))
+            return TRUE;
         break;
     case SLP_GAS_TRAP:
         if (can_magbreathe(mtmp))
@@ -2725,7 +2751,7 @@ trapeffect_poly_trap(
             You_feel("a change coming over you.");
             polyself(POLY_NOFLAGS);
         }
-    } else {
+    } else if (mtmp) {
         boolean in_sight = canseemon(mtmp) || (mtmp == u.usteed);
 
         if (wearing_iron_shoes(mtmp)) {
@@ -2737,7 +2763,7 @@ trapeffect_poly_trap(
                 return Trap_Effect_Finished;
             }
             shoes = poly_obj(
-                shoes, !objects[uarmf->otyp].oc_magic ? KICKING_BOOTS : DWARVISH_BOOTS);
+                shoes, !objects[shoes->otyp].oc_magic ? KICKING_BOOTS : DWARVISH_BOOTS);
             /* now equip them again */
             if (shoes) {
                 mtmp->misc_worn_check |= W_ARMF;
@@ -4960,8 +4986,12 @@ acid_damage(struct obj *obj)
         obj->otyp = SCR_BLANK_PAPER;
         obj->spe = 0;
         obj->dknown = 0;
-    } else
+    } else {
+        /* erode_obj() relies on gb.bhitpos, unfortunately. */
+        gb.bhitpos.x = obj->ox;
+        gb.bhitpos.y = obj->oy;
         erode_obj(obj, (char *) 0, ERODE_CORRODE, EF_GREASE | EF_DESTROY);
+    }
 }
 
 staticfn void
@@ -6858,6 +6888,7 @@ deltrap_with_ammo(struct trap *trap, int do_what)
     struct obj *otmp = (struct obj *) 0;
     struct obj *objchn = (struct obj *) 0;
     coordxy tx, ty;
+    boolean took_ammo = FALSE;
 
     if (!trap) {
         impossible("deltrap_with_ammo: null trap!");
@@ -6876,7 +6907,18 @@ deltrap_with_ammo(struct trap *trap, int do_what)
     }
 
     if (do_what == DELTRAP_DESTROY_AMMO) {
-        set_trap_ammo(trap, (struct obj *) 0);
+        struct obj *nobj;
+        /* ammo was already pulled off the trap into objchn above; free
+           that chain. set_trap_ammo() on the now-empty trap frees
+           nothing and would leak it */
+        while (objchn) {
+            nobj = objchn->nobj;
+            if (objchn->oartifact)
+                impossible("destroying artifact %d that was trap ammo",
+                           objchn->oartifact);
+            obfree(objchn, (struct obj *) 0);
+            objchn = nobj;
+        }
     } else if (do_what != DELTRAP_RETURN_AMMO) {
         struct obj *nobj;
         otmp = objchn;
@@ -6890,14 +6932,6 @@ deltrap_with_ammo(struct trap *trap, int do_what)
                 /* FALLTHRU */
             case DELTRAP_PLACE_AMMO:
                 place_object(otmp, trap->tx, trap->ty);
-                /* Sell your own traps only... */
-                if (trap->madeby_u) {
-                    if (trap->ttyp == ARROW_TRAP) {
-                        otmp->quan = 10;
-                        sellobj(otmp, trap->tx, trap->ty);
-                    }
-                }
-                otmp->owt = weight(otmp);
                 stackobj(otmp);
                 break;
             case DELTRAP_BURY_AMMO:
@@ -6905,26 +6939,27 @@ deltrap_with_ammo(struct trap *trap, int do_what)
                 (void) bury_an_obj(otmp, NULL);
                 break;
             case DELTRAP_TAKE_AMMO:
-                if (trap->madeby_u) {
-                    if (trap->ttyp == ARROW_TRAP) {
-                        otmp->quan = 10;
-                        sellobj(otmp, trap->tx, trap->ty);
-                    }
-                }
-                otmp->owt = weight(otmp);
+                /* We have to do some bizarre sequencing here in order to prevent an
+                    obscure bug where someone attempts to untrap a same-square shooting
+                    trap with a full inventory, the ammo hits the ground and triggers
+                    the empty trap, deleting it. - K */
+                deltrap(trap);
+                newsym(tx, ty);
                 hold_another_object(otmp, "You remove, but drop, %s.",
                                     doname(otmp), NULL);
+                took_ammo = TRUE;
                 break;
             }
             otmp = nobj;
         }
         objchn = NULL;
     }
+    if (took_ammo)
+        return objchn;
     if (u.utrap && trap->tx == u.ux && trap->ty == u.uy)
         reset_utrap(TRUE);
     deltrap(trap);
     newsym(tx, ty);
-
     return objchn;
 }
 

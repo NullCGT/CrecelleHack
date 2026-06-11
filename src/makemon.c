@@ -1535,7 +1535,7 @@ makemon(
     newmonhp(mtmp, mndx);
 
     /* advance the monster, maybe? */
-    if (allowadvance && advanceable(ptr) && !rn2(35))
+    if (allowadvance && advanceable(ptr) && !rn2(38))
         advance_monster(mtmp);
 
     femaleok = (!is_male(ptr) && !is_neuter(ptr));

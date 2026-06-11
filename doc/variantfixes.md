@@ -19,6 +19,7 @@
 - YAFM for closed shops.
 - Prevent shopkeepers from locking players inside their shops at night.
 - Massively reduce resizing kit weight.
+- T-shirts and 50% of robes spawn pre-dyed.
 
 # 1.5.1
 ## Objects

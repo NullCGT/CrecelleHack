@@ -258,7 +258,7 @@ mkobj_erosions(struct obj *otmp)
             otmp->greased = 1;
         /* and an extremely small fraction of the time, erodable items
            will generate dyed */
-        if (!rn2(3000))
+        if (!has_odye(otmp) && !rn2(3000))
             dye_obj(otmp, (otmp->o_id % CLR_BRIGHT_CYAN) + 1, FALSE);
     }
 }
@@ -1233,6 +1233,10 @@ mksobj_init(struct obj **obj, boolean artif)
         if (!rn2(65)) {
             add_oprop_to_object(otmp, 0);
         }
+        /* Shirts are always dyed */
+        if (otmp->otyp == T_SHIRT
+            || (otmp->otyp == ROBE && rn2(2)))
+            dye_obj(otmp, (otmp->o_id % CLR_BRIGHT_CYAN) + 1, FALSE);
         break;
     case WAND_CLASS:
         if (otmp->otyp == WAN_WISHING)

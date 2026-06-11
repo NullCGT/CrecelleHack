@@ -12,6 +12,9 @@
   - Blocks poison gas and potion clouds.
   - Blocks eating when worn.
 
+## Dungeon Generation
+- Give Vlad a nicer throne room.
+
 ## Misc
 - YAFM for closed shops.
 - Prevent shopkeepers from locking players inside their shops at night.

@@ -4593,7 +4593,7 @@ transmute_obj(struct obj *otmp, int newmat)
     if (!newmat) {
         do {
             newmat = 2 + rn2(NUM_MATERIAL_TYPES - 2);
-        } while (newmat == oldmat);
+        } while (newmat == oldmat || newmat == DRAGON_HIDE);
     }
     if (in_invent)
         pline("%s!", Yobjnam2(otmp, "vibrate"));

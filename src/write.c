@@ -47,8 +47,8 @@ cost(struct obj *otmp)
     case SCR_TAMING:
     case SCR_TELEPORTATION:
     case SCR_MAZE:
-    case SCR_TRANSMUTE_MATERIAL:
         return 20;
+    case SCR_TRANSMUTE_MATERIAL:
     case SCR_GENOCIDE:
         return 30;
     case SCR_BLANK_PAPER:

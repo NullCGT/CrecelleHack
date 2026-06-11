@@ -1892,6 +1892,8 @@ seffect_transmute_material(struct obj **sobjp)
     getlin("Change this item to which material?", buf);
     (void) mungspaces(buf);
     mat = lookup_material_by_name(buf, &mat, TRUE);
+    if (mat == DRAGON_HIDE)
+        mat = 0;
     if (otmp) {
         transmute_obj(otmp, scursed ? ROLL_FROM(bad_mats)
                             : (sblessed || rnl(10) < 5) ? mat : 0);

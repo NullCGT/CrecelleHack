@@ -20,6 +20,10 @@
 - Prevent shopkeepers from locking players inside their shops at night.
 - Massively reduce resizing kit weight.
 - T-shirts and 50% of robes spawn pre-dyed.
+- Scrolls of transmute material cost more to write.
+- Dragonhide cannot be explicitly specified as a material. Wishing for a dragonhide
+  item results in a normal item of that types, while transmuting dragonhide results
+  in a random material.
 
 # 1.5.1
 ## Objects

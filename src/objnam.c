@@ -5697,6 +5697,7 @@ readobjnam(char *bp, struct obj *no_wish)
     /* material handling */
     if (d.material > 0
         && (!d.otmp->oartifact || d.otmp->oartifact == ART_HORN_OF_THE_HORDE)
+        && !(d.material == DRAGON_HIDE && !wizard)
         && ((wizard && !iflags.debug_fuzzer)
             || valid_obj_material(d.otmp, d.material))) {
         if (!valid_obj_material(d.otmp, d.material)) {

@@ -2196,41 +2196,6 @@ monlineu(struct monst *mon, int nx, int ny)
     return online2(nx, ny, mon->mux, mon->muy);
 }
 
-/* Does the monster pursue you down a corridor or wait it out?
-   This is really expensive, especially when called repeatedly.
-   TODO: Find another way to do this. */
-staticfn boolean
-mon_avoids_chokepoint(struct monst *mon) {
-    int score = 0;
-    int x, y;
-    /* Rule out the easy ones. Monsters don't use ambush
-       tactics in mazes because that would probably confuse
-       their AI. Monsters will also not pull these tactics
-       unless a player is specifically in a corridor, simply
-       to cut down on the amount of iteration. */
-    if (mon->mpeaceful || !is_ambusher(mon->data)
-        || passes_walls(mon->data)
-        || levl[mon->mx][mon->my].typ == CORR
-        || levl[mon->mx][mon->my].typ == SCORR
-        || svl.level.flags.is_maze_lev
-        || (levl[u.ux][u.uy].typ != CORR && levl[u.ux][u.uy].typ != SCORR))
-        return 0;
-    /* If the player is badly hurt, it's time to go in. */
-    if (u.uhp * 2 <= u.uhpmax)
-        return 0;
-    /* Loop over player's surroundings. */
-    for (int dx = -1; dx <= 1; dx++) {
-        for (int dy = -1; dy <= 1; dy++) {
-            x = u.ux + dx;
-            y = u.uy + dy;
-            if (!dx && !dy) continue;
-            if (!isok(x, y) || IS_STWALL(levl[x][y].typ)) score++;
-        }
-    }
-    if (score >= 6) return 1;
-    return 0;
-}
-
 /* return flags based on monster data, for mfndpos() */
 long
 mon_allowflags(struct monst *mtmp)
@@ -2288,9 +2253,6 @@ mon_allowflags(struct monst *mtmp)
     /* unicorn may not be able to avoid hero on a noteleport level */
     if (is_unicorn(mtmp->data) && !noteleport_level(mtmp))
         allowflags |= NOTONL;
-    if (mon_avoids_chokepoint(mtmp)) {
-        allowflags |= NOTONL;
-    }
     if (gy.youmonst.data == &mons[PM_STRAW_GOLEM]
         && is_bird(mtmp->data)) {
         /* birds don't want to get near scarecrows. */

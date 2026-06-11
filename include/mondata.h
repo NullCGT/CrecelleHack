@@ -167,7 +167,6 @@
 #define infravision(ptr) (((ptr)->mflags3 & M3_INFRAVISION))
 #define infravisible(ptr) (((ptr)->mflags3 & M3_INFRAVISIBLE))
 #define is_displacer(ptr) (((ptr)->mflags3 & M3_DISPLACES) != 0L)
-#define is_ambusher(ptr) ((ptr)->mflags3 & M3_AMBUSHER)
 #define is_traitor(ptr) ((ptr)->mflags3 & M3_TRAITOR)
 #define is_tripper(ptr) ((ptr)->mflags3 & M3_TRIPPER)
 #define does_callouts(ptr) ((ptr)->mflags3 & M3_CALLOUT)

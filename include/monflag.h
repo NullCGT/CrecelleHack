@@ -176,7 +176,7 @@ enum ms_sounds {
 #define M3_INFRAVISIBLE 0x0200 /* visible by infravision */
 
 #define M3_DISPLACES    0x0400 /* moves monsters out of its way */
-#define M3_AMBUSHER     0x0800 /* monster uses advanced corridor tactics */
+/* #define M3_AMBUSHER     0x0800 */
 #define M3_TRAITOR      0x1000 /* monster can turn traitor (SLASH'EM)*/
 #define M3_TRIPPER      0x2000 /* monster can trip the player */
 #define M3_CALLOUT      0x4000 /* monster coordinates with others by calling out player position */

@@ -10,6 +10,7 @@
 ## Misc
 - YAFM for closed shops.
 - Prevent shopkeepers from locking players inside their shops at night.
+- Massively reduce resizing kit weight.
 
 # 1.5.1
 ## Objects

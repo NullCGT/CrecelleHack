@@ -1322,7 +1322,8 @@ inside_gas_cloud(genericptr_t p1, genericptr_t p2)
         fakeobj.otyp = otyp;
         fakeobj.blessed = REGION_BLESSED(reg);
         fakeobj.cursed = REGION_CURSED(reg);
-        if (!mtmp && (!breathless(gy.youmonst.data) || haseyes(gy.youmonst.data))) {
+        if (!mtmp && (!breathless(gy.youmonst.data) || haseyes(gy.youmonst.data))
+            && !(ublindf && ublindf->otyp == GAS_MASK)) {
             potionbreathe(&fakeobj);
         } else if (mtmp && (!breathless(mtmp->data) || haseyes(mtmp->data))
                     && !can_magbreathe(mtmp)) {

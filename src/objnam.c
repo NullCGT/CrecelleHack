@@ -723,7 +723,7 @@ xname_flags(
             add_oprop_text(obj, pknown, buf);
         /* note: lenses or towel prefix would overwrite poisoned weapon
            prefix if both were simultaneously possible, but they aren't */
-        if (is_glasses(obj))
+        if (is_glasses(obj) && obj->otyp != GAS_MASK)
             Strcpy(buf, "pair of ");
         else if (is_wet_towel(obj))
             Strcpy(buf, (obj->spe < 3) ? "moist " : "wet ");

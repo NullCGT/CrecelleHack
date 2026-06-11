@@ -2880,6 +2880,10 @@ doeat(void)
         pline("If you can't breathe air, how can you consume solids?");
         return ECMD_OK;
     }
+    if (ublindf && ublindf->otyp == GAS_MASK) {
+        pline("Your mask is too cumbersome to eat with.");
+        return ECMD_OK;
+    }
     if (!(otmp = floorfood("eat", 0)))
         return ECMD_OK;
     if (check_capacity((char *) 0))

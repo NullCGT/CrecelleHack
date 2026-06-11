@@ -252,6 +252,10 @@ m_initweap(struct monst *mtmp)
                 w1 = rn2(2) ? BROADSWORD : LONG_SWORD;
                 break;
             case PM_CAPTAIN:
+                if (!rn2(100))
+                    (void) mongets(mtmp, GAS_MASK);
+                FALLTHROUGH;
+                /*FALLTHRU*/
             case PM_WATCH_CAPTAIN:
                 w1 = rn2(2) ? LONG_SWORD : SABER;
                 break;

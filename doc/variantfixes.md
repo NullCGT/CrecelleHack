@@ -7,6 +7,11 @@
 ## Options
 - biome_overview
 
+## New Objects
+- Gas Mask
+  - Blocks poison gas and potion clouds.
+  - Blocks eating when worn.
+
 ## Misc
 - YAFM for closed shops.
 - Prevent shopkeepers from locking players inside their shops at night.

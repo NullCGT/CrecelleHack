@@ -349,6 +349,9 @@ m_poisongas_ok(struct monst *mtmp)
     if ((mtmp->data->mlet == S_EEL || Is_waterlevel(&u.uz))
         && is_pool(px, py))
         return M_POISONGAS_OK;
+    /* gas masks block vapor effects */
+    if (is_you && ublindf && ublindf->otyp == GAS_MASK)
+        return M_POISONGAS_OK;
     /* exclude monsters with poison gas breath attack:
        adult green dragon and Chromatic Dragon (and iron golem,
        but nonliving() and breathless() tests also catch that) */

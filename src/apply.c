@@ -4534,6 +4534,7 @@ doapply(void)
     case SUNGLASSES:
     case TINKER_GOGGLES:
     case MIRRORED_GLASSES:
+    case GAS_MASK:
         if (obj == ublindf) {
             if (!cursed(obj))
                 Blindf_off(obj);
@@ -4543,7 +4544,8 @@ doapply(void)
             You("are already %s.",
                 (ublindf->otyp == TOWEL) ? "covered by a towel"
                 : (ublindf->otyp == BLINDFOLD) ? "wearing a blindfold"
-                  : "wearing glasses");
+                    : (ublindf->otyp == GAS_MASK) ? "wearing a mask"
+                        : "wearing glasses");
         }
         break;
     case CREAM_PIE:

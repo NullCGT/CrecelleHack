@@ -24,6 +24,8 @@
 - Dragonhide cannot be explicitly specified as a material. Wishing for a dragonhide
   item results in a normal item of that types, while transmuting dragonhide results
   in a random material.
+- Increasing the pet handling skill increases the max number of pets you can have
+  (and increase it by 1 generally).
 
 # 1.5.1
 ## Objects

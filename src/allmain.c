@@ -269,7 +269,7 @@ moveloop_core(void)
 
                 /* Untame excess tame monsters. We have an extra check here so that
                    we do a little bit less integer division. */
-                if (weakdog && numdogs > 1 && numdogs > ACURR(A_CHA) / 3) {
+                if (weakdog && (numdogs > max(1, (ACURR(A_CHA) / 3) + P_SKILL(P_PET_HANDLING)))) {
                     if (canseemon(weakdog))
                         pline_mon(weakdog, "%s goes wild!", Monnam(weakdog));
                     else

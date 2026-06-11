@@ -3,6 +3,7 @@ default values in [].)
 
 Boolean Crecelle Options
 altstarts               gnomes start in gnomish mines              [True]
+biome_overview          displays dungeon biome in overview         [False]
 bold_coatings           indicate coated areas using bold           [True]
 char_blurbs             display character creation info blurbs     [False]
 coatstatus              display coating info in status if

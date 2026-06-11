@@ -207,6 +207,9 @@ static int optfn_##a(int, int, boolean, char *, char *);
            "use background color for some map hilighting")
     NHOPTO("bind keys", Advanced, o_bind_keys, BUFSZ, opt_in, set_in_game,
                 No, Yes, No, NoAlias, "edit key binds")
+    NHOPTB(biome_overview, Variant, 0, opt_in, set_in_game,
+           Off, Yes, No, No, NoAlias, &flags.biome_overview, Term_False,
+           "display biomes in dungeon overview")
 #if defined(MICRO) && !defined(AMIGA)
     NHOPTB(BIOS, Advanced, 0, opt_in, set_in_config,
            Off, Yes, No, No, NoAlias, &iflags.BIOS, Term_False,

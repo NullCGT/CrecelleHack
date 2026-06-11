@@ -23,6 +23,7 @@ struct flag {
     boolean autoopen;        /* open doors by walking into them */
     boolean beginner;        /* True early in each game; affects feedback */
     boolean biff;            /* enable checking for mail */
+    boolean biome_overview;  /* display biomes in dungeon overview */
     boolean bold_coatings;   /* use bold to indicate coatings*/
     boolean bones;           /* allow saving/loading bones */
     boolean char_blurbs;     /* character creation blurbs */

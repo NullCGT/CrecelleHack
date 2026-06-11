@@ -202,38 +202,40 @@ wiz_map(void)
 int
 wiz_biome(void)
 {
-    char buf[BUFSZ], dummy = '\0';
-    int newbiome = 0;
-    int ret;
+    winid win;
+    anything any;
+    int newbiome, ret;
+    menu_item *selected = NULL;
 
     if (y_n("Regenerate all biomes in current dungeon?") == 'y') {
         init_biomes(u.uz.dnum);
-        pline("Regenerated the biomes of the current dungeon.");
+        pline("Regenerated the biome skeleton of the current dungeon.");
         return ECMD_OK;
     }
-    /* Input */
-    buf[0] = '\0'; /* in case EDIT_GETLIN is enabled */
-    getlin("Set current biome to which index?", buf);
-    (void) mungspaces(buf);
-    if (buf[0] == '\033' || buf[0] == '\0')
-        ret = 0;
-    else
-        ret = sscanf(buf, "%d%c", &newbiome, &dummy);
-    /* Result */
-    if (ret != 1) {
-        pline1(Never_mind);
-        return ECMD_OK;
+
+    any = cg.zeroany;
+    win = create_nhwindow(NHW_MENU);
+    start_menu(win, MENU_BEHAVE_STANDARD);
+    for (int i = 0; i < BIOME_MAX; i++) {
+        any.a_int = i + 1;
+        add_menu(win, &nul_glyphinfo, &any, 0, 0,
+                 ATR_NONE, NO_COLOR, all_biomes[i].name,
+                 MENU_ITEMFLAGS_NONE);
     }
-    if (newbiome >= BIOME_MAX || newbiome < 0) {
-        pline("Invalid biome; biome must be less than %d", BIOME_MAX);
-        return ECMD_OK;
+    end_menu(win, "Set current level to which biome?");
+    ret = select_menu(win, PICK_ONE, &selected);
+    if (ret > 0) {
+        newbiome = selected[0].item.a_int - 1;
+        for (int j = 0; j < DGN_BIOMES; j++) {
+            if (svd.dungeons[u.uz.dnum].biome_cutoff[j] > u.uz.dlevel)
+                svd.dungeons[u.uz.dnum].biome_ids[j] = newbiome;
+        }
+        svl.level.flags.biome = newbiome;
+        pline("Set biome to %s.", all_biomes[svl.level.flags.biome].name);
     }
-    for (int i = 0; i < DGN_BIOMES; i++) {
-        if (svd.dungeons[u.uz.dnum].biome_cutoff[i] > u.uz.dlevel)
-            svd.dungeons[u.uz.dnum].biome_ids[i] = newbiome;
-    }
-    svl.level.flags.biome = newbiome;
-    pline("Set biome to %d.", svl.level.flags.biome);
+    destroy_nhwindow(win);
+    free((genericptr_t) selected);
+    wiz_makemap();
     return ECMD_OK;
 }
 

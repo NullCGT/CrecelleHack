@@ -13,6 +13,10 @@
 #define X_LOCATE "x-loca"
 #define X_GOAL "x-goal"
 
+#define BIOME(id, nam) { nam }
+struct biome all_biomes[] = { BIOME_LIST };
+#undef BIOME
+
 struct proto_dungeon {
     struct tmpdungeon tmpdungeon[MAXDUNGEON];
     struct tmplevel tmplevel[LEV_LIMIT];
@@ -2892,7 +2896,8 @@ init_mapseen(d_level *lev)
 
 #define OF_INTEREST(feat) \
     ((feat).nfount || (feat).nsink || (feat).nthrone || (feat).naltar   \
-     || (feat).ngrave || (feat).ntree || (feat).nshop || (feat).ntemple)
+     || (feat).ngrave || (feat).ntree || (feat).nshop || (feat).ntemple \
+     || ((feat).msbiome && flags.biome_overview))
   /* || (feat).water || (feat).ice || (feat).lava */
 
 /* returns true if this level has something interesting to print out */
@@ -3132,6 +3137,7 @@ recalc_mapseen(void)
     }
     mptr->flags.knownbones = 0;
     mptr->flags.sokosolved = In_sokoban(&u.uz) && !Sokoban;
+    mptr->feat.msbiome = svl.level.flags.biome;
     /* mptr->flags.bigroom retains previous value when hero can't see */
     if (!Blind)
         mptr->flags.bigroom = Is_bigroom(&u.uz);
@@ -3578,6 +3584,9 @@ print_mapseen(
     if (In_endgame(&mptr->lev))
         Sprintf(buf, "%s%s:", (final != -1) ? TAB : "",
                 endgamelevelname(tmpbuf, i));
+    else if (mptr->feat.msbiome && flags.biome_overview)
+        Sprintf(buf, "%sLevel %d [%s]:", (final != -1) ? TAB : "", i,
+                all_biomes[mptr->feat.msbiome].name);
     else
         Sprintf(buf, "%sLevel %d:", (final != -1) ? TAB : "", i);
 

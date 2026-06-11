@@ -4,6 +4,9 @@
 - New Monsters:
   - (Head) Butler/Maid/Servant
 
+## Options
+- biome_overview
+
 ## Misc
 - YAFM for closed shops.
 - Prevent shopkeepers from locking players inside their shops at night.

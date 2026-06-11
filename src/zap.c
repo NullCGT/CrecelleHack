@@ -5712,7 +5712,7 @@ zap_over_floor(
         boolean potion = has_coating(x, y, COAT_POTION) && levl[x][y].pindex != POT_WATER;
         boolean blood = has_coating(x, y, COAT_BLOOD);
         if (has_coating(x, y, COAT_GRASS) || has_coating(x, y, COAT_FUNGUS)) {
-            remove_coating(x, y, COAT_GRASS);
+            remove_coating(x, y, COAT_GRASS | COAT_FUNGUS);
             add_coating(x, y, COAT_ASHES, 0);
         }
         if (potion || blood || IS_POOL(levl[x][y].typ)) {

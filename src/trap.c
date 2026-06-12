@@ -1537,9 +1537,11 @@ trapeffect_rocktrap(
         }
     } else if (!mtmp) {
         coordxy tx = trap->tx, ty = trap->ty;
+        boolean vis = cansee(tx, ty);
         if (!trap->ammo) {
-            pline("A trap door in %s opens, but nothing falls out!",
-                  the(ceiling(tx, ty)));
+            if (vis)
+                pline("A trap door in %s opens, but nothing falls out!",
+                      the(ceiling(tx, ty)));
             deltrap(trap);
             newsym(tx, ty);
             return Trap_Is_Gone;
@@ -1549,8 +1551,9 @@ trapeffect_rocktrap(
             if (trap->ammo->quan > 1)
                 otmp = splitobj(trap->ammo, 1);
             extract_nobj(otmp, &trap->ammo);
-            pline("A trap door in %s opens and a rock falls out!",
-                  the(ceiling(tx, ty)));
+            if (vis)
+                pline("A trap door in %s opens and a rock falls out!",
+                      the(ceiling(tx, ty)));
             place_object(otmp, tx, ty);
             stackobj(otmp);
             if (cansee(tx, ty)) {

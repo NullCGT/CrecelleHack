@@ -26,6 +26,7 @@
   in a random material.
 - Increasing the pet handling skill increases the max number of pets you can have
   (and increase it by 1 generally).
+- Added the mintroduce patch from SpliceHack (code from xNetHack)
 
 # 1.5.1
 ## Objects

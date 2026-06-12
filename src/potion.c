@@ -2041,20 +2041,27 @@ floor_spillage(int x, int y, short otyp, int corpsenm) {
         impossible("Trying to spill non-tonic %d on floor?", otyp);
     if (otyp == POT_WATER || otyp == POT_ACID || otyp == POT_ALKAHEST) {
         if ((objchain = svl.level.objects[x][y]) != 0) {
-            if (otyp == POT_WATER)
-                water_damage_chain(objchain, TRUE);
-            else if (otyp == POT_ACID) {
+            if (otyp == POT_WATER
+                || otyp == POT_ACID
+                || otyp == POT_ALKAHEST) {
                 while (objchain) {
                     oldchain = objchain;
                     objchain = objchain->nexthere;
-                    acid_damage(oldchain);
-                }
-            } else if (otyp == POT_ALKAHEST) {
-                while (objchain) {
-                    oldchain = objchain;
-                    objchain = objchain->nexthere;
-                    if (!is_ascension_obj(oldchain))
-                        delobj(oldchain);
+                    switch(otyp) {
+                    case POT_WATER:
+                        water_damage(oldchain, (char *) 0, FALSE);
+                        break;
+                    case POT_ACID:
+                        acid_damage(oldchain);
+                        break;
+                    case POT_ALKAHEST:
+                        if (!is_ascension_obj(oldchain))
+                            delobj(oldchain);
+                        break;
+                    default:
+                        impossible("Bad tonic erosion %d? What?", otyp);
+                        break;
+                    }
                 }
             }
         }

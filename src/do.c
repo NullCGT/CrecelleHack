@@ -1965,6 +1965,9 @@ goto_level(
             record_achievement(ACH_ASTR); /* reached Astral level */
         } else if (newdungeon && u.uhave.amulet) {
             if (Role_if(PM_ROGUE)) {
+                /* Rogues have to deal with extra angry mplayers */
+                if (new && !on_level(&u.uz, &astral_level))
+                    create_mplayers(rn1(3, 3), TRUE);
                 /* force confrontation with quest leader you robbed */
                 makemon(&mons[roles[flags.rogvictim].ldrnum], u.ux, u.uy, MM_NOWAIT);
                 verbalize("We've finally found you, %s!", svp.plname);
@@ -1976,9 +1979,6 @@ goto_level(
                 resurrect(); /* force confrontation with Wizard */
             }
         }
-        /* Rogues have to deal with extra angry mplayers */
-        if (new && !on_level(&u.uz, &astral_level))
-            create_mplayers(rn1(3, 3), TRUE);
     } else if (In_quest(&u.uz)) {
         onquest(); /* might be reaching locate|goal level */
     } else if (Is_knox(&u.uz)) {

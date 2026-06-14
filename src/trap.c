@@ -5110,7 +5110,7 @@ water_damage(
             pline("The %s dissolves your %s!", hliquid("water"), ostr);
             gm.mentioned_water = !Hallucination;
         }
-        useup(obj);
+        delobj(obj);
         return ER_DESTROYED;
     } else if (Waterproof_container(obj)) {
         if (in_invent && !Blind && !Underwater) {

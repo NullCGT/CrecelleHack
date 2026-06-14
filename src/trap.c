@@ -1784,7 +1784,7 @@ trapeffect_slp_gas_trap(
     } else {
         boolean in_sight = canseemon(mtmp) || (mtmp == u.usteed);
         if (in_sight) {
-            pline_mon(mtmp, "Gas swirls around %s's %s!", Monnam(mtmp), mbodypart(mtmp, FOOT));
+            pline_mon(mtmp, "Gas swirls around %s's %s!", mon_nam(mtmp), mbodypart(mtmp, FOOT));
             seetrap(trap);
         } else
             You_hear("a soft hiss.");

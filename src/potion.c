@@ -14,7 +14,6 @@ staticfn void peffect_hallucination(struct obj *);
 staticfn void peffect_blood(struct obj *);
 staticfn void peffect_honey(struct obj *);
 staticfn void peffect_dye(struct obj *);
-staticfn void peffect_normality(struct obj *);
 staticfn void peffect_water(struct obj *);
 staticfn void peffect_booze(struct obj *);
 staticfn void peffect_enlightenment(struct obj *);
@@ -799,22 +798,6 @@ peffect_dye(struct obj *otmp) {
 }
 
 staticfn void
-peffect_normality(struct obj *otmp) {
-    for (int propidx = 1; propidx < PRONE; ++propidx) {
-        if (u.uprops[propidx].intrinsic) {
-            if ((!otmp->odiluted) || rn2(2))
-                set_itimeout(&u.uprops[propidx].intrinsic, 0L);
-        }
-    }
-    newsym(u.ux, u.uy);
-    You_feel("normal.");
-    docrt();
-    if (Upolyd)
-        rehumanize();
-    gp.potion_unkn++;
-}
-
-staticfn void
 peffect_water(struct obj *otmp)
 {
     if (!otmp->blessed && !otmp->cursed) {
@@ -1494,9 +1477,6 @@ peffects(struct obj *otmp)
         break;
     case POT_DYE:
         peffect_dye(otmp);
-        break;
-    case POT_NORMALITY:
-        peffect_normality(otmp);
         break;
     case POT_WATER:
         peffect_water(otmp);
@@ -2232,11 +2212,6 @@ do_illness:
             mon->minvis = mon->perminvis = 0;
         }
         break;
-    case POT_NORMALITY:
-        mon->minvis = mon->perminvis = mon->mconf = 0;
-        mon->mspeed = mon->mblinded = mon->msleeping = 0;
-        newsym(mon->mx, mon->my);
-        break;
     case POT_INVISIBILITY: {
         boolean sawit = canspotmon(mon),
                 cursed_potion = obj->cursed ? TRUE : FALSE;
@@ -2453,9 +2428,6 @@ potionhit(struct monst *mon, struct obj *obj, int how)
                 You("are no longer invisible.");
             }
             set_itimeout(&HInvis, 0);
-            break;
-        case POT_NORMALITY:
-            peffect_normality(obj);
             break;
         case POT_OIL:
             if (obj->lamplit)

@@ -13,6 +13,8 @@
 - Gas Mask
   - Blocks poison gas and potion clouds.
   - Blocks eating when worn.
+- Removed potion of normality
+  - Effect was unclear, not useful, and overall not fun.
 
 ## Dungeon Generation
 - Give Vlad a nicer throne room.
@@ -291,8 +293,6 @@
 - Tonic of Honey
   - Instead of being handled as a distinct coating, honey is now a
     bespoke potion.
-- Tonic of normality
-  - Cancels all temporary effects currently impacting the drinker.
 ## New Monsters
 - Gray Fungus
   - Originally from SporkHack, but ported from EvilHack.

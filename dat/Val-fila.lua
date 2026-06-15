@@ -5,9 +5,10 @@
 --
 des.level_init({ style = "solidfill", fg = "I" });
 
-des.level_flags("mazelevel", "icedpools", "noflip")
+des.level_flags("mazelevel", "icedpools", "noflip", "cold")
 
 des.level_init({ style="mines", fg=".", bg="I", smoothed=true, joined=true, lit=1, walled=false })
+des.replace_terrain({ region={00,00, 79,20}, fromterrain=".", toterrain=".", coat="snow" })
 
 --
 des.stair("up")

@@ -364,12 +364,17 @@ dosounds(void)
                 "someone cursing shoplifters.",
                 "the chime of a cash register.", "Neiman and Marcus arguing!",
             };
+            static const char *const night_shop_msg[3] = {
+                "someone doing inventory",
+                "the counting of money", "neon signs buzzing!"
+            };
             static const char *const rainy_shop_msg[3] = {
                 "someone cursing the rain.",
                 "a tarp being aired out.", "a rainy day sale!",
             };
             You_hear1(IS_RAINING ? rainy_shop_msg[rn2(2) + hallu]
-                                 : shop_msg[rn2(2) + hallu]);
+                                    : night() ? night_shop_msg[rn2(2) + hallu]
+                                        : shop_msg[rn2(2) + hallu]);
             noisy_shop(sroom);
         }
         return;
@@ -617,6 +622,7 @@ maybe_gasp(struct monst *mon)
     case MS_SOLDIER: /* solider, watchman */
     case MS_GUARD: /* vault guard */
     case MS_NURSE:
+    case MS_SERVANT:
     case MS_SEDUCE: /* nymph, succubus/incubus */
     case MS_LEADER: /* quest leader */
     case MS_GUARDIAN: /* leader's guards */
@@ -1176,6 +1182,7 @@ domonnoise(struct monst *mtmp)
             if (ptr->mlet != S_NYMPH
                 && (could_seduce(mtmp, &gy.youmonst, (struct attack *) 0)
                     == 1)) {
+                mintroduce(mtmp);
                 (void) doseduce(mtmp);
                 break;
             }
@@ -1236,6 +1243,13 @@ domonnoise(struct monst *mtmp)
             verbl_msg = "Take off your shirt, please.";
         else
             verbl_msg = "Relax, this won't hurt a bit.";
+        break;
+    case MS_SERVANT:
+        verbl_msg_mcan = "Ugh, I quit!";
+        if (mtmp->mpeaceful)
+            verbl_msg = "This place is positively filthy!";
+        else
+            verbl_msg = "Would it kill you to clean up after yourself?";
         break;
     case MS_GUARD:
         if (money_cnt(gi.invent))

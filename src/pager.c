@@ -683,9 +683,11 @@ coat_descr(coordxy x, coordxy y, short symidx, char *outbuf) {
     } else if ((levl[x][y].coat_info & COAT_BLOOD) != 0) {
         if (ismnum(levl[x][y].pindex)
                 && (Role_if(PM_HEALER) || touch_petrifies(&mons[levl[x][y].pindex])))
-            Sprintf(buf, "%s covered in %s blood", floor_descr(x, y, symidx), mons[levl[x][y].pindex].pmnames[NEUTRAL]);
+            Sprintf(buf, "%s covered in %s blood",
+                    floor_descr(x, y, symidx), mons[levl[x][y].pindex].pmnames[NEUTRAL]);
         else
-            Sprintf(buf, "%s covered in blood", floor_descr(x, y, symidx));
+            Sprintf(buf, "%s covered in %s",
+                    floor_descr(x, y, symidx), hliquid("blood"));
     } else if ((levl[x][y].coat_info & COAT_FUNGUS) != 0) {
         if (ismnum(levl[x][y].pindex))
             Sprintf(buf, "%s covered in %s", floor_descr(x, y, symidx), mons[levl[x][y].pindex].pmnames[NEUTRAL]);
@@ -702,7 +704,9 @@ coat_descr(coordxy x, coordxy y, short symidx, char *outbuf) {
 char *
 potion_coating_text(char *outbuf, int pindex) {
 
-    if (!objects[pindex].oc_name_known && objects[pindex].oc_uname) {
+    if (Hallucination) {
+        Sprintf(outbuf, "%s tonic", hcolor("stinky"));
+    } else if (!objects[pindex].oc_name_known && objects[pindex].oc_uname) {
         Sprintf(outbuf, "tonic called %s", objects[pindex].oc_uname);
     } else {
         Sprintf(outbuf, "%s%s",

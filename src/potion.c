@@ -438,6 +438,7 @@ make_hallucinated(
             see_monsters();
             see_objects();
             see_traps();
+            docrt();
         }
 
         /* for perm_inv and anything similar
@@ -459,10 +460,7 @@ make_dripping(long xtime, int otyp, int pm)
     if (otyp == POT_BLOOD) {
         otyp = -1 * pm;
     }
-    if (u.udriptype == otyp)
-        incr_itimeout(&HDripping, xtime);
-    else
-        set_itimeout(&HDripping, xtime);
+    set_itimeout(&HDripping, xtime);
     u.udriptype = otyp;
 }
 
@@ -810,6 +808,7 @@ peffect_normality(struct obj *otmp) {
     }
     newsym(u.ux, u.uy);
     You_feel("normal.");
+    docrt();
     if (Upolyd)
         rehumanize();
     gp.potion_unkn++;
@@ -1932,10 +1931,12 @@ coateffects(coordxy x, coordxy y, struct monst *mon) {
         }
         if (isyou) {
             You("slip on %s%s!", banana_peel ? "" : "a patch of ", buf);
-            nomul(-1);
+            hurtle(u.dx, u.dy, 1, FALSE);
             gm.multi_reason = "slipping on something";
             gn.nomovemsg = "You regain your footing.";
             if (!banana_peel) makeknown(POT_OIL);
+            if (banana_peel)
+                record_achievement(ACH_BPEEL);
             make_prone();
         } else {
             if (canseemon(mon)) {
@@ -1943,8 +1944,7 @@ coateffects(coordxy x, coordxy y, struct monst *mon) {
                 pline_mon(mon, "%s slips on %s%s!",
                             Monnam(mon), banana_peel ? "" : "a patch of ", buf);
             }
-            mon->mfrozen = 1;
-            mon->mcanmove = 0;
+            mhurtle(mon, mon->mx - x, mon->my - y, 1);
             make_mon_prone(mon);
         }
     } else if (stepper && isyou && has_coating(x, y, COAT_POTION)
@@ -1959,6 +1959,7 @@ coateffects(coordxy x, coordxy y, struct monst *mon) {
                 otmp = uarmf;
                 remove_worn_item(otmp, TRUE);
                 dropx(otmp);
+                record_achievement(ACH_LOST_BOOT);
             } else {
                 pline("Some %s sticks to your %s.", buf, body_part(FOOT));
             }
@@ -1975,7 +1976,9 @@ coateffects(coordxy x, coordxy y, struct monst *mon) {
             minstapetrify(mon, FALSE);
         }
         remove_coating(x, y, COAT_BLOOD);
-    } else if (has_coating(x, y, COAT_FUNGUS)) {
+    } else if (has_coating(x, y, COAT_FUNGUS)
+                && !(isyou && (Levitation || Flying))
+                && !(!isyou && !grounded(mon->data))) {
         return moldeffects(x, y, mon);
     }
     return DEADMONSTER(mon);
@@ -1987,14 +1990,18 @@ moldeffects(coordxy x, coordxy y, struct monst *mon)
     boolean isyou = (mon == &gy.youmonst);
     boolean flier = (!grounded(mon->data) || (isyou && (Levitation || Flying)));
     struct monst fakemon = cg.zeromonst;
+    int pindex = levl[x][y].pindex;
 
     fakemon.mx = u.ux;
     fakemon.my = u.uy;
-    fakemon.cham = levl[x][y].pindex;
-    set_mon_data(&fakemon, &mons[levl[x][y].pindex]);
+    fakemon.cham = pindex;
+    set_mon_data(&fakemon, &mons[pindex]);
     if (isyou) {
         passive(&fakemon, flier ? NULL : uarmf,
             TRUE, TRUE, AT_KICK, FALSE);
+        if (pindex != PM_NIGHTCRUST
+            && pindex != PM_LICHEN)
+            end_running(TRUE);
     } else {
         passivemm(mon, &fakemon, TRUE, FALSE,
                     flier ? NULL : which_armor(mon, W_ARMF));
@@ -2031,19 +2038,27 @@ floor_spillage(int x, int y, short otyp, int corpsenm) {
         impossible("Trying to spill non-tonic %d on floor?", otyp);
     if (otyp == POT_WATER || otyp == POT_ACID || otyp == POT_ALKAHEST) {
         if ((objchain = svl.level.objects[x][y]) != 0) {
-            if (otyp == POT_WATER)
-                water_damage_chain(objchain, TRUE);
-            else if (otyp == POT_ACID) {
-                while (objchain) {
-                    acid_damage(objchain);
-                    objchain = objchain->nexthere;
-                }
-            } else if (otyp == POT_ALKAHEST) {
+            if (otyp == POT_WATER
+                || otyp == POT_ACID
+                || otyp == POT_ALKAHEST) {
                 while (objchain) {
                     oldchain = objchain;
                     objchain = objchain->nexthere;
-                    if (!is_ascension_obj(oldchain))
-                        delobj(oldchain);
+                    switch(otyp) {
+                    case POT_WATER:
+                        water_damage(oldchain, (char *) 0, FALSE);
+                        break;
+                    case POT_ACID:
+                        acid_damage(oldchain);
+                        break;
+                    case POT_ALKAHEST:
+                        if (!is_ascension_obj(oldchain))
+                            delobj(oldchain);
+                        break;
+                    default:
+                        impossible("Bad tonic erosion %d? What?", otyp);
+                        break;
+                    }
                 }
             }
         }
@@ -2107,6 +2122,8 @@ floor_alchemy(int x, int y, short otyp) {
     if (bomb || !rn2(10)) {
         remove_coating(x, y, COAT_POTION);
         explode(x, y, PHYS_EXPL_TYPE, d(1, 10), 0, EXPL_NOXIOUS);
+        if (!gi.in_mklev && !svc.context.mon_moving)
+            record_achievement(ACH_JUN_ALC);
         return 0;
     } else {
         /* potion coatings are handled by floor_spillage() */
@@ -2728,7 +2745,7 @@ potionbreathe(struct obj *obj)
     case POT_ALKAHEST:
     case POT_ACID: {
         int dmg = rnd((obj->otyp == POT_ACID) ? 8 : 16);
-        if (!Acid_immunity) {
+        if (!Acid_immunity && !u.uinvulnerable) {
             You("are dissolving!");
             adjust_damage(&gy.youmonst, &dmg, AD_ACID);
             losehp(dmg, "acidic vapors", KILLED_BY);
@@ -3201,7 +3218,7 @@ dodip(void)
                 } else if (obj->oclass == GEM_CLASS) {
                     floor_alchemy(u.ux, u.uy, obj->otyp);
                 } else {
-                    pline("The liquid here is spread to thin for things to get interesting...");
+                    pline("The liquid here is spread too thin for things to get interesting...");
                 }
                 return ECMD_TIME;
             }
@@ -3841,7 +3858,7 @@ dye_obj(struct obj *obj, int color, boolean your_fault) {
         newodye(obj);
     ODYE(obj) = color;
     if (your_fault)
-        u.uconduct.dyed++;
+        u.uconduct.dyer++;
 }
 
 /* convert an object's dye index to a string */

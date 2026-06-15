@@ -1035,7 +1035,8 @@ x_monnam(
         pm_name = mustelid_types[mtmp->m_id % SIZE(mustelid_types)];
     } else if (mtmp->data == &mons[PM_ACID_BLOB]) {
         strcat(buf, OBJ_DESCR(objects[POT_ACID]));
-        pm_name = " blob";
+        strcat(buf, " ");
+        pm_name = "blob";
     } else {
         pm_name = mon_pmname(mtmp);
     }
@@ -1796,6 +1797,63 @@ lookup_novel(const char *lookname, int *idx)
         return sir_Terry_novels[*idx];
 
     return (const char *) 0;
+}
+
+/* Most of these are actual names of nymphs from mythology. */
+const char* nymphnames[] = {
+    "Erythea", "Hesperia", "Arethusa", "Pasithea", "Thaleia", "Halimede",
+    "Actaea", "Electra", "Maia", "Nesaea", "Alcyone", "Asterope",
+    "Callianeira", "Nausithoe", "Dione", "Thetis", "Ephyra", "Eulimene",
+    "Nerea", "Laomedeia", "Echo", "Maera", "Eurydice", "Lysianassa", "Phoebe",
+    "Daphnis", "Daphnae", "Melinoe", "Othreis", "Polychrome"
+};
+
+const char* maldemonnames[] = {
+    "Agiel", "Kali", "Amon", "Foras", "Armaros", "Orias", "Malthus", "Asag",
+    "Raum", "Iblis", "Vanth", "Bael", "Leonard", "Barbas", "Charun", "Ishmael",
+    "Balthamel", "Rahvin"
+};
+
+const char* femdemonnames[] = {
+    "Mara", "Lamia", "Meraxes", "Daeva", "Amy", "Lilith", "Aliss", "Berith",
+    "Euryale", "Zorya", "Rhaenyra", "Bellatrix", "Rusalka", "Messaana",
+    "Jadis", "Anzu", "Eve", "Bilquis", "Cyndane", "Vanessa", "Graendal"
+};
+#define rnd_name(list) list[rn2(SIZE(list))]
+
+/* Monster introduces themselves. If they're not currently named, give them a
+ * random name from the specified list. */
+void
+mintroduce(struct monst *mtmp)
+{
+    if (!has_mgivenname(mtmp)
+        && !type_is_pname(mtmp->data)
+        && !mtmp->isshk) {
+        const char* name;
+        if (mtmp->data->mlet == S_NYMPH) {
+            name = rnd_name(nymphnames);
+        } else if (is_demon(mtmp->data)) {
+            if (mtmp->female)
+                name = rnd_name(femdemonnames);
+            else
+                name = rnd_name(maldemonnames);
+        } else {
+            impossible("mintroduce: monster type for %s has no defined names!",
+                       noit_mon_nam(mtmp));
+            return;
+        }
+        const char* pronoun =
+            genders[is_neuter(mtmp->data) ? 2 : mtmp->female].him;
+        if (!Deaf) {
+            pline("%s introduces %sself to you as %s.", Monnam(mtmp), pronoun,
+                  name);
+            christen_monst(mtmp, name);
+        } else {
+            pline("%s seems to be introducing %sself, but you can't hear %s.",
+                  Monnam(mtmp), pronoun, pronoun);
+        }
+    }
+    return;
 }
 
 /*do_name.c*/

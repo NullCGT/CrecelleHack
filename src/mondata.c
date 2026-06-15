@@ -566,7 +566,7 @@ hates_material(struct permonst *ptr, int material)
                           || is_demon(ptr) || ptr == &mons[PM_SHADE]
                           || (ptr->mlet == S_IMP));
     } else if (material == SALT) {
-        return (ptr->mlet == S_MUMMY);
+        return (ptr->mlet == S_MUMMY || ptr == &mons[PM_GIANT_SLUG]);
     } else if (material == IRON || material == NIGHTIRON) {
         /* elves hate cold iron */
         return is_elf(ptr);
@@ -582,6 +582,8 @@ sear_damage(int material)
     switch (material) {
     case SILVER:
         return 20;
+    case SALT:
+        return 10;
     case IRON:
     default:
         return 6;
@@ -1365,6 +1367,7 @@ static const short grownups[][2] = {
     { PM_KNIGHT_WATCH, PM_KOP_KAPTAIN },
     { PM_KOP_LIEUTENANT, PM_KOP_KAPTAIN },
     { PM_PAPER_GOLEM, PM_SCROLEM },
+    { PM_SERVANT, PM_HEAD_SERVANT },
     { NON_PM, NON_PM }
 };
 

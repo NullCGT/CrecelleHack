@@ -895,7 +895,7 @@ gcrownu(void)
         /* not an artifact, but treat like one for this situation;
            classify as a spoiler in case player hasn't IDed the book yet */
         livelog_printf(LL_DIVINEGIFT | LL_ARTIFACT | LL_SPOILER,
-                       "was bestowed with %s, %s", bbuf, an(OBJ_NAME(objects[obj->otyp])));
+                       "was bestowed with %s", bbuf);
 
         /* when getting a new book for known spell, enhance
            currently wielded weapon rather than the book */
@@ -1838,7 +1838,10 @@ bestow_artifact(uchar max_giftvalue)
                             artiname(otmp->oartifact),
                             align_gname(u.ualign.type));
             /* make sure we can use this weapon */
-            unrestrict_weapon_skill(weapon_type(otmp));
+            if (otmp->oartifact == ART_SELENIC_SEAT)
+                unrestrict_weapon_skill(P_RIDING);
+            else
+                unrestrict_weapon_skill(weapon_type(otmp));
             if (!Hallucination && !Blind) {
                 observe_object(otmp);
                 makeknown(otmp->otyp);

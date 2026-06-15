@@ -1083,6 +1083,18 @@ shop_keeper(char rmno)
                correct the underlying svr.rooms[].resident issue but... */
             return (struct monst *) 0;
         }
+    } else {
+        if (!level_status.shkready) {
+            int hmm UNUSED = 1;
+#if (NH_DEVEL_STATUS != NH_STATUS_RELEASED \
+     && NH_DEVEL_STATUS != NH_STATUS_POSTRELEASE)
+            impossible("untrustworthy null shkp; level_status.shkready"
+                        " is FALSE (%d, %d, %d, &d)",
+                        level_status.making, level_status.loading,
+                        level_status.shkready, level_status.ready);
+#endif
+            nhUse(hmm);
+        }
     }
     return shkp;
 }
@@ -1683,7 +1695,8 @@ menu_pick_pay_items(
     menu_item *pick_list = (menu_item *) 0;
     char *p, buf[BUFSZ];
     long amt, largest_amt, save_quan;
-    int i, j, n, amt_width;
+    int i, j, n, amt_width, tmpglyph;
+    glyph_info tmpglyphinfo;
 
     any = cg.zeroany;
     win = create_nhwindow(NHW_MENU);
@@ -1724,7 +1737,9 @@ menu_pick_pay_items(
            isn't hallucinating; also, that would mess up the alignment */
         Snprintf(buf, sizeof buf, "%*ld Zm, %s", amt_width, amt, p);
         any.a_int = i + 1; /* +1: avoid 0 */
-        add_menu(win, &nul_glyphinfo, &any, 0, 0, ATR_NONE, NO_COLOR, buf,
+        tmpglyph = obj_to_glyph(otmp, rn2_on_display_rng);
+        map_glyphinfo(0, 0, tmpglyph, 0U, &tmpglyphinfo);
+        add_menu(win, &tmpglyphinfo, &any, 0, 0, ATR_NONE, NO_COLOR, buf,
                  MENU_ITEMFLAGS_NONE);
     }
 
@@ -3194,7 +3209,7 @@ set_cost(struct obj *obj, struct monst *shkp)
                 || is_worthless_glass(obj)) {
                 tmp = (obj->otyp % (6 - shkp->m_id % 3));
                 tmp = (tmp + 3) * obj->quan;
-                divisor = 1L;
+                multiplier = divisor = 1L;
             }
         } else if (tmp > 1L && !(shkp->m_id % 4))
             multiplier *= 3L, divisor *= 4L;
@@ -4058,7 +4073,6 @@ sellobj(
 
     if ((!saleitem && !(container && cltmp > 0L)) || eshkp->billct == BILLSZ
         || obj->oclass == BALL_CLASS || obj->oclass == CHAIN_CLASS
-        || obj->oclass == BOTTLE_CLASS
         || has_osum(obj)
         || offer == 0L || (obj->oclass == FOOD_CLASS && obj->oeaten)
         || (Is_candle(obj)
@@ -6161,7 +6175,7 @@ close_shops(boolean loud)
     struct monst *shkp;
 
     for (shkp = next_shkp(fmon, FALSE); shkp;
-         shkp = next_shkp(shkp->nmon, FALSE)) {
+        shkp = next_shkp(shkp->nmon, FALSE)) {
         if (on_level(&(ESHK(shkp)->shoplevel), &u.uz))
             close_up_shop(shkp, loud);
     }
@@ -6176,6 +6190,7 @@ close_up_shop(struct monst *shkp, boolean loud)
     int fdoor = sroom->fdoor;
     int rt = sroom->rtype;
     coord cc = svd.doors[fdoor];
+    struct monst *shkp2;
 
     /* Can't close up */
     if (shk_impaired(shkp) || ANGRY(shkp))
@@ -6193,17 +6208,30 @@ close_up_shop(struct monst *shkp, boolean loud)
     if (night()
         && (levl[cc.x][cc.y].doormask == D_ISOPEN
             || levl[cc.x][cc.y].doormask == D_CLOSED)) {
-        if (loud) {
-            if (canseemon(shkp))
-                pline("%s claps %s hands.", Shknam(shkp), mhis(shkp));
-            verbalize("%s %s is now closed for the evening!",
-                        s_suffix(shkname(shkp)), shtypes[rt - SHOPBASE].name);
-            if (cansee(cc.x, cc.y))
-                pline("The shop door locks.");
+        shkp2 = shop_keeper(*in_rooms(u.ux, u.uy, SHOPBASE));
+        if (shkp == shkp2) {
+            if (canseemon(shkp)) { 
+                if (Deaf) {
+                    pline("%s rolls %s eyes and gestures at the door.",
+                            Monnam(shkp), mhis(shkp));
+                } else {
+                    pline("%s sighs loudly.", Shknam(shkp));
+                    verbalize("I should really be closing up about now...");
+                }
+            }
+        } else {
+            if (loud) {
+                if (canseemon(shkp))
+                    pline("%s claps %s hands.", Shknam(shkp), mhis(shkp));
+                verbalize("%s %s is now closed for the evening!",
+                            s_suffix(shkname(shkp)), shtypes[rt - SHOPBASE].name);
+                if (cansee(cc.x, cc.y))
+                    pline("The shop door locks.");
+            }
+            levl[cc.x][cc.y].doormask = D_LOCKED;
+            newsym(cc.x, cc.y);
+            block_point(cc.x, cc.y);
         }
-        levl[cc.x][cc.y].doormask = D_LOCKED;
-        newsym(cc.x, cc.y);
-        block_point(cc.x, cc.y);
     } else if (!night()
                 && (levl[cc.x][cc.y].doormask == D_LOCKED
                     || levl[cc.x][cc.y].doormask == D_LOCKED)) {

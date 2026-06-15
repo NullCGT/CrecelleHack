@@ -222,6 +222,7 @@ des.monster(monster[3],27,11)
 des.monster(monster[4],30,11)
 des.monster(monster[5],33,11)
 des.monster(monster[6],36,11)
+des.monster("servant",36,08)
 -- MazeWalks
 des.mazewalk(00,10,"west")
 des.mazewalk(62,06,"east")

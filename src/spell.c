@@ -321,7 +321,7 @@ deadbook(struct obj *book2)
         /* last place some monsters around you */
         mm.x = u.ux;
         mm.y = u.uy;
-        mkundead(&mm, TRUE, NO_MINVENT);
+        mkundead((struct monst *) NULL, &mm, TRUE, NO_MINVENT);
     } else if (book2->blessed) {
         iter_mons(deadbook_pacify_undead);
     } else {

@@ -131,7 +131,8 @@ collateral_damage(struct monst *mtmp, struct attack *mattk)
                         MAY_DESTROY | MAY_HIT | VIS_EFFECTS,
                         (struct obj *) 0);
     }
-    if (slice && remove_coating(u.ux, u.uy, COAT_GRASS)
+    if (slice && has_coating(u.ux, u.uy, COAT_GRASS)
+        && remove_coating(u.ux, u.uy, COAT_GRASS)
         && flags.verbose) {
         pline("Grass flies through the air.");
     }
@@ -778,9 +779,12 @@ mattacku(struct monst *mtmp)
         return 0;
     }
 
-    /* monster might grapple you to gain an advantage */
+    /* monster might grapple you to gain an advantage.
+       this is disabled when fuzzing because otherwise the player tends
+       to get stuck in loops of getting grabbed and killed repeatedly. */
     if (!ranged && !u.ustuck && !mtmp->mundetected
-        && can_grapple(mtmp->data) && !critically_low_hp(FALSE)) {
+        && can_grapple(mtmp->data) && !critically_low_hp(FALSE)
+        && !iflags.debug_fuzzer) {
         int grapple_chance = 1;
         if (u.utrap && u.utraptype == TT_LAVA) grapple_chance += 20;
         /* if (region_danger()) grapple_chance += 20; */
@@ -1835,10 +1839,15 @@ gazemu(struct monst *mtmp, struct attack *mattk)
                           Monnam(mtmp), mhis(mtmp));
                 break;
             }
-            if (useeit)
-                pline("%s is turned to stone!", Monnam(mtmp));
-            gs.stoned = TRUE;
-            killed(mtmp);
+            if (is_medusa) {
+                if (useeit)
+                    pline("%s avoids %s reflected gaze.", Monnam(mtmp), mhis(mtmp));
+            } else {
+                if (useeit)
+                    pline("%s is turned to stone!", Monnam(mtmp));
+                gs.stoned = TRUE;
+                killed(mtmp);
+            }
 
             if (!DEADMONSTER(mtmp))
                 break;
@@ -1865,10 +1874,15 @@ gazemu(struct monst *mtmp, struct attack *mattk)
                 int conf = d(3, 4);
 
                 mtmp->mspec_used = mtmp->mspec_used + (conf + rn2(6));
-                if (!Confusion)
-                    pline_mon(mtmp, "%s gaze confuses you!",
-                              s_suffix(Monnam(mtmp)));
-                else
+                if (!Confusion) {
+                    if (mtmp->data == &mons[PM_SCROLEM]) {
+                        pline_mon(mtmp, "The scrawlings on %s confuse you!",
+                                    mon_nam(mtmp));
+                    } else {
+                        pline_mon(mtmp, "%s gaze confuses you!",
+                                s_suffix(Monnam(mtmp)));
+                    }
+                } else
                     You("are getting more and more confused.");
                 make_confused(HConfusion + conf, FALSE);
                 stop_occupation();

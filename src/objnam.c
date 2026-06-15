@@ -723,7 +723,7 @@ xname_flags(
             add_oprop_text(obj, pknown, buf);
         /* note: lenses or towel prefix would overwrite poisoned weapon
            prefix if both were simultaneously possible, but they aren't */
-        if (is_glasses(obj))
+        if (is_glasses(obj) && obj->otyp != GAS_MASK)
             Strcpy(buf, "pair of ");
         else if (is_wet_towel(obj))
             Strcpy(buf, (obj->spe < 3) ? "moist " : "wet ");
@@ -850,7 +850,6 @@ xname_flags(
         break;
     case COIN_CLASS:
     case CHAIN_CLASS:
-    case BOTTLE_CLASS:
         Strcpy(buf, actualn);
         break;
     case ROCK_CLASS:
@@ -4356,7 +4355,7 @@ readobjnam_preparse(struct _readobjnam_data *d)
                  * interpreted as gold */
                 break;
             }
-            mat = lookup_material_by_name(d->bp, &l);
+            mat = lookup_material_by_name(d->bp, &l, FALSE);
             if (mat) {
                 d->material = mat;
                 l += 1;
@@ -5698,6 +5697,7 @@ readobjnam(char *bp, struct obj *no_wish)
     /* material handling */
     if (d.material > 0
         && (!d.otmp->oartifact || d.otmp->oartifact == ART_HORN_OF_THE_HORDE)
+        && !(d.material == DRAGON_HIDE && !wizard)
         && ((wizard && !iflags.debug_fuzzer)
             || valid_obj_material(d.otmp, d.material))) {
         if (!valid_obj_material(d.otmp, d.material)) {
@@ -6064,13 +6064,13 @@ lookup_oprop_by_name(char *buf, int *l)
 /* Look up a material via its name. Pulled out into a function so we can
    do this in special levels. */
 int
-lookup_material_by_name(char *buf, int *l)
+lookup_material_by_name(char *buf, int *l, boolean bypass)
 {
     /* doesn't currently catch "wood" for wooden */
     for (int i = 1; i < NUM_MATERIAL_TYPES; i++) {
-        if (!strncmpi(buf, MAT_NAME(i), *l = strlen(MAT_NAME(i)))
-            && !not_spec_material(buf, i)){
-            return i;
+        if (!strncmpi(buf, MAT_NAME(i), *l = strlen(MAT_NAME(i)))) {
+            if (bypass || !not_spec_material(buf, i))
+                return i;
         }
     }
     return 0;   

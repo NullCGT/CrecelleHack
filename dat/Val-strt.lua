@@ -10,7 +10,7 @@
 --	and receive your quest assignment.
 --
 
-des.level_flags("mazelevel", "noteleport", "hardfloor", "icedpools", "outdoors")
+des.level_flags("mazelevel", "noteleport", "hardfloor", "icedpools", "outdoors", "cold")
 des.level_init({ style = "solidfill", fg = "I" })
 
 local pools = selection.new()

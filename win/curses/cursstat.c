@@ -1250,6 +1250,7 @@ curs_vert_status_vals(int win_width)
                       : "hit-dice";
                 break;
             case BL_ALIGN:
+            case BL_TOD:
                 /* don't want sprintf(": %s") below inserting second space */
                 if (*text == ' ')
                     ++text;

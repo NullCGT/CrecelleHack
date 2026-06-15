@@ -274,10 +274,10 @@ castmu(
     if (!foundyou && thinks_it_foundyou
         && !is_undirected_spell(spellnum)) {
         pline_mon(mtmp, "%s casts %s at %s!",
+                 canseemon(mtmp) ? Monnam(mtmp) : "Something",
                  ((Role_if(PM_WIZARD) && mattk->adtyp == AD_SPEL)
                     || (Role_if(PM_CLERIC) && mattk->adtyp == AD_CLRC))
                         ? mcast_data[spellnum].name : "a spell",
-                 canseemon(mtmp) ? Monnam(mtmp) : "Something",
                  is_waterwall(mtmp->mux, mtmp->muy) ? "empty water"
                                                     : "thin air");
         return M_ATTK_MISS;
@@ -530,7 +530,9 @@ mcast_raise_dead(struct monst *mtmp)
     mm.y = mtmp->my;
     if (!rn2(3))
         (void) unturn_dead(&gy.youmonst);
-    mkundead(&mm, TRUE, NO_MINVENT);
+    if (!has_esum(mtmp))
+        newesum(mtmp);
+    mkundead(mtmp, &mm, TRUE, NO_MINVENT | MM_ESUM);
 }
 
 staticfn void
@@ -1149,6 +1151,10 @@ mcast_spell(struct monst *mtmp, int dmg, int spellnum)
         litroom(FALSE, (struct obj *) 0);
         dmg = 0;
         break;
+    case MCAST_TELEPORT:
+        mnexto(mtmp, RLOC_MSG);
+        dmg = 0;
+        break;
     }
     if (adtyp)
         adjust_damage(&gy.youmonst, &dmg, adtyp);
@@ -1205,7 +1211,7 @@ spell_would_be_useless(struct monst *mtmp, int spellnum)
             return TRUE;
         break;
     case MCAST_TELEPORT:
-        if ((distu(mtmp->mx, mtmp->my) > 4) || mtmp->mhp * 3 < mtmp->mhpmax)
+        if ((distu(mtmp->mx, mtmp->my) > 9) && mtmp->mhp * 3 > mtmp->mhpmax)
             return TRUE;
         break;
     case MCAST_LEVITATE_YOU:

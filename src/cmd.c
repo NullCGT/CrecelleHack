@@ -941,6 +941,9 @@ domonability(void)
                 && uptr != &mons[PM_BLOOD_IMP])
                 || is_vampshifter(&gy.youmonst)) {
         return dopoly();
+    } else if (is_cleaner(uptr) && can_reach_floor(FALSE)) {
+        You("mop up the %s.", surface(u.ux, u.uy));
+        remove_coating(u.ux, u.uy, COAT_DIRTY);
     } else if (u.usteed && can_breathe(u.usteed->data)) {
         (void) pet_ranged_attk(u.usteed, TRUE);
         return ECMD_TIME;
@@ -2013,6 +2016,8 @@ struct ext_func_tab extcmdlist[] = {
               wiz_smell, IFBURIED | AUTOCOMPLETE | WIZMODECMD, NULL },
     { '\0',   "wiztelekinesis", "telekinesis",
               wiz_telekinesis, IFBURIED | AUTOCOMPLETE | WIZMODECMD, NULL },
+    { '\0',   "wiztime", "advance the time of day",
+              wiz_time, IFBURIED | AUTOCOMPLETE | WIZMODECMD, "wiztod" },
     { '\0',   "wizweather", "show locations of special levels",
               wiz_weather, IFBURIED | AUTOCOMPLETE | WIZMODECMD, NULL },
     { '\0',   "wizwhere", "show locations of special levels",

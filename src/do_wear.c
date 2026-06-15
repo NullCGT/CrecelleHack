@@ -2024,6 +2024,8 @@ cursed(struct obj *otmp)
                       : ((otmp->owornmask & (W_WEP | W_RING)) != 0)))
             pline("Despite your slippery %s, you can't.",
                   fingers_or_gloves(TRUE));
+        else if (Hallucination && otmp->otyp == GAS_MASK)
+            pline("Are you my mummy?");
         else if (Hallucination && otmp->otyp == SUNGLASSES)
             You("can't. Deal with it.");
         else if (Hallucination && otmp->otyp == MIRRORED_GLASSES)
@@ -2607,6 +2609,7 @@ doputon(void)
              (ublindf->otyp == LENSES) ? "some lenses" :
              (ublindf->otyp == SUNGLASSES) ? "some shades" :
              (ublindf->otyp == TINKER_GOGGLES) ? "some goggles" :
+             (ublindf->otyp == GAS_MASK) ? "a mask" :
              (ublindf->otyp == MIRRORED_GLASSES) ? "some glasses" : "a blindfold");
         return ECMD_OK;
     }

@@ -167,7 +167,6 @@
 #define infravision(ptr) (((ptr)->mflags3 & M3_INFRAVISION))
 #define infravisible(ptr) (((ptr)->mflags3 & M3_INFRAVISIBLE))
 #define is_displacer(ptr) (((ptr)->mflags3 & M3_DISPLACES) != 0L)
-#define is_ambusher(ptr) ((ptr)->mflags3 & M3_AMBUSHER)
 #define is_traitor(ptr) ((ptr)->mflags3 & M3_TRAITOR)
 #define is_tripper(ptr) ((ptr)->mflags3 & M3_TRIPPER)
 #define does_callouts(ptr) ((ptr)->mflags3 & M3_CALLOUT)
@@ -297,6 +296,8 @@
         || ptr == &mons[PM_GRAPPLER])
 #define likes_grass(ptr) \
     (herbivorous(ptr) && !carnivorous(ptr))
+#define paper_eater(ptr) \
+    (ptr == &mons[PM_GIANT_SILVERFISH])
 
 #define mud_hider(ptr) \
     ((!is_hider(ptr) && ptr->msize <= MZ_MEDIUM) \
@@ -311,7 +312,7 @@
             && (!humanoid(ptr) || mindless(ptr) || is_demon(ptr)))
 #define is_jouster(ptr) ((ptr)->mlet == S_CENTAUR \
                             || (ptr)->mlet == S_QUADRUPED || is_rider(ptr))
-
+#define is_cleaner(ptr) (ptr == &mons[PM_SERVANT] || ptr == &mons[PM_HEAD_SERVANT])
 /* monkeys are tamable via bananas but not pacifiable via food,
    otherwise their theft attack could be nullified too easily;
    dogs and cats can be tamed by anything they like to eat and are

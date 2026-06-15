@@ -1873,10 +1873,15 @@ seffect_transmute_material(struct obj **sobjp)
 {
     struct obj *sobj = *sobjp;
     struct obj *otmp;
+    char buf[BUFSZ];
+    int mat;
     boolean scursed = sobj->cursed;
+    boolean sblessed = sobj->blessed;
     boolean already_known = (sobj->oclass == SPBOOK_CLASS /* spell */
                              || objects[sobj->otyp].oc_name_known);
-
+    static const int bad_mats[] = {
+        SALT, PLASTIC, LODEN, PAPER, WAX
+    };
     useup(sobj);
     *sobjp = 0;
     if (!already_known) {
@@ -1884,8 +1889,14 @@ seffect_transmute_material(struct obj **sobjp)
         learnscroll(sobj);
     }
     otmp = getobj("transmute", transmute_ok, GETOBJ_PROMPT | GETOBJ_ALLOWCNT);
+    getlin("Change this item to which material?", buf);
+    (void) mungspaces(buf);
+    mat = lookup_material_by_name(buf, &mat, TRUE);
+    if (mat == DRAGON_HIDE)
+        mat = 0;
     if (otmp) {
-        transmute_obj(otmp, scursed ? PLASTIC : 0);
+        transmute_obj(otmp, scursed ? ROLL_FROM(bad_mats)
+                            : (sblessed || rnl(10) < 5) ? mat : 0);
     }
 }
 
@@ -3217,7 +3228,7 @@ punish(struct obj *sobj)
         }
         return;
     }
-    setworn(mkobj(CHAIN_CLASS, TRUE), W_CHAIN);
+    setworn(mksobj(IRON_CHAIN, FALSE, FALSE), W_CHAIN);
     if (!reuse_ball)
         setworn(mkobj(BALL_CLASS, TRUE), W_BALL);
     else

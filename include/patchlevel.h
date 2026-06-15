@@ -8,11 +8,11 @@
 
 /* NetHack 3.7.x */
 #define VERSION_MAJOR 1
-#define VERSION_MINOR 4
+#define VERSION_MINOR 5
 /*
  * PATCHLEVEL is updated for each release.
  */
-#define PATCHLEVEL 2
+#define PATCHLEVEL 1
 /*
  * Incrementing EDITLEVEL can be used to force invalidation of old bones
  * and save files.
@@ -30,7 +30,7 @@
 /*
  * Development status of this NetHack version.
  */
-#define NH_DEVEL_STATUS NH_STATUS_RELEASED
+#define NH_DEVEL_STATUS NH_STATUS_POSTRELEASE
 
 #ifndef DEBUG  /* allow tool chains to define without causing warnings */
 #define DEBUG
@@ -45,6 +45,14 @@
 /* nomakedefs.copyright_banner_c is generated at runtime */
 #define COPYRIGHT_BANNER_C nomakedefs.copyright_banner_c
 #define COPYRIGHT_BANNER_D "         See license for details."
+
+/*
+ * SAVEFILE_REVISION_LEVEL
+ * Increment this if there has been a change to a data structure
+ * that the source code is prepared to handle and convert properly.
+ * The SAVEFILE_REVISION_LEVEL value needs to fit into an unsigned byte.
+ */
+#define SAVEFILE_REVISION_LEVEL 0x00
 
 /*
  * If two or more successive releases have compatible data files, define

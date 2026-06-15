@@ -139,7 +139,8 @@ enum levl_typ_types {
 #define IS_AIR(typ) ((typ) == AIR || (typ) == CLOUD)
 #define IS_SOFT(typ) ((typ) == AIR || (typ) == CLOUD || IS_POOL(typ))
 #define IS_WATERWALL(typ) ((typ) == WATER)
-#define IS_COATABLE(typ) (IS_STWALL(typ) || ((typ) >= IRONBARS && (typ) < ALTAR))
+#define IS_COATABLE(typ) ((IS_STWALL(typ) || ((typ) >= IRONBARS && (typ) < ALTAR)) \
+                            && !IS_FOUNTAIN(typ))
 #define IS_SUBMASKABLE(typ) (typ == ROOM || typ == CORR || typ == STONE)
 #define IS_OVERWRITABLE(typ) (typ != STAIRS && typ != LADDER)
 /* for surface checks when it's unknown whether a drawbridge is involved;
@@ -177,6 +178,7 @@ struct floor_coating {
     short val;
 };
 extern struct floor_coating all_coatings[];
+#define COAT_DIRTY (COAT_BLOOD | COAT_POTION | COAT_ASHES | COAT_SHARDS | COAT_FUNGUS)
 
 
 /*

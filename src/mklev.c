@@ -1319,6 +1319,9 @@ makelevel(void)
         impossible("makelevel() called when dungeon not yet initialized.");
         init_dungeons();
     }
+    level_status_init();
+    level_status.making = 1;
+
     oinit(); /* assign level dependent obj probabilities */
     clear_level_structures();
     apply_biome_to_level();
@@ -1477,7 +1480,7 @@ makelevel(void)
     for (i = 0; i < svn.nroom; ++i) {
         fill_special_room(&svr.rooms[i]);
     }
-
+    level_status.shkready = 1;
     themerooms_post_level_generate();
 
     if (gl.luacore && nhcb_counts[NHCB_LVL_ENTER]) {
@@ -1488,6 +1491,7 @@ makelevel(void)
     }
     /* apply the biome again, since it's clobbered by the level coder */
     apply_biome_to_level();
+    level_status.making = 0, level_status.ready = 1;
 }
 
 /* return TRUE if water location at (x,y) should have kelp. */
@@ -1631,12 +1635,13 @@ coat_floors(void)
             if (!IS_COATABLE(levl[x][y].typ) || IS_STWALL(levl[x][y].typ))
                 continue;
             if (!has_ceiling(&u.uz) && !rn2(3)) 
-                add_coating(x, y,  COAT_GRASS, 0);
+                add_coating(x, y, (svl.level.flags.temperature == -1)
+                                    ? COAT_FROST : COAT_GRASS, 0);
             if (IS_BIOME(BIOME_SNOWY))
                 add_coating(x, y, COAT_FROST, 0);
             if (IS_BIOME(BIOME_SEWER)) {
                 if (!rn2(10))
-                    add_coating(x, y, COAT_FUNGUS, PM_GREEN_MOLD);
+                    add_coating(x, y, COAT_FUNGUS, PM_LICHEN);
                 else if (!rn2(4))
                     add_coating(x, y, COAT_POTION, POT_WATER);
             }

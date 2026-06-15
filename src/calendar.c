@@ -467,11 +467,10 @@ weather_messages(void)
 const char *
 tod_string(void)
 {
-    if (midnight()) return "Midnight";
-    if (night()) return "Night";
-    if (midday()) return "Midday";
     if (u.uenvirons.tod == TOD_MORNING) return "Morning";
-    return "Evening";
+    if (u.uenvirons.tod == TOD_EARLYNIGHT) return "Night";
+    if (u.uenvirons.tod == TOD_LATENIGHT) return "Late night";
+    return "Afternoon";
 }
 
 void
@@ -617,13 +616,15 @@ timechange_message(boolean new_game)
         pline("It is midnight.");
     }
     /* object messages? */
-    if (uwep && uwep->material == NIGHTIRON){
+    if (uwep && uwep->material == NIGHTIRON) {
         if (u.uenvirons.tod == TOD_MORNING) {
             pline("%s wickedly.", Tobjnam(uwep, "gleam"));
         } else if (u.uenvirons.tod == TOD_EARLYNIGHT) {
             pline("%s dully.", Tobjnam(uwep, "glint"));
         }
     }
+    /* Update display */
+    disp.botl = TRUE;
 }
 
 void

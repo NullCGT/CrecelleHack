@@ -493,8 +493,10 @@ mon_arrive(struct monst *mtmp, int when)
        here for monsters migrating to a newly created level */
     restore_cham(mtmp);
 
-    if (mtmp == u.usteed)
+    if (mtmp == u.usteed) {
+        mtmp->mstate &= ~MON_STILL_ARRIVING;
         return; /* don't place steed on the map */
+    }
     if (when == With_you) {
         /* When a monster accompanies you, sometimes it will arrive
            at your intended destination and you'll end up next to
@@ -1169,6 +1171,9 @@ dogfood(struct monst *mon, struct obj *obj)
             return (is_rustprone(obj) && !obj->oerodeproof) ? DOGFOOD
                                                             : ACCFOOD;
         }
+        if (paper_eater(mptr)
+            && (obj->material == PAPER || obj->material == CLOTH))
+            return (obj->oclass == SPBOOK_CLASS) ? DOGFOOD : ACCFOOD;
         if (!obj->cursed
             && obj->oclass != BALL_CLASS
             && obj->oclass != CHAIN_CLASS)

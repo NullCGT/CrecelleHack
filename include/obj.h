@@ -460,6 +460,7 @@ struct obj {
                     || (o)->otyp == MIRRORED_GLASSES || is_gloves(o) || is_boots(o))
 #define is_glasses(o) ((o)->otyp && ((o)->otyp == LENSES || (o)->otyp == SUNGLASSES \
                                     || (o)->otyp == MIRRORED_GLASSES \
+                                    || (o)->otyp == GAS_MASK \
                                     || (o)->otyp == TINKER_GOGGLES))
 
 #define unpolyable(o) ((o)->otyp == WAN_POLYMORPH \

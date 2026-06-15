@@ -1067,7 +1067,7 @@ m_dowear_type(
             makeknown(obj->otyp);
         }
         mon->female = !mon->female;
-        m_useup(mon, obj);
+        m_useup(mon, best);
     }
 }
 #undef RACE_EXCEPTION

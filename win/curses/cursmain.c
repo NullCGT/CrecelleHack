@@ -122,7 +122,7 @@ struct window_procs curses_procs = {
     curses_delay_output,
 #ifdef CHANGE_COLOR
     curses_change_color,
-#ifdef MACOS9 /* old OS 9, not OSX */
+#ifdef MAC68K /* old OS 9, not OSX */
     (void (*)(int)) 0,
     (short (*)(winid, char *)) 0,
 #endif
@@ -1007,7 +1007,7 @@ curses_print_glyph(
 #ifdef ENHANCED_SYMBOLS
                  (SYMHANDLING(H_UTF8)
                   && glyphinfo->gm.u && glyphinfo->gm.u->utf8str)
-                      ? glyphinfo->gm.u : NULL, 
+                      ? glyphinfo->gm.u : NULL,
 #endif
                  (nhcolor != 0) ? nhcolor : color,
                  bkglyphinfo->framecolor, attr);

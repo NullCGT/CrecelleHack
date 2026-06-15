@@ -200,6 +200,9 @@ adjattrib(
         You_feel("%s%s!", (incr > 1 || incr < -1) ? "very " : "", attrstr);
     if (program_state.in_moveloop && (ndx == A_STR || ndx == A_CON))
         encumber_msg();
+    /* must update inventory for weight display purposes */
+    if (ndx == A_STR || ndx == A_CON)
+        update_inventory();
     return TRUE;
 }
 

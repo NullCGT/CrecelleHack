@@ -1,3 +1,94 @@
+# 1.6
+
+## Monsters
+- New Monsters:
+  - (Head) Butler/Maid/Servant
+  - Giant Slug
+    - Suggested by Tokage.
+
+## Options
+- biome_overview
+
+## New Objects
+- Gas Mask
+  - Blocks poison gas and potion clouds.
+  - Blocks eating when worn.
+
+## Dungeon Generation
+- Give Vlad a nicer throne room.
+
+## Misc
+- YAFM for closed shops.
+- Prevent shopkeepers from locking players inside their shops at night.
+- Massively reduce resizing kit weight.
+- T-shirts and 50% of robes spawn pre-dyed.
+- Scrolls of transmute material cost more to write.
+- Dragonhide cannot be explicitly specified as a material. Wishing for a dragonhide
+  item results in a normal item of that types, while transmuting dragonhide results
+  in a random material.
+- Increasing the pet handling skill increases the max number of pets you can have
+  (and increase it by 1 generally).
+- Added the mintroduce patch from SpliceHack (code from xNetHack)
+- Salt does more damage to mummies than previously.
+- Venoms leave behind coatings on the floor.
+- Being hit with acid venom causes the victim to drip acid.
+- Being gifted selenic seat unrestricts the riding skill.
+- Allow pushed boulders to trigger timed traps.
+- Monsters that zap wands of aqua bolt now spread water.
+- Cannot repeatedly sit on a rust trap to permanently drip water.
+
+# 1.5.1
+## Objects
+- Scrolls of transmute material now allow the player to select the material
+  for transmutation.
+- Cursed scrolls of transmute material now select from a list of "bad" materials
+  rather than just changing items to plastic.
+- Move snowballs and bottles into the chain class, renamed the junk class of items.
+- Slipping on a banana peel actually makes one hurtle.
+
+## Monsters
+- Rebalance some monsters that were too strong.
+- Fix Medusa being killed by some forms of reflection.
+- New Monsters:
+  - Giant Silverfish
+    - Eats paper and cloth objects.
+
+## Races
+- Elven wizards recieve aqua bolt instead of kobold wizards.
+
+## Roles
+- The rogue quest is now to steal the quest artifact from another role, determined
+  randomly at the beginning of the game.
+  - Instead of the Wizard of Yendor, the player will be met at the Plane of Earth
+    by the quest leader whose artifact they stole.
+  - The planes are populated with player monsters of the role which was stolen from.
+
+## Level Generation
+- Improve coatings in special levels.
+
+## Misc
+- Added a wizmode command for advancing the time of day.
+
+# 1.5.0-fix
+## Misc
+- Many improvements to wands of growth.
+  - Zapping at preexisting grass creates a tree.
+  - Zapping at a fountain causes it to overflow.
+  - Zapping at a sink creates a fountain.
+  - Zapping at oneself can cause you to be released by a monster.
+- Zapping wands of growth and aqua bolt at the floor now works properly.
+- Ochre jellies now properly drip with acid.
+- Properly update carrying capacity display when increasing attributes via
+  skill.
+- Update display on time change.
+- Fix Sokoban entrance livelog message.
+- Prevent travel and run commands from taking the player over dangerous
+  coatings.
+- Pets mildly balk at stepping on mold.
+- Remove randomization from pet handling training when pet kills monsters.
+- Reduce scroll of control weather probability to zero.
+- Partial poison resistance protects against poisonous corpses.
+
 # 1.5.0
 ## Dungeon
 - Rotting corpses rot more slowly in cold levels.

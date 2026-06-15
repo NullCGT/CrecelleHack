@@ -23,6 +23,7 @@ struct flag {
     boolean autoopen;        /* open doors by walking into them */
     boolean beginner;        /* True early in each game; affects feedback */
     boolean biff;            /* enable checking for mail */
+    boolean biome_overview;  /* display biomes in dungeon overview */
     boolean bold_coatings;   /* use bold to indicate coatings*/
     boolean bones;           /* allow saving/loading bones */
     boolean char_blurbs;     /* character creation blurbs */
@@ -175,6 +176,7 @@ struct flag {
     boolean showrace;  /* show hero glyph by race rather than by role */
     boolean travelcmd; /* allow travel command */
     int runmode;       /* update screen display during run moves */
+    int rogvictim;
 
     int reserved1;
     int reserved2;
@@ -531,7 +533,7 @@ struct instance_flags {
 #ifdef MAC_GRAPHICS_ENV
 #define large_font obsolete
 #endif
-#ifdef MACOS9
+#ifdef MAC68K
 #define popup_dialog wc_popup_dialog
 #endif
 #define preload_tiles wc_preload_tiles

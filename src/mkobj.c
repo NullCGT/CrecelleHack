@@ -258,7 +258,7 @@ mkobj_erosions(struct obj *otmp)
             otmp->greased = 1;
         /* and an extremely small fraction of the time, erodable items
            will generate dyed */
-        if (!rn2(3000))
+        if (!has_odye(otmp) && !rn2(3000))
             dye_obj(otmp, (otmp->o_id % CLR_BRIGHT_CYAN) + 1, FALSE);
     }
 }
@@ -986,7 +986,9 @@ mksobj_init(struct obj **obj, boolean artif)
             tryct = 50;
             do
                 otmp->corpsenm = undead_to_corpse(rndmonnum());
-            while ((svm.mvitals[otmp->corpsenm].mvflags & G_NOCORPSE)
+            while (((svm.mvitals[otmp->corpsenm].mvflags & G_NOCORPSE)
+                        || (otmp->otyp == SKELETON
+                            && !has_bones(&mons[otmp->corpsenm])))
                    && (--tryct > 0));
             if (tryct == 0) {
                 /* perhaps rndmonnum() only wants to make G_NOCORPSE
@@ -1093,6 +1095,9 @@ mksobj_init(struct obj **obj, boolean artif)
             otmp->quan = 1L + (long) (rn2(2) ? rn2(7) : 0);
             blessorcurse(otmp, 5);
             break;
+        case LOCK_PICK:
+            otmp->quan = rn1(5, 5);
+            break;
         case LANTERN:
         case OIL_LAMP:
             otmp->spe = 1;
@@ -1181,7 +1186,6 @@ mksobj_init(struct obj **obj, boolean artif)
         break;
     case VENOM_CLASS:
     case CHAIN_CLASS:
-    case BOTTLE_CLASS:
     case BALL_CLASS:
         break;
     case POTION_CLASS: /* note: potions get some additional init below */
@@ -1226,9 +1230,13 @@ mksobj_init(struct obj **obj, boolean artif)
 #endif
         }
         /* Armor has a slightly lower chance than weapons of being harmonic */
-        if (!rn2(80)) {
+        if (!rn2(65)) {
             add_oprop_to_object(otmp, 0);
         }
+        /* Shirts are always dyed */
+        if (otmp->otyp == T_SHIRT
+            || (otmp->otyp == ROBE && rn2(2)))
+            dye_obj(otmp, (otmp->o_id % CLR_BRIGHT_CYAN) + 1, FALSE);
         break;
     case WAND_CLASS:
         if (otmp->otyp == WAN_WISHING)
@@ -2590,7 +2598,7 @@ place_object(struct obj *otmp, coordxy x, coordxy y)
     otmp->where = OBJ_FLOOR;
 
     /* if placed outside of shop, no_charge is no longer applicable */
-    if (otmp->no_charge && !costly_spot(x, y)
+    if (level_status.shkready && otmp->no_charge && !costly_spot(x, y)
         && !costly_adjacent(find_objowner(otmp, x, y), x, y))
         otmp->no_charge = 0;
 
@@ -4562,9 +4570,16 @@ void force_material(struct obj *otmp, int material)
     otmp->material = material;
     otmp->owt = weight(otmp);
     if (material == GEMSTONE) {
-        otmp->gemtype = FIRST_REAL_GEM + rn2(NUM_REAL_GEMS);
-        if (otmp->gemtype == SALT_CRYSTAL || otmp->gemtype == DILITHIUM_CRYSTAL)
-            otmp->gemtype = OBSIDIAN;
+        /* don't force a gemstone to have a random gemtype */ 
+        if (otmp->oclass == GEM_CLASS
+                && otmp->otyp >= FIRST_REAL_GEM
+                && otmp->otyp <= LAST_REAL_GEM) {
+            otmp->gemtype = otmp->otyp;
+        } else {
+            otmp->gemtype = FIRST_REAL_GEM + rn2(NUM_REAL_GEMS);
+            if (otmp->gemtype == SALT_CRYSTAL || otmp->gemtype == DILITHIUM_CRYSTAL)
+                otmp->gemtype = OBSIDIAN;
+        }
     }
     if (!erosion_matters(otmp))
         return;
@@ -4585,13 +4600,16 @@ transmute_obj(struct obj *otmp, int newmat)
     if (!newmat) {
         do {
             newmat = 2 + rn2(NUM_MATERIAL_TYPES - 2);
-        } while (newmat == oldmat);
+        } while (newmat == oldmat || newmat == DRAGON_HIDE);
     }
     if (in_invent)
         pline("%s!", Yobjnam2(otmp, "vibrate"));
     force_material(otmp, newmat);
     if (in_invent) {
-        pline("It is now %s.", an(xname(otmp)));
+        if (otmp->quan > 1)
+            pline("They are now %s.", xname(otmp));
+        else
+            pline("It is now %s.", an(xname(otmp)));
         retouch_object(&otmp, FALSE, FALSE);
         disp.botl = TRUE;
         update_inventory();

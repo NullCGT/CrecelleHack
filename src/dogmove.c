@@ -1315,6 +1315,16 @@ dog_move(
             }
         }
 
+        /* dog dislikes nasty coatings, but will still sometimes step
+           on them anyway. 
+           TODO: Improve this check beyond a placeholder */
+        if (grounded(mtmp->data)
+            && has_coating(nx, ny, COAT_FUNGUS)) {
+            if (rn2(10))
+                continue;
+        }
+
+
         /* dog eschews cursed objects, but likes dog food */
         /* (minion isn't interested; `cursemsg' stays FALSE) */
         if (edog && !(edog->petstrat & PETSTRAT_COME)) {

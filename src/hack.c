@@ -52,6 +52,7 @@ staticfn int pickup_checks(void);
 staticfn void maybe_wail(void);
 staticfn boolean water_turbulence(coordxy *, coordxy *);
 staticfn int QSORTCALLBACK cmp_weights(const void *, const void *);
+staticfn boolean avoid_moving_on_coating(coordxy, coordxy, boolean);
 
 #define IS_SHOP(x) (svr.rooms[x].rtype >= SHOPBASE)
 
@@ -613,6 +614,10 @@ moverock_core(coordxy sx, coordxy sy)
                     launch_obj(BOULDER, sx, sy, tox, toy, ROLL | LAUNCH_KNOWN);
                     return sobj_at(BOULDER, sx, sy) ? -1 : 0;
                 }
+                case SPARK_TRAP:
+                case SLP_GAS_TRAP:
+                    o_trigger_trap(otmp, rx, ry);
+                    break;
                 default:
                     break; /* boulder not affected by this trap */
                 }
@@ -1175,6 +1180,12 @@ test_move(
         if (mode == DO_MOVE)
             pline("%s is in your way.", YMonnam(m_at(ux, y)));
         return FALSE;
+    }
+    /* Avoid running over mold and glass if possible. */
+    if (svc.context.run >= 2 && (mode != DO_MOVE) && !u_at(x, y)) {
+        if (avoid_moving_on_coating(x, y, FALSE)) {
+            return FALSE;
+        }
     }
     /* Pick travel path that does not require crossing a trap.
      * Avoid water and lava using the usual running rules.
@@ -4109,6 +4120,11 @@ lookaround(void)
                     goto stop;
             }
 
+            if (avoid_moving_on_coating(x, y, FALSE)) {
+                if (infront && !svc.context.travel)
+                    goto stop;
+            }
+
             /* more uninteresting terrain */
             if (IS_OBSTRUCTED(levl[x][y].typ) || levl[x][y].typ == ROOM
                 || IS_AIR(levl[x][y].typ) || levl[x][y].typ == ICE) {
@@ -4786,6 +4802,24 @@ wrestling_finisher_name(void) {
     int i2 = (long) ubirthday % SIZE(finisher_2);
     pline("%s The %s%s!", ROLL_FROM(finisher_pre),
             finisher_1[i1], finisher_2[i2]);
+}
+
+staticfn boolean
+avoid_moving_on_coating(coordxy x, coordxy y, boolean msg)
+{
+    if (IS_COATABLE(levl[x][y].typ)
+        && !Blind && !Levitation && !Flying
+        && ((has_coating(x, y, COAT_FUNGUS)
+             && levl[x][y].pindex != PM_NIGHTCRUST
+             && levl[x][y].pindex != PM_LICHEN)
+            || has_coating(x, y, COAT_SHARDS))) {
+        if (msg && flags.mention_walls) {
+            set_msg_xy(x, y);
+            You("stop in front of a coating.");
+        }
+        return TRUE;
+    }
+    return FALSE;
 }
 
 

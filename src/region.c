@@ -517,8 +517,8 @@ run_regions(void)
 void
 spread_bonfire(NhRegion *reg) {
     NhRegion *newreg = NULL;
-    int startx = max(0, reg->bounding_box.lx - 1);
-    int starty = max(0, reg->bounding_box.ly - 1);
+    int startx = max(1, reg->bounding_box.lx - 1);
+    int starty = max(1, reg->bounding_box.ly - 1);
     int stopx = min(COLNO - 1, reg->bounding_box.hx + 1);
     int stopy = min(ROWNO - 1, reg->bounding_box.hy + 1);
     for (int x = startx; x <= stopx; x++) {
@@ -548,7 +548,10 @@ spread_bonfire(NhRegion *reg) {
                 evaporate_potion_puddles(x, y);
             }
             /* set faults */
-            clear_heros_fault(newreg);
+            if (heros_fault(reg) && newreg)
+                set_heros_fault(newreg);
+            else if (newreg)
+                clear_heros_fault(newreg);
         }
     }
 }
@@ -1319,7 +1322,8 @@ inside_gas_cloud(genericptr_t p1, genericptr_t p2)
         fakeobj.otyp = otyp;
         fakeobj.blessed = REGION_BLESSED(reg);
         fakeobj.cursed = REGION_CURSED(reg);
-        if (!mtmp && (!breathless(gy.youmonst.data) || haseyes(gy.youmonst.data))) {
+        if (!mtmp && (!breathless(gy.youmonst.data) || haseyes(gy.youmonst.data))
+            && !(ublindf && ublindf->otyp == GAS_MASK)) {
             potionbreathe(&fakeobj);
         } else if (mtmp && (!breathless(mtmp->data) || haseyes(mtmp->data))
                     && !can_magbreathe(mtmp)) {
@@ -1711,9 +1715,10 @@ inside_bonfire(genericptr_t p1, genericptr_t p2)
         wakeup(mtmp, heros_fault(reg));
         /* Message and complete burning */
         if (completelyburns(mtmp->data)) {
-            if (heros_fault(reg))
+            if (heros_fault(reg)) {
+                record_achievement(ACH_PYRO);
                 killed(mtmp);
-            else
+            } else
                 monkilled(mtmp, "bonfire", AD_FIRE);
             return TRUE;
         } else if (canseemon(mtmp)) {
@@ -1733,9 +1738,10 @@ inside_bonfire(genericptr_t p1, genericptr_t p2)
         adjust_damage(mtmp, &dam, AD_FIRE);
         mtmp->mhp -= dam;
         if (DEADMONSTER(mtmp)) {
-            if (heros_fault(reg))
+            if (heros_fault(reg)) {
+                record_achievement(ACH_PYRO);
                 killed(mtmp);
-            else
+            } else
                 monkilled(mtmp, "bonfire", AD_FIRE);
             if (DEADMONSTER(mtmp)) { /* not lifesaved */
                 return TRUE;

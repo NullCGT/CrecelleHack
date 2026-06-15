@@ -17,9 +17,6 @@ staticfn const char *rank(void);
 staticfn void bot_via_windowport(void);
 staticfn void stat_update_time(void);
 
-/* limit of the player's name in the status window */
-#define BOTL_NSIZ 16
-
 char *
 get_strength_str(void)
 {
@@ -716,7 +713,7 @@ static struct istat_s initblstats[MAXBLSTATS] = {
     INIT_BLSTAT("gold", " %s", ANY_LONG, 40, BL_GOLD),
     INIT_BLSTATP("power", " Pw:%s", ANY_INT, 10, BL_ENEMAX, BL_ENE),
     INIT_BLSTAT("power-max", "(%s)", ANY_INT, 10, BL_ENEMAX),
-    INIT_BLSTATP("experience-level", " Xp:%s", ANY_INT, 10, BL_EXP, BL_XP),
+    INIT_BLSTATP("experience-level", " Xp:%s", ANY_INT, 10, BL_XP, BL_XP),
     INIT_BLSTAT("armor-class", " AC:%s", ANY_INT, 10, BL_AC),
     INIT_BLSTAT("cancellation", " MC:%s%%", ANY_INT, 10, BL_MC),
     INIT_BLSTAT("HD", " HD:%s", ANY_INT, 10, BL_HD),
@@ -733,7 +730,7 @@ static struct istat_s initblstats[MAXBLSTATS] = {
        available mostly for screenshots or someone looking over shoulder;
        blstat[][BL_VERS] is actually an int copy of flags.versinfo (0...7) */
     INIT_BLSTAT("version", " %s", ANY_STR, MAXVALWIDTH, BL_VERS),
-    INIT_BLSTAT("time", "%s", ANY_STR, MAXVALWIDTH, BL_TOD),
+    INIT_BLSTAT("time", " %s", ANY_INT, 20, BL_TOD),
     /* weapon and armor are constructed strings with no particular numeric
        equivalent */
     INIT_BLSTAT("weapon", " %s", ANY_STR, 20, BL_WEAPON),
@@ -1036,7 +1033,9 @@ bot_via_windowport(void)
                                                : "Lawful");
 
     /* Weather */
-    Sprintf(gb.blstats[idx][BL_TOD].val, " %s", tod_string());
+    gb.blstats[idx][BL_TOD].a.a_int = u.uenvirons.tod;
+    Strcpy(gb.blstats[idx][BL_TOD].val, tod_string());
+    gv.valset[BL_TOD] = TRUE;
 
     /* Score */
     gb.blstats[idx][BL_SCORE].a.a_long =
@@ -3787,6 +3786,7 @@ status_hilite_menu_choose_behavior(int fld)
     }
 
     if (fld != BL_CAP && fld != BL_HUNGER
+        && fld != BL_TOD
         && (at == ANY_INT || at == ANY_LONG)) {
         any = cg.zeroany;
         any.a_int = onlybeh = BL_TH_VAL_ABSOLUTE;
@@ -3814,7 +3814,8 @@ status_hilite_menu_choose_behavior(int fld)
     }
 
     if (initblstats[fld].anytype == ANY_STR
-        || fld == BL_CAP || fld == BL_HUNGER) {
+        || fld == BL_CAP || fld == BL_HUNGER
+        || fld == BL_TOD) {
         any = cg.zeroany;
         any.a_int = onlybeh = BL_TH_TEXTMATCH;
         Sprintf(buf, "%s text match", initblstats[fld].fldname);
@@ -4193,8 +4194,7 @@ status_hilite_menu_add(int origfld)
             Strcpy(hilite.textmatch, aligntxt[rv]);
         } else if (fld == BL_TOD) {
             static const char *const todtxt[] = {
-                "Morning", "Midday", "Evening",
-                "Night", "Midnight"
+                "Morning", "Afternoon", "Night", "Late night"
             };
             int rv = query_arrayvalue(qry_buf,
                                       todtxt, 0, 5);
@@ -4634,6 +4634,9 @@ char *
 coat_status(char *coatbuf)
 {
     int i;
+    char bonus_buf[16];
+    boolean on_loved = FALSE;
+    boolean on_hated = FALSE;
     if (!IS_COATABLE(levl[u.ux][u.uy].typ)
         || !levl[u.ux][u.uy].coat_info) {
         Sprintf(coatbuf, "Clean");
@@ -4647,6 +4650,23 @@ coat_status(char *coatbuf)
         } else {
             Sprintf(coatbuf, "Mix");
         }
+    }
+    /* Display bonuses */
+    on_loved = on_loved_terrain();
+    on_hated = on_hated_terrain();
+    if (on_loved || on_hated) {
+        switch(u.ualign.type) {
+        case A_LAWFUL:
+            Sprintf(bonus_buf, "[AC%s]", on_loved ? "++" : "--");
+            break;
+        case A_CHAOTIC:
+            Sprintf(bonus_buf, "[Speed%s]", on_loved ? "++" : "--");
+            break;
+        case A_NEUTRAL:
+            Sprintf(bonus_buf, "[Pw%s]", on_loved ? "++" : "--");
+            break;
+        }
+        Sprintf(coatbuf, "%s", bonus_buf);
     }
     return upstart(coatbuf);
 }

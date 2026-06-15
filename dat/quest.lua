@@ -2121,16 +2121,16 @@ in that time.  Maybe I should send one of them, no?  Where would that
 leave you, %p?  Oh yeah, I remember, I was going to kill you!"]],
       },
       discourage = {
-         "\"May I suggest a compromise.  Are you interested in gold or gems?\"",
+         "\"Why are you here? I was waiting for someone else...\"",
          "\"Please don't force me to kill you.\"",
          "\"Grim times are upon us all.  Will you not see reason?\"",
          "\"I knew %l, and you're no %lt, thankfully.\"",
          "\"It is a shame that we are not meeting under more pleasant circumstances.\"",
-         "\"I was once like you are now, %p.  Believe in me -- our way is better.\"",
+         "\"Why must you engage in petty theft, %p?\"",
          "\"Stay with me, and I will make you %os guardian.\"",
          "\"When you return, with or without %o, %l will have you killed.\"",
          "\"Do not be fooled; I am prepared to kill to defend %o.\"",
-         "\"I can reunite you with the Twain.  Oh, the stories you can swap.\"",
+         "\"This task is not meant for you...\"",
       },
       encourage = {
          "\"You don't seem to understand, %o isn't here so neither should you be!\"",
@@ -2232,7 +2232,8 @@ isn't stupidity that brings you back."]],
 think me as stupid as your behavior.  I warn you not to try my patience."]],
       },
       locate_first = {
-         text = "Those damn little hairs tell you that you are nearer to %o.",
+         text = [["Those damn little hairs tell you that this is the secret passage
+that will take you to %o."]],
       },
       locate_next = {
          text = "Not wanting to face %l without having stolen %o, you continue.",
@@ -2251,11 +2252,10 @@ that %l has made.  I can show you how to continue on
 your quest without having to run into him again."]],
       },
       nemesis_wantsit = {
-         synopsis = "[%lC should not have %o.]",
+         synopsis = "[%nC is confused about why you are here.]",
          output = "text",
-         text = [["Please, think for a moment about what you are doing.  Do you truly
-believe that %d would want %l to have
-%o?"]],
+         text = [["Wait, %p? what are you doing here? 
+Did %l send you to steal %o?"]],
       },
       nexttime = {
          text = [[Once again, you find yourself back in Ransmannsby.  Fond memories are
@@ -2272,7 +2272,7 @@ together could bring me more treasure than either of you apart, so why don't
 you take it with you.  All I ask is a cut of whatever loot you come by.
 That is a better deal than I offered %n.
 
-"But, you see what happened to %n when he refused.
+"But, you see what happened to %n when they refused.
 Don't make me find another to send after you this time."]],
       },
       offeredit2 = {

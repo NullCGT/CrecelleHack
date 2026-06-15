@@ -83,9 +83,9 @@ static struct ll_achieve_msg achieve_msg [] = {
     { LL_MINORAC, "entered a temple" },
     { LL_ACHIEVE, "consulted the Oracle" }, /* minor, but rare enough */
     { LL_MINORAC | LL_DUMP, "read a Discworld novel" }, /* even more so */
-    { LL_ACHIEVE, "" }, /* keep as major for turn comparison
-                                        * with completed sokoban. Blank
-                                        * for snowkoban purposes. */
+    { LL_ACHIEVE, "entered" }, /* keep as major for turn comparison
+                                        * with completed sokoban. Shortened
+                                        * for Snowkoban purposes. */
     { LL_ACHIEVE, "entered the Bigroom" },
     /* The following 8 are for advancing through the ranks
        and messages differ by role so are created on the fly;
@@ -99,6 +99,12 @@ static struct ll_achieve_msg achieve_msg [] = {
     { LL_ACHIEVE, "" }, /* Xp 26 */
     { LL_ACHIEVE, "" }, /* Xp 30 */
     { LL_MINORAC, "learned castle drawbridge's tune" }, /* achievement #31 */
+    { LL_MINORAC, "was cast into the Maze" },
+    { LL_ACHIEVE, "entered the Temple to Moloch" },
+    { 0, "performed floor alchemy for the first time" },
+    { 0, "indirectly killed a monster with a bonfire" },
+    { 0, "lost a pair of boots to honey" },
+    { LL_MINORAC, "slipped on a banana peel" }, /* funny to livelog */
     { 0, "" } /* keep this one at the end */
 };
 
@@ -400,7 +406,6 @@ enlightenment_dnh(int mode)
     int i, n;
     
     ge.en_win = create_nhwindow(NHW_MENU);
-    ge.en_via_menu = TRUE;
     start_menu(ge.en_win, MENU_BEHAVE_STANDARD);
     if (mode & BASICENLIGHTENMENT) {
         any.a_char = 'g';
@@ -427,9 +432,10 @@ enlightenment_dnh(int mode)
     end_menu(ge.en_win, "View which attributes:");
     n = select_menu(ge.en_win, PICK_ANY, &pick_list);
     destroy_nhwindow(ge.en_win);
-    ge.en_win = create_nhwindow(NHW_MENU);
     if (n > 0) {
-        start_menu(ge.en_win, MENU_BEHAVE_STANDARD);
+        ge.en_win = create_nhwindow(NHW_MENU);
+        if (ge.en_via_menu)
+            start_menu(ge.en_win, MENU_BEHAVE_STANDARD);
         enlght_out_attr(ATR_HEADING, "Selected Attributes:");
         for (i = 0; i < n; i++) {
             switch (pick_list[i].item.a_char) {
@@ -708,13 +714,12 @@ background_enlightenment(int unused_mode UNUSED, int final)
     /* for gameover, these have been obtained in really_done() so that they
        won't vary if user leaves a disclosure prompt or --More-- unanswered
        long enough for the dynamic value to change between then and now */
-    if (final ? iflags.at_midnight : midnight()) {
-        enl_msg("It ", "is ", "was ", "the midnight hour", "");
-    } else if (final ? iflags.at_night : night()) {
-        enl_msg("It ", "is ", "was ", "nighttime", "");
-    } else {
-        enl_msg("It ", "is ", "was  ", "daytime", "");
-    }
+    Sprintf(buf, (final ? iflags.at_midnight : midnight()) ? "the midnight hour"
+                    : (final ? iflags.at_night : night()) ? "nighttime"
+                        : "daytime");
+    if (wizard)
+        Sprintf(eos(buf), " <%d>", u.uenvirons.tod_cnt);
+    enl_msg("It ", "is ", "was ", buf, "");
     /* Weather */
     if (exposed_to_elements(&u.uz) && IS_RAINING) {
         enl_msg("It ", "is ", "was ", "raining", "");
@@ -782,16 +787,20 @@ background_enlightenment(int unused_mode UNUSED, int final)
     }
 
     /* terrain boosts */
+    Sprintf(buf, "%s changes depending on terrain:", u.ualign.type == A_CHAOTIC ? "speed"
+                                                : u.ualign.type == A_LAWFUL ? "AC"
+                                                    : "energy regeneration");
+    you_have(buf, "");
     if (Race_if(PM_DWARF)) {
-        Snprintf(buf, sizeof(buf), "a preference for bare earth (AC Bonus)");
+        Snprintf(buf, sizeof(buf), "a preference for bare earth");
         you_have(buf, "");
     }
     for (int i = 0; i < NUM_COATINGS; i++) {
         if (all_coatings[i].val & gu.urace.lovecoat) {
-            Snprintf(buf, sizeof(buf), "a preference for %sterrain (AC Bonus)", all_coatings[i].adj);
+            Snprintf(buf, sizeof(buf), "a preference for %sterrain", all_coatings[i].adj);
             you_have(buf, "");
         } else if (all_coatings[i].val & gu.urace.hatecoat) {
-            Snprintf(buf, sizeof(buf), "a distaste for %sterrain (AC Penalty)", all_coatings[i].adj);
+            Snprintf(buf, sizeof(buf), "a distaste for %sterrain", all_coatings[i].adj);
             you_have(buf, "");
         }
     }
@@ -2351,11 +2360,11 @@ show_conduct(int final)
         you_have_X(buf);
     }
 
-    if (!u.uconduct.dyed) {
+    if (!u.uconduct.dyer) {
         you_have_never("dyed an item");
     } else if (wizard) {
         Sprintf(buf, "dyed items %ld time%s",
-                u.uconduct.dyed, plur(u.uconduct.dyed));
+                u.uconduct.dyer, plur(u.uconduct.dyer));
         you_have_X(buf);
     }
 
@@ -2581,6 +2590,24 @@ show_achievements(
             you_have_X(buf);
             break;
 
+        case ACH_MAZE:
+            you_have_X("been transported to the Maze");
+            break;
+        case ACH_MTEMPLE:
+            you_have_X("entered the Temple of Moloch");
+            break;
+        case ACH_JUN_ALC:
+            you_have_X("performed alchemy on the floor");
+            break;
+        case ACH_PYRO:
+            you_have_X("indirectly slain a monster using fire");
+            break;
+        case ACH_LOST_BOOT:
+            you_have_X("lost your boots to honey");
+            break;
+        case ACH_BPEEL:
+            you_have_X("slipped on a banana peel");
+            break;
         default:
             Sprintf(buf, " [Unexpected achievement #%d.]", achidx);
             enlght_out(buf);
@@ -2657,6 +2684,9 @@ record_achievement(schar achidx)
            but that's not true in the general case */
         livelog_printf(achieve_msg[achidx].llflag, "%s %s",
                        achieve_msg[achidx].msg, OBJ_NAME(objects[otyp]));
+    } else if (achidx == ACH_SOKO) {
+        livelog_printf(achieve_msg[absidx].llflag, "%s %s",
+                       achieve_msg[achidx].msg, snowkoban());
     } else {
         livelog_printf(achieve_msg[absidx].llflag, "%s",
                        achieve_msg[absidx].msg);

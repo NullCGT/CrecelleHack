@@ -383,36 +383,9 @@ tactics(struct monst *mtmp)
 {
     unsigned long strat = strategy(mtmp);
     coordxy sx = 0, sy = 0, mx, my;
-    coordxy nx, ny;
 
     mtmp->mstrategy =
         (mtmp->mstrategy & (STRAT_WAITMASK | STRAT_APPEARMSG)) | strat;
-
-    /* if monster is magically scared, don't 'flee' right next
-     * to the player */
-    if (mtmp->mflee) {
-        mtmp->mavenge = 1;
-        for (int j = 0; j < 400; j++) {
-            nx = rnd(COLNO - 1);
-            ny = rn2(ROWNO);
-            if (rloc_pos_ok(nx, ny, mtmp)
-                && distu(nx, ny) > 64) {
-                rloc_to(mtmp, nx, ny);
-                if (mtmp->mhp <= mtmp->mhpmax - 8)
-                    mtmp->mhp += rnd(8);
-                return 1;
-            }
-        }
-        /* we couldn't find someplace far enough away from the player
-         * to run to, which should be very rare, but...
-         * and in that case, just fall through so we do something */
-        pline("%s looks around nervously.", Monnam(mtmp));
-    }
-
-    /* once a covetous monster gets close enough, they will start
-       to move normally 95% of the time */
-    if (rn2(20) && distu(mtmp->mx, mtmp->my) <= 8)
-        return m_move(mtmp, 0);
 
     switch (strat) {
     case STRAT_HEAL: /* hide and recover */
@@ -450,53 +423,25 @@ tactics(struct monst *mtmp)
         /*FALLTHRU*/
 
     case STRAT_NONE: /* harass */
-        if (!noteleport_level(mtmp) && !rn2(!mtmp->mflee ? 5 : 33)) {
-            coordxy tx = mtmp->mgoal.x, ty = mtmp->mgoal.y;
-            coordxy dx = 0, dy = 0, stx = tx, sty = ty;
-            mx = mtmp->mx, my = mtmp->my;
-            /* If we're close enough, pounce */
-            if (distu(mx, my) <= 25) {
-                mnexto(mtmp, RLOC_MSG);
-            } else {
-                /* figure out what direction the player's in */
-                dx = sgn(u.ux - mx);
-                dy = sgn(u.uy - my);
-                /* since we're not close enough, use short jumps to change that */
-                stx = mx + ((rn2(3) + 4) * dx);
-                sty = my + ((rn2(3) + 3) * dy);
-                if (!mnearto(mtmp, stx, sty, TRUE, RLOC_MSG))
-                    rloc_to(mtmp, mx, my);
-            }
-        }
+        if (!rn2(!mtmp->mflee ? 5 : 33))
+            mnexto(mtmp, RLOC_MSG);
         return 0;
+
     default: /* kill, maim, pillage! */
     {
         long where = (strat & STRAT_STRATMASK);
         coordxy tx = mtmp->mgoal.x, ty = mtmp->mgoal.y;
-        coordxy dx = 0, dy = 0, stx = tx, sty = ty;
         int targ = (int) (strat & STRAT_GOAL);
         struct obj *otmp;
 
         if (!targ || !isok(tx, ty)) { /* simply wants you to close */
             return 0;
         }
-        if (noteleport_level(mtmp) && !monnear(mtmp, tx, ty))
-            return 0;
         if (u_at(tx, ty) || where == STRAT_PLAYER) {
+            /* player is standing on it (or has it) */
             mx = mtmp->mx, my = mtmp->my;
-            /* If we're close enough, pounce */
-            if (distu(mx, my) <= 25) {
-                mnexto(mtmp, RLOC_MSG);
-            } else {
-                /* figure out what direction the player's in */
-                dx = sgn(u.ux - mx);
-                dy = sgn(u.uy - my);
-                /* since we're not close enough, use short jumps to change that */
-                stx = mx + ((rn2(3) + 4) * dx);
-                sty = my + ((rn2(3) + 3) * dy);
-                if (!mnearto(mtmp, stx, sty, TRUE, RLOC_MSG))
-                    rloc_to(mtmp, mx, my); /* no room? stay put */
-            }
+            if (!mnearto(mtmp, tx, ty, FALSE, RLOC_MSG))
+                rloc_to(mtmp, mx, my); /* no room? stay put */
             return 0;
         }
         if (where == STRAT_GROUND) {
@@ -609,9 +554,9 @@ pick_nasty(struct monst *summoner,
     int alt, res;
 
     /* The list we roll from depends on the summoner. */
-    if (summoner->data == &mons[PM_DEMOGORGON])
+    if (summoner && summoner->data == &mons[PM_DEMOGORGON])
         res = ROLL_FROM(demo_nasties);
-    else if (summoner->data->mlet == S_DRAGON)
+    else if (summoner && summoner->data->mlet == S_DRAGON)
         res = ROLL_FROM(dragon_nasties);
     else
         res = ROLL_FROM(nasties);
@@ -737,9 +682,11 @@ nasty(struct monst *summoner)
                 if ((mtmp = makemon(&mons[makeindex], bypos.x, bypos.y,
                                     mmflags)) != 0) {
                     mtmp->msleeping = mtmp->mpeaceful = mtmp->mtame = 0;
-                    if (!has_esum(summoner))
-                        newesum(summoner);
-                    ESUM(mtmp)->ownermid = summoner->m_id;
+                    if (summoner) {
+                        if (!has_esum(summoner))
+                            newesum(summoner);
+                        ESUM(mtmp)->ownermid = summoner->m_id;
+                    }
                     set_malign(mtmp);
                 } else {
                     /* random monster to substitute for geno'd selection;

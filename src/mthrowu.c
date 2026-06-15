@@ -151,6 +151,8 @@ thitu(
             losehp(dam, knm, kprefix); /* acid damage */
             exercise(A_STR, FALSE);
         }
+        if (is_acid)
+            make_dripping(rnd(6), POT_ACID, NON_PM);
         return 1;
     }
 }
@@ -178,6 +180,10 @@ drop_throw(
         return TRUE;
     } else {
         broken = (ohit && should_mulch_missile(obj));
+    }
+
+    if (broken) {
+        handle_thrown_coatings(obj, x, y);
     }
 
     if (broken && obj) {
@@ -224,6 +230,8 @@ monmulti(
             multishot++;
         /* fake players treated as skilled (regardless of role limits) */
         else if (is_mplayer(mtmp->data))
+            multishot++;
+        else if (is_cleaner(mtmp->data))
             multishot++;
 
         /* this portion is different from hero multishot; from slash'em?
@@ -435,6 +443,7 @@ ohitmon(
                 else if (verbose && !gm.mtarget)
                     pline("It is burned!");
             }
+            make_mdripping(mtmp, POT_ACID);
         }
         if (otmp->otyp == EGG && touch_petrifies(&mons[otmp->corpsenm])) {
             if (!munstone(mtmp, FALSE))

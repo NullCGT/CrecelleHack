@@ -1049,6 +1049,8 @@ polymon(int mntmp)
             pline(use_thec, monsterc, "shriek");
         if (is_vampire(uptr) || is_vampshifter(&gy.youmonst))
             pline(use_thec, monsterc, "change shape");
+        if (is_cleaner(uptr))
+            pline(use_thec, monsterc, "clean up the floor");
 
         if (lays_eggs(uptr) && flags.female
             && !(uptr == &mons[PM_GIANT_EEL]
@@ -1968,12 +1970,12 @@ mbodypart(struct monst *mon, int part)
         *humanoid_parts[] = { "arm",       "eye",  "face",         "finger",
                               "fingertip", "foot", "hand",         "handed",
                               "head",      "leg",  "light headed", "neck",
-                              "spine",     "toe",  "fur",         "blood",
+                              "spine",     "toe",  "hair",         "blood",
                               "lung",      "nose", "stomach" },
         *kobold_parts[] = { "arm",       "eye",  "face",         "finger",
                               "fingertip", "foot", "paw",         "pawed",
                               "head",      "leg",  "light headed", "neck",
-                              "spine",     "toe",  "hair",         "blood",
+                              "spine",     "toe",  "fur",         "blood",
                               "lung",      "nose", "stomach" },
         *jelly_parts[] = { "pseudopod", "dark spot", "front",
                            "pseudopod extension", "pseudopod extremity",

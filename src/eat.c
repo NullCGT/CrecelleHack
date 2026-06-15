@@ -100,11 +100,15 @@ is_edible(struct obj *obj)
         return TRUE;
 
     /* We don't want anyone digesting a skeleton, including gelatinous cubes. */
-    if (obj->otyp == SKELETON || obj->otyp == BANANA_PEEL)
+    if (obj->otyp == SKELETON)
         return FALSE;
 
     if (metallivorous(gy.youmonst.data) && is_metallic(obj)
         && (gy.youmonst.data != &mons[PM_RUST_MONSTER] || is_rustprone(obj)))
+        return TRUE;
+
+    if (paper_eater(gy.youmonst.data)
+        && (obj->material == PAPER || obj->material == CLOTH))
         return TRUE;
 
     /* Ghouls only eat non-veggy corpses or eggs (see dogfood()) */
@@ -1957,7 +1961,7 @@ eatcorpse(struct obj *otmp)
         tp++;
         pline("Ecch - that must have been poisonous!");
         svm.mvitals[mnum].know_pcorpse = 1;
-        if (!Poison_immunity) {
+        if (!Poison_resistance) {
             poison_strdmg(rnd(4), rnd(15),
                           !glob ? "poisonous corpse" : "poisonous glob",
                           KILLED_BY_AN);
@@ -2206,7 +2210,7 @@ fprefx(struct obj *otmp)
         } else if (otmp->otyp == APPLE && otmp->cursed && !Sleep_resistance) {
             ; /* skip core joke; feedback deferred til fpostfx() */
 
-#if defined(MACOS9) || defined(MACOS)
+#if defined(MAC68K) || defined(MACOS)
         /* KMH -- Why should Unix have all the fun?
            We check MACOS before UNIX to get the Apple-specific apple
            message; the '#if UNIX' code will still kick in for pear. */
@@ -2730,7 +2734,7 @@ edibility_prompts(struct obj *otmp)
         /* Rotten */
         Snprintf(buf, sizeof buf, "%s like %s could be rotten!",
                  foodsmell, it_or_they);
-    } else if (cadaver && poisonous(&mons[mnum]) && !Poison_immunity) {
+    } else if (cadaver && poisonous(&mons[mnum]) && !Poison_resistance) {
         /* poisonous */
         Snprintf(buf, sizeof buf, "%s like %s might be poisonous!",
                  foodsmell, it_or_they);
@@ -2791,7 +2795,7 @@ doeat_nonfood(struct obj *otmp)
     if (otmp->oclass == COIN_CLASS)
         basenutrit = ((otmp->quan > 200000L) ? 2000
                       : (int) (otmp->quan / 100L));
-    else if (otmp->oclass == BALL_CLASS || otmp->oclass == CHAIN_CLASS || otmp->oclass == BOTTLE_CLASS)
+    else if (otmp->oclass == BALL_CLASS || otmp->oclass == CHAIN_CLASS)
         basenutrit = weight(otmp);
     /* oc_nutrition is usually weight anyway */
     else
@@ -2844,7 +2848,7 @@ doeat_nonfood(struct obj *otmp)
 
     if (otmp->oclass == WEAPON_CLASS && otmp->opoisoned) {
         pline("Ecch - that must have been poisonous!");
-        if (!Poison_immunity) {
+        if (!Poison_resistance) {
             poison_strdmg(rnd(4), rnd(15), xname(otmp), KILLED_BY_AN);
         } else
             You("seem unaffected by the poison.");
@@ -2874,6 +2878,10 @@ doeat(void)
 
     if (Strangled) {
         pline("If you can't breathe air, how can you consume solids?");
+        return ECMD_OK;
+    }
+    if (ublindf && ublindf->otyp == GAS_MASK) {
+        pline("Your mask is too cumbersome to eat with.");
         return ECMD_OK;
     }
     if (!(otmp = floorfood("eat", 0)))
@@ -3231,7 +3239,8 @@ gethungry(void)
     if ((!Unaware || !rn2(10)) /* slow metabolic rate while asleep */
         && (carnivorous(gy.youmonst.data)
             || herbivorous(gy.youmonst.data)
-            || metallivorous(gy.youmonst.data))
+            || metallivorous(gy.youmonst.data)
+            || paper_eater(gy.youmonst.data))
         && !(Slow_digestion || Race_if(PM_GNOME)))
         u.uhunger--; /* ordinary food consumption */
 

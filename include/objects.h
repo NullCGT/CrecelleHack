@@ -97,10 +97,9 @@ GENERIC("wand",       WAND_CLASS,    GENERIC_WAND),    /* [11] */
 GENERIC("coin",       COIN_CLASS,    GENERIC_COIN),    /* [12] */
 GENERIC("gem",        GEM_CLASS,     GENERIC_GEM),     /* [13] */
 GENERIC("large rock", ROCK_CLASS,    GENERIC_ROCK),    /* [14] bldr+statue */
-GENERIC("bottle",     BOTTLE_CLASS,  GENERIC_BOTTLE),  /* [15] */
-GENERIC("iron ball",  BALL_CLASS,    GENERIC_BALL),    /* [16] */
-GENERIC("iron chain", CHAIN_CLASS,   GENERIC_CHAIN),   /* [17] */
-GENERIC("venom",      VENOM_CLASS,   GENERIC_VENOM),   /* [18] */
+GENERIC("iron ball",  BALL_CLASS,    GENERIC_BALL),    /* [15] */
+GENERIC("junk",       CHAIN_CLASS,   GENERIC_CHAIN),   /* [16] */
+GENERIC("venom",      VENOM_CLASS,   GENERIC_VENOM),   /* [17] */
 #undef GENERIC
 /* FIRST_OBJECT: it would be simpler just to use MARKER(FIRST_OBJECT,ARROW)
    below but that is vulnerable to neglecting to update the marker enum
@@ -989,6 +988,9 @@ EYEWEAR("mirrored glasses",  "shiny glasses",
 EYEWEAR("tinker goggles",   "goggles",
                                    0,       0,  0, 10, 80, COPPER, HI_COPPER,
                                                                 TINKER_GOGGLES),
+EYEWEAR("gas mask",         "bulky mask",
+                                   0,       0,  5,  5, 250, LEATHER, CLR_BRIGHT_GREEN,
+                                                                GAS_MASK),
 EYEWEAR("blindfold",        NoDes, 1, BLINDED, 50,  2, 20, CLOTH, CLR_BLACK,
                                                                 BLINDFOLD),
 EYEWEAR("towel",            NoDes, 1, BLINDED, 50,  5, 50, CLOTH, CLR_MAGENTA,
@@ -1004,7 +1006,7 @@ TOOL("stethoscope",         NoDes, 1, 0, 0, 0, 25,  4, 75, IRON, HI_METAL,
                                                                 STETHOSCOPE),
 TOOL("tinning kit",         NoDes, 1, 0, 0, 1, 15,100, 30, IRON, HI_METAL,
                                                                 TINNING_KIT),
-TOOL("resizing kit",        NoDes, 1, 0, 0, 1, 40,100, 30, COPPER, HI_COPPER,
+TOOL("resizing kit",        NoDes, 1, 0, 0, 1, 40, 20, 30, COPPER, HI_COPPER,
                                                                 RESIZING_KIT),
 TOOL("tin opener",          NoDes, 1, 0, 0, 0, 35,  4, 30, IRON, HI_METAL,
                                                                 TIN_OPENER),
@@ -1043,7 +1045,7 @@ TOOL("harp",              "harp", 0, 0, 0, 0,  4, 30, 50, WOOD, HI_WOOD,
                                                                 HARP),
 TOOL("magic harp",        "harp", 0, 0, 1, 1,  2, 30, 50, WOOD, HI_WOOD,
                                                                 MAGIC_HARP),
-TOOL("acoustic guitar",   "guitar", 0, 0, 0, 1,  2, 35, 50, WOOD, HI_WOOD,
+TOOL("acoustic guitar",   "guitar", 0, 0, 0, 0,  2, 35, 50, WOOD, HI_WOOD,
                                                                 ACOUSTIC_GUITAR),
 TOOL("electric guitar",   "guitar", 0, 0, 1, 1,  2, 35, 50, WOOD, HI_WOOD,
                                                                 ELECTRIC_GUITAR),
@@ -1140,7 +1142,6 @@ FOOD("melon",                 7,  1,  5, 0, VEGGY, 100, CLR_BRIGHT_GREEN,
 FOOD("pumpkin",               3,  1,  5, 0, VEGGY, 100, CLR_ORANGE,
                                                           PUMPKIN),
 FOOD("banana",               10,  1,  2, 0, VEGGY,  80, CLR_YELLOW, BANANA),
-FOOD("banana peel",           0,  1,  2, 0, VEGGY,  10, CLR_YELLOW, BANANA_PEEL),
 FOOD("carrot",               15,  1,  2, 0, VEGGY,  50, CLR_ORANGE, CARROT),
 FOOD("sprig of wolfsbane",    7,  1,  1, 0, VEGGY,  40, CLR_GREEN,
                                                           SPRIG_OF_WOLFSBANE),
@@ -1295,7 +1296,7 @@ SCROLL("punishment",                   "KTHXBYE",  1,  15, 300,
                                                         SCR_PUNISHMENT),
 SCROLL("charging",                   "VENVIDVIC",  1,  15, 300,
                                                         SCR_CHARGING),
-SCROLL("control weather",               "EKDMOS",  1,  15, 300,
+SCROLL("control weather",               "EKDMOS",  1,   0, 300,
                                                         SCR_CONTROL_WEATHER),
 SCROLL("maze",                   "WAREZ WALL DO",  1,   5, 300,
                                                          SCR_MAZE),
@@ -1704,8 +1705,6 @@ ROCK("flint", "gray",      0,  10,  10,  1, 6, 6, 0, 10, 7, MINERAL, CLR_GRAY,
                                                                     FLINT),
 ROCK("rock", NoDes,         1, 100,  10,  0, 3, 3, 0, 10, 7, MINERAL, CLR_GRAY,
                                                                     ROCK),
-ROCK("snowball", NoDes,     1,  0,  5,  0, 3, 3, 0, 10, 7, ICECRYSTAL, CLR_WHITE,
-                                                                    SNOWBALL),
 #undef GEM
 #undef ROCK
 
@@ -1717,26 +1716,31 @@ ROCK("snowball", NoDes,     1,  0,  5,  0, 3, 3, 0, 10, 7, ICECRYSTAL, CLR_WHITE
  */
 OBJECT(OBJ("boulder", NoDes),
        BITS(1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, P_NONE, MINERAL), 0,
-       ROCK_CLASS, 100, 0, 6000, 0, 20, 20, 0, 0, 2000, HI_MINERAL, BOULDER),
+       ROCK_CLASS, 100, 0, 6000, 0,  1, 20, 0, 0, 2000, HI_MINERAL, BOULDER),
 OBJECT(OBJ("statue", NoDes),
        BITS(1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, P_NONE, MINERAL), 0,
-       ROCK_CLASS, 800, 0, 2500, 0, 20, 20, 0, 0, 2500, CLR_WHITE, STATUE),
+       ROCK_CLASS, 800, 0, 2500, 0,  1, 20, 0, 0, 2500, CLR_WHITE, STATUE),
 OBJECT(OBJ("fossil", NoDes),
        BITS(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, P_NONE, MINERAL), 0,
-	ROCK_CLASS, 100, 0, 2500, 0, 20, 20, 0, 0, 2500, CLR_BROWN, FOSSIL),
-
-OBJECT(OBJ("empty bottle", NoDes),
-       BITS(1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, P_NONE, GLASS), 0,
-       BOTTLE_CLASS, 1000, 0, 2, 0, 0, 0, 0, 0, 10, HI_GLASS, BOTTLE),
+	ROCK_CLASS, 100, 0, 2500, 0,  1, 20, 0, 0, 2500, CLR_BROWN, FOSSIL),
 
 OBJECT(OBJ("heavy iron ball", NoDes),
        BITS(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, WHACK, P_NONE, IRON), 0,
-       BALL_CLASS, 1000, 0, 480, 10, 25, 25, 0, 0, 200, HI_METAL,
+       BALL_CLASS, 1000, 0, 480, 10,  1, 25, 0, 0, 200, HI_METAL,
                                                             HEAVY_IRON_BALL),
         /* +d4 when "very heavy" */
 OBJECT(OBJ("iron chain", NoDes),
        BITS(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, WHACK, P_NONE, IRON), 0,
-       CHAIN_CLASS, 1000, 0, 120, 0, 4, 4, 0, 0, 200, HI_METAL, IRON_CHAIN),
+       CHAIN_CLASS, 1000, 0, 120, 0, 1, 4, 0, 0, 200, HI_METAL, IRON_CHAIN),
+OBJECT(OBJ("empty bottle", NoDes),
+       BITS(1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, P_NONE, GLASS), 0,
+       CHAIN_CLASS, 1000, 0, 2, 0, 1, 4, 0, 0, 10, HI_GLASS, BOTTLE),
+OBJECT(OBJ("snowball", NoDes),
+       BITS(1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, P_NONE, ICECRYSTAL), 0,
+       CHAIN_CLASS, 1000, 0, 1, 0, 0, 0, 0, 0, 0, CLR_WHITE, SNOWBALL),
+OBJECT(OBJ("banana peel", NoDes),
+       BITS(1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, P_NONE, VEGGY), 0,
+       CHAIN_CLASS, 1000, 0, 2, 0, 0, 0, 0, 0,  0, CLR_YELLOW, BANANA_PEEL),
         /* +1 both l & s */
 
 /* Venom is normally a transitory missile (spit by various creatures)
@@ -1747,7 +1751,7 @@ OBJECT(OBJ("splash of blinding venom", "splash of venom"),
        VENOM_CLASS, 500, 0, 1, 0, 0, 0, 0, 0, 0, HI_ORGANIC, BLINDING_VENOM),
 OBJECT(OBJ("splash of acid venom", "splash of venom"),
        BITS(0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, P_NONE, LIQUID), 0,
-       VENOM_CLASS, 500, 0, 1, 0, 6, 6, 0, 0, 0, HI_ORGANIC, ACID_VENOM),
+       VENOM_CLASS, 500, 0, 1, 0, 1, 6, 0, 0, 0, HI_ORGANIC, ACID_VENOM),
         /* +d6 small or large */
 
 #if defined(OBJECTS_DESCR_INIT) || defined(OBJECTS_INIT)

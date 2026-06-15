@@ -59,6 +59,7 @@ enum any_types {
     ANY_NFUNC,       /* pointer to function taking no args, returning int */
     ANY_MASK32,      /* 32-bit mask (stored as unsigned long) */
     ANY_UINT64,      /* 64-bit unsigned int */
+    ANY_INT16,      /* xint16 / coordxy (16-bit signed) */
 
     ANY_INVALID      /* leave this last */
 };

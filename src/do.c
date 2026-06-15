@@ -1441,6 +1441,11 @@ save_currentstate(void)
 {
     NHFILE *nhfp;
 
+    if (!program_state.something_worth_saving
+        || program_state.in_self_recover
+        || program_state.in_checkpoint)
+        return;
+
     program_state.in_checkpoint++;
     if (flags.ins_chkpt) {
         /* write out just-attained level, with pets and everything */
@@ -1959,7 +1964,20 @@ goto_level(
             final_level(); /* guardian angel,&c */
             record_achievement(ACH_ASTR); /* reached Astral level */
         } else if (newdungeon && u.uhave.amulet) {
-            resurrect(); /* force confrontation with Wizard */
+            if (Role_if(PM_ROGUE)) {
+                /* Rogues have to deal with extra angry mplayers */
+                if (new && !on_level(&u.uz, &astral_level))
+                    create_mplayers(rn1(3, 3), TRUE);
+                /* force confrontation with quest leader you robbed */
+                makemon(&mons[roles[flags.rogvictim].ldrnum], u.ux, u.uy, MM_NOWAIT);
+                verbalize("We've finally found you, %s!", svp.plname);
+                if (roles[flags.rogvictim].ldrnum == PM_MASTER_OF_THIEVES)
+                    verbalize("I'm expelling you from the guild... in a casket!");
+                else
+                    verbalize("Now give back what you stole from us!");
+            } else {
+                resurrect(); /* force confrontation with Wizard */
+            }
         }
     } else if (In_quest(&u.uz)) {
         onquest(); /* might be reaching locate|goal level */
@@ -1978,6 +1996,12 @@ goto_level(
     } else if (In_mines(&u.uz)) {
         if (newdungeon)
             record_achievement(ACH_MINE);
+    } else if (In_magicmaze(&u.uz)) {
+        if (newdungeon)
+            record_achievement(ACH_MAZE);
+    } else if (In_mtemple(&u.uz)) {
+        if (newdungeon)
+            record_achievement(ACH_MTEMPLE);
     } else if (In_sokoban(&u.uz)) {
         if (newdungeon) {
             record_achievement(ACH_SOKO);

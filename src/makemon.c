@@ -252,6 +252,10 @@ m_initweap(struct monst *mtmp)
                 w1 = rn2(2) ? BROADSWORD : LONG_SWORD;
                 break;
             case PM_CAPTAIN:
+                if (!rn2(100))
+                    (void) mongets(mtmp, GAS_MASK);
+                FALLTHROUGH;
+                /*FALLTHRU*/
             case PM_WATCH_CAPTAIN:
                 w1 = rn2(2) ? LONG_SWORD : SABER;
                 break;
@@ -322,6 +326,8 @@ m_initweap(struct monst *mtmp)
             (void) mongets(mtmp, rn2(4) ? SHORT_SWORD : AXE);
         } else if (mm == PM_MASTER_KAEN) {
             (void) mongets(mtmp, SHURIKEN);
+        } else if (mm == PM_SERVANT || mm == PM_HEAD_SERVANT) {
+            m_initthrow(mtmp, KNIFE, 8);
         } else if (ptr->msound == MS_GUARDIAN) {
             /* quest "guardians" */
             switch (mm) {
@@ -1533,7 +1539,7 @@ makemon(
     newmonhp(mtmp, mndx);
 
     /* advance the monster, maybe? */
-    if (allowadvance && advanceable(ptr) && !rn2(35))
+    if (allowadvance && advanceable(ptr) && !rn2(38))
         advance_monster(mtmp);
 
     femaleok = (!is_male(ptr) && !is_neuter(ptr));

@@ -712,6 +712,7 @@ m_everyturn_effect(struct monst *mtmp)
     /* Yellow dragons do this every turn */
     if (mtmp->data == &mons[PM_YELLOW_DRAGON] ||
         mtmp->data == &mons[PM_BABY_YELLOW_DRAGON] ||
+        mtmp->data == &mons[PM_GIANT_SLUG] ||
         (is_u && uarm && 
             (uarm->otyp == YELLOW_DRAGON_SCALES || 
                 uarm->otyp == YELLOW_DRAGON_SCALE_MAIL))) {
@@ -776,7 +777,8 @@ m_everyturn_effect(struct monst *mtmp)
         if (mtmp->mdriptype > 0) floor_spillage(x, y, mtmp->mdriptype, NON_PM);
         else add_coating(x, y, COAT_BLOOD, -1 * mtmp->mdriptype);
     } else if (mtmp->data == &mons[PM_ACID_BLOB] 
-            || mtmp->data == &mons[PM_GELATINOUS_CUBE]) {
+            || mtmp->data == &mons[PM_GELATINOUS_CUBE]
+            || mtmp->data == &mons[PM_OCHRE_JELLY]) {
         floor_spillage(x, y, POT_ACID, NON_PM);
     }
 }
@@ -849,6 +851,13 @@ m_postmove_effect(struct monst *mtmp)
                 if (!canseemon(mtmp)) You_hear("churning air.");
             }
         }
+    }
+    /* Servants mop up gross things */
+    if (is_cleaner(mtmp->data) && !is_u
+        && has_coating(x, y, COAT_DIRTY)) {
+        remove_coating(x, y, COAT_DIRTY);
+        if (flags.verbose && canseemon(mtmp))
+            pline_mon(mtmp, "%s mops up the %s.", Monnam(mtmp), surface(x, y));
     }
 }
 
@@ -959,10 +968,8 @@ dochug(struct monst *mtmp)
     /* Monsters that want to acquire things may teleport, so do it before
        inrange is set. This costs a turn only if mstate is set.  */
     if (is_covetous(mdat)) {
-        int tactics_result = tactics(mtmp);
+        (void) tactics(mtmp);
         /* tactics -> mnexto -> deal_with_overcrowding */
-        if (tactics_result >= 2)
-            return tactics_result;
         if (mtmp->mstate)
             return 0;
         set_apparxy(mtmp);
@@ -1185,6 +1192,8 @@ mon_would_take_item(struct monst *mtmp, struct obj *otmp)
         return FALSE;
     if (mtmp->mtame && otmp->cursed)
         return FALSE; /* note: will get overridden if mtmp will eat otmp */
+    if (is_cleaner(mtmp->data) && pctload < 80)
+        return TRUE;
     if (is_unicorn(mtmp->data) && otmp->material != GEMSTONE)
         return FALSE;
     if (!mindless(mtmp->data) && !is_animal(mtmp->data) && pctload < 75
@@ -1625,6 +1634,11 @@ m_search_items(
     }
 
  finish_search:
+    if (minr < SQSRCHRADIUS && *appr == 0) {
+        /* This is specifically for servants and other peaceful
+           monsters that still seek out items. */
+        *appr = 1;
+    }
     if (minr < SQSRCHRADIUS && *appr == -1) {
         if (distmin(omx, omy, mtmp->mux, mtmp->muy) <= 3) {
             *ggx = mtmp->mux;
@@ -1839,7 +1853,9 @@ postmov(
             u_on_newpos(mtmp->mx, mtmp->my);
             swallowed(0);
         } else {
-            newsym(mtmp->mx, mtmp->my);
+            /* only call newsym() when not a vault guard moving to <0,0> */
+            if (mtmp->mx)
+                newsym(mtmp->mx, mtmp->my);
         }
     } /* mmoved==MMOVE_MOVED */
 
@@ -1852,6 +1868,11 @@ postmov(
             /* Maybe a rock mole just ate some metal object */
             if (metallivorous(ptr)) {
                 if (meatmetal(mtmp) == 2)
+                    return MMOVE_DIED; /* it died */
+            }
+            /* Maybe a silverfish just ate some paper or cloth */
+            if (paper_eater(ptr)) {
+                if (meatpaper(mtmp) == 2)
                     return MMOVE_DIED; /* it died */
             }
             /* Maybe a cube ate just about anything */
@@ -2138,6 +2159,9 @@ m_move(struct monst *mtmp, int after)
             getitems = TRUE;
         }
     }
+    
+    if (is_cleaner(mtmp->data) && mtmp->mpeaceful)
+        getitems = TRUE;
 
     if (getitems && m_search_items(mtmp, &ggx, &ggy, &mmoved, &appr))
         return postmov(mtmp, ptr, omx, omy, mmoved,

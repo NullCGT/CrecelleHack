@@ -406,7 +406,7 @@ use_stethoscope(struct obj *obj)
     }
     if ((mtmp = m_at(rx, ry)) != 0) {
         const char *mnm = x_monnam(mtmp, ARTICLE_A, (const char *) 0,
-                                   SUPPRESS_IT | SUPPRESS_INVISIBLE, FALSE);
+                                   SUPPRESS_IT | SUPPRESS_INVISIBLE | SUPPRESS_MAPPEARANCE, FALSE);
 
         /* gb.bhitpos needed by mstatusline() iff mtmp is a long worm */
         gb.bhitpos.x = rx, gb.bhitpos.y = ry;
@@ -1276,9 +1276,7 @@ use_mirror(struct obj *obj)
             return ECMD_TIME;
         }
         if (vis)
-            pline("%s is turned to stone!", Monnam(mtmp));
-        gs.stoned = TRUE;
-        killed(mtmp);
+            pline("%s averts %s gaze.", Monnam(mtmp), mhis(mtmp));
     } else if (monable && mtmp->data == &mons[PM_FLOATING_EYE]) {
         int tmp = d((int) mtmp->m_lev, (int) mtmp->data->mattk[0].damd);
         if (!rn2(4))
@@ -1418,7 +1416,7 @@ use_bell(struct obj **optr)
 
             mm.x = u.ux;
             mm.y = u.uy;
-            mkundead(&mm, FALSE, NO_MINVENT);
+            mkundead((struct monst *) NULL, &mm, FALSE, NO_MINVENT);
             wakem = TRUE;
 
         } else if (invoking) {
@@ -4536,6 +4534,7 @@ doapply(void)
     case SUNGLASSES:
     case TINKER_GOGGLES:
     case MIRRORED_GLASSES:
+    case GAS_MASK:
         if (obj == ublindf) {
             if (!cursed(obj))
                 Blindf_off(obj);
@@ -4545,7 +4544,8 @@ doapply(void)
             You("are already %s.",
                 (ublindf->otyp == TOWEL) ? "covered by a towel"
                 : (ublindf->otyp == BLINDFOLD) ? "wearing a blindfold"
-                  : "wearing glasses");
+                    : (ublindf->otyp == GAS_MASK) ? "wearing a mask"
+                        : "wearing glasses");
         }
         break;
     case CREAM_PIE:

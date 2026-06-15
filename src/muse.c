@@ -596,7 +596,8 @@ find_defensive(struct monst *mtmp, boolean tryescape)
         }
     } else if (has_coating(x, y, COAT_ASHES) && !nolimbs(mtmp->data)
                 && !is_floater(mtmp->data) && haseyes(gy.youmonst.data)
-                && !Blind && m_next2u(mtmp) && ash_kicker(mtmp->data)) {
+                && !Blind && m_next2u(mtmp) && ash_kicker(mtmp->data)
+                && !mtmp->mpeaceful) {
         gm.m.has_defense = MUSE_COAT_ASHES;
     } else if (has_coating(x, y, COAT_BLOOD) && is_vampire(mtmp->data)) {
         gm.m.has_defense = MUSE_COAT_BLOOD;
@@ -1634,6 +1635,7 @@ find_offensive(struct monst *mtmp)
             && obj->otyp != POT_HEALING && obj->otyp != POT_EXTRA_HEALING
             && obj->otyp != POT_FULL_HEALING
             && mtmp->data->mlet != S_NYMPH
+            && !is_cleaner(mtmp->data)
             && has_coating(u.ux, u.uy, COAT_POTION)
             && levl[u.ux][u.uy].pindex != POT_WATER
             && (levl[u.ux][u.uy].pindex == POT_HAZARDOUS_WASTE || !rn2(10)
@@ -1972,6 +1974,8 @@ mbhit(
             gb.bhitpos.y -= ddy;
             break;
         }
+        if (otyp == WAN_AQUA_BOLT)
+            floor_spillage(x, y, POT_WATER, 0);
     }
 }
 
@@ -2051,7 +2055,8 @@ use_offensive(struct monst *mtmp)
         gb.buzzer = 0;
         /* note: 'otmp' might have been destroyed (drawbridge destruction) */
         gm.m_using = FALSE;
-        if (gm.m.has_offense == MUSE_WAN_STRIKING)
+        if (gm.m.has_offense == MUSE_WAN_STRIKING
+            || gm.m.has_offense == MUSE_WAN_AQUA_BOLT)
             mtmp->mwandexp = TRUE;
         return 2;
     case MUSE_SCR_EARTH: {
@@ -2279,6 +2284,7 @@ rnd_offensive_item(struct monst *mtmp)
 #define MUSE_GREASE 11
 #define MUSE_DIP_WEAPON 12
 #define MUSE_BURY_BONES 13
+#define MUSE_CLEAN_OBJ 14
 
 boolean
 find_misc(struct monst *mtmp)
@@ -2389,6 +2395,7 @@ find_misc(struct monst *mtmp)
            grease if the player is slithy or a mind flayer and we have something
            greasable in the applicable slot. */
         if (obj->otyp == CAN_OF_GREASE && obj->spe > 0
+            && !is_cleaner(mtmp->data)
             && ((is_mind_flayer(gy.youmonst.data) && mtmp->misc_worn_check & W_ARMH) 
                 || (slithy(gy.youmonst.data) && mtmp->misc_worn_check & W_ARM))) {
                 for (obj2 = mtmp->minvent; obj2; obj2 = obj2->nobj) {
@@ -2403,10 +2410,19 @@ find_misc(struct monst *mtmp)
         }
         nomore(MUSE_DIP_WEAPON);
         if ((mtmp->data != &mons[PM_PESTILENCE] && obj->otyp == POT_SICKNESS
-                && mwep && !mwep->opoisoned && is_poisonable(mwep))
+                && mwep && !mwep->opoisoned && is_poisonable(mwep)
+                && !is_cleaner(mtmp->data))
             ||  (mwep && mwep->cursed && obj->otyp == POT_WATER && obj->blessed)) {
                 gm.m.misc = obj;
                 gm.m.has_misc = MUSE_DIP_WEAPON;
+        }
+        nomore(MUSE_CLEAN_OBJ);
+        if (is_cleaner(mtmp->data)
+            && (obj->greased
+                || (is_poisonable(obj) && !permapoisoned(obj) && obj->opoisoned)
+                || (erosion_matters(obj) && (obj->oeroded || obj->oeroded2)))) {
+            gm.m.misc = obj;
+            gm.m.has_misc = MUSE_CLEAN_OBJ;
         }
         nomore(MUSE_BURY_BONES);
         if (likes_bones(mtmp->data)
@@ -2783,6 +2799,19 @@ use_misc(struct monst *mtmp)
             otmp2->cursed = 0;
         m_useup(mtmp, otmp);
         return 0;
+    case MUSE_CLEAN_OBJ:
+        if (otmp->oeroded || otmp->oeroded2) {
+            if (flags.verbose && canseemon(mtmp))
+                pline("%s destroys %s.", Monnam(mtmp), an(xname(otmp)));
+            m_useupall(mtmp, otmp);
+        } else {
+            otmp->greased = 0;
+            if (is_poisonable(otmp))
+                otmp->opoisoned = 0;
+            if (flags.verbose && canseemon(mtmp))
+                pline("%s polishes %s.", Monnam(mtmp), an(xname(otmp)));
+        }
+        return 0;
     case MUSE_BURY_BONES:
         mon_bury_obj(mtmp, otmp);
         return 0;
@@ -3046,8 +3075,9 @@ searches_for_item(struct monst *mon, struct obj *obj)
         if (typ == EGG && ismnum(obj->corpsenm))
             return (boolean) touch_petrifies(&mons[obj->corpsenm]);
         break;
-    case BOTTLE_CLASS:
-        return TRUE;
+    case CHAIN_CLASS:
+        if (typ != IRON_CHAIN)
+            return TRUE;
     default:
         break;
     }

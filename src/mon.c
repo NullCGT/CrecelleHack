@@ -349,6 +349,9 @@ m_poisongas_ok(struct monst *mtmp)
     if ((mtmp->data->mlet == S_EEL || Is_waterlevel(&u.uz))
         && is_pool(px, py))
         return M_POISONGAS_OK;
+    /* gas masks block vapor effects */
+    if (is_you && ublindf && ublindf->otyp == GAS_MASK)
+        return M_POISONGAS_OK;
     /* exclude monsters with poison gas breath attack:
        adult green dragon and Chromatic Dragon (and iron golem,
        but nonliving() and breathless() tests also catch that) */
@@ -816,7 +819,8 @@ make_corpse(struct monst *mtmp, unsigned int corpseflags)
 
 #if (NH_DEVEL_STATUS != NH_STATUS_RELEASED)
     case PM_GIANT_ANT: case PM_KILLER_BEE: case PM_SOLDIER_ANT:
-    case PM_FIRE_ANT: case PM_SNOW_ANT: case PM_GIANT_BEETLE: case PM_QUEEN_BEE:
+    case PM_FIRE_ANT: case PM_SNOW_ANT: case PM_GIANT_BEETLE:
+    case PM_GIANT_SILVERFISH: case PM_QUEEN_BEE:
 
     case PM_QUIVERING_BLOB: case PM_ACID_BLOB: case PM_GELATINOUS_CUBE:
     case PM_BLOB:
@@ -871,7 +875,7 @@ make_corpse(struct monst *mtmp, unsigned int corpseflags)
     case PM_BLACK_HOLE: case PM_CRIMSON_DEATH: case PM_TORNADO:
 
     case PM_NIGHTCRAWLER: case PM_BABY_LONG_WORM: case PM_BABY_PURPLE_WORM:
-    case PM_MAIL_WORM:
+    case PM_MAIL_WORM: case PM_GIANT_SLUG:
     case PM_FROSTWURM: case PM_PURPLE_WORM:
 
     case PM_GRID_BUG: case PM_XAN: case PM_YELLOW_LIGHT: case PM_BLACK_LIGHT:
@@ -946,6 +950,7 @@ make_corpse(struct monst *mtmp, unsigned int corpseflags)
     case PM_GUARD: case PM_PRISONER: case PM_ORACLE:
     case PM_ALIGNED_CLERIC: case PM_HIGH_CLERIC:
     case PM_SOLDIER: case PM_SERGEANT: case PM_NURSE:
+    case PM_SERVANT: case PM_HEAD_SERVANT:
     case PM_LIEUTENANT: case PM_CAPTAIN: case PM_WATCHMAN:
     case PM_WATCH_CAPTAIN:
 
@@ -1349,14 +1354,19 @@ movemon_singlemon(struct monst *mtmp)
             (void) gd_move(mtmp);
             mtmp->mlstmv = svm.moves;
         }
+        mtmp->movement = 0;
         return FALSE;
     }
-    if (DEADMONSTER(mtmp))
+    if (DEADMONSTER(mtmp)) {
+        mtmp->movement = 0;
         return FALSE;
+    }
 
     /* monster isn't on this map anymore */
-    if (mon_offmap(mtmp))
+    if (mon_offmap(mtmp)) {
+        mtmp->movement = 0;
         return FALSE;
+    }
 
     m_everyturn_effect(mtmp);
 
@@ -1991,6 +2001,7 @@ mpickstuff(struct monst *mtmp)
         if (mon_would_take_item(mtmp, otmp)) {
 
             if (otmp->otyp == CORPSE && mtmp->data->mlet != S_NYMPH 
+                && !is_cleaner(mtmp->data)
                 && mtmp->data != &mons[PM_BLACK_HOLE]
                 && mtmp->data != &mons[PM_TORNADO]
                 /* let a handful of corpse types thru to can_carry() */
@@ -2158,6 +2169,9 @@ can_carry(struct monst *mtmp, struct obj *otmp)
         return 0;
     if (mtmp->isshk)
         return iquan; /* no limit */
+    if (is_cleaner(mdat) || mtmp->data == &mons[PM_BLACK_HOLE]
+         || mtmp->data == &mons[PM_TORNADO])
+        return (otmp->oclass == ROCK_CLASS) ? 0 : iquan;
     if (mtmp->mpeaceful && !mtmp->mtame)
         return 0;
     /* otherwise players might find themselves obligated to violate
@@ -2183,41 +2197,6 @@ staticfn boolean
 monlineu(struct monst *mon, int nx, int ny)
 {
     return online2(nx, ny, mon->mux, mon->muy);
-}
-
-/* Does the monster pursue you down a corridor or wait it out?
-   This is really expensive, especially when called repeatedly.
-   TODO: Find another way to do this. */
-staticfn boolean
-mon_avoids_chokepoint(struct monst *mon) {
-    int score = 0;
-    int x, y;
-    /* Rule out the easy ones. Monsters don't use ambush
-       tactics in mazes because that would probably confuse
-       their AI. Monsters will also not pull these tactics
-       unless a player is specifically in a corridor, simply
-       to cut down on the amount of iteration. */
-    if (mon->mpeaceful || !is_ambusher(mon->data)
-        || passes_walls(mon->data)
-        || levl[mon->mx][mon->my].typ == CORR
-        || levl[mon->mx][mon->my].typ == SCORR
-        || svl.level.flags.is_maze_lev
-        || (levl[u.ux][u.uy].typ != CORR && levl[u.ux][u.uy].typ != SCORR))
-        return 0;
-    /* If the player is badly hurt, it's time to go in. */
-    if (u.uhp * 2 <= u.uhpmax)
-        return 0;
-    /* Loop over player's surroundings. */
-    for (int dx = -1; dx <= 1; dx++) {
-        for (int dy = -1; dy <= 1; dy++) {
-            x = u.ux + dx;
-            y = u.uy + dy;
-            if (!dx && !dy) continue;
-            if (!isok(x, y) || IS_STWALL(levl[x][y].typ)) score++;
-        }
-    }
-    if (score >= 6) return 1;
-    return 0;
 }
 
 /* return flags based on monster data, for mfndpos() */
@@ -2277,9 +2256,6 @@ mon_allowflags(struct monst *mtmp)
     /* unicorn may not be able to avoid hero on a noteleport level */
     if (is_unicorn(mtmp->data) && !noteleport_level(mtmp))
         allowflags |= NOTONL;
-    if (mon_avoids_chokepoint(mtmp)) {
-        allowflags |= NOTONL;
-    }
     if (!is_aware(mtmp)) {
         allowflags &= ~ALLOW_U;
     }
@@ -6271,9 +6247,10 @@ adj_midbosses(void)
     int index = PM_LORD_CARNARVON - 1;
     struct permonst *pm;
 
-    while (index < PM_APPRENTICE) {
+    while (index <= PM_APPRENTICE) {
         index++;
-        if (index == gu.urole.neminum || index == gu.urole.ldrnum) {
+        if (index == gu.urole.neminum || index == gu.urole.ldrnum
+            || index == gu.urole.guardnum) {
             continue;
         }
         pm = &mons[index];
@@ -6282,9 +6259,11 @@ adj_midbosses(void)
         pm->mflags3 &= ~M3_WANTSARTI;
         pm->mflags3 &= ~M3_WAITFORU;
         pm->mflags3 &= ~M3_CLOSE;
-        if (index < PM_ATTENDANT) {
+        if (index <= PM_DARK_ONE) {
+            if (!(Role_if(PM_ROGUE) && index == roles[flags.rogvictim].ldrnum)) {
+                pm->geno &= ~G_NOGEN;
+            }
             pm->msound = MS_SILENT;
-            pm->geno &= ~G_NOGEN;
             pm->geno |= G_SQUAD;
             pm->geno |= G_LGROUP;
             pm->geno |= G_MIDBOSS;
@@ -6572,6 +6551,55 @@ make_unaware(struct monst *mtmp, boolean message) {
         && !mtmp->mpeaceful) {
         pline_mon(mtmp, "%s loses sight of you.", Monnam(mtmp));
     }
+}
+/*
+ * Based on meatmetal()
+ * Return value: 0 => nothing happened, 1 => monster ate something,
+ * 2 => monster died (it must have grown into a genocided form, but
+ * that can't happen at present because nothing which eats objects
+ * has young and old forms).
+ */
+int
+meatpaper(struct monst *mtmp)
+{
+    struct obj *otmp;
+    char *otmpname;
+
+    /* If a pet, eating is handled separately, in dog.c */
+    if (mtmp->mtame)
+        return 0;
+
+    /* Eats topmost papery object if it is there */
+    for (otmp = svl.level.objects[mtmp->mx][mtmp->my]; otmp;
+         otmp = otmp->nexthere) {
+        /* Don't eat indigestible/choking/inappropriate objects */
+        if (otmp->otyp == SPE_BOOK_OF_THE_DEAD)
+            continue;
+        if ((otmp->material == CLOTH || otmp->material == PAPER)
+            && !obj_resists(otmp, 5, 95)
+            && touch_artifact(otmp, mtmp)) {
+            
+            if (cansee(mtmp->mx, mtmp->my)) {
+                /* (see above; format even if it won't be printed) */
+                otmpname = distant_name(otmp, doname);
+                if (flags.verbose)
+                    pline_mon(mtmp, "%s devours %s!",
+                                Monnam(mtmp), otmpname);
+            } else {
+                if (flags.verbose) {
+                    Soundeffect(se_crunching_sound, 50);
+                    You_hear("a ruffling sound.");
+                }
+            }
+            mtmp->meating = otmp->owt / 2 + 1;
+            m_consume_obj(mtmp, otmp);
+            if (DEADMONSTER(mtmp))
+                return 2;
+            newsym(mtmp->mx, mtmp->my);
+            return 1;
+        }
+    }
+    return 0;
 }
 /* cleanup for 'onefile' processing */
 #undef LEVEL_SPECIFIC_NOCORPSE

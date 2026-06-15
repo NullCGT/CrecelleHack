@@ -8,29 +8,30 @@ des.level_init({ style = "solidfill", fg = " " });
 
 des.level_flags("mazelevel", "noteleport", "hardfloor", "solidify")
 des.map({ halign = "right", valign = "center", map = [[
-  --- --- ---  
-  |.| |.| |.|  
----S---S---S---
-|.......+.+...|
----+-----.-----
-  |...\.|.+.|  
----+-----.-----
-|.......+.+...|
----S---S---S---
-  |.| |.| |.|  
-  --- --- ---  
+                  --- --- ---  
+                  |.| |.| |.|  
+ ------------------S---S---S---
+-|..............|.......+.+...|
+|...............---+-----.-----
+|.....\.............|||||...+.|
+|...............---+-----.-----
+-|..............|.......+.+...|
+ ------------------S---S---S---
+                  |.| |.| |.|  
+                  --- --- ---  
 ]] });
 
-local niches = { {03,01}, {03,09}, {07,01}, {07,09}, {11,01}, {11,09} };
+local niches = { {19,01}, {19,09}, {23,01}, {23,09}, {27,01}, {27,09} };
 shuffle(niches);
 
-des.ladder("down", 11,05)
+des.ladder("down", 27,05)
 -- The lord and his court
-des.monster("Vlad the Impaler", 06, 05)
+des.monster("Vlad the Impaler", 6, 05)
 des.monster("V",niches[1])
 des.monster("V",niches[2])
 des.monster("V",niches[3])
-des.monster("blood golem", 06, 06)
+des.monster("blood golem", 8, 03)
+des.monster("blood golem", 8, 07)
 -- The brides; they weren't named in Bram Stoker's original _Dracula_
 -- and when appearing in umpteen subsequent books and movies there is
 -- no consensus for their names.  According to the Wikipedia entry for
@@ -47,13 +48,13 @@ des.monster({ id="vampire lady", coord=niches[4], name=Vnames[1], waiting=1 })
 des.monster({ id="vampire lady", coord=niches[5], name=Vnames[2], waiting=1 })
 des.monster({ id="vampire lady", coord=niches[6], name=Vnames[3], waiting=1 })
 -- The doors
-des.door("closed",08,03)
-des.door("closed",10,03)
-des.door("closed",03,04)
-des.door("locked",10,05)
-des.door("locked",08,07)
-des.door("locked",10,07)
-des.door("closed",03,06)
+des.door("closed",24,03)
+des.door("closed",26,03)
+des.door("closed",19,04)
+des.door("locked",26,05)
+des.door("locked",24,07)
+des.door("locked",26,07)
+des.door("closed",19,06)
 -- treasures
 des.object("chest", 07,05)
 
@@ -72,4 +73,4 @@ des.object({ id = "chest", coord=niches[5],
              end
 });
 -- We have to protect the tower against outside attacks
-des.non_diggable(selection.area(00,00,14,10))
+des.non_diggable(selection.area(00,00,31,10))

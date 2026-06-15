@@ -216,6 +216,7 @@ struct mapseen_feat {
     Bitfield(msalign, 2);
 
     Bitfield(shoptype, 5);
+    Bitfield(msbiome, 3); /* may need to be added as we add biomes */
 };
 struct mapseen_flags {
     Bitfield(notreachable, 1); /* can't get back to this level */
@@ -264,15 +265,22 @@ typedef struct mapseen {
     struct cemetery *final_resting_place; /* same as level.bonesinfo */
 } mapseen;
 
-enum bioime_types {
-    BIOME_ODUNGEON = 0,   /* Standard dungeon */
-    BIOME_WOODLAND = 1,   /* Grassy and woody */
-    BIOME_FUNGAL = 2,     /* Full of fungi */
-    BIOME_TROPICAL = 3,   /* Full of sand and such */
-    BIOME_SNOWY = 4,      /* Snowy */
-    BIOME_SEWER = 5,      /* Fungi, water, etc. */
-    BIOME_MAX = 6
+/* Max biomes is 127? */
+#define BIOME_LIST BIOME(ODUNGEON,  "none"), \
+BIOME(WOODLAND,  "forested"), \
+BIOME(FUNGAL,    "fungal field"), \
+BIOME(TROPICAL,  "tropics"), \
+BIOME(SNOWY,     "snowfield"), \
+BIOME(SEWER,     "sewer")
+
+#define BIOME(id, nam) BIOME_##id
+enum biome_enum { BIOME_LIST, BIOME_MAX };
+#undef BIOME
+struct biome {
+    const char *name;
 };
+extern struct biome all_biomes[];
+
 
 #define IS_BIOME(x) (svl.level.flags.biome == x)
 

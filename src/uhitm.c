@@ -1404,6 +1404,7 @@ hmon_hitmon_misc_obj(
         }
         hmd->hittxt = TRUE;
         hmd->get_dmg_bonus = FALSE;
+        make_mdripping(mon, POT_ACID);
         break;
     default:
         if ((objects[obj->otyp].oc_material == VEGGY ||
@@ -4067,7 +4068,8 @@ mhitm_ad_famn(
         /* mhitm; it's possible for Famine to hit another monster;
            if target is something that doesn't eat, it won't be harmed;
            otherwise, just inflict the normal damage */
-        if (!(carnivorous(pd) || herbivorous(pd) || metallivorous(pd)))
+        if (!(carnivorous(pd) || herbivorous(pd) || metallivorous(pd)
+                || paper_eater(pd)))
             mhm->damage = 0;
     }
 }
@@ -4939,6 +4941,7 @@ mhitm_ad_sedu(
             return;
         }
         buf[0] = '\0';
+        mintroduce(magr);
         switch (steal(magr, buf)) {
         case -1:
             mhm->hitflags = M_ATTK_AGR_DIED; /* return 2??? */
@@ -5028,12 +5031,14 @@ mhitm_ad_ssex(struct monst *magr, struct attack *mattk, struct monst *mdef,
     } else if (mdef == &gy.youmonst) {
         /* mhitu */
         if (SYSOPT_SEDUCE) {
-            if (could_seduce(magr, mdef, mattk) == 1 && !magr->mcan)
+            if (could_seduce(magr, mdef, mattk) == 1 && !magr->mcan) {
+                mintroduce(magr);
                 if (doseduce(magr)) {
                     mhm->hitflags = M_ATTK_AGR_DONE;
                     mhm->done = TRUE;
                     return;
                 }
+            }
             return;
         }
         mhitm_ad_sedu(magr, mattk, mdef, mhm);
@@ -6149,6 +6154,7 @@ passive(
     int mhit = mhitb ? M_ATTK_HIT : M_ATTK_MISS;
     int malive = maliveb ? M_ATTK_HIT : M_ATTK_MISS;
     boolean learn_it = FALSE;
+    boolean do_damage = FALSE;
 
     for (i = 0;; i++) {
         if (i >= NATTK)
@@ -6370,6 +6376,7 @@ passive(
                     (void) split_mon(mon, &gy.youmonst);
                 spread_mold(mon->mx, mon->my, mon->data);
                 learn_it = TRUE;
+                do_damage = TRUE;
             }
             break;
         case AD_STUN: /* specifically yellow mold */
@@ -6397,6 +6404,7 @@ passive(
                 You("are suddenly very hot!");
                 spread_mold(mon->mx, mon->my, mon->data);
                 learn_it = TRUE;
+                do_damage = TRUE;
             }
             break;
         case AD_ELEC:
@@ -6410,6 +6418,7 @@ passive(
             }
             monstunseesu(M_SEEN_ELEC);
             You("are jolted with electricity!");
+            do_damage = TRUE;
             break;
         case AD_HONY:
             if (canseemon(mon)) {
@@ -6423,9 +6432,10 @@ passive(
         }
     }
     /* kludge to avoid damage for non-damaging passives. - K*/
-    if (ptr->mattk[i].adtyp == AD_FIRE
-        || ptr->mattk[i].adtyp == AD_COLD
-        || ptr->mattk[i].adtyp == AD_ELEC) {
+    if (do_damage
+        && (ptr->mattk[i].adtyp == AD_FIRE
+            || ptr->mattk[i].adtyp == AD_COLD
+            || ptr->mattk[i].adtyp == AD_ELEC)) {
         adjust_damage(&gy.youmonst, &tmp, ptr->mattk[i].adtyp);
         mdamageu(mon, tmp);
     }
@@ -6811,6 +6821,7 @@ oprop_effects_pre(struct monst *magr, struct monst *mdef)
         if (weapon->oprop == OPROP_BOREAL && icy) {
             (void) linedup(x, y, dx, dy, 0); /* set up gt.tbx and gt.tby */
             otmp = mksobj(ICICLE, FALSE, FALSE);
+            otmp->spe = 1;
             m_throw(magr, x, y, sgn(gt.tbx), sgn(gt.tby),
                     distmin(x, y, dx, dy), otmp);
             weapon->pknown = 1;

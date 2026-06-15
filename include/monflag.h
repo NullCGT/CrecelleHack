@@ -43,20 +43,21 @@ enum ms_sounds {
     MS_GUARD    = 28,   /* "Please drop that gold and follow me." */
     MS_DJINNI   = 29,   /* "Thank you for freeing me!" */
     MS_NURSE    = 30,   /* "Take off your shirt, please." */
-    MS_SEDUCE   = 31,   /* "Hello, sailor." (Nymphs) */
-    MS_VAMPIRE  = 32,   /* vampiric seduction, Vlad's exclamations */
-    MS_BRIBE    = 33,   /* asks for money, or berates you */
-    MS_CUSS     = 34,   /* berates (demons) or intimidates (Wiz) */
-    MS_RIDER    = 35,   /* astral level special monsters */
-    MS_LEADER   = 36,   /* your class leader */
-    MS_NEMESIS  = 37,   /* your nemesis */
-    MS_GUARDIAN = 38,   /* your leader's guards */
-    MS_SELL     = 39,   /* demand payment, complain about shoplifters */
-    MS_ORACLE   = 40,   /* do a consultation */
-    MS_PRIEST   = 41,   /* ask for contribution; do cleansing */
-    MS_SPELL    = 42,   /* spellcaster not matching any of the above */
-    MS_BOAST    = 43,   /* giants */
-    MS_GROAN    = 44,   /* zombies groan */
+    MS_SERVANT  = 31,   /* "It's filthy in here!" */
+    MS_SEDUCE   = 32,   /* "Hello, sailor." (Nymphs) */
+    MS_VAMPIRE  = 33,   /* vampiric seduction, Vlad's exclamations */
+    MS_BRIBE    = 34,   /* asks for money, or berates you */
+    MS_CUSS     = 35,   /* berates (demons) or intimidates (Wiz) */
+    MS_RIDER    = 36,   /* astral level special monsters */
+    MS_LEADER   = 37,   /* your class leader */
+    MS_NEMESIS  = 38,   /* your nemesis */
+    MS_GUARDIAN = 39,   /* your leader's guards */
+    MS_SELL     = 40,   /* demand payment, complain about shoplifters */
+    MS_ORACLE   = 41,   /* do a consultation */
+    MS_PRIEST   = 42,   /* ask for contribution; do cleansing */
+    MS_SPELL    = 43,   /* spellcaster not matching any of the above */
+    MS_BOAST    = 44,   /* giants */
+    MS_GROAN    = 45,   /* zombies groan */
 };
 
 #define MR_FIRE         0x01 /* resists fire */
@@ -175,7 +176,7 @@ enum ms_sounds {
 #define M3_INFRAVISIBLE 0x0200 /* visible by infravision */
 
 #define M3_DISPLACES    0x0400 /* moves monsters out of its way */
-#define M3_AMBUSHER     0x0800 /* monster uses advanced corridor tactics */
+/* #define M3_AMBUSHER     0x0800 */
 #define M3_TRAITOR      0x1000 /* monster can turn traitor (SLASH'EM)*/
 #define M3_TRIPPER      0x2000 /* monster can trip the player */
 #define M3_CALLOUT      0x4000 /* monster coordinates with others by calling out player position */

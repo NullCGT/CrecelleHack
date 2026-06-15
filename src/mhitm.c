@@ -787,8 +787,7 @@ gazemm(struct monst *magr, struct monst *mdef, struct attack *mattk)
                 return M_ATTK_MISS;
             }
             if (canseemon(magr))
-                pline("%s is turned to stone!", Monnam(magr));
-            monstone(magr);
+                pline("%s averts %s eyes.", Monnam(magr), mhis(magr));
             if (!DEADMONSTER(magr))
                 return M_ATTK_MISS;
             return M_ATTK_AGR_DIED;
@@ -1111,7 +1110,7 @@ mdamagem(
             return (M_ATTK_DEF_DIED | M_ATTK_AGR_DIED);
 
         /* improve pet handling if we see pet kill monsters */
-        if (magr->mtame && canspotmon(magr) && !rn2(3))
+        if (magr->mtame && canspotmon(magr))
             use_skill(P_PET_HANDLING, 1);
 
         if (mattk->adtyp == AD_DGST) {

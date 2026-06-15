@@ -709,6 +709,7 @@ m_everyturn_effect(struct monst *mtmp)
     /* Yellow dragons do this every turn */
     if (mtmp->data == &mons[PM_YELLOW_DRAGON] ||
         mtmp->data == &mons[PM_BABY_YELLOW_DRAGON] ||
+        mtmp->data == &mons[PM_GIANT_SLUG] ||
         (is_u && uarm && 
             (uarm->otyp == YELLOW_DRAGON_SCALES || 
                 uarm->otyp == YELLOW_DRAGON_SCALE_MAIL))) {

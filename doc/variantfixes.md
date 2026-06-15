@@ -3,6 +3,8 @@
 ## Monsters
 - New Monsters:
   - (Head) Butler/Maid/Servant
+  - Giant Slug
+    - Suggested by Tokage.
 
 ## Options
 - biome_overview
@@ -27,6 +29,7 @@
 - Increasing the pet handling skill increases the max number of pets you can have
   (and increase it by 1 generally).
 - Added the mintroduce patch from SpliceHack (code from xNetHack)
+- Salt does more damage to mummies than previously.
 
 # 1.5.1
 ## Objects

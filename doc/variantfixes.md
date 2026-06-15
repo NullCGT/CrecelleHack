@@ -34,6 +34,8 @@
 - Being hit with acid venom causes the victim to drip acid.
 - Being gifted selenic seat unrestricts the riding skill.
 - Allow pushed boulders to trigger timed traps.
+- Monsters that zap wands of aqua bolt now spread water.
+- Cannot repeatedly sit on a rust trap to permanently drip water.
 
 # 1.5.1
 ## Objects

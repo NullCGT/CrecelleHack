@@ -1792,4 +1792,20 @@ is_bonfire(NhRegion *reg) {
     return (reg->inside_f == INSIDE_BONFIRE);
 }
 
+boolean
+is_force_field(NhRegion *reg) {
+    return (reg->inside_f == INSIDE_FF);
+}
+
+/* cancel a force field at a given set of coordinates */
+boolean
+cancel_force_field(coordxy x, coordxy y) {
+    NhRegion *reg = visible_region_at(x, y);
+    if (!reg || !is_force_field(reg))
+        return FALSE;
+    pline("A force field is destroyed!");
+    remove_region(reg);
+    return TRUE;
+}
+
 /*region.c*/

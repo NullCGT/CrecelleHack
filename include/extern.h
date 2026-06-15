@@ -2843,6 +2843,8 @@ extern boolean region_danger(void);
 extern void region_safety(void);
 extern boolean is_gasregion(NhRegion *);
 extern boolean is_bonfire(NhRegion *);
+extern boolean is_force_field(NhRegion *);
+extern boolean cancel_force_field(coordxy, coordxy);
 
 /* ### report.c ### */
 

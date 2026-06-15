@@ -4300,6 +4300,12 @@ do_break_wand(struct obj *obj)
         FALLTHROUGH;
         /*FALLTHRU*/
     case WAN_CANCELLATION:
+        /* The fallthrough from wand of striking is intentional, because
+           walls of force crashing down and destroying the force field is 
+           a pretty funny pun. - K*/
+        cancel_force_field(u.ux, u.uy);
+        FALLTHROUGH;
+        /*FALLTHRU*/
     case WAN_POLYMORPH:
     case WAN_TELEPORTATION:
     case WAN_UNDEAD_TURNING:

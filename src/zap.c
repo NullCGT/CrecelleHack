@@ -3413,6 +3413,10 @@ zap_updown(struct obj *obj) /* wand or spell, nonnull */
     ttmp = t_at(x, y); /* trap if there is one */
 
     switch (obj->otyp) {
+    case WAN_CANCELLATION:
+        if (cancel_force_field(u.ux, u.uy))
+            learnwand(obj);
+        break;
     case WAN_PROBING:
         ptmp = 0;
         if (u.dz < 0) {
@@ -4049,11 +4053,15 @@ zap_map(
                 levl[x][y].pindex =rndmonnum();
             } while (!has_blood(&mons[levl[x][y].pindex]));   
         }
-    } else if (obj->otyp == WAN_CANCELLATION && has_coating(x, y, COAT_POTION)) {
-        if (levl[x][y].pindex == POT_SICKNESS || levl[x][y].pindex == POT_SEE_INVISIBLE)
-            add_coating(x, y, COAT_POTION, POT_FRUIT_JUICE);
-        else
-            add_coating(x, y, COAT_POTION, POT_WATER);
+    } else if (obj->otyp == WAN_CANCELLATION) {
+        if (cancel_force_field(x, y))
+            learnwand(obj);
+        if (has_coating(x, y, COAT_POTION)) {
+            if (levl[x][y].pindex == POT_SICKNESS || levl[x][y].pindex == POT_SEE_INVISIBLE)
+                add_coating(x, y, COAT_POTION, POT_FRUIT_JUICE);
+            else
+                add_coating(x, y, COAT_POTION, POT_WATER);
+        }
     } else if (obj->otyp == WAN_MAKE_INVISIBLE && has_coating(x, y, COAT_POTION)) {
         add_coating(x, y, COAT_POTION, POT_INVISIBILITY);
     } else if (obj->otyp == SPE_DRAIN_LIFE) {

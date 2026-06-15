@@ -38,6 +38,7 @@
 - Allow pushed boulders to trigger timed traps.
 - Monsters that zap wands of aqua bolt now spread water.
 - Cannot repeatedly sit on a rust trap to permanently drip water.
+- Cancellation destroys force fields.
 
 # 1.5.1
 ## Objects

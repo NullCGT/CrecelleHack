@@ -3296,7 +3296,7 @@ extern void maybe_absorb_item(struct monst *, struct obj *, int, int) NONNULLARG
 extern void mdrop_obj(struct monst *, struct obj *, boolean) NONNULLARG12;
 extern void mdrop_special_objs(struct monst *) NONNULLARG1;
 extern void relobj(struct monst *, int, boolean) NONNULLARG1;
-extern struct obj *findgold(struct obj *, boolean) NONNULLARG1;
+extern struct obj *findgold(struct obj *, boolean) NO_NNARGS;
 
 /* ### steed.c ### */
 

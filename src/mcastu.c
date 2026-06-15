@@ -1061,6 +1061,7 @@ mcast_spell(struct monst *mtmp, int dmg, int spellnum)
         break;
     case MCAST_BLOOD_BIND:
         mcast_blood_bind(mtmp);
+        dmg = 0;
         break;
     case MCAST_BLOODRUSH:
         if (canseemon(mtmp))

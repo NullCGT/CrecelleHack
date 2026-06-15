@@ -1974,6 +1974,8 @@ mbhit(
             gb.bhitpos.y -= ddy;
             break;
         }
+        if (otyp == WAN_AQUA_BOLT)
+            floor_spillage(x, y, POT_WATER, 0);
     }
 }
 
@@ -2053,7 +2055,8 @@ use_offensive(struct monst *mtmp)
         gb.buzzer = 0;
         /* note: 'otmp' might have been destroyed (drawbridge destruction) */
         gm.m_using = FALSE;
-        if (gm.m.has_offense == MUSE_WAN_STRIKING)
+        if (gm.m.has_offense == MUSE_WAN_STRIKING
+            || gm.m.has_offense == MUSE_WAN_AQUA_BOLT)
             mtmp->mwandexp = TRUE;
         return 2;
     case MUSE_SCR_EARTH: {

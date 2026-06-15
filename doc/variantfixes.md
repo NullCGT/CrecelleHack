@@ -32,6 +32,7 @@
 - Salt does more damage to mummies than previously.
 - Venoms leave behind coatings on the floor.
 - Being hit with acid venom causes the victim to drip acid.
+- Being gifted selenic seat unrestricts the riding skill.
 
 # 1.5.1
 ## Objects

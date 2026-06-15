@@ -1838,7 +1838,10 @@ bestow_artifact(uchar max_giftvalue)
                             artiname(otmp->oartifact),
                             align_gname(u.ualign.type));
             /* make sure we can use this weapon */
-            unrestrict_weapon_skill(weapon_type(otmp));
+            if (otmp->oartifact == ART_SELENIC_SEAT)
+                unrestrict_weapon_skill(P_RIDING);
+            else
+                unrestrict_weapon_skill(weapon_type(otmp));
             if (!Hallucination && !Blind) {
                 observe_object(otmp);
                 makeknown(otmp->otyp);

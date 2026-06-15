@@ -614,6 +614,10 @@ moverock_core(coordxy sx, coordxy sy)
                     launch_obj(BOULDER, sx, sy, tox, toy, ROLL | LAUNCH_KNOWN);
                     return sobj_at(BOULDER, sx, sy) ? -1 : 0;
                 }
+                case SPARK_TRAP:
+                case SLP_GAS_TRAP:
+                    o_trigger_trap(otmp, rx, ry);
+                    break;
                 default:
                     break; /* boulder not affected by this trap */
                 }

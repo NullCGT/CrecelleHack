@@ -1400,6 +1400,7 @@ hmon_hitmon_misc_obj(
         }
         hmd->hittxt = TRUE;
         hmd->get_dmg_bonus = FALSE;
+        make_mdripping(mon, POT_ACID);
         break;
     default:
         if ((objects[obj->otyp].oc_material == VEGGY ||

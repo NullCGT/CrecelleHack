@@ -903,6 +903,7 @@ extern int breakobj(struct obj *, coordxy, coordxy, boolean, boolean) NONNULLARG
 extern boolean breaktest(struct obj *) NONNULLARG1;
 extern boolean walk_path(coord *, coord *,
                          boolean(*)(void *, coordxy, coordxy), genericptr_t) NONNULLARG12;
+extern void handle_thrown_coatings(struct obj *, coordxy x, coordxy y) NONNULLARG1;
 
 /* ### drawing.c ### */
 

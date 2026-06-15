@@ -30,6 +30,8 @@
   (and increase it by 1 generally).
 - Added the mintroduce patch from SpliceHack (code from xNetHack)
 - Salt does more damage to mummies than previously.
+- Venoms leave behind coatings on the floor.
+- Being hit with acid venom causes the victim to drip acid.
 
 # 1.5.1
 ## Objects

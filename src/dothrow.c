@@ -2623,9 +2623,7 @@ breakobj(
         break;
     }
 
-    if (obj->material == GLASS) {
-        add_coating(x, y, COAT_SHARDS, 0);
-    }
+    handle_thrown_coatings(obj, x, y);
     if (hero_caused) {
         if (from_invent || obj->unpaid) {
             if (*u.ushops || obj->unpaid)
@@ -2857,6 +2855,17 @@ throw_gold(struct obj *obj)
     stackobj(obj);
     newsym(gb.bhitpos.x, gb.bhitpos.y);
     return ECMD_TIME;
+}
+
+void
+handle_thrown_coatings(struct obj *obj, coordxy x, coordxy y)
+{
+    if (obj->material == GLASS)
+        add_coating(x, y, COAT_SHARDS, 0);
+    if (obj->otyp == ACID_VENOM)
+        add_coating(x, y, COAT_POTION, POT_ACID);
+    if (obj->otyp == BLINDING_VENOM)
+        add_coating(x, y, COAT_POTION, POT_BLINDNESS);
 }
 
 #undef AutoReturn

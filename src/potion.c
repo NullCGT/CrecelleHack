@@ -460,10 +460,7 @@ make_dripping(long xtime, int otyp, int pm)
     if (otyp == POT_BLOOD) {
         otyp = -1 * pm;
     }
-    if (u.udriptype == otyp)
-        incr_itimeout(&HDripping, xtime);
-    else
-        set_itimeout(&HDripping, xtime);
+    set_itimeout(&HDripping, xtime);
     u.udriptype = otyp;
 }
 

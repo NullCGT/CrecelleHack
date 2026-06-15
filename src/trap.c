@@ -1540,9 +1540,11 @@ trapeffect_rocktrap(
         }
     } else if (!mtmp) {
         coordxy tx = trap->tx, ty = trap->ty;
+        boolean vis = cansee(tx, ty);
         if (!trap->ammo) {
-            pline("A trap door in %s opens, but nothing falls out!",
-                  the(ceiling(tx, ty)));
+            if (vis)
+                pline("A trap door in %s opens, but nothing falls out!",
+                      the(ceiling(tx, ty)));
             deltrap(trap);
             newsym(tx, ty);
             return Trap_Is_Gone;
@@ -1552,8 +1554,9 @@ trapeffect_rocktrap(
             if (trap->ammo->quan > 1)
                 otmp = splitobj(trap->ammo, 1);
             extract_nobj(otmp, &trap->ammo);
-            pline("A trap door in %s opens and a rock falls out!",
-                  the(ceiling(tx, ty)));
+            if (vis)
+                pline("A trap door in %s opens and a rock falls out!",
+                      the(ceiling(tx, ty)));
             place_object(otmp, tx, ty);
             stackobj(otmp);
             if (cansee(tx, ty)) {
@@ -1784,7 +1787,7 @@ trapeffect_slp_gas_trap(
     } else {
         boolean in_sight = canseemon(mtmp) || (mtmp == u.usteed);
         if (in_sight) {
-            pline_mon(mtmp, "Gas swirls around %s's %s!", Monnam(mtmp), mbodypart(mtmp, FOOT));
+            pline_mon(mtmp, "Gas swirls around %s's %s!", mon_nam(mtmp), mbodypart(mtmp, FOOT));
             seetrap(trap);
         } else
             You_hear("a soft hiss.");
@@ -5110,7 +5113,7 @@ water_damage(
             pline("The %s dissolves your %s!", hliquid("water"), ostr);
             gm.mentioned_water = !Hallucination;
         }
-        useup(obj);
+        delobj(obj);
         return ER_DESTROYED;
     } else if (Waterproof_container(obj)) {
         if (in_invent && !Blind && !Underwater) {

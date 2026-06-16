@@ -653,6 +653,8 @@ m_initweap(struct monst *mtmp)
     case S_OGRE:
         if (!rn2(mm == PM_OGRE_TYRANT ? 3 : mm == PM_OGRE_LEADER ? 6 : 12))
             (void) mongets(mtmp, BATTLE_AXE);
+        else if (mm == PM_OGRE_MAGE)
+            (void) mongets(mtmp, TWO_HANDED_SWORD);
         else
             (void) mongets(mtmp, CLUB);
         break;

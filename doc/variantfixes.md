@@ -5,6 +5,10 @@
   - (Head) Butler/Maid/Servant
   - Giant Slug
     - Suggested by Tokage.
+  - Ogre Mage
+    - Functions differently from other variants. Supporter monster that hangs
+      back and heals allies.
+- Some monsters are now supporters, and hang back to heal their allies.
 
 ## Options
 - biome_overview

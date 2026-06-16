@@ -33,7 +33,7 @@ static int mon_shadow_mage_spells[] = { MCAST_PSI_BOLT, MCAST_DARKNESS, MCAST_HA
                                         MCAST_MIRROR_IMAGE, MCAST_SLEEP_YOU, MCAST_STUN_YOU,
                                         MCAST_DISAPPEAR, MCAST_WEAKEN_YOU, MCAST_DESTRY_ARMR,
                                         MCAST_CURSE_ITEMS, MCAST_SUMMON_MONS, MCAST_DEATH_TOUCH};
-static int mon_vamp_spells[] = { MCAST_OPEN_WOUNDS, MCAST_CURE_SELF, MCAST_BLOODRUSH,
+static int mon_vamp_spells[] = { MCAST_OPEN_WOUNDS, MCAST_CURE_ALLIES, MCAST_BLOODRUSH,
                                         MCAST_DISAPPEAR, MCAST_CURSE_ITEMS, MCAST_BLOOD_SPEAR,
                                         MCAST_BLOOD_RAIN, MCAST_BLOOD_BIND };
 static int mon_cleric_spells[] = { MCAST_OPEN_WOUNDS, MCAST_CURE_SELF, MCAST_CONFUSE_YOU,
@@ -52,7 +52,7 @@ static int mon_undead_spells[] = { MCAST_HASTE_SELF, MCAST_MIRROR_IMAGE, MCAST_S
                                         MCAST_DISAPPEAR, MCAST_WEAKEN_YOU, MCAST_SLEEP_YOU,
                                         MCAST_CURSE_ITEMS, MCAST_CURSE_ITEMS, MCAST_AGGRAVATION,
                                         MCAST_RAISE_DEAD, MCAST_TELEPORT, MCAST_DEATH_TOUCH };
-static int mon_demo_spells[] = { MCAST_PSI_BOLT, MCAST_OPEN_WOUNDS, MCAST_CURE_SELF, 
+static int mon_demo_spells[] = { MCAST_PSI_BOLT, MCAST_OPEN_WOUNDS, MCAST_CURE_ALLIES, 
                                         MCAST_HASTE_SELF, MCAST_STUN_YOU, MCAST_WEAKEN_YOU,
                                         MCAST_DESTRY_ARMR, MCAST_CURSE_ITEMS, MCAST_AGGRAVATION,
                                         MCAST_SUMMON_MONS, MCAST_CHAOS_RAIN, MCAST_DEATH_TOUCH};
@@ -60,6 +60,7 @@ static int mon_trickster_spells[] = { MCAST_PSI_BOLT, MCAST_DISGUISE, MCAST_GREA
                                         MCAST_MIRROR_IMAGE, MCAST_CONFUSE_YOU, MCAST_HASTE_SELF,
                                         MCAST_DISAPPEAR, MCAST_LEVITATE_YOU, MCAST_CURSE_ITEMS,
                                         MCAST_AGGRAVATION, MCAST_SUMMON_MONS, MCAST_TELEPORT };
+static int mon_support_spells[] = { MCAST_OPEN_WOUNDS, MCAST_CURE_ALLIES };
 
 DISABLE_WARNING_FORMAT_NONLITERAL
 
@@ -93,6 +94,7 @@ staticfn void mcast_spell(struct monst *, int, int);
 staticfn boolean is_undirected_spell(int);
 staticfn boolean spell_would_be_useless(struct monst *, int);
 staticfn int spawn_mirror_image(struct monst *, int, int);
+staticfn int m_cure_allies(struct monst *);
 
 /* feedback when frustrated monster couldn't cast a spell */
 staticfn void
@@ -159,10 +161,12 @@ choose_monster_spell(struct monst *mtmp, int adtyp)
     } else if (is_undead(mtmp->data) || mtmp->data == &mons[PM_ORCUS]) {
         list = mon_undead_spells;
         len = SIZE(mon_undead_spells);
-    } else if (mtmp->data->mlet == S_GNOME || mtmp->data->mlet == S_KOBOLD
-                || mtmp->data == &mons[PM_DISPATER]) {
+    } else if (mtmp->data->mlet == S_GNOME || mtmp->data == &mons[PM_DISPATER]) {
         list = mon_trickster_spells;
         len = SIZE(mon_trickster_spells);
+    } else if (is_supporter(mtmp->data)) {
+        list = mon_support_spells;
+        len = SIZE(mon_support_spells);
     } else if (adtyp == AD_CLRC) {
         if (a == A_LAWFUL) {
             list = mon_law_cleric_spells;
@@ -284,7 +288,8 @@ castmu(
     }
 
     nomul(0);
-    if (rn2(ml * 10) < (mtmp->mconf ? 100 : 20)) { /* fumbled attack */
+    if (!is_supporter(mtmp->data) 
+        && (rn2(ml * 10) < (mtmp->mconf ? 100 : 20))) { /* fumbled attack */
         Soundeffect(se_air_crackles, 60);
         if (canseemon(mtmp) && !Deaf) {
             set_msg_xy(mtmp->mx, mtmp->my);
@@ -1155,6 +1160,10 @@ mcast_spell(struct monst *mtmp, int dmg, int spellnum)
         mnexto(mtmp, RLOC_MSG);
         dmg = 0;
         break;
+    case MCAST_CURE_ALLIES:
+        m_cure_allies(mtmp);
+        dmg = 0;
+        break;
     }
     if (adtyp)
         adjust_damage(&gy.youmonst, &dmg, adtyp);
@@ -1321,6 +1330,25 @@ spawn_mirror_image(struct monst *mtmp, int x, int y) {
         newsym(illusion->mx, illusion->my);
         if (canseemon(mtmp))
             return 1;
+    }
+    return 0;
+}
+
+staticfn int
+m_cure_allies(struct monst *mtmp)
+{
+    struct monst *ally;
+    int heal_dice = max(3, 3 + mtmp->m_lev / 8);
+    for (ally = fmon; ally; ally = ally->nmon) {
+        if (ally->mpeaceful || ally->mtame)
+            continue;
+        if (dist2(ally->mx, ally->my, mtmp->mx, mtmp->my) > 49)
+            continue;
+        if (ally->mhp < ally->mhpmax) {
+            if (canseemon(ally))
+                pline_mon(ally, "%s looks better.", Monnam(ally));
+            healmon(ally, d(heal_dice, 6), 0);
+        }
     }
     return 0;
 }

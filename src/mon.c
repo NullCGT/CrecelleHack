@@ -919,7 +919,7 @@ make_corpse(struct monst *mtmp, unsigned int corpseflags)
     case PM_RED_NAGA: case PM_BLACK_NAGA: case PM_GOLDEN_NAGA:
     case PM_GUARDIAN_NAGA:
 
-    case PM_OGRE: case PM_OGRE_LEADER: case PM_OGRE_TYRANT:
+    case PM_OGRE: case PM_OGRE_LEADER: case PM_OGRE_MAGE: case PM_OGRE_TYRANT:
 
     case PM_QUANTUM_MECHANIC: case PM_GENETIC_ENGINEER:
     case PM_RUST_MONSTER: case PM_DISENCHANTER:
@@ -2255,6 +2255,8 @@ mon_allowflags(struct monst *mtmp)
         allowflags |= ALLOW_SANCT;
     /* unicorn may not be able to avoid hero on a noteleport level */
     if (is_unicorn(mtmp->data) && !noteleport_level(mtmp))
+        allowflags |= NOTONL;
+    if (is_supporter(mtmp->data) && !mtmp->mpeaceful)
         allowflags |= NOTONL;
     if (gy.youmonst.data == &mons[PM_STRAW_GOLEM]
         && is_bird(mtmp->data)) {

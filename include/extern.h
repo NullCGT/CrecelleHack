@@ -3136,6 +3136,7 @@ extern void credit_report(struct monst *shkp, int idx,
 extern void use_unpaid_trapobj(struct obj *, coordxy, coordxy) NONNULLARG1;
 extern void noisy_shop(struct mkroom *);
 extern void close_shops(boolean);
+extern const char *says(void);
 
 
 /* ### shknam.c ### */

@@ -1,4 +1,4 @@
-/* NetHack 5.0	termcap.c	$NHDT-Date: 1701946349 2023/12/07 10:52:29 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.60 $ */
+/* NetHack 5.0	termcap.c	$NHDT-Date: 1781973100 2026/06/20 16:31:40 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.81 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Pasi Kallinen, 2018. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -895,8 +895,7 @@ cl_eos(void) /* free after Robert Viduya */
 
 #include <curses.h>
 
-#if !defined(LINUX) && !defined(__FreeBSD__) && !defined(__OpenBSD__) \
-	&& !defined(NOTPARMDECL)
+#if defined(TPARM_WORKAROUND)
 extern char *tparm();
 #endif
 

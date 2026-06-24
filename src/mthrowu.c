@@ -636,7 +636,8 @@ m_throw(
     }
 
     if (MT_FLIGHTCHECK(TRUE, 0)) {
-        (void) drop_throw(singleobj, 0, gb.bhitpos.x, gb.bhitpos.y);
+        if (singleobj) /* hits_bars can null singleobj */
+            (void) drop_throw(singleobj, 0, gb.bhitpos.x, gb.bhitpos.y);
         return;
     }
     gm.mesg_given = 0; /* a 'missile misses' message has not yet been shown */

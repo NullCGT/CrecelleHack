@@ -18,7 +18,10 @@ when a vault guard was moved off the map, an impossible about trying to update
 	map location <0,0> was issued
 doc: use full URL for nethack.org in Guidebook.mn
 doc: fix a paste error in Guidebook.tex
-doc: fix spelling correction in nethack.6
+doc: bring man pages up to date with *nix documentary conventions and ensure
+	their portable rendering among GNU, Heirloom Doctools, DWB 3.3,
+	Solaris 10, and Plan 9 troffs, and mandoc(1)
+doc: fix spelling error in nethack.6
 spelling: "Flanian Pobble Bead" to "Flainian Pobble Bead"
 obey statue type gender (gnome king statue in minetn-5)
 fix statue and figurine genders in special levels in general
@@ -60,6 +63,10 @@ monsters (including pets) aren't scared of the Sokoban rolling boulder traps
 fix a bug in which steeds would continuously gain movement points while
         being ridden
 when hero's behavior makes erinyes stronger, cap level at 49 rather than 50
+with inventory item action for leash, distingluish leash-in-use from empty one
+deafness check was missing from a shopkeeper message in ready_weapon()
+thrown ball travel did not check for regions (pr #1595 by copperwater)
+remove deprecated option --version:paste
 
 
 Platform- and/or Interface-Specific Fixes
@@ -172,6 +179,10 @@ MS-DOS: VESA and 16 color modes: Pass correct parameters to vga_userpan
 	(pr #1579 by chasonr)
 MS-DOS: 16 color mode: Set the panning direction so CTRL-left and CTRL-right
 	pan in the same direction as 3.4.3. (pr #1579 by chasonr)
+MS-DOS: makefont.lua was generating incorrect PSF fonts; there can be
+	multiple characters mapped to a single glyph, but the mappings
+	should be separated by FE bytes (pr #1581 by chasonr)
+MS-DOS: accept only single character font mappings (pr #1581 by chasonr) 
 musl: musl libc does not have __sighandler_t so don't use it in the
 	macro definition for SIG_RET_TYPE with musl
 WASM: resolve some build failures in 'make CROSS_TO_WASM=1'
@@ -251,4 +262,4 @@ unix hints: the Makefiles distributed by sys/unix/setup.sh will now check
 	make, and use bsd make syntax for bsd make
 share a single copy of nhuuid generation code between Amiga, Atari, and msdos
 	by way of sys/share/pcmain.c (cherry-pick from pr #1541 by ingpaschke)
-
+nhgitset.pl: Set up future deprecation of PRE and POST hooks.

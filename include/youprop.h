@@ -400,6 +400,13 @@
 
 #define Prone u.uprops[PRONE].extrinsic
 
+#define HProtection_from_explosions \
+    u.uprops[PROT_FROM_EXPLOSIONS].intrinsic
+#define EProtection_from_explosions \
+    u.uprops[PROT_FROM_EXPLOSIONS].extrinsic
+#define Protection_from_explosions \
+    (HProtection_from_explosions || EProtection_from_explosions)
+
 /*
  * Some pseudo-properties.
  */

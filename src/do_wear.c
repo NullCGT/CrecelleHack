@@ -1923,6 +1923,10 @@ armor_or_accessory_off(struct obj *obj)
     if (obj->owornmask & W_ARMOR) {
         (void) armoroff(obj);
     } else if (obj == uright || obj == uleft) {
+        if (objdescr_is(obj, "sticky") && rn2(3)) {
+            pline("Oops! The ring sticks to your %s.", body_part(FINGER));
+            return ECMD_TIME;
+        }
         /* Sometimes we want to give the off_msg before removing and
          * sometimes after; for instance, "you were wearing a moonstone
          * ring (on right hand)" is desired but "you were wearing a

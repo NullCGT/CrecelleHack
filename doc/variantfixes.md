@@ -19,6 +19,10 @@
   - Blocks eating when worn.
 - Removed potion of normality
   - Effect was unclear, not useful, and overall not fun.
+- Ring of Protection from Explosions
+  - Halves explosive damage.
+  - Randomized appearance is "sticky ring," which has a 2/3 chance of sticking to
+    player's finger when trying to take it off.
 
 ## Dungeon Generation
 - Give Vlad a nicer throne room.

@@ -2416,6 +2416,10 @@ eataccessory(struct obj *otmp)
                 rehumanize();
             }
             break;
+        case RIN_PROTECTION_FROM_EXPLOSIONS:
+            pline("Your %s implodes.", body_part(STOMACH));
+            morehungry(300);
+            break;
         case AMULET_OF_STRANGULATION: /* bad idea! */
             /* no message--this gives no permanent effect */
             choke(otmp);

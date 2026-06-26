@@ -3580,6 +3580,7 @@ static const struct alt_spellings {
     { "forcefield", SPE_FORCE_FIELD },
     { "transmutation", SCR_TRANSMUTE_MATERIAL },
     { "change material", SCR_TRANSMUTE_MATERIAL },
+    { "ring of implosion", RIN_PROTECTION_FROM_EXPLOSIONS },
     { (const char *) 0, 0 },
 };
 

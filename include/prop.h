@@ -90,7 +90,8 @@ enum prop_types {
     FREE_ACTION       = 67,
     FIXED_ABIL        = 68,
     PRONE             = 69,
-    LIFESAVED         = 70,
+    PROT_FROM_EXPLOSIONS = 70,
+    LIFESAVED         = 71,
     LAST_PROP = LIFESAVED
 };
 

@@ -647,6 +647,11 @@ dosinkring(struct obj *obj)
         /* for S_room case, same message as for teleportation is given */
         ideed = (levl[u.ux][u.uy].typ != ROOM);
         break;
+    case RIN_PROTECTION_FROM_EXPLOSIONS:
+        nosink = TRUE;
+        levl[u.ux][u.uy].typ = ROOM;
+        pline_The("sink suddenly implodes!");
+        break;
     default:
         ideed = FALSE;
         break;

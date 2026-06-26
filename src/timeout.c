@@ -111,6 +111,7 @@ static const struct propname {
     { FREE_ACTION, "free action" },
     { FIXED_ABIL, "fixed abilities" },
     { PRONE, "knocked prone" },
+    { PROT_FROM_EXPLOSIONS, "protection from explosions" },
     { LIFESAVED, "life will be saved" },
     {  0, 0 },
 };

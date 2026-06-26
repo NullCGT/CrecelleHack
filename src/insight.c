@@ -1955,6 +1955,9 @@ attributes_enlightenment(
     if (Protection_from_shape_changers)
         you_are("protected from shape changers",
                 from_what(PROT_FROM_SHAPE_CHANGERS));
+    if (Protection_from_explosions)
+        you_are("protected from explosions",
+                from_what(PROT_FROM_EXPLOSIONS));
     if (Unchanging) {
         const char *what = 0;
 

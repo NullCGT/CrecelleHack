@@ -2742,7 +2742,7 @@ check_for_puzzling_nonmerge(struct obj *objchn)
             }
         }
         if (puzzling_cnt)
-            gp.puzzling_critera = 411;
+            gp.puzzling_criteria = 411;
     }
     return puzzling_cnt;
 }

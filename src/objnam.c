@@ -1520,7 +1520,7 @@ doname_base(
                           : 53;  /* valid index, but always holds zero */
 
             if (with_corpse_genders && puzzidx < 53
-                && gp.puzzling_critera == 411 && gp.puzzling_ilets[puzzidx])
+                && gp.puzzling_criteria == 411 && gp.puzzling_ilets[puzzidx])
                 cxarg |= CXN_ADDGNDR;
             /* corpse_xname() sets xnamep; callers other than doname_base()
                itself shouldn't care about xnamep (pointer to start of

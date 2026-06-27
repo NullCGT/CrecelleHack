@@ -2710,6 +2710,7 @@ check_for_puzzling_nonmerge(struct obj *objchn)
     struct obj *obj;
     boolean at_least_one = FALSE;
 
+    gp.puzzling_criteria = 0;
     for (i = 0; i < invlet_basic + 1; ++i)
         gp.puzzling_ilets[i] = mnums[i] = gndr[i] = 0;
 

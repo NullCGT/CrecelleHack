@@ -47,6 +47,8 @@
 - Monsters that zap wands of aqua bolt now spread water.
 - Cannot repeatedly sit on a rust trap to permanently drip water.
 - Cancellation destroys force fields.
+- Attacking a force field with a crysknife destroys it.
+- Breaking a wand of locking creates a force field.
 
 # 1.5.1
 ## Objects

@@ -4269,7 +4269,6 @@ do_break_wand(struct obj *obj)
         /*FALLTHRU*/
     case WAN_WISHING:
     case WAN_NOTHING:
-    case WAN_LOCKING:
     case WAN_GROWTH:
     case WAN_PROBING:
     case WAN_ENLIGHTENMENT:
@@ -4290,6 +4289,14 @@ do_break_wand(struct obj *obj)
         return ECMD_TIME;
     case WAN_MAGIC_MISSILE:
         broken_wand_explode(obj, dmg, EXPL_MAGICAL);
+        return ECMD_TIME;
+    case WAN_LOCKING:
+        if (obj->spe) {
+            create_force_field(u.ux, u.uy, 3, (long) obj->spe);
+        } else {
+            pline(nothing_else_happens);
+        }
+        discard_broken_wand();
         return ECMD_TIME;
     case WAN_STRIKING:
         /* we want this before the explosion instead of at the very end */

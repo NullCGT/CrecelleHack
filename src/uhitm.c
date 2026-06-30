@@ -877,6 +877,7 @@ staticfn void
 hmon_hitmon_barehands(struct _hitmon_data *hmd, struct monst *mon)
 {
     long spcdmgflg, hatedhit = 0L; /* worn masks */
+    struct obj *hated_obj = NULL;
     int spec_dmg = 0;
 
     if (hmd->mdat == &mons[PM_SHADE]) {
@@ -898,7 +899,7 @@ hmon_hitmon_barehands(struct _hitmon_data *hmd, struct monst *mon)
     spcdmgflg = uarmg ? W_ARMG
               : (((hmd->twohits == 0 || hmd->twohits == 1) ? W_RINGR : 0L)
                  | ((hmd->twohits == 0 || hmd->twohits == 2) ? W_RINGL : 0L));
-    spec_dmg += special_dmgval(&gy.youmonst, mon, spcdmgflg, (struct obj **) 0);
+    spec_dmg += special_dmgval(&gy.youmonst, mon, spcdmgflg, &hated_obj);
     hmd->dmg += spec_dmg;
 
     /* copy hatedhit info back into struct _hitmon_data *hmd */
@@ -918,7 +919,7 @@ hmon_hitmon_barehands(struct _hitmon_data *hmd, struct monst *mon)
         hmd->barehand_hated_rings = 0;
         break;
     }
-    if (spec_dmg) {
+    if (hated_obj) {
         hmd->hatedmsg = TRUE;
         hmd->hatedobj = TRUE;
     }

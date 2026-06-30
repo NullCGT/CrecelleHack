@@ -893,11 +893,14 @@ oprop_armor_handling(struct obj *otmp, boolean puton)
             }
             break;
         case OPROP_HEXED:
-            if (Blind)
-                pline("%s for a moment.", Tobjnam(otmp, "vibrate"));
-            else
-                pline("%s %s for a moment.", Tobjnam(otmp, "glow"),
-                      hcolor(NH_BLACK));
+            if (!otmp->cursed) {
+                if (Blind)
+                    pline("%s for a moment.", Tobjnam(otmp, "vibrate"));
+                else
+                    pline("%s %s for a moment.", Tobjnam(otmp, "glow"),
+                          hcolor(NH_BLACK));
+                otmp->pknown = 1;
+            }
             curse(otmp);
             update_inventory();
             break;

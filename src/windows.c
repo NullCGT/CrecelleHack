@@ -86,7 +86,6 @@ staticfn void html_write_tags(FILE *, int, boolean);
 staticfn void html_dump_char(FILE *, char);
 staticfn void html_dump_str(FILE *, const char *);
 staticfn void html_dump_line(FILE *, int, const char *);
-staticfn void dump_set_color_attr(int, int, boolean);
 staticfn void html_init_sym(void);
 staticfn unsigned mg_hl_attr(unsigned);
 staticfn int condcolor(long, unsigned long *);
@@ -100,6 +99,8 @@ staticfn void dump_css(void);
 staticfn void dump_outrip(winid, int, time_t);
 #endif /* DUMPHTML */
 #endif /* DUMPLOG */
+/* this function is used outside DUMPHTML-guarded clauses */
+staticfn void dump_set_color_attr(int, int, boolean);
 
 #ifdef HANGUPHANDLING
 volatile
@@ -2096,7 +2097,9 @@ dump_open_log(time_t now)
 void
 dump_close_log(void)
 {
+#ifdef DUMPLOG
     dump_footers();
+#endif
     if (dumplog_file) {
         (void) fclose(dumplog_file);
         dumplog_file = (FILE *) 0;

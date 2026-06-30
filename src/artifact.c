@@ -1613,6 +1613,7 @@ artifact_hit(
                   || (!youdefend && cansee(mdef->mx, mdef->my))
                   || (youattack && engulfing_u(mdef) && !Blind);
     boolean realizes_damage;
+    boolean spec_dmg, oprop_dmg;
     const char *wepdesc;
     static const char you[] = "you";
     char hittee[BUFSZ];
@@ -1855,7 +1856,9 @@ artifact_hit(
             }
         }
     }
-    if (spec_ability(otmp, SPFX_DRLI) || otmp->oprop == OPROP_HUNGRY) {
+    /* technically, there is no way to get here with Stormbringer without special damage, but check anyway */
+    if ((spec_ability(otmp, SPFX_DRLI) && gs.spec_dbon_applies) ||
+        (otmp->oprop == OPROP_HUNGRY && gs.spec_oprop_applies)) {
         /* some non-living creatures (golems, vortices) are vulnerable to
            life drain effects so can get "<Arti> draws the <life>" feedback */
         const char *life = nonliving(mdef->data) ? "animating force" : "life";

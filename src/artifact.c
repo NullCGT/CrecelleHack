@@ -1613,7 +1613,6 @@ artifact_hit(
                   || (!youdefend && cansee(mdef->mx, mdef->my))
                   || (youattack && engulfing_u(mdef) && !Blind);
     boolean realizes_damage;
-    boolean spec_dmg, oprop_dmg;
     const char *wepdesc;
     static const char you[] = "you";
     char hittee[BUFSZ];

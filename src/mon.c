@@ -1981,6 +1981,12 @@ mpickstuff(struct monst *mtmp)
     if (!mtmp->mtame && *in_rooms(mtmp->mx, mtmp->my, SHOPBASE) && rn2(25))
         return FALSE;
 
+    /* pets should respect their owner's wishes */
+    if (mtmp->mtame && has_edog(mtmp)
+         && (EDOG(mtmp)->petstrat & PETSTRAT_NOAPPORT))
+         return FALSE;
+
+
     /* item in a pool, but monster can't swim */
     if (!could_reach_item(mtmp, mtmp->mx, mtmp->my))
         return FALSE;

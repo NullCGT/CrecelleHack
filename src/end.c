@@ -1616,8 +1616,10 @@ really_done(int how)
         raw_print("");
         raw_print("");
     }
+#ifdef DUMPLOG
     if (!startscummed)
         livelog_dump_url(LL_DUMP_ALL | (how == ASCENDED ? LL_DUMP_ASC : 0));
+#endif
     nh_terminate(EXIT_SUCCESS);
 }
 

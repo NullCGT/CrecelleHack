@@ -1960,6 +1960,11 @@ poly_obj(struct obj *obj, int id)
             otmp->quan /= 2L;  /* some material has been lost */
         }
         break;
+
+    case ARMOR_CLASS:
+    case WEAPON_CLASS:
+        /* preserve size of gear, in case of polymorph trap */
+        otmp->osize = obj->osize;
     }
 
     /* update the weight */

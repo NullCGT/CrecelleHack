@@ -1148,7 +1148,7 @@ break_armor(struct permonst *old)
     struct obj *otmp;
     struct permonst *uptr = gy.youmonst.data;
 
-    boolean breakage = breakarm(uptr) || (old->msize < uptr->msize);
+    boolean breakage = (breakarm(uptr) && old->msize <= uptr->msize) || (old->msize < uptr->msize);
     boolean slippage = sliparm(uptr) || (old->msize > uptr->msize);
 
     if (breakage) {

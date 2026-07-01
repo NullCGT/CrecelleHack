@@ -701,7 +701,7 @@ breakarm(struct permonst *ptr)
     if (sliparm(ptr))
         return FALSE;
 
-    return (boolean) ((ptr->msize > MZ_SMALL && !humanoid(ptr))
+    return (boolean) (!humanoid(ptr)
                       /* special cases of humanoids that cannot wear suits */
                       || ptr == &mons[PM_MARILITH]
                       || ptr == &mons[PM_WINGED_GARGOYLE]);

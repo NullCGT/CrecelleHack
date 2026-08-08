@@ -1,4 +1,4 @@
-/* NetHack 3.7	pickup.c	$NHDT-Date: 1720074481 2024/07/04 06:28:01 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.374 $ */
+/* NetHack 5.0	pickup.c	$NHDT-Date: 1781973061 2026/06/20 16:31:01 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.397 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -42,7 +42,7 @@ staticfn int traditional_loot(boolean);
 staticfn int menu_loot(int, boolean);
 staticfn int tip_ok(struct obj *);
 staticfn int choose_tip_container_menu(void);
-staticfn struct obj *tipcontainer_gettarget(struct obj *, boolean *);
+staticfn struct obj *tipcontainer_gettarget(struct obj *, boolean *, int *);
 staticfn int tipcontainer_checks(struct obj *, struct obj *, boolean);
 staticfn char in_or_out_menu(const char *, struct obj *, boolean, boolean,
                            boolean, boolean);
@@ -555,7 +555,7 @@ allow_category(struct obj *obj)
      *  1) object class (armor, potion, &c);
      *  2) unpaid shop item;
      *  3) bless/curse state (blessed, uncursed, cursed, BUC-unknown).
-     * Version 3.7 added a fourth:
+     * Version 5.0 added a fourth:
      *  4) 'novelty' ('P' for just picked up items).
      * When only one type is present, the situation is simple:
      * to be accepted, obj's status must match one of the entries.
@@ -1052,7 +1052,7 @@ query_objlist(const char *qstr,        /* query string */
     unsigned sortflags;
     glyph_info tmpglyphinfo = nul_glyphinfo;
     Loot *sortedolist, *srtoli;
-    int clr = NO_COLOR;
+    int clr = NO_COLOR, puzzling_count = 0;
 
     *pick_list = (menu_item *) 0;
     if (!olist && !engulfer)
@@ -1086,6 +1086,8 @@ query_objlist(const char *qstr,        /* query string */
         (*pick_list)->count = last->quan;
         return 1;
     }
+
+    puzzling_count = check_for_puzzling_nonmerge(olist);
 
     sortflags = (((flags.sortloot == 'f'
                    || (flags.sortloot == 'l' && !(qflags & USE_INVLET)))
@@ -1146,7 +1148,9 @@ query_objlist(const char *qstr,        /* query string */
                          (qflags & USE_INVLET) ? curr->invlet
                            : (first && curr->oclass == COIN_CLASS) ? '$' : 0,
                          def_oc_syms[(int) objects[curr->otyp].oc_class].sym,
-                         ATR_NONE, clr, doname_with_price(curr),
+                         ATR_NONE, clr,
+                         (puzzling_count) ? doname_with_price_and_cgender(curr)
+                                          : doname_with_price(curr),
                          MENU_ITEMFLAGS_NONE);
                 first = FALSE;
             }
@@ -1841,6 +1845,11 @@ pickup_object(
         if (fatal_corpse_mistake(obj, telekinesis)
             || rider_corpse_revival(obj, telekinesis))
             return -1;
+    } else if (has_osum(obj) && !obj->oartifact) {
+        pline("The %s vanish%s.", xname(obj),
+              (obj->quan == 1L) ? "es" : "");
+        useupf(obj, obj->quan);
+        return 1;
     } else if (obj->otyp == SCR_SCARE_MONSTER) {
         int old_wt, new_wt;
 
@@ -1909,11 +1918,17 @@ struct obj *
 pick_obj(struct obj *otmp)
 {
     struct obj *result;
-    int ox = otmp->ox, oy = otmp->oy;
-    boolean robshop = (!u.uswallow && otmp != uball && costly_spot(ox, oy));
+    coordxy ox, oy;
+    boolean robshop, fromfloor = otmp->where == OBJ_FLOOR;
 
+    /* otmp is either on the floor or in an engulfer's inventory; for the
+       latter, its <ox,oy> probably won't be set */
+    (void) get_obj_location(otmp, &ox, &oy, 0);
+
+    robshop = (!u.uswallow && otmp != uball && costly_spot(ox, oy));
     obj_extract_self(otmp);
-    newsym(ox, oy);
+    if (fromfloor)
+        newsym(ox, oy);
 
     /* for shop items, addinv() needs to be after addtobill() (so that
        object merger can take otmp->unpaid into account) but before
@@ -2172,6 +2187,24 @@ do_loot_cont(
         ga.abort_looting = TRUE;
         return ECMD_TIME;
     }
+
+    if (cobj->otyp == BAG_OF_WINDS) {
+        struct obj *ring = URIGHTY ? uright : uleft;
+        You("carefully open %s...", the(xname(cobj)));
+        if (Hallucination)
+            pline("It's a whoopie cushion?!");
+        else
+            pline("It blasts your %s with hurricane-force winds!", body_part(HAND));
+        if (ring && !uarmg) {
+            pline("%s blown off!", Yobjnam2(ring, "get"));
+            remove_worn_item(ring, FALSE);
+            dropx(ring);
+        }
+        makeknown(BAG_OF_WINDS);
+        ga.abort_looting = TRUE;
+        scatter(u.ux, u.uy, 1, MAY_DESTROY | MAY_HIT, (struct obj *) 0);
+        return ECMD_TIME;
+    }
     return use_container(cobjp, FALSE, (boolean) (cindex < ccount));
 }
 
@@ -2250,7 +2283,8 @@ doloot_core(void)
 
         if (num_conts > 1) {
             /* use a menu to loot many containers */
-            int n, i;
+            int n, i, tmpglyph;
+            glyph_info tmpglyphinfo;
             winid win;
             anything any;
             menu_item *pick_list = (menu_item *) 0;
@@ -2263,7 +2297,9 @@ doloot_core(void)
                  cobj = cobj->nexthere)
                 if (Is_container(cobj)) {
                     any.a_obj = cobj;
-                    add_menu(win, &nul_glyphinfo, &any, 0, 0, ATR_NONE, clr,
+                    tmpglyph = obj_to_glyph(cobj, rn2_on_display_rng);
+                    map_glyphinfo(0, 0, tmpglyph, 0U, &tmpglyphinfo);
+                    add_menu(win, &tmpglyphinfo, &any, 0, 0, ATR_NONE, clr,
                              doname(cobj), MENU_ITEMFLAGS_NONE);
                 }
             end_menu(win, "Loot which containers?");
@@ -2735,7 +2771,8 @@ staticfn boolean
 mbag_explodes(struct obj *obj, int depthin)
 {
     /* these won't cause an explosion when they're empty */
-    if ((obj->otyp == WAN_CANCELLATION || obj->otyp == BAG_OF_TRICKS)
+    if ((obj->otyp == WAN_CANCELLATION || obj->otyp == BAG_OF_TRICKS
+        || obj->otyp == BAG_OF_WINDS)
         && obj->spe <= 0)
         return FALSE;
 
@@ -3110,9 +3147,19 @@ observe_quantum_cat(struct obj *box, boolean makecat, boolean givemsg)
             }
             box->owt = weight(box);
             box->spe = 0;
+
+            if (!svc.context.mon_moving) {
+                /* give experience points for releasing live cat; slightly
+                   different amount from what is given for "killing" it */
+                more_experienced(10, 20); /* 10:current exp; 20:score bonus */
+                newexplevel();
+            }
         }
     } else {
         box->spe = 0; /* now an ordinary box (with a cat corpse inside) */
+        if (givemsg)
+            pline_The("%s inside the box is dead!",
+                      Hallucination ? rndmonnam((char *) 0) : "housecat");
         if (deadcat) {
             /* set_corpsenm() will start the rot timer that was removed
                when makemon() created SchroedingersBox; start it from
@@ -3120,10 +3167,14 @@ observe_quantum_cat(struct obj *box, boolean makecat, boolean givemsg)
             deadcat->age = svm.moves;
             set_corpsenm(deadcat, PM_HOUSECAT);
             deadcat = oname(deadcat, sc, ONAME_NO_FLAGS);
+
+            if (!svc.context.mon_moving) {
+                /* give experience points for the death of the cat since
+                   that has been finalized by the hero opening the box */
+                more_experienced(20, 10); /* 20:current exp; 10:score bonus */
+                newexplevel();
+            }
         }
-        if (givemsg)
-            pline_The("%s inside the box is dead!",
-                      Hallucination ? rndmonnam((char *) 0) : "housecat");
     }
     nhUse(deadcat);
     return;
@@ -3737,7 +3788,8 @@ tip_ok(struct obj *obj)
 staticfn int
 choose_tip_container_menu(void)
 {
-    int n, i;
+    int n, i, tmpglyph;
+    glyph_info tmpglyphinfo;
     winid win;
     anything any;
     menu_item *pick_list = (menu_item *) 0;
@@ -3753,7 +3805,9 @@ choose_tip_container_menu(void)
         if (Is_container(otmp)) {
             ++i;
             any.a_obj = otmp;
-            add_menu(win, &nul_glyphinfo, &any, 0, 0, ATR_NONE,
+            tmpglyph = obj_to_glyph(otmp, rn2_on_display_rng);
+            map_glyphinfo(0, 0, tmpglyph, 0U, &tmpglyphinfo);
+            add_menu(win, &tmpglyphinfo, &any, 0, 0, ATR_NONE,
                      clr, doname(otmp), MENU_ITEMFLAGS_NONE);
         }
     if (gi.invent) {
@@ -3834,10 +3888,25 @@ dotip(void)
             } else {
                 for (cobj = svl.level.objects[cc.x][cc.y]; cobj;
                      cobj = nobj) {
+                    int target_count = 0;
+                    boolean dum; /* argument placeholder, not actually used */
+                    char prompt_part2[BUFSZ];
+
                     nobj = cobj->nexthere;
                     if (!Is_container(cobj))
                         continue;
-                    c = ynq(safe_qbuf(qbuf, "There is ", " here, tip it?",
+                    /*
+                     * Calling tipcontainer_gettarget with a non-zero int ptr
+                     * as the 3rd argument just obtains the count of eligible
+                     * tip targets. No menu is displayed and no tip-target pick
+                     * is carried out.
+                     */
+                    (void) tipcontainer_gettarget(cobj, &dum, &target_count);
+                    Sprintf(prompt_part2, " here, tip it%s%s?",
+                            (target_count == 0) ? " onto the " : "",
+                            (target_count == 0) ? surface(cobj->ox, cobj->oy)
+                                                : "");
+                    c = ynq(safe_qbuf(qbuf, "There is ", prompt_part2,
                                       cobj,
                                       doname, ansimpleoname, "container"));
                     if (c == 'q')
@@ -3901,7 +3970,7 @@ dotip(void)
         return ECMD_TIME;
     }
     /* anything not covered yet */
-    if (cobj->oclass == POTION_CLASS && (IS_COATABLE(levl[u.ux][u.uy].typ))) { /* CAN pour potions... :) */
+    if (cobj->oclass == POTION_CLASS) { /* CAN pour potions... :) */
         if (y_n("Douse yourself with the potion?") == 'y') {
             make_dripping(rn1(10, 10), cobj->otyp, cobj->corpsenm);
             You("carefully douse yourself with the %s.", xname(cobj));
@@ -3911,9 +3980,6 @@ dotip(void)
             potion_splatter(u.ux, u.uy, cobj->otyp, cobj->corpsenm);
         else
             floor_spillage(u.ux, u.uy, cobj->otyp, cobj->corpsenm);
-        debottle_potion(cobj);
-    } else if (cobj->oclass == POTION_CLASS) {
-        You("waste the %s.", xname(cobj));
         debottle_potion(cobj);
     } else if (uarmh && cobj == uarmh)
         return tiphat() ? ECMD_TIME : ECMD_OK;
@@ -3951,7 +4017,7 @@ tipcontainer(struct obj *box) /* or bag */
      *  if 'box' is known to be empty or known to be locked, give up
      *  before choosing 'targetbox'.
      */
-    targetbox = tipcontainer_gettarget(box, &cancelled);
+    targetbox = tipcontainer_gettarget(box, &cancelled, (int *) 0);
     if (cancelled)
         return;
 
@@ -4118,15 +4184,17 @@ count_target_containers(
 staticfn struct obj *
 tipcontainer_gettarget(
     struct obj *box,
-    boolean *cancelled)
+    boolean *cancelled,
+    int *only_count_targets)
 {
-    int n, n_conts;
-    winid win;
+    int n, n_conts = 0, tmpglyph, looppass, count_tiptargets = 0;
+    glyph_info tmpglyphinfo;
+    winid win = WIN_ERR;
     anything any;
-    char buf[BUFSZ];
+    char buf[BUFSZ], on_the_surface[BUFSZ];
     menu_item *pick_list = (menu_item *) 0;
     struct obj dummyobj, *otmp;
-    boolean hands_available = TRUE, exclude_it;
+    boolean hands_available = TRUE, exclude_it, skip_targetmenu = FALSE;
     int clr = NO_COLOR;
 
 #if 0   /* [skip potential early return so that menu response is needed
@@ -4140,56 +4208,89 @@ tipcontainer_gettarget(
         return (struct obj *) 0;
     }
 #endif
+    /*
+     * looppass 0 : count the elligible drop targets
+     * looppass 1 : if there are elligible tip targets, besides the floor,
+     *              then build and present a menu of those targets, including
+     *              the floor.
+     */
+    for (looppass = 0; looppass < 2; looppass++) {
+        if (looppass == 1) {
+            if (only_count_targets) {
+                *only_count_targets = count_tiptargets;
+                skip_targetmenu = TRUE;
+                break;
+            }
+            if (count_tiptargets == 0) {
+                /* nothing but the floor */
+                skip_targetmenu = TRUE;
+                break;
+            }
+            win = create_nhwindow(NHW_MENU);
+            start_menu(win, MENU_BEHAVE_STANDARD);
 
-    win = create_nhwindow(NHW_MENU);
-    start_menu(win, MENU_BEHAVE_STANDARD);
+            dummyobj = cg.zeroobj; /* lint suppression; only its address
+                                      matters */
+            any = cg.zeroany;
+            any.a_obj = &dummyobj;
+            /* tip to floor does not require free hands */
+            Sprintf(on_the_surface, "on the %s", surface(u.ux, u.uy));
+            add_menu(win, &nul_glyphinfo, &any, '-', 0, ATR_NONE, clr,
+                     on_the_surface, MENU_ITEMFLAGS_SELECTED);
+            add_menu_str(win, "");
 
-    dummyobj = cg.zeroobj; /* lint suppression; only its address matters */
-    any = cg.zeroany;
-    any.a_obj = &dummyobj;
-    /* tip to floor does not require free hands */
-    add_menu(win, &nul_glyphinfo, &any, '-', 0, ATR_NONE, clr,
-             /* [TODO? vary destination string depending on surface()] */
-             "on the floor", MENU_ITEMFLAGS_SELECTED);
-    add_menu_str(win, "");
-
-    n_conts = 0;
-    for (otmp = gi.invent; otmp; otmp = otmp->nobj) {
-        if (otmp == box)
-            continue;
-        /* skip non-containers; bag of tricks passes Is_container() test,
-           only include it if it isn't known to be a bag of tricks */
-        if (!Is_container(otmp)
-            || (otmp->otyp == BAG_OF_TRICKS && otmp->dknown
-                && objects[otmp->otyp].oc_name_known))
-            continue;
-        if (!n_conts++)
-            hands_available = u_handsy(); /* might issue message */
-        /* container-to-container tip requires free hands;
-           exclude container as possible target when known to be locked */
-        exclude_it = !hands_available || (otmp->olocked && otmp->lknown);
-        any = cg.zeroany;
-        any.a_obj = !exclude_it ? otmp : 0;
-        Sprintf(buf, "%s%s", !exclude_it ? "" : "    ", doname(otmp));
-        add_menu(win, &nul_glyphinfo, &any, !exclude_it ? otmp->invlet : 0, 0,
-                 ATR_NONE, clr, buf, MENU_ITEMFLAGS_NONE);
+            n_conts = 0;
+        }
+        for (otmp = gi.invent; otmp; otmp = otmp->nobj) {
+            if (otmp == box)
+                continue;
+            /* skip non-containers; bag of tricks passes Is_container() test,
+               only include it if it isn't known to be a bag of tricks */
+            if (!Is_container(otmp)
+                || ((otmp->otyp == BAG_OF_TRICKS || otmp->otyp == BAG_OF_WINDS)
+                    && otmp->dknown
+                    && objects[otmp->otyp].oc_name_known))
+                continue;
+            if (!n_conts++)
+                hands_available = u_handsy(); /* might issue message */
+            /* container-to-container tip requires free hands;
+               exclude container as possible target when known to be locked */
+            exclude_it = !hands_available || (otmp->olocked && otmp->lknown);
+            if (looppass == 0) {
+                if (!exclude_it)
+                    count_tiptargets++;
+            } else {
+                any = cg.zeroany;
+                any.a_obj = !exclude_it ? otmp : 0;
+                Sprintf(buf, "%s%s", !exclude_it ? "" : "    ", doname(otmp));
+                tmpglyph = obj_to_glyph(otmp, rn2_on_display_rng);
+                map_glyphinfo(0, 0, tmpglyph, 0U, &tmpglyphinfo);
+                add_menu(win, &tmpglyphinfo, &any,
+                         !exclude_it ? otmp->invlet : 0, 0, ATR_NONE, clr,
+                         buf, MENU_ITEMFLAGS_NONE);
+            }
+        }
     }
+    if (!skip_targetmenu) {
+        Sprintf(buf, "Where to tip the contents of %s", doname(box));
+        end_menu(win, buf);
+        n = select_menu(win, PICK_ONE, &pick_list);
+        destroy_nhwindow(win);
 
-    Sprintf(buf, "Where to tip the contents of %s", doname(box));
-    end_menu(win, buf);
-    n = select_menu(win, PICK_ONE, &pick_list);
-    destroy_nhwindow(win);
-
-    otmp = 0;
-    if (pick_list) {
-        otmp = pick_list[0].item.a_obj;
-        /* PICK_ONE with a preselected item might return 2;
-           if so, choose the one that wasn't preselected */
-        if (n > 1 && otmp == &dummyobj)
-            otmp = pick_list[1].item.a_obj;
-        if (otmp == &dummyobj)
-            otmp = 0;
-        free((genericptr_t) pick_list);
+        otmp = 0;
+        if (pick_list) {
+            otmp = pick_list[0].item.a_obj;
+            /* PICK_ONE with a preselected item might return 2;
+               if so, choose the one that wasn't preselected */
+            if (n > 1 && otmp == &dummyobj)
+                otmp = pick_list[1].item.a_obj;
+            if (otmp == &dummyobj)
+                otmp = 0;
+            free((genericptr_t) pick_list);
+        }
+    } else {
+        otmp = 0;
+        n = 0;  /* don't flag as having been cancelled */
     }
     *cancelled = (boolean) (n == -1);
     return otmp;
@@ -4211,6 +4312,11 @@ tipcontainer_checks(
         int seencount = 0;
 
         bagotricks(targetbox, FALSE, &seencount);
+        return TIPCHECK_CANNOT;
+    }
+
+    if (targetbox && targetbox->otyp == BAG_OF_WINDS) {
+        bagowinds(targetbox, FALSE);
         return TIPCHECK_CANNOT;
     }
 
@@ -4238,9 +4344,11 @@ tipcontainer_checks(
         }
         return TIPCHECK_TRAPPED;
 
-    } else if (box->otyp == BAG_OF_TRICKS || box->otyp == HORN_OF_PLENTY) {
+    } else if (box->otyp == BAG_OF_TRICKS || box->otyp == HORN_OF_PLENTY
+                || box->otyp == BAG_OF_WINDS) {
         int res = TIPCHECK_OK;
         boolean bag = (box->otyp == BAG_OF_TRICKS);
+        boolean windy = (box->otyp == BAG_OF_WINDS);
         int old_spe = box->spe, seen, totseen;
         boolean maybeshopgoods = (!carried(box)
                                   && costly_spot(box->ox, box->oy));
@@ -4260,7 +4368,8 @@ tipcontainer_checks(
            (if the latter occurs, force the former...) */
         seen = totseen = 0;
         do {
-            if (!(bag ? bagotricks(box, TRUE, &seen)
+            if (!(windy ? bagowinds(box, TRUE)
+                    : bag ? bagotricks(box, TRUE, &seen)
                       : hornoplenty(box, TRUE, targetbox)))
                 break;
             totseen += seen;
@@ -4278,7 +4387,6 @@ tipcontainer_checks(
         if (maybeshopgoods && !box->no_charge)
             subfrombill(box, shop_keeper(*in_rooms(ox, oy, SHOPBASE)));
         return TIPCHECK_CANNOT; /* actually means 'already done' */
-
     } else if (SchroedingersBox(box)) {
         char yourbuf[BUFSZ];
         boolean empty_it = FALSE;

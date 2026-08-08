@@ -1,4 +1,4 @@
-/* NetHack 3.7	msdos.c	$NHDT-Date: 1596498269 2020/08/03 23:44:29 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.15 $ */
+/* NetHack 5.0	msdos.c	$NHDT-Date: 1596498269 2020/08/03 23:44:29 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.15 $ */
 /* Copyright (c) NetHack PC Development Team 1990 */
 /* NetHack may be freely redistributed.  See license for details.         */
 
@@ -57,10 +57,11 @@ unsigned long sys_random_seed(void);
 static char *getdta(void);
 #endif
 static unsigned int dos_ioctl(int, int, unsigned);
-#ifdef TILES_IN_GLYPHMAP
+#ifdef NO_TERMS
 extern boolean pckeys(unsigned char, unsigned char); /* pckeys.c */
 #endif
 
+#ifdef TTY_GRAPHICS
 int
 tgetch(void)
 {
@@ -86,6 +87,7 @@ tgetch(void)
 #endif
     return ((ch == '\r') ? '\n' : ch);
 }
+#endif /* TTY_GRAPHICS */
 
 /*
  *  Keyboard translation tables.
@@ -280,7 +282,7 @@ BIOSgetch(void)
             else
                 ch = kpad[scan - KEYPADLO].normal;
         }
-#ifdef TILES_IN_GLYPHMAP
+#ifdef NO_TERMS
         /* Check for special interface manipulation keys */
         if (pckeys(scan, shift)) {
             ch = 0xFF;
@@ -347,16 +349,6 @@ DOSgetch(void)
     }
 #endif
     return (ch);
-}
-
-char
-switchar(void)
-{
-    union REGS regs;
-
-    regs.x.ax = GETSWITCHAR;
-    intdos(&regs, &regs);
-    return regs.h.dl;
 }
 
 #if 0
@@ -449,7 +441,7 @@ filesize_nh(char *file)
  * Chdrive() changes the default drive.
  */
 void
-chdrive(char *str)
+chdrive(const char *str)
 {
 #define SELECTDISK 0x0E
     char *ptr;

@@ -1,4 +1,4 @@
-/* NetHack 3.7	minion.c	$NHDT-Date: 1762727599 2025/11/09 14:33:19 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.81 $ */
+/* NetHack 5.0	minion.c	$NHDT-Date: 1781973054 2026/06/20 16:30:54 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.88 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2008. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -46,9 +46,7 @@ monster_census(boolean spotted) /* seen|sensed vs all */
     int count = 0;
 
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
-        if (DEADMONSTER(mtmp))
-            continue;
-        if (mtmp->isgd && mtmp->mx == 0)
+        if (DEADMONSTER(mtmp) || PARKEDMONSTER(mtmp))
             continue;
         if (spotted && !canspotmon(mtmp))
             continue;
@@ -304,7 +302,8 @@ demon_talk(struct monst *mtmp)
             pline("%s says, \"Good hunting, %s.\"", Amonnam(mtmp),
                   flags.female ? "Sister" : "Brother");
         else if (canseemon(mtmp))
-            pline("%s says something.", Amonnam(mtmp));
+            pline("%s %s something.", Amonnam(mtmp),
+                  says());
         if (!tele_restrict(mtmp))
             (void) rloc(mtmp, RLOC_MSG);
         return 1;
@@ -335,7 +334,8 @@ demon_talk(struct monst *mtmp)
         else if (canseemon(mtmp))
             pline("%s seems to be demanding something.", Amonnam(mtmp));
         offer = 0L;
-        if (!Deaf && ((offer = bribe(mtmp)) >= demand)) {
+        if (!Deaf &&
+            ((offer = bribe(mtmp, "How much will you offer?")) >= demand)) {
             pline("%s vanishes, laughing about cowardly mortals.",
                   Amonnam(mtmp));
         } else if (offer > 0L
@@ -360,13 +360,13 @@ demon_talk(struct monst *mtmp)
 }
 
 long
-bribe(struct monst *mtmp)
+bribe(struct monst *mtmp, const char *prompt)
 {
     char buf[BUFSZ] = DUMMY;
     long offer;
     long umoney = money_cnt(gi.invent);
 
-    getlin("How much will you offer?", buf);
+    getlin(prompt, buf);
     if (sscanf(buf, "%ld", &offer) != 1)
         offer = 0L;
 

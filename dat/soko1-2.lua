@@ -1,4 +1,4 @@
--- NetHack sokoban soko1-2.lua	$NHDT-Date: 1652196034 2022/05/10 15:20:34 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.6 $
+-- NetHack sokoban soko1-2.lua	$NHDT-Date: 1781994887 2026/06/20 22:34:47 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.10 $
 --	Copyright (c) 1998-1999 by Kevin Hugo
 -- NetHack may be freely redistributed.  See license for details.
 --
@@ -61,9 +61,9 @@ des.object("boulder",12,09);
 des.object("boulder",11,10);
 
 -- prevent monster generation over the (filled) holes
-des.exclusion({ type = "monster-generation", region = { 05,01, 22,01 } });
+des.exclusion({ type = "monster-generation", region = { 05,01, 23,01 } });
 -- Traps
-des.trap("hole",05,01)
+des.trap("rolling boulder",05,01)
 des.trap("hole",06,01)
 des.trap("hole",07,01)
 des.trap("hole",08,01)
@@ -81,6 +81,7 @@ des.trap("hole",19,01)
 des.trap("hole",20,01)
 des.trap("hole",21,01)
 des.trap("hole",22,01)
+des.trap("hole",23,01)
 
 des.monster({ id = "giant mimic", appear_as = "obj:boulder" });
 des.monster({ id = "giant mimic", appear_as = "obj:boulder" });
@@ -110,3 +111,4 @@ else
 end
 des.engraving({ coord = pt, type = "burn", text = "Elbereth" });
 des.object({ id = "scroll of scare monster", coord = pt, buc = "cursed" });
+des.object({ id = "potion of gain ability", coord = pt, buc = "blessed" });

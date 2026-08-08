@@ -1,4 +1,4 @@
-/* NetHack 3.7	version.c	$NHDT-Date: 1737622664 2025/01/23 00:57:44 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.105 $ */
+/* NetHack 5.0	version.c	$NHDT-Date: 1781973072 2026/06/20 16:31:12 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.118 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Michael Allison, 2018. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -118,7 +118,7 @@ status_version(char *buf, size_t bufsz, boolean indent)
 #if 0
         /* note: it's possible for branch name to be a prefix of game name
            but that's unlikely enough that we won't bother with it; having
-           branch "crecellehack-3.7" be a superset of game "crecellehack" seems like
+           branch "nethack-5.0" be a superset of game "nethack" seems like
            including both is redundant, but having branch "net" be a subset
            of game "crecellehack" doesn't feel that way; optimizing "net" out
            seems like it would be a mistake */
@@ -156,6 +156,9 @@ int
 doversion(void)
 {
     char buf[BUFSZ];
+
+    if (iflags.menu_requested)
+        return doextversion();
 
     pline("%s", getversionstring(buf, sizeof buf));
     return ECMD_OK;
@@ -594,6 +597,7 @@ struct critical_sizes_with_names critical_sizes[] = {
     { (uchar) sizeof(struct engr), "struct engr" },
     { (uchar) sizeof(struct epri), "struct epri" },
     { (uchar) sizeof(struct eshk), "struct eshk" },
+    { (uchar) sizeof(struct esum), "struct esum" },
     { (uchar) sizeof(struct fe), "struct fe" },
     { (uchar) sizeof(struct flag), "struct flag" },
     { (uchar) sizeof(struct fruit), "struct fruit" },
@@ -613,7 +617,7 @@ struct critical_sizes_with_names critical_sizes[] = {
     { (uchar) sizeof(struct objclass), "struct objclass" },
     { (uchar) sizeof(struct oextra), "struct oextra" },
     { (uchar) sizeof(struct q_score), "struct q_score" },
-    { (uchar) sizeof(struct rm), "struct rm" },
+    { (uchar) sizeof(struct rm), "struct rm" },               /* [61] */
     { (uchar) sizeof(struct spell), "struct spell" },
     { (uchar) sizeof(struct stairway), "struct stairway" },
     { (uchar) sizeof(struct s_level), "struct s_level" },
@@ -666,7 +670,7 @@ struct critical_sizes_with_names critical_sizes[] = {
     { 0, "" },
     { 0, "" },
     { 0, "" },
-    { 0, "" },
+    { (uchar) SAVEFILE_REVISION_LEVEL, "savefile_revision_level" },
 };
 
 uchar cscbuf[SIZE(critical_sizes)];
@@ -785,7 +789,19 @@ compare_critical_bytes(NHFILE *nhfp, int *idx_1st_mismatch, unsigned long utdfla
     for (i = 0; i < (int) file_csc_count; ++i) {
         Sfi_uchar(nhfp, &cscbuf[i], "critical_sizes");
     }
+
     for (i = 1; i < cnt; ++i) {
+#ifndef SFCTOOL
+        if (cscbuf[i] != critical_sizes[i].ucsize && i == cnt - 1) {
+            /* SAVEFILE_REVISION_LEVEL mismatch; attempt to deal with it */
+            int file_rev_level = cscbuf[i];
+
+            if (revision_increment(file_rev_level,
+                                                   file_csc_count,
+                                                   cscbuf))
+                continue;
+        }
+#endif
         if (cscbuf[i] != critical_sizes[i].ucsize) {
             const char *dm = datamodel(0), *dmfile;
 
@@ -843,11 +859,14 @@ compare_critical_bytes(NHFILE *nhfp, int *idx_1st_mismatch, unsigned long utdfla
  *   SF_DM_MISMATCH                  (9) some other mismatch
  */
 int
-validate(NHFILE *nhfp, const char *name, boolean without_waitsynch_perfile)
+validate(NHFILE *nhfp, const char *name, boolean without_waitsynch_perfile,
+         int additional_utd_flags)
 {
     unsigned long utdflags = 0L;
     int validsf = 0;
 
+if (additional_utd_flags)
+        utdflags |= additional_utd_flags;
 #ifdef SFCTOOL
     utdflags |= UTD_QUIETLY;
 #endif

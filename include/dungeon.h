@@ -1,4 +1,4 @@
-/* NetHack 3.7	dungeon.h	$NHDT-Date: 1685863327 2023/06/04 07:22:07 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.47 $ */
+/* NetHack 5.0	dungeon.h	$NHDT-Date: 1781973079 2026/06/20 16:31:19 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.56 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Michael Allison, 2006. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -146,6 +146,7 @@ typedef struct branch {
 #define In_endgame(x) ((x)->dnum == astral_level.dnum)
 #define In_tutorial(x) ((x)->dnum == tutorial_dnum)
 #define In_magicmaze(x) ((x)->dnum == maze_dnum)
+#define In_mtemple(x) ((x)->dnum == mtemple_dnum)
 
 #define within_bounded_area(X, Y, LX, LY, HX, HY) \
     ((X) >= (LX) && (X) <= (HX) && (Y) >= (LY) && (Y) <= (HY))
@@ -215,6 +216,7 @@ struct mapseen_feat {
     Bitfield(msalign, 2);
 
     Bitfield(shoptype, 5);
+    Bitfield(msbiome, 3); /* may need to be added as we add biomes */
 };
 struct mapseen_flags {
     Bitfield(notreachable, 1); /* can't get back to this level */
@@ -263,14 +265,22 @@ typedef struct mapseen {
     struct cemetery *final_resting_place; /* same as level.bonesinfo */
 } mapseen;
 
-enum bioime_types {
-    BIOME_ODUNGEON = 0,   /* Standard dungeon */
-    BIOME_WOODLAND = 1,   /* Grassy and woody */
-    BIOME_FUNGAL = 2,     /* Full of fungi */
-    BIOME_TROPICAL = 3,   /* Full of sand and such */
-    BIOME_SNOWY = 4,      /* Snowy */
-    BIOME_MAX = 5
+/* Max biomes is 127? */
+#define BIOME_LIST BIOME(ODUNGEON,  "none"), \
+BIOME(WOODLAND,  "forested"), \
+BIOME(FUNGAL,    "fungal field"), \
+BIOME(TROPICAL,  "tropics"), \
+BIOME(SNOWY,     "snowfield"), \
+BIOME(SEWER,     "sewer")
+
+#define BIOME(id, nam) BIOME_##id
+enum biome_enum { BIOME_LIST, BIOME_MAX };
+#undef BIOME
+struct biome {
+    const char *name;
 };
+extern struct biome all_biomes[];
+
 
 #define IS_BIOME(x) (svl.level.flags.biome == x)
 

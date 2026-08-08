@@ -1,4 +1,4 @@
-/* NetHack 3.7	wield.c	$NHDT-Date: 1707525193 2024/02/10 00:33:13 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.110 $ */
+/* NetHack 5.0	wield.c	$NHDT-Date: 1781973073 2026/06/20 16:31:13 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.124 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2009. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -104,10 +104,15 @@ setuwep(struct obj *obj)
 
     if (obj == uwep)
         return; /* necessary to not set gu.unweapon */
-    /* This message isn't printed in the caller because it happens
-     * *whenever* Sunsword is unwielded, from whatever cause.
-     */
     setworn(obj, W_WEP);
+    /* handle Ogresmasher before Sunsword; even though they can't be happening
+       at the same time, botl flag update should come before pline message */
+    if (uwep == obj
+        && ((uwep && uwep->oartifact == ART_OGRESMASHER)
+            || (olduwep && olduwep->oartifact == ART_OGRESMASHER)))
+        disp.botl = TRUE; /* gaining or losing Con bonus */
+    /* This message isn't printed in the caller because it happens
+     * *whenever* Sunsword is unwielded, from whatever cause. */
     if (uwep == obj && artifact_light(olduwep) && olduwep->lamplit) {
         end_burn(olduwep, FALSE);
         if (!Blind)
@@ -173,7 +178,7 @@ ready_weapon(struct obj *wep)
         if (uwep) {
             You("are %s.", empty_handed());
             setuwep((struct obj *) 0);
-            res = ECMD_TIME;
+            res = P_SKILL(P_BARE_HANDED_COMBAT) >= P_BASIC ? ECMD_OK : ECMD_TIME;
         } else
             You("are already %s.", empty_handed());
     } else if (wep->otyp == CORPSE && cant_wield_corpse(wep)) {
@@ -277,12 +282,29 @@ ready_weapon(struct obj *wep)
 
             if ((this_shkp = shop_keeper(inside_shop(u.ux, u.uy)))
                 != (struct monst *) 0) {
-                pline("%s says \"You be careful with my %s!\"",
-                      shkname(this_shkp), xname(wep));
+                /* check msound because we don't have access to muteshk() */
+                if (!Deaf && this_shkp->data->msound > MS_ANIMAL)
+                    pline("%s %s \"You be careful with my %s!\"",
+                          shkname(this_shkp), says(), xname(wep));
+                else
+                    pline("%s looks apprehensive about your wielding %s %s.",
+                          shkname(this_shkp), mhis(this_shkp), xname(wep));
             }
         }
         if (size_matters(wep) && wep->osize != USIZE)
             pline("%s awkward to wield due to your size.", Yobjnam2(wep, "are"));
+
+        /* Basic with a weapon lets you wield it instantly. */
+        if (P_SKILL(weapon_type(wep)) >= P_BASIC)
+            res = ECMD_OK;
+        /* Being skilled with a weapon identifies it upon wielding. */
+        if ((wep->oclass == WEAPON_CLASS || is_weptool(wep))
+            && (P_SKILL(weapon_type(wep)) >= P_SKILLED)
+            && not_fully_identified(wep)) {
+            You("use your superior skills to identify your weapon.");
+            (void) identify(wep);
+            update_inventory();
+        }
     }
     if ((had_wep != (uwep != 0)) && condtests[bl_bareh].enabled)
         disp.botl = TRUE;
@@ -853,8 +875,11 @@ drop_uswapwep(void)
 void
 set_twoweap(boolean on_off)
 {
-    u.twoweap = on_off;
-    u.dualweap = FALSE;
+    if (on_off != u.twoweap) {
+        u.twoweap = on_off;
+        if (flags.weaponstatus)
+            disp.botl = TRUE;
+    }
 }
 
 void
@@ -862,6 +887,8 @@ set_dualweap(boolean on_off)
 {
     u.dualweap = on_off;
     u.twoweap = FALSE;
+    if (flags.weaponstatus)
+        disp.botl = TRUE;
 }
 
 /* the #twoweapon command */

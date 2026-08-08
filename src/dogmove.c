@@ -1,4 +1,4 @@
-/* NetHack 3.7	dogmove.c	$NHDT-Date: 1725733007 2024/09/07 18:16:47 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.156 $ */
+/* NetHack 5.0	dogmove.c	$NHDT-Date: 1781973046 2026/06/20 16:30:46 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.177 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -313,12 +313,19 @@ dog_eat(struct monst *mtmp,
         /* It's a reward if it's DOGFOOD and the player dropped/threw it.
            We know the player had it if invlet is set. -dlc */
         if (dogfood(mtmp, obj) == DOGFOOD && obj->invlet) {
+            int prior_apport = edog->apport;
+
             edog->apport += (int) (200L / ((long) edog->dropdist + svm.moves
                                            - edog->droptime));
             if (edog->apport <= 0) {
-                impossible("dog_eat: pet apport <= 0 (%d, %d, %ld, %ld)",
+                impossible("dog_eat: pet apport <= 0 (%d, %d, %ld, %ld, %d, %u, %u)",
                             edog->apport, edog->dropdist, edog->droptime,
-                            svm.moves);
+                            svm.moves,
+                            prior_apport,
+                           /* check whether edog struct got clobbered;
+                              these two values should always match if
+                              edog content is still intact */
+                           mtmp->m_id, edog->parentmid);
                 edog->apport = 1;
             }
         }
@@ -610,6 +617,9 @@ dog_goal(
            behave as if you have dog food */
         if (appr == 0) {
             if (On_stairs(u.ux, u.uy)) {
+                appr = 1;
+            } else if ((uwep && uwep->otyp == SHEPHERD_S_CROOK)
+                        || (uswapwep && uswapwep->otyp == SHEPHERD_S_CROOK)) {
                 appr = 1;
             } else {
                 for (obj = gi.invent; obj; obj = obj->nobj)
@@ -1050,7 +1060,7 @@ dog_move(
     struct edog *edog = (mtmp->mtame && has_edog(mtmp)) ? EDOG(mtmp) : 0;
     struct obj *obj = (struct obj *) 0;
     xint16 otyp;
-    boolean cursemsg[9], do_eat = FALSE;
+    boolean cursemsg[9], do_eat = FALSE, do_grass = FALSE;
     boolean better_with_displacing = FALSE, ranged_only;
     coordxy nix, niy;      /* position mtmp is (considering) moving to */
     coordxy nx, ny; /* temporary coordinates */
@@ -1305,6 +1315,16 @@ dog_move(
             }
         }
 
+        /* dog dislikes nasty coatings, but will still sometimes step
+           on them anyway. 
+           TODO: Improve this check beyond a placeholder */
+        if (grounded(mtmp->data)
+            && has_coating(nx, ny, COAT_FUNGUS)) {
+            if (rn2(10))
+                continue;
+        }
+
+
         /* dog eschews cursed objects, but likes dog food */
         /* (minion isn't interested; `cursemsg' stays FALSE) */
         if (edog && !(edog->petstrat & PETSTRAT_COME)) {
@@ -1326,6 +1346,18 @@ dog_move(
                     cursemsg[i] = FALSE; /* not reluctant */
                     goto newdogpos;
                 }
+            }
+            /* eat grass if possible */
+            if (likes_grass(mtmp->data)
+                && (svm.moves > (edog->hungrytime + DOG_HUNGRY))
+                && has_coating(nx, ny, COAT_GRASS)
+                && !has_coating(nx, ny, COAT_BLOOD)) {
+                nix = nx;
+                niy = ny;
+                chi = i;
+                do_grass = TRUE;
+                cursemsg[i] = FALSE; /* not reluctant */
+                goto newdogpos;
             }
         }
         /* didn't find something to eat; if we saw a cursed item and
@@ -1420,6 +1452,10 @@ dog_move(
             if (dog_eat(mtmp, obj, omx, omy, FALSE) == 2)
                 return MMOVE_DIED;
         }
+        if (do_grass) {
+            if (meatgrass(mtmp) == 2)
+                return MMOVE_DIED;
+        }
     } else if (mtmp->mleashed && distu(omx, omy) > 4) {
         /* an incredible kludge, but the only way to keep pooch near
          * after it spends time eating or in a trap, etc.
@@ -1433,14 +1469,14 @@ dog_move(
         if (goodpos(cc.x, cc.y, mtmp, 0))
             goto dognext;
 
-        i = xytod(nx, ny);
+        i = xytodir(nx, ny);
         for (j = DIR_LEFT(i); j < DIR_RIGHT(i); j++) {
-            dtoxy(&cc, j);
+            dirtocoord(&cc, j);
             if (goodpos(cc.x, cc.y, mtmp, 0))
                 goto dognext;
         }
         for (j = DIR_LEFT2(i); j < DIR_RIGHT2(i); j++) {
-            dtoxy(&cc, j);
+            dirtocoord(&cc, j);
             if (goodpos(cc.x, cc.y, mtmp, 0))
                 goto dognext;
         }

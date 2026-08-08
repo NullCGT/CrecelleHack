@@ -1,4 +1,4 @@
--- NetHack gehennom valley.lua	$NHDT-Date: 1652196038 2022/05/10 15:20:38 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.4 $
+-- NetHack gehennom valley.lua	$NHDT-Date: 1781994890 2026/06/20 22:34:50 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.6 $
 --	Copyright (c) 1989 by Jean-Christophe Collet
 --	Copyright (c) 1992 by M. Stephenson and Izchak Miller
 -- NetHack may be freely redistributed.  See license for details.
@@ -69,6 +69,7 @@ des.door("locked",06,06)
 
 -- The altar of Moloch.
 des.altar({ x=03,y=10,align="noalign", type="shrine" })
+des.object({ id = "potion of gain ability", coord = {03,10}, buc = "blessed" });
 
 -- Non diggable walls - everywhere!
 des.non_diggable(selection.area(00,00,75,19))

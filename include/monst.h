@@ -1,4 +1,4 @@
-/* NetHack 3.7	monst.h	$NHDT-Date: 1738640524 2025/02/03 19:42:04 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.67 $ */
+/* NetHack 5.0	monst.h	$NHDT-Date: 1781973083 2026/06/20 16:31:23 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.78 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2016. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -55,15 +55,17 @@ enum m_ap_types {
     M_AP_MONSTER   = 3  /* a monster; mostly used for cloned Wizard */
 };
 
-#define MON_FLOOR        0x00
-#define MON_OFFMAP       0x01
-#define MON_DETACH       0x02
-#define MON_MIGRATING    0x04
-#define MON_LIMBO        0x08
-#define MON_BUBBLEMOVE   0x10
-#define MON_ENDGAME_FREE 0x20
-#define MON_ENDGAME_MIGR 0x40
-#define MON_OBLITERATE   0x80
+#define MON_FLOOR          0x0000
+#define MON_OFFMAP         0x0001
+#define MON_DETACH         0x0002
+#define MON_MIGRATING      0x0004
+#define MON_LIMBO          0x0008
+#define MON_BUBBLEMOVE     0x0010
+#define MON_ENDGAME_FREE   0x0020
+#define MON_ENDGAME_MIGR   0x0040
+#define MON_OBLITERATE     0x0080
+#define MON_STILL_ARRIVING 0x0100
+#define MON_PARKED         0x0200
 
 #define M_AP_TYPMASK  0x7
 #define M_AP_F_DKNOWN 0x8
@@ -166,8 +168,13 @@ struct monst {
     Bitfield(mtraitor, 1);  /* mon has turned traitor */
     Bitfield(mprone, 1);    /* mon is prone after being tripped */
     Bitfield(maware, 1);    /* mon is aware of you */
-    Bitfield(mbaby, 1);
+    Bitfield(mbaby, 1);     /* mon is baby */
     Bitfield(mdripping, 1); /* mon is dripping with liquid */
+    Bitfield(madvanced, 1); /* mon is advanced beyond normal means */
+    Bitfield(mwandexp, 1);  /* mon has experience with wands */
+    
+    Bitfield(mgenmklev, 1); /* made by the level generation */
+    /* 7 spare bits */
 
     unsigned long mstrategy; /* for monsters with mflag3: current strategy */
 #ifdef NHSTDC
@@ -193,7 +200,7 @@ struct monst {
     long mlstmv;           /* for catching up with lost time */
     long mstate;           /* debugging info on monsters stored here */
     long migflags;         /* migrating flags */
-    long mspare1;
+    long mnexthunger;      /* next time monster will get hungry, currently only used for grass eating */
     struct obj *minvent;   /* mon's inventory */
     struct obj *mw;        /* mon's weapon */
     long misc_worn_check;  /* mon's wornmask */
@@ -213,6 +220,10 @@ struct monst {
 
 /* dead monsters stay on the fmon list until dmonsfree() at end of turn */
 #define DEADMONSTER(mon) ((mon)->mhp < 1)
+/* vault guards intentionally remain on the fmon list at 0,0 until
+   the temporary corridor is dealt with */
+#define PARKEDMONSTER(mon) ((mon)->isgd && (mon)->mx == 0)
+/* eventually, we'll be able to use (((mon)->mstate & MON_PARKED) != 0) */
 
 #define is_starting_pet(mon) ((mon)->m_id == svc.context.startingpet_mid)
 #define is_vampshifter(mon) \
@@ -253,11 +264,14 @@ struct monst {
 
 #define mon_perma_blind(mon) (!mon->mcansee && !mon->mblinded)
 
-#define mon_offmap(mon) ((mon)->mstate != MON_FLOOR)
+#define MON_OFF_MAP_BITS (MON_OFFMAP | MON_DETACH | MON_LIMBO | MON_MIGRATING \
+               | MON_ENDGAME_FREE | MON_ENDGAME_MIGR | MON_BUBBLEMOVE | MON_PARKED)
+
+#define mon_offmap(mon) (((mon)->mstate & (MON_OFF_MAP_BITS)) != 0)
 
 /* Get the maximum difficulty monsters that can currently be generated,
    given the current level difficulty and the hero's level. */
-#define monmax_difficulty(levdif) (((levdif) + u.ulevel) / 2)
+#define monmax_difficulty(levdif) ((levdif * 0.85))
 #define monmin_difficulty(levdif) ((levdif) / 6)
 #define monmax_difficulty_lev() (monmax_difficulty(level_difficulty()))
 

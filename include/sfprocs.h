@@ -43,6 +43,7 @@ SF_PROTO_C(struct, emin);
 SF_PROTO_C(struct, engr);
 SF_PROTO_C(struct, epri);
 SF_PROTO_C(struct, eshk);
+SF_PROTO_C(struct, esum);
 SF_PROTO_C(struct, fe);
 SF_PROTO_C(struct, flag);
 SF_PROTO_C(struct, fruit);
@@ -68,6 +69,10 @@ SF_PROTO_C(struct, trap);
 SF_PROTO_C(struct, version_info);
 SF_PROTO_C(struct, you);
 SF_PROTO_C(union, any);
+#ifdef DEMO_UPLIFTS
+SF_PROTO_C(struct, mystruct);
+SF_PROTO_C(struct, mystruct_rev0);
+#endif
 SF_PROTO(int16);
 SF_PROTO(int32);
 SF_PROTO(int64);
@@ -124,6 +129,7 @@ struct sf_procs {
     SF_ENTRY_C(struct, engr);
     SF_ENTRY_C(struct, epri);
     SF_ENTRY_C(struct, eshk);
+    SF_ENTRY_C(struct, esum);
     SF_ENTRY_C(struct, fe);
     SF_ENTRY_C(struct, flag);
     SF_ENTRY_C(struct, fruit);
@@ -149,6 +155,10 @@ struct sf_procs {
     SF_ENTRY_C(struct, version_info);
     SF_ENTRY_C(struct, you);
     SF_ENTRY_C(union, any);
+#ifdef DEMO_UPLIFTS
+    SF_ENTRY_C(struct, mystruct);
+    SF_ENTRY_C(struct, mystruct_rev0);
+#endif
 
     SF_ENTRY(aligntyp);
     SF_ENTRY(boolean);

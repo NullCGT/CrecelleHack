@@ -1,4 +1,4 @@
-/* NetHack 3.7	nhlobj.c	$NHDT-Date: 1576097301 2019/12/11 20:48:21 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.0 $ */
+/* NetHack 5.0	nhlobj.c	$NHDT-Date: 1781973058 2026/06/20 16:30:58 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.42 $ */
 /*      Copyright (c) 2019 by Pasi Kallinen */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -230,8 +230,8 @@ l_obj_objects_to_table(lua_State *L)
     nhl_add_table_entry_int(L, "prob", o->oc_prob);
     nhl_add_table_entry_int(L, "weight", o->oc_weight);
     nhl_add_table_entry_int(L, "cost", o->oc_cost);
-    nhl_add_table_entry_int(L, "damage_small", o->oc_wsdam);
-    nhl_add_table_entry_int(L, "damage_large", o->oc_wldam);
+    nhl_add_table_entry_int(L, "damage_dicenum", o->oc_wndam);
+    nhl_add_table_entry_int(L, "damage_dicesides", o->oc_wddam);
     /* TODO: oc_oc1, oc_oc2, oc_hitbon, a_ac, a_can, oc_level */
     nhl_add_table_entry_int(L, "nutrition", o->oc_nutrition);
 
@@ -275,7 +275,7 @@ l_obj_to_table(lua_State *L)
     if (obj->otyp == STATUE)
         nhl_add_table_entry_int(L, "historic",
                                 (obj->spe & CORPSTAT_HISTORIC) != 0);
-    if (obj->otyp == CORPSE || obj->otyp == STATUE) {
+    if (obj->otyp == CORPSE || obj->otyp == STATUE || obj->otyp == FOSSIL) {
         nhl_add_table_entry_int(L, "male",
                                 (obj->spe & CORPSTAT_MALE) != 0);
         nhl_add_table_entry_int(L, "female",
@@ -326,11 +326,12 @@ l_obj_to_table(lua_State *L)
     nhl_add_table_entry_int(L, "corpsenm", obj->corpsenm);
     if (obj->corpsenm != NON_PM
         && (obj->otyp == TIN || obj->otyp == CORPSE || obj->otyp == EGG
-            || obj->otyp == FIGURINE || obj->otyp == STATUE))
+            || obj->otyp == FIGURINE || obj->otyp == STATUE || obj->otyp == FOSSIL))
         nhl_add_table_entry_str(L, "corpsenm_name",
                                 mons[obj->corpsenm].pmnames[NEUTRAL]);
     /* TODO: leashmon, fromsink, novelidx, record_achieve_special */
     nhl_add_table_entry_int(L, "usecount", obj->usecount);
+    nhl_add_table_entry_int(L, "gemtype", obj->gemtype);
     /* TODO: spestudied */
     nhl_add_table_entry_int(L, "oeaten", obj->oeaten);
     nhl_add_table_entry_int(L, "age", obj->age);
@@ -347,12 +348,13 @@ DISABLE_WARNING_UNREACHABLE_CODE
 
 /* create a new object via wishing routine */
 /* local o = obj.new("rock"); */
+/* local o = obj.new({ id = "food ration", class = "%" }); */
 staticfn int
 l_obj_new_readobjnam(lua_State *L)
 {
     int argc = lua_gettop(L);
 
-    if (argc == 1) {
+    if (argc == 1 && lua_type(L, 1) == LUA_TSTRING) {
         char buf[BUFSZ];
         struct obj *otmp;
 
@@ -360,6 +362,22 @@ l_obj_new_readobjnam(lua_State *L)
         lua_pop(L, 1);
         if ((otmp = readobjnam(buf, NULL)) == &hands_obj)
             otmp = NULL;
+        (void) l_obj_push(L, otmp);
+        return 1;
+    } else if (argc == 1 && lua_type(L, 1) == LUA_TTABLE) {
+        short id = get_table_objtype(L);
+        xint16 class = get_table_objclass(L);
+        struct obj *otmp;
+
+        if (id >= FIRST_OBJECT) {
+            otmp = mksobj(id, TRUE, FALSE);
+        } else {
+            class = def_char_to_objclass(class);
+            if (class >= MAXOCLASSES)
+                class = RANDOM_CLASS;
+            otmp = mkobj(class, FALSE);
+        }
+        lua_pop(L, 1);
         (void) l_obj_push(L, otmp);
         return 1;
     } else

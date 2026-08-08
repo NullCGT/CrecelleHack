@@ -1,4 +1,4 @@
-/* NetHack 3.7	mkroom.c	$NHDT-Date: 1613086701 2021/02/11 23:38:21 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.52 $ */
+/* NetHack 5.0	mkroom.c	$NHDT-Date: 1781973056 2026/06/20 16:30:56 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.81 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2011. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -484,6 +484,7 @@ fill_zoo(struct mkroom *sroom)
 /* make a swarm of undead around mm */
 void
 mkundead(
+    struct monst *summoner,
     coord *mm,
     boolean revive_corpses,
     int mm_flags)
@@ -492,14 +493,18 @@ mkundead(
     struct permonst *mdat;
     struct obj *otmp;
     coord cc;
+    struct monst *mtmp;
 
     while (cnt--) {
         mdat = morguemon();
         if (mdat && enexto(&cc, mm->x, mm->y, mdat)
             && (!revive_corpses
                 || !(otmp = sobj_at(CORPSE, cc.x, cc.y))
-                || !revive(otmp, FALSE)))
-            (void) makemon(mdat, cc.x, cc.y, mm_flags);
+                || !revive(otmp, FALSE))) {
+            mtmp = makemon(mdat, cc.x, cc.y, mm_flags);
+            if (mtmp && summoner && has_esum(mtmp))
+                ESUM(mtmp)->ownermid = summoner->m_id;
+        }
     }
     svl.level.flags.graveyard = TRUE; /* reduced chance for undead corpse */
 }
@@ -617,6 +622,8 @@ mkswamp(void) /* Michiel Huisjes & Fred de Wilde */
     }
 }
 
+/* return center of room, or a random free location
+   if center is blocked */
 staticfn coord *
 shrine_pos(int roomno)
 {
@@ -635,6 +642,14 @@ shrine_pos(int roomno)
     buf.y = troom->ly + delta / 2;
     if ((delta % 2) && rn2(2))
         buf.y++;
+
+    /* irregular room or the location is blocked */
+    if (roomno != (int) levl[buf.x][buf.y].roomno
+        || (levl[buf.x][buf.y].typ != ROOM
+            && levl[buf.x][buf.y].typ != ICE
+            && levl[buf.x][buf.y].typ != CLOUD))
+        (void) somexyspace(troom, &buf);
+
     return &buf;
 }
 

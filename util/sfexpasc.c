@@ -1,4 +1,4 @@
-/* NetHack 3.7	sfexpasc.c.c $NHDT-Date$  $NHDT-Branch$:$NHDT-Revision$ */
+/* NetHack 5.0	sfexpasc.c.c $NHDT-Date$  $NHDT-Branch$:$NHDT-Revision$ */
 /* Copyright (c) Michael Allison, 2025. */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -155,6 +155,7 @@ SF_C(struct, emin)
 SF_C(struct, engr)
 SF_C(struct, epri)
 SF_C(struct, eshk)
+SF_C(struct, esum)
 SF_C(struct, fe)
 SF_C(struct, flag)
 SF_C(struct, fruit)

@@ -1,4 +1,4 @@
-/* NetHack 3.7	rnd.c	$NHDT-Date: 1596498205 2020/08/03 23:43:25 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.30 $ */
+/* NetHack 5.0	rnd.c	$NHDT-Date: 1781973065 2026/06/20 16:31:05 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.41 $ */
 /*      Copyright (c) 2004 by Robert Patrick Rankin               */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -189,7 +189,7 @@ d(int n, int x)
 
 /* 1 <= rne(x) <= max(u.ulevel/3,5) */
 int
-rne(int x)
+old_rne(int x)
 {
     int tmp, utmp;
 
@@ -217,7 +217,7 @@ rnz(int i)
     long tmp = 1000L;
 
     tmp += rn2(1000);
-    tmp *= rne(4);
+    tmp *= old_rne(4);
     if (rn2(2)) {
         x *= tmp;
         x /= 1000;
@@ -308,5 +308,21 @@ shuffle_int_array(int *indices, int count)
         indices[iswap] = temp;
     }
 }
+
+/* replaces old_rne() in Crecelle. Depends on depth.
+   Used exclusively for enchantment generation. */
+int
+rne(int x)
+{
+    int ret, enchmax, udepth;
+
+    udepth = depth(&u.uz);
+    enchmax = max(5, udepth / 5);
+    ret = 1;
+    while (ret < enchmax && (rn2(100) < ((x * 10) + udepth)))
+        ret++;
+    return ret;
+}
+
 
 /*rnd.c*/

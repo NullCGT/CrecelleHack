@@ -1,4 +1,4 @@
-/* NetHack 3.7	lock.c	$NHDT-Date: 1741793439 2025/03/12 07:30:39 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.145 $ */
+/* NetHack 5.0	lock.c	$NHDT-Date: 1781973052 2026/06/20 16:30:52 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.150 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2011. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -68,6 +68,7 @@ staticfn int
 picklock(void)
 {
     int break_chance = 50;
+    int pick_mat, orig_mat;
     if (gx.xlock.box) {
         if (gx.xlock.box->where != OBJ_FLOOR
             || gx.xlock.box->ox != u.ux || gx.xlock.box->oy != u.uy) {
@@ -156,8 +157,17 @@ picklock(void)
             (void) chest_trap(gx.xlock.box, FINGER, FALSE);
     }
     /* Chance to use up picks */
-    if (gx.xlock.picktyp == CREDIT_CARD) break_chance = 3;
-    else if (gx.xlock.picktyp == LOCK_PICK) break_chance = 5; 
+    if (gx.xlock.picktyp == CREDIT_CARD)
+        break_chance = 3;
+    else if (gx.xlock.picktyp == LOCK_PICK)
+        break_chance = 5; 
+
+    pick_mat = gx.xlock.pick->material;
+    orig_mat = objects[gx.xlock.picktyp].oc_material;
+    if (pick_mat != orig_mat)
+        break_chance += (materials[pick_mat].ac - materials[orig_mat].ac);
+    break_chance = max(break_chance, 2);
+
     if (gx.xlock.pick && !gx.xlock.magic_key && !rn2(break_chance)) {
         pline("%s %s breaks!", gx.xlock.pick->quan > 1L ? "One of your" : "Your",
                                 xname(gx.xlock.pick));
@@ -753,7 +763,7 @@ doforce(void)
             else
                 You("start bashing it with %s.", yname(uwep));
             gx.xlock.box = otmp;
-            gx.xlock.chance = objects[uwep->otyp].oc_wldam * 2;
+            gx.xlock.chance = objects[uwep->otyp].oc_wddam * 2;
             gx.xlock.picktyp = picktyp;
             gx.xlock.pick = uwep;
             gx.xlock.magic_key = FALSE;

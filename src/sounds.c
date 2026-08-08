@@ -1,4 +1,4 @@
-/* NetHack 3.7	sounds.c	$NHDT-Date: 1736530208 2025/01/10 09:30:08 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.165 $ */
+/* NetHack 5.0	sounds.c	$NHDT-Date: 1781973067 2026/06/20 16:31:07 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.172 $ */
 /*      Copyright (c) 1989 Janet Walz, Mike Threepoint */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -364,12 +364,17 @@ dosounds(void)
                 "someone cursing shoplifters.",
                 "the chime of a cash register.", "Neiman and Marcus arguing!",
             };
+            static const char *const night_shop_msg[3] = {
+                "someone doing inventory",
+                "the counting of money", "neon signs buzzing!"
+            };
             static const char *const rainy_shop_msg[3] = {
                 "someone cursing the rain.",
                 "a tarp being aired out.", "a rainy day sale!",
             };
             You_hear1(IS_RAINING ? rainy_shop_msg[rn2(2) + hallu]
-                                 : shop_msg[rn2(2) + hallu]);
+                                    : night() ? night_shop_msg[rn2(2) + hallu]
+                                        : shop_msg[rn2(2) + hallu]);
             noisy_shop(sroom);
         }
         return;
@@ -617,6 +622,7 @@ maybe_gasp(struct monst *mon)
     case MS_SOLDIER: /* solider, watchman */
     case MS_GUARD: /* vault guard */
     case MS_NURSE:
+    case MS_SERVANT:
     case MS_SEDUCE: /* nymph, succubus/incubus */
     case MS_LEADER: /* quest leader */
     case MS_GUARDIAN: /* leader's guards */
@@ -868,8 +874,10 @@ domonnoise(struct monst *mtmp)
                                                flags.female ? FEMALE : MALE))
                                    : an(racenoun));
                     verbl_msg = verbuf;
-                } else
-                    verbl_msg = vampmsg[vampindex];
+                } else if (vampindex > 1) {
+                    if (vampindex >= 0 && vampindex < SIZE(vampmsg))
+                        verbl_msg = vampmsg[vampindex];
+                }
             }
         }
         break;
@@ -1147,7 +1155,7 @@ domonnoise(struct monst *mtmp)
         } else
             switch (monsndx(ptr)) {
             case PM_HOBBIT:
-                /* 3.7: the 'complains' message used to be given if the
+                /* 5.0: the 'complains' message used to be given if the
                    hobbit's current hit points were at 10 below max or
                    less, but their max is normally less than 10 so it
                    would almost never occur */
@@ -1176,6 +1184,7 @@ domonnoise(struct monst *mtmp)
             if (ptr->mlet != S_NYMPH
                 && (could_seduce(mtmp, &gy.youmonst, (struct attack *) 0)
                     == 1)) {
+                mintroduce(mtmp);
                 (void) doseduce(mtmp);
                 break;
             }
@@ -1237,6 +1246,13 @@ domonnoise(struct monst *mtmp)
         else
             verbl_msg = "Relax, this won't hurt a bit.";
         break;
+    case MS_SERVANT:
+        verbl_msg_mcan = "Ugh, I quit!";
+        if (mtmp->mpeaceful)
+            verbl_msg = "This place is positively filthy!";
+        else
+            verbl_msg = "Would it kill you to clean up after yourself?";
+        break;
     case MS_GUARD:
         if (money_cnt(gi.invent))
             verbl_msg = "Please drop that gold and follow me.";
@@ -1282,6 +1298,7 @@ domonnoise(struct monst *mtmp)
             pline_msg = "is busy reading a copy of Sandman #8.";
         } else
             verbl_msg = "Who do you think you are, War?";
+        exercise(A_CHA, TRUE);
         break;
     } /* case MS_RIDER */
     } /* switch */
@@ -2503,7 +2520,7 @@ doorder(void)
     skill_level = P_SKILL(P_PET_HANDLING);
 
     /* No longer need the #order tip */
-    svc.context.tips[TIP_ORDER] = TRUE;
+    svc.context.tips |= (1 << TIP_ORDER);
     /* Build order menu */
     win = create_nhwindow(NHW_MENU);
     start_menu(win, MENU_BEHAVE_STANDARD);
@@ -2624,7 +2641,7 @@ doorder(void)
      * Note: when mounted, mtmp == u.usteed and shares player position,
      * so distu() will be 0 which passes the check.
      */
-    if (choice == 4 || choice == 5 || choice == 7 || choice == 8) {
+    if (choice == 4 || choice == 5 || choice == 6 || choice == 7) {
         if (distu(mtmp->mx, mtmp->my) > 2) {
             You("need to be next to %s to do that.", mon_nam(mtmp));
             return 0;

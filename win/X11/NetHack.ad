@@ -1,4 +1,4 @@
-! $NHDT-Date: 1750598195 2025/06/22 05:16:35 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.27 $
+! $NHDT-Date: 1750598195 2025/06/22 05:16:35 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.27 $
 ! Copyright (c) 2017 by Pasi Kallinen
 ! NetHack may be freely redistributed.  See license for details.
 
@@ -117,7 +117,7 @@ NetHack*message*translations:	<KeyPress>: input()
 
 ! Specify the number of rows and columns of the map window.  The default
 ! is the standard 80x21 window.  Note: this _does_not_ change the size of
-! map levels, only what you see of them.
+! level maps, only what you see of them.
 !NetHack*map*rows:	21
 !NetHack*map*columns:	80
 

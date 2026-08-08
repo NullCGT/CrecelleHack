@@ -1,4 +1,4 @@
-/* NetHack 3.7	do_wear.c	$NHDT-Date: 1737343372 2025/01/19 19:22:52 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.201 $ */
+/* NetHack 5.0	do_wear.c	$NHDT-Date: 1781973047 2026/06/20 16:30:47 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.212 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -53,6 +53,7 @@ staticfn int takeoff_ok(struct obj *);
 /* maybe_destroy_armor() may return NULL */
 staticfn struct obj *maybe_destroy_armor(struct obj *, struct obj *,
                                        boolean *) NONNULLARG3;
+staticfn int obj_erode_type(struct obj *) NONNULLARG1;
 staticfn boolean better_not_take_that_off(struct obj *) NONNULLARG1;
 
 /* plural "fingers" or optionally "gloves" */
@@ -454,6 +455,7 @@ Helmet_on(void)
     case HELM_OF_TELEPATHY:
     case SKULL:
     case SKULL_HELM:
+    case JACK_O_LANTERN:
         break;
     case HELM_OF_CAUTION:
         see_monsters();
@@ -547,6 +549,7 @@ Helmet_off(void)
     case ORCISH_HELM:
     case SKULL:
     case SKULL_HELM:
+    case JACK_O_LANTERN:
         break;
     case DUNCE_CAP:
         disp.botl = TRUE;
@@ -732,10 +735,12 @@ Shield_on(void)
 {
     /* no shield currently requires special handling when put on, but we
        keep this uncommented in case somebody adds a new one which does
-       [reflection is handled by setting u.uprops[REFLECTION].extrinsic
+       [the magical shields are handled by setting u.uprops[*].extrinsic
        in setworn() called by armor_or_accessory_on() before Shield_on()] */
     switch (uarms->otyp) {
     case ROUNDSHIELD:
+    case SHIELD_OF_DRAIN_RESISTANCE:
+    case SHIELD_OF_SHOCK_RESISTANCE:
     case ELVEN_SHIELD:
     case FELL_ORC_SHIELD:
     case ORCISH_SHIELD:
@@ -764,6 +769,8 @@ Shield_off(void)
        keep this uncommented in case somebody adds a new one which does */
     switch (uarms->otyp) {
     case ROUNDSHIELD:
+    case SHIELD_OF_DRAIN_RESISTANCE:
+    case SHIELD_OF_SHOCK_RESISTANCE:
     case ELVEN_SHIELD:
     case FELL_ORC_SHIELD:
     case ORCISH_SHIELD:
@@ -880,17 +887,26 @@ oprop_armor_handling(struct obj *otmp, boolean puton)
             break;
         case OPROP_BRINY:
             if (puton) {
-                ESwimming |= mask;
+                if (is_helmet(otmp))
+                    EMagical_breathing |= mask;
+                else
+                    ESwimming |= mask;
             } else {
-                ESwimming &= !mask;
+                if (is_helmet(otmp))
+                    ESwimming &= !mask;
+                else
+                    EMagical_breathing &= !mask;
             }
             break;
         case OPROP_HEXED:
-            if (Blind)
-                pline("%s for a moment.", Tobjnam(otmp, "vibrate"));
-            else
-                pline("%s %s for a moment.", Tobjnam(otmp, "glow"),
-                      hcolor(NH_BLACK));
+            if (!otmp->cursed) {
+                if (Blind)
+                    pline("%s for a moment.", Tobjnam(otmp, "vibrate"));
+                else
+                    pline("%s %s for a moment.", Tobjnam(otmp, "glow"),
+                          hcolor(NH_BLACK));
+                otmp->pknown = 1;
+            }
             curse(otmp);
             update_inventory();
             break;
@@ -1916,6 +1932,10 @@ armor_or_accessory_off(struct obj *obj)
     if (obj->owornmask & W_ARMOR) {
         (void) armoroff(obj);
     } else if (obj == uright || obj == uleft) {
+        if (objdescr_is(obj, "sticky") && rn2(3)) {
+            pline("Oops! The ring sticks to your %s.", body_part(FINGER));
+            return ECMD_TIME;
+        }
         /* Sometimes we want to give the off_msg before removing and
          * sometimes after; for instance, "you were wearing a moonstone
          * ring (on right hand)" is desired but "you were wearing a
@@ -1965,7 +1985,7 @@ dotakeoff(void)
 
 /* 'i' or 'I[' followed by <invlet> and then 'T';
    plain dotakeoff() would not give any feedback when picking suit
-   covered by cloak or shirt covered by suit and/or cloak due to the
+   covered by cloak, or shirt covered by suit and/or cloak, due to the
    default behavior of equip_ok() (skipping inaccessible items) */
 int
 ia_dotakeoff(void)
@@ -2017,6 +2037,8 @@ cursed(struct obj *otmp)
                       : ((otmp->owornmask & (W_WEP | W_RING)) != 0)))
             pline("Despite your slippery %s, you can't.",
                   fingers_or_gloves(TRUE));
+        else if (Hallucination && otmp->otyp == GAS_MASK)
+            pline("Are you my mummy?");
         else if (Hallucination && otmp->otyp == SUNGLASSES)
             You("can't. Deal with it.");
         else if (Hallucination && otmp->otyp == MIRRORED_GLASSES)
@@ -2478,6 +2500,9 @@ accessory_or_armor_on(struct obj *obj)
                 }
                 return ECMD_OK;
             }
+        } else if (obj->otyp == PUMPKIN) {
+            pline("You have to carve it first...");
+            return ECMD_OK;
         } else {
             /* neither armor nor accessory */
             You_cant("wear that!");
@@ -2597,6 +2622,7 @@ doputon(void)
              (ublindf->otyp == LENSES) ? "some lenses" :
              (ublindf->otyp == SUNGLASSES) ? "some shades" :
              (ublindf->otyp == TINKER_GOGGLES) ? "some goggles" :
+             (ublindf->otyp == GAS_MASK) ? "a mask" :
              (ublindf->otyp == MIRRORED_GLASSES) ? "some glasses" : "a blindfold");
         return ECMD_OK;
     }
@@ -2655,7 +2681,7 @@ find_ac(void)
         uac -= u.ublessed;
     uac -= u.uspellprot;
 
-    /* put a cap on armor class [3.7: was +127,-128, now reduced to +/- 99 */
+    /* put a cap on armor class [5.0: was +127,-128, now reduced to +/- 99 */
     if (abs(uac) > AC_MAX)
         uac = sgn(uac) * AC_MAX;
 
@@ -3355,9 +3381,9 @@ maybe_destroy_armor(struct obj *armor, struct obj *atmp, boolean *resisted)
     return (struct obj *) 0;
 }
 
-/* hit by destroy armor scroll/black dragon breath/monster spell */
+/* hit by destroy armor scroll/black dragon breath */
 int
-destroy_arm(struct obj *atmp)
+disintegrate_arm(struct obj *atmp)
 {
     struct obj *otmp = (struct obj *) 0;
     boolean losing_gloves = FALSE, resisted = FALSE,
@@ -3413,6 +3439,66 @@ destroy_arm(struct obj *atmp)
 
     stop_occupation();
     return 1;
+}
+
+/* return ERODE_foo erosion type which can apply to object */
+staticfn int
+obj_erode_type(struct obj *otmp)
+{
+    if (is_flammable(otmp))
+        return ERODE_BURN;
+    else if (is_rustprone(otmp))
+        return ERODE_RUST;
+    else if (is_crackable(otmp))
+        return ERODE_CRACK;
+    else if (is_rottable(otmp))
+        return ERODE_ROT;
+    else if (is_corrodeable(otmp))
+        return ERODE_CORRODE;
+    return ERODE_NONE;
+}
+
+/* erode a number of worn armor(s).
+   if the armor is hit when max eroded, destroys it. */
+int
+destroy_arm(void)
+{
+    struct obj *armors[7] = { NULL };
+    struct obj *otmp;
+    int i, idx = 0, hits = rn2(4) + 1;
+    int ret = 0;
+
+    /* gather worn armor; include non-erodeable ones */
+    if (uarm) armors[idx++] = uarm;
+    if (uarmc) armors[idx++] = uarmc;
+    if (uarmh) armors[idx++] = uarmh;
+    if (uarms) armors[idx++] = uarms;
+    if (uarmg) armors[idx++] = uarmg;
+    if (uarmf) armors[idx++] = uarmf;
+    if (uarmu) armors[idx++] = uarmu;
+    if (!idx)
+        return 0;
+
+    for (i = 0; i < hits; i++) {
+        otmp = armors[rn2(idx)];
+
+        if (erosion_matters(otmp) && is_damageable(otmp) && !otmp->oerodeproof) {
+            int erosion = obj_erode_type(otmp);
+
+            if (erosion != ERODE_NONE) {
+                int r = erode_obj(otmp, xname(otmp), erosion, EF_PAY|EF_DESTROY);
+
+                if (r != ER_NOTHING)
+                    ret = 1;
+                if (r == ER_DESTROYED)
+                    break;
+            }
+        }
+    }
+
+    if (ret)
+        stop_occupation();
+    return ret;
 }
 
 void
@@ -3607,7 +3693,8 @@ wrong_size_armor(struct obj *obj, struct permonst *ptr)
 {
     int size = (ptr == gy.youmonst.data) ? USIZE : ptr->msize;
     if (!obj || obj->otyp == MUMMY_WRAPPING || is_shield(obj)
-        || obj->otyp == SKULL_HELM || obj->otyp == SKULL)
+        || obj->otyp == SKULL_HELM || obj->otyp == SKULL
+        || obj->otyp == JACK_O_LANTERN)
         return FALSE;
     if (Is_dragon_scales(obj))
         return FALSE;

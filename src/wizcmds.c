@@ -1,4 +1,4 @@
-/* NetHack 3.7	wizcmds.c	$NHDT-Date: 1736530208 2025/01/10 09:30:08 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.21 $ */
+/* NetHack 5.0	wizcmds.c	$NHDT-Date: 1781973074 2026/06/20 16:31:14 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.36 $ */
 /*-Copyright (c) Robert Patrick Rankin, 2024. */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -98,6 +98,7 @@ makemap_unmakemon(struct monst *mtmp, boolean migratory)
            mongone() -> m_detach() -> mon_leaving_level() copes with that */
         mtmp->mstate |= MON_OFFMAP;
         mtmp->mstate &= ~(MON_MIGRATING | MON_LIMBO | MON_ENDGAME_MIGR);
+        /* FIXME: will post-5.0.0 MON_PARKED need to be dealt with here? */
         mtmp->nmon = fmon;
         fmon = mtmp;
     }
@@ -202,38 +203,40 @@ wiz_map(void)
 int
 wiz_biome(void)
 {
-    char buf[BUFSZ], dummy = '\0';
-    int newbiome = 0;
-    int ret;
+    winid win;
+    anything any;
+    int newbiome, ret;
+    menu_item *selected = NULL;
 
-    if (y_n("Regenerate all biomes?") == 'y') {
-        init_biomes();
-        pline("Regenerated the biomes of the current dungeon.");
+    if (y_n("Regenerate all biomes in current dungeon?") == 'y') {
+        init_biomes(u.uz.dnum);
+        pline("Regenerated the biome skeleton of the current dungeon.");
         return ECMD_OK;
     }
-    /* Input */
-    buf[0] = '\0'; /* in case EDIT_GETLIN is enabled */
-    getlin("Set current biome to which index?", buf);
-    (void) mungspaces(buf);
-    if (buf[0] == '\033' || buf[0] == '\0')
-        ret = 0;
-    else
-        ret = sscanf(buf, "%d%c", &newbiome, &dummy);
-    /* Result */
-    if (ret != 1) {
-        pline1(Never_mind);
-        return ECMD_OK;
+
+    any = cg.zeroany;
+    win = create_nhwindow(NHW_MENU);
+    start_menu(win, MENU_BEHAVE_STANDARD);
+    for (int i = 0; i < BIOME_MAX; i++) {
+        any.a_int = i + 1;
+        add_menu(win, &nul_glyphinfo, &any, 0, 0,
+                 ATR_NONE, NO_COLOR, all_biomes[i].name,
+                 MENU_ITEMFLAGS_NONE);
     }
-    if (newbiome >= BIOME_MAX || newbiome < 0) {
-        pline("Invalid biome; biome must be less than %d", DGN_BIOMES);
-        return ECMD_OK;
+    end_menu(win, "Set current level to which biome?");
+    ret = select_menu(win, PICK_ONE, &selected);
+    if (ret > 0) {
+        newbiome = selected[0].item.a_int - 1;
+        for (int j = 0; j < DGN_BIOMES; j++) {
+            if (svd.dungeons[u.uz.dnum].biome_cutoff[j] > u.uz.dlevel)
+                svd.dungeons[u.uz.dnum].biome_ids[j] = newbiome;
+        }
+        svl.level.flags.biome = newbiome;
+        pline("Set biome to %s.", all_biomes[svl.level.flags.biome].name);
     }
-    for (int i = 0; i < DGN_BIOMES; i++) {
-        if (svd.dungeons[u.uz.dnum].biome_cutoff[i] > u.uz.dlevel)
-            svd.dungeons[u.uz.dnum].biome_ids[i] = newbiome;
-    }
-    svl.level.flags.biome = newbiome;
-    pline("Set biome to %d.", newbiome);
+    destroy_nhwindow(win);
+    free((genericptr_t) selected);
+    wiz_makemap();
     return ECMD_OK;
 }
 
@@ -249,32 +252,6 @@ wiz_genesis(void)
         iflags.debug_mongen = mongen_saved;
     } else
         pline(unavailcmd, ecname_from_fn(wiz_genesis));
-    return ECMD_OK;
-}
-
-/* #wizweather command - display weather info */
-int
-wiz_weather(void)
-{
-    winid win;
-    char buf[BUFSZ];
-    buf[0] = '\0';
-    win = create_nhwindow(NHW_MENU);
-    putstr(win, 0, "Weather Information:");
-    putstr(win, 0, "");
-    Sprintf(buf, "Turns until precip change: %d", u.uenvirons.precip_cnt);
-    putstr(win, 0, buf);
-    Sprintf(buf, "Turns until wind change: %d", u.uenvirons.wind_cnt);
-    putstr(win, 0, buf);
-    Sprintf(buf, "Next Precip: %d", u.uenvirons.inc_precip.def);
-    putstr(win, 0, buf);
-    Sprintf(buf, "Next Wind: %d", u.uenvirons.inc_wind.def);
-    putstr(win, 0, buf);
-    Sprintf(buf, "Current Weather: %hd", u.uenvirons.curr_weather);
-    putstr(win, 0, buf);
-    display_nhwindow(win, FALSE);
-    destroy_nhwindow(win);
-    if (y_n("Change the weather?") == 'y') weather_choice_menu();
     return ECMD_OK;
 }
 
@@ -1377,6 +1354,8 @@ size_monst(struct monst *mtmp, boolean incl_wsegs)
             sz += (int) sizeof (struct edog);
         if (EBONES(mtmp))
             sz += (int) sizeof (struct ebones);
+        if (ESUM(mtmp))
+            sz += (int) sizeof (struct esum);
         /* mextra->mcorpsenm doesn't point to more memory */
     }
     return sz;
@@ -1905,9 +1884,15 @@ wiz_display_macros(void)
     destroy_nhwindow(win);
     return ECMD_OK;
 }
-#endif /* (NH_DEVEL_STATUS != NH_STATUS_RELEASED) || defined(DEBUG) */
 
-#if (NH_DEVEL_STATUS != NH_STATUS_RELEASED) || defined(DEBUG)
+/* the #wizshownhuuid command */
+int
+wiz_show_nhuuid(void)
+{
+    pline("The NHUUID for this game is { %s }.", svn.nhuuid);
+    return ECMD_OK;
+}
+
 /* the #wizmondiff command */
 int
 wiz_mon_diff(void)
@@ -1949,6 +1934,46 @@ wiz_mon_diff(void)
     destroy_nhwindow(win);
     return ECMD_OK;
 }
+
+/* the #wizobjprobs command */
+int
+wiz_objprobs(void)
+{
+    int win;
+    char buf[BUFSZ];
+    int probsum[MAXOCLASSES];
+    int otyp;
+    int oclass = objects[FIRST_OBJECT].oc_class;
+    memset(probsum, 0, sizeof probsum);
+
+    for (otyp = FIRST_OBJECT; otyp < NUM_OBJECTS; otyp++) {
+        probsum[(int) objects[otyp].oc_class] += objects[otyp].oc_prob;
+    }
+
+    win = create_nhwindow(NHW_TEXT);
+    for (otyp = FIRST_OBJECT; otyp < NUM_OBJECTS; otyp++) {
+        /* placeholders for extra descriptions aren't generatable objects */
+        if (!OBJ_NAME(objects[otyp]))
+            continue;
+
+        if ((int) objects[otyp].oc_class != oclass) {
+            putstr(win, 0, "");
+        }
+        oclass = objects[otyp].oc_class;
+
+        Snprintf(buf, sizeof buf, "%4d / %4d (%6.2f%%): %s",
+                 objects[otyp].oc_prob,
+                 probsum[oclass],
+                 (float) objects[otyp].oc_prob * 100.f /
+                 (float) probsum[oclass],
+                 OBJ_NAME(objects[otyp]));
+        putstr(win, 0, buf);
+    }
+    display_nhwindow(win, FALSE);
+    destroy_nhwindow(win);
+
+    return ECMD_OK;
+}
 #endif /* (NH_DEVEL_STATUS != NH_STATUS_RELEASED) || defined(DEBUG) */
 
 /* #migratemons command */
@@ -1961,6 +1986,7 @@ wiz_migrate_mons(void)
     struct permonst *ptr;
     struct monst *mtmp;
     boolean use_random_mon = TRUE;
+    boolean mongen_saved = iflags.debug_mongen;
 #endif
     d_level tolevel;
 
@@ -1993,6 +2019,7 @@ wiz_migrate_mons(void)
     else if (mcount > ((COLNO - 1) * ROWNO))
         mcount = (COLNO - 1) * ROWNO;
 
+    iflags.debug_mongen = FALSE;
     while (mcount > 0) {
         if (use_random_mon) {
             ptr = rndmonst();
@@ -2005,6 +2032,7 @@ wiz_migrate_mons(void)
                                  (coord *) 0);
         mcount--;
     }
+    iflags.debug_mongen = mongen_saved;
 #endif /* DEBUG_MIGRATING_MONS */
     return ECMD_OK;
 }
@@ -2025,8 +2053,8 @@ wiz_custom(void)
 #endif
         menu_item *pick_list = (menu_item *) 0;
 
-        if (!glyphid_cache_status())
-            fill_glyphid_cache();
+        if (!glyphname_hash_indices_loaded())
+            populate_glyphname_hash_indices();
 
         win = create_nhwindow(NHW_MENU);
         start_menu(win, MENU_BEHAVE_STANDARD);
@@ -2044,7 +2072,7 @@ wiz_custom(void)
                     known_handling[gs.symset[PRIMARYSET].handling]);
         }
         Sprintf(buf, "%s", bufa);
-        wizcustom_glyphids(win);
+        wizcustom_glyphnames(win);
         end_menu(win, bufa);
         n = select_menu(win, PICK_NONE, &pick_list);
         destroy_nhwindow(win);
@@ -2055,8 +2083,8 @@ wiz_custom(void)
 #endif
         if (n >= 1)
             free((genericptr_t) pick_list);
-        if (glyphid_cache_status())
-            free_glyphid_cache();
+        if (glyphname_hash_indices_loaded())
+            empty_glyphname_hash_indices();
         docrt();
     } else
         pline(unavailcmd, ecname_from_fn(wiz_custom));
@@ -2069,10 +2097,8 @@ wizcustom_callback(winid win, int glyphnum, char *id)
     extern glyph_map glyphmap[MAX_GLYPH];
     glyph_map *cgm;
     int clr = NO_COLOR;
-    char buf[BUFSZ], bufa[BUFSZ], bufb[BUFSZ], bufc[BUFSZ], bufd[BUFSZ],
-        bufu[BUFSZ];
+    char buf[BUFSZ], bufa[BUFSZ], bufb[BUFSZ], bufc[BUFSZ], bufu[BUFSZ];
     anything any;
-    uint8 *cp;
 
     if (win && id) {
         cgm = &glyphmap[glyphnum];
@@ -2088,9 +2114,11 @@ wizcustom_callback(winid win, int glyphnum, char *id)
             bufu[0] = '\0';
 #ifdef ENHANCED_SYMBOLS
             if (cgm->u && cgm->u->utf8str) {
+                uint8 *cp;
                 Sprintf(bufu, "U+%04lx", (unsigned long) cgm->u->utf32ch);
                 cp = cgm->u->utf8str;
                 while (*cp) {
+                    char bufd[BUFSZ];
                     Sprintf(bufd, " <%d>", (int) *cp);
                     Strcat(bufu, bufd);
                     cp++;
@@ -2104,6 +2132,43 @@ wizcustom_callback(winid win, int glyphnum, char *id)
         }
     }
     return;
+}
+
+
+/* #wiztime command - advance the current time to the next quarter */
+int
+wiz_time(void)
+{
+    pline("Advanced the calendar by %d turns.", u.uenvirons.tod_cnt);
+    u.uenvirons.tod_cnt = 1;
+    doenvirons();
+    return ECMD_OK;
+}
+
+/* #wizweather command - display weather info */
+int
+wiz_weather(void)
+{
+    winid win;
+    char buf[BUFSZ];
+    buf[0] = '\0';
+    win = create_nhwindow(NHW_MENU);
+    putstr(win, 0, "Weather Information:");
+    putstr(win, 0, "");
+    Sprintf(buf, "Turns until precip change: %d", u.uenvirons.precip_cnt);
+    putstr(win, 0, buf);
+    Sprintf(buf, "Turns until wind change: %d", u.uenvirons.wind_cnt);
+    putstr(win, 0, buf);
+    Sprintf(buf, "Next Precip: %d", u.uenvirons.inc_precip.def);
+    putstr(win, 0, buf);
+    Sprintf(buf, "Next Wind: %d", u.uenvirons.inc_wind.def);
+    putstr(win, 0, buf);
+    Sprintf(buf, "Current Weather: %hd", u.uenvirons.curr_weather);
+    putstr(win, 0, buf);
+    display_nhwindow(win, FALSE);
+    destroy_nhwindow(win);
+    if (y_n("Change the weather?") == 'y') weather_choice_menu();
+    return ECMD_OK;
 }
 
 /*wizcmds.c*/

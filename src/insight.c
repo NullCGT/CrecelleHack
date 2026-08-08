@@ -1,4 +1,4 @@
-/* NetHack 3.7	insight.c	$NHDT-Date: 1737384766 2025/01/20 06:52:46 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.128 $ */
+/* NetHack 5.0	insight.c	$NHDT-Date: 1781973051 2026/06/20 16:30:51 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.139 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -17,13 +17,14 @@
 staticfn void enlght_out_attr(int, const char *);
 staticfn void enlght_out(const char *);
 staticfn void enlght_line(const char *, const char *, const char *,
-                        const char *);
+                          const char *);
 staticfn char *enlght_combatinc(const char *, int, int, char *);
 staticfn void enlght_halfdmg(int, int);
 staticfn boolean walking_on_water(void);
 staticfn boolean cause_known(int);
 staticfn char *attrval(int, int, char *);
 staticfn char *fmt_elapsed_time(char *, int);
+staticfn char *N_times(long, char *) NONNULL NONNULLARG2;
 staticfn void background_enlightenment(int, int);
 staticfn void basics_enlightenment(int, int);
 staticfn void characteristics_enlightenment(int, int);
@@ -31,6 +32,7 @@ staticfn void one_characteristic(int, int, int);
 staticfn void status_enlightenment(int, int);
 staticfn void weapon_insight(int);
 staticfn void attributes_enlightenment(int, int);
+staticfn void misc_enlightenment(int, int);
 staticfn void show_achievements(int);
 staticfn int QSORTCALLBACK vanqsort_cmp(const genericptr, const genericptr);
 staticfn int num_extinct(void);
@@ -81,8 +83,9 @@ static struct ll_achieve_msg achieve_msg [] = {
     { LL_MINORAC, "entered a temple" },
     { LL_ACHIEVE, "consulted the Oracle" }, /* minor, but rare enough */
     { LL_MINORAC | LL_DUMP, "read a Discworld novel" }, /* even more so */
-    { LL_ACHIEVE, "entered Sokoban" }, /* keep as major for turn comparison
-                                        * with completed sokoban */
+    { LL_ACHIEVE, "entered" }, /* keep as major for turn comparison
+                                        * with completed sokoban. Shortened
+                                        * for Snowkoban purposes. */
     { LL_ACHIEVE, "entered the Bigroom" },
     /* The following 8 are for advancing through the ranks
        and messages differ by role so are created on the fly;
@@ -96,6 +99,12 @@ static struct ll_achieve_msg achieve_msg [] = {
     { LL_ACHIEVE, "" }, /* Xp 26 */
     { LL_ACHIEVE, "" }, /* Xp 30 */
     { LL_MINORAC, "learned castle drawbridge's tune" }, /* achievement #31 */
+    { LL_MINORAC, "was cast into the Maze" },
+    { LL_ACHIEVE, "entered the Temple to Moloch" },
+    { 0, "performed floor alchemy for the first time" },
+    { 0, "indirectly killed a monster with a bonfire" },
+    { 0, "lost a pair of boots to honey" },
+    { LL_MINORAC, "slipped on a banana peel" }, /* funny to livelog */
     { 0, "" } /* keep this one at the end */
 };
 
@@ -367,6 +376,96 @@ fmt_elapsed_time(char *outbuf, int final)
     return outbuf;
 }
 
+/* "once" vs "twice" vs "17 times", used in several places */
+staticfn char *
+N_times(long n, char *outbuf)
+{
+    switch (n) {
+    case 0:
+    default:
+        Sprintf(outbuf, "%ld times", n);
+        break;
+    case 1:
+        Strcpy(outbuf, "once");
+        break;
+    case 2:
+        Strcpy(outbuf, "twice");
+        break;
+    case 3:
+        Strcpy(outbuf, "thrice");
+        break;
+    }
+    return outbuf;
+}
+
+void
+enlightenment_dnh(int mode)
+{
+    menu_item *pick_list = (menu_item *) 0;
+    anything any = cg.zeroany;
+    int i, n;
+    
+    ge.en_win = create_nhwindow(NHW_MENU);
+    start_menu(ge.en_win, MENU_BEHAVE_STANDARD);
+    if (mode & BASICENLIGHTENMENT) {
+        any.a_char = 'g';
+        add_menu(ge.en_win, &nul_glyphinfo, &any, any.a_char, 0, ATR_NONE,
+                    NO_COLOR, "Background", MENU_ITEMFLAGS_NONE);
+        any.a_char = 'b';
+        add_menu(ge.en_win, &nul_glyphinfo, &any, any.a_char, 0, ATR_NONE,
+                    NO_COLOR, "Basics", MENU_ITEMFLAGS_NONE);
+        any.a_char = 'c';
+        add_menu(ge.en_win, &nul_glyphinfo, &any, any.a_char, 0, ATR_NONE,
+                    NO_COLOR, "Characteristics", MENU_ITEMFLAGS_NONE);
+    }
+    any.a_char = 's';
+    add_menu(ge.en_win, &nul_glyphinfo, &any, any.a_char, 0, ATR_NONE,
+                NO_COLOR, "Status", MENU_ITEMFLAGS_NONE);
+    if (mode & MAGICENLIGHTENMENT) {
+        any.a_char = 'a';
+        add_menu(ge.en_win, &nul_glyphinfo, &any, any.a_char, 0, ATR_NONE,
+                    NO_COLOR, "Attributes", MENU_ITEMFLAGS_NONE);
+    }
+    any.a_char = 'm';
+    add_menu(ge.en_win, &nul_glyphinfo, &any, any.a_char, 0, ATR_NONE,
+                NO_COLOR, "Miscellaneous", MENU_ITEMFLAGS_NONE);
+    end_menu(ge.en_win, "View which attributes:");
+    n = select_menu(ge.en_win, PICK_ANY, &pick_list);
+    destroy_nhwindow(ge.en_win);
+    if (n > 0) {
+        ge.en_win = create_nhwindow(NHW_MENU);
+        if (ge.en_via_menu)
+            start_menu(ge.en_win, MENU_BEHAVE_STANDARD);
+        enlght_out_attr(ATR_HEADING, "Selected Attributes:");
+        for (i = 0; i < n; i++) {
+            switch (pick_list[i].item.a_char) {
+                case 'g':
+                    background_enlightenment(mode, FALSE);
+                    break;
+                case 'b':
+                    basics_enlightenment(mode, FALSE);
+                    break;
+                case 'c':
+                    characteristics_enlightenment(mode, FALSE);
+                    break;
+                case 's':
+                    status_enlightenment(mode, FALSE);
+                    break;
+                case 'a':
+                    attributes_enlightenment(mode, FALSE);
+                    break;
+                case 'm':
+                    misc_enlightenment(mode, FALSE);
+                    break;
+            }
+        }
+        free((genericptr_t) pick_list);
+        display_nhwindow(ge.en_win, TRUE);
+        destroy_nhwindow(ge.en_win);
+    }
+    ge.en_win = WIN_ERR;
+}
+
 void
 enlightenment(
     int mode,  /* BASICENLIGHTENMENT | MAGICENLIGHTENMENT (| both) */
@@ -409,32 +508,8 @@ enlightenment(
         /* intrinsics and other traditional enlightenment feedback */
         attributes_enlightenment(mode, final);
     }
-
-    enlght_out(""); /* separator */
-    enlght_out_attr(ATR_SUBHEAD, "Miscellaneous:");
-    /* reminder to player and/or information for dumplog */
-    if ((mode & BASICENLIGHTENMENT) != 0 && (wizard || discover || final)) {
-        if (wizard || discover) {
-            Sprintf(buf, "running in %s mode", wizard ? "debug" : "explore");
-            you_are(buf, "");
-        }
-
-        if (!flags.bones) {
-            /* mention not saving bones iff hero just died */
-            Sprintf(buf, "disabled loading%s of bones levels",
-                    (final == ENL_GAMEOVERDEAD) ? " and storing" : "");
-            you_have_X(buf);
-        } else if (!u.uroleplay.numbones) {
-            enl_msg(You_, "haven't encountered", "didn't encounter",
-                    " any bones levels", "");
-        } else {
-            Sprintf(buf, "encountered %ld bones level%s",
-                    u.uroleplay.numbones, plur(u.uroleplay.numbones));
-            you_have_X(buf);
-        }
-    }
-    (void) fmt_elapsed_time(buf, final);
-    enl_msg("Total elapsed playing time ", "is", "was", buf, "");
+    /* misc stuff, pulled out into function - k */
+    misc_enlightenment(mode, final);
 
     if (!ge.en_via_menu) {
         display_nhwindow(ge.en_win, TRUE);
@@ -639,13 +714,12 @@ background_enlightenment(int unused_mode UNUSED, int final)
     /* for gameover, these have been obtained in really_done() so that they
        won't vary if user leaves a disclosure prompt or --More-- unanswered
        long enough for the dynamic value to change between then and now */
-    if (final ? iflags.at_midnight : midnight()) {
-        enl_msg("It ", "is ", "was ", "the midnight hour", "");
-    } else if (final ? iflags.at_night : night()) {
-        enl_msg("It ", "is ", "was ", "nighttime", "");
-    } else {
-        enl_msg("It ", "is ", "was  ", "daytime", "");
-    }
+    Sprintf(buf, (final ? iflags.at_midnight : midnight()) ? "the midnight hour"
+                    : (final ? iflags.at_night : night()) ? "nighttime"
+                        : "daytime");
+    if (wizard)
+        Sprintf(eos(buf), " <%d>", u.uenvirons.tod_cnt);
+    enl_msg("It ", "is ", "was ", buf, "");
     /* Weather */
     if (exposed_to_elements(&u.uz) && IS_RAINING) {
         enl_msg("It ", "is ", "was ", "raining", "");
@@ -1323,10 +1397,6 @@ weapon_insight(int final)
         you_are("utilizing only one half of your weapon", "");
     }
 
-    /* Weapon attack bonus breakdown. */
-    Sprintf(buf, "+%d to-hit with your main hand (%s)", abon(uwep), (uwep && objects[uwep->otyp].oc_finesse) ? "Dex" : "Str");
-    you_have(buf, "");
-
 
     /*
      * Skill with current weapon.  Might help players who've never
@@ -1548,37 +1618,41 @@ attributes_enlightenment(
         you_are("magic-protected", from_what(ANTIMAGIC));
     if (Fire_resistance)
         you_are("fire resistant", from_what(FIRE_RES));
-    if (Fire_vulnerability)
-        you_are("vulnerable to fire", from_what(FIRE_VUL));
+    if (Fire_immunity)
+        you_are("immune to fire", from_what_item(FIRE_RES));
     item_resistance_message(AD_FIRE, " protected from fire", final);
     if (Cold_resistance)
         you_are("cold resistant", from_what(COLD_RES));
-    if (Cold_vulnerability)
-        you_are("vulnerable to cold", from_what(FIRE_VUL));
+    if (Cold_immunity)
+        you_are("immune to cold", from_what_item(COLD_RES));
     item_resistance_message(AD_COLD, " protected from cold", final);
     if (Sleep_resistance)
         you_are("sleep resistant", from_what(SLEEP_RES));
-    if (Sleep_vulnerability)
-        you_are("vulnerable to sleep", from_what(SLEEP_VUL));
+    if (Sleep_immunity)
+        you_are("immune to sleep", from_what_item(SLEEP_RES));
     if (Disint_resistance)
         you_are("disintegration resistant", from_what(DISINT_RES));
-    if (Disint_vulnerability)
-        you_are("vulnerable to disintegration", from_what(DISINT_VUL));
+    if (Disint_immunity)
+        you_are("immune to disintegration", from_what_item(DISINT_RES));
     item_resistance_message(AD_DISN, " protected from disintegration", final);
     if (Shock_resistance)
         you_are("shock resistant", from_what(SHOCK_RES));
-    if (HShock_vulnerability)
-        you_are("vulnerable to shock", from_what(SHOCK_VUL));
+    if (Shock_immunity)
+        you_are("immune to shock", from_what_item(SHOCK_RES));
     item_resistance_message(AD_ELEC, " protected from electric shocks",
                             final);
     if (Poison_resistance)
         you_are("poison resistant", from_what(POISON_RES));
+    if (Poison_immunity)
+        you_are("immune to poison", from_what_item(POISON_RES));
     if (Acid_resistance) {
         Sprintf(buf, "%.20s%.30s",
                 temp_resist(ACID_RES) ? "temporarily " : "",
                 "acid resistant");
         you_are(buf, from_what(ACID_RES));
     }
+    if (Acid_immunity)
+        you_are("immune to acid", from_what_item(ACID_RES));
     item_resistance_message(AD_ACID, " protected from acid", final);
     if (Drain_resistance)
         you_are("level-drain resistant", from_what(DRAIN_RES));
@@ -1862,6 +1936,9 @@ attributes_enlightenment(
     if (Protection_from_shape_changers)
         you_are("protected from shape changers",
                 from_what(PROT_FROM_SHAPE_CHANGERS));
+    if (Protection_from_explosions)
+        you_are("protected from explosions",
+                from_what(PROT_FROM_EXPLOSIONS));
     if (Unchanging) {
         const char *what = 0;
 
@@ -2006,44 +2083,16 @@ attributes_enlightenment(
     }
 #endif
 
-    /* saving-grace: show during final disclosure, hide during normal play */
-    if (final || wizard || discover) {
-        static const char *verbchoices[2][2] = {
-            { "might avoid", "have avoided" },
-            { "could have avoided", "avoided" },
-        };
-        /* u.usaving_grace will always be 0 or 1; final is 0 (game in
-           progress), 1 (game over, survived), or 2 (game over, died) */
-        const char *verb = verbchoices[!!final][u.usaving_grace];
-
-        /* 'verb' has already been set for present or past but enl_msg()
-           needs it twice, one for in progress, the other for game over */
-        enl_msg(You_, verb, verb, " a one-shot death via saving-grace", "");
-    }
-
     {
         const char *p;
 
         buf[0] = '\0';
         if (final < 2) { /* still in progress, or quit/escaped/ascended */
             p = "survived after being killed ";
-            switch (u.umortality) {
-            case 0:
+            if (!u.umortality)
                 p = !final ? (char *) 0 : "survived";
-                break;
-            case 1:
-                Strcpy(buf, "once");
-                break;
-            case 2:
-                Strcpy(buf, "twice");
-                break;
-            case 3:
-                Strcpy(buf, "thrice");
-                break;
-            default:
-                Sprintf(buf, "%d times", u.umortality);
-                break;
-            }
+            else
+                (void) N_times((long) u.umortality, buf);
         } else { /* game ended in character's death */
             p = "are dead";
             switch (u.umortality) {
@@ -2064,6 +2113,37 @@ attributes_enlightenment(
     }
 }
 
+staticfn void
+misc_enlightenment(int mode, int final)
+{
+    char buf[BUFSZ];
+    enlght_out(""); /* separator */
+    enlght_out_attr(ATR_SUBHEAD, "Miscellaneous:");
+    /* reminder to player and/or information for dumplog */
+    if ((mode & BASICENLIGHTENMENT) != 0 && (wizard || discover || final)) {
+        if (wizard || discover) {
+            Sprintf(buf, "running in %s mode", wizard ? "debug" : "explore");
+            you_are(buf, "");
+        }
+
+        if (!flags.bones) {
+            /* mention not saving bones iff hero just died */
+            Sprintf(buf, "disabled loading%s of bones levels",
+                    (final == ENL_GAMEOVERDEAD) ? " and storing" : "");
+            you_have_X(buf);
+        } else if (!u.uroleplay.numbones) {
+            enl_msg(You_, "haven't encountered", "didn't encounter",
+                    " any bones levels", "");
+        } else {
+            Sprintf(buf, "encountered %ld bones level%s",
+                    u.uroleplay.numbones, plur(u.uroleplay.numbones));
+            you_have_X(buf);
+        }
+    }
+    (void) fmt_elapsed_time(buf, final);
+    enl_msg("Total elapsed playing time ", "is", "was", buf, "");
+}
+
 /* ^X command */
 int
 doattributes(void)
@@ -2074,7 +2154,10 @@ doattributes(void)
     if (wizard || discover)
         mode |= MAGICENLIGHTENMENT;
 
-    enlightenment(mode, ENL_GAMEINPROGRESS);
+    if (flags.attributes_menu)
+        enlightenment_dnh(mode);
+    else
+        enlightenment(mode, ENL_GAMEINPROGRESS);
     return ECMD_OK;
 }
 
@@ -2152,12 +2235,25 @@ doconduct(void)
 void
 show_conduct(int final)
 {
-    char buf[BUFSZ];
+    char buf[BUFSZ], bufN[40];
     int ngenocided;
 
     /* Create the conduct window */
     ge.en_win = create_nhwindow(NHW_MENU);
     putstr(ge.en_win, ATR_HEADING, "Voluntary challenges:");
+
+    /* rerolling; "You <this or that>" is about the character, rerolling
+       is about the player so phrase it differently;
+       also, always use past tense since the chance to do something with it
+       is gone by time player can issue #conduct command or see disclosure */
+    if (!u.uroleplay.reroll)
+        Strcpy(buf, " Character rerolling was not enabled.");
+    else if (!u.uroleplay.numrerolls)
+        Strcpy(buf, " Your character was not rerolled.");
+    else
+        Sprintf(buf, " Your character was rerolled %s.",
+                N_times(u.uroleplay.numrerolls, bufN));
+    enlght_out(buf);
 
     if (u.uroleplay.blind)
         you_have_been("blind from birth");
@@ -2172,11 +2268,6 @@ show_conduct(int final)
         enl_msg(You_, "", "", "began your quest with a pre-filled bestiary", "");
     if (u.uroleplay.altstarts && Race_if(PM_GNOME))
         enl_msg(You_, "", "", "started in the gnomish mines", "");
-    if (u.uroleplay.reroll) {
-        Sprintf(buf, "rerolled your character %ld time%s",
-                u.uroleplay.numrerolls, plur(u.uroleplay.numrerolls));
-        you_have_X(buf);
-    }
 
     /* nudist is far more than a subset of possessionless, and a much
        more impressive accomplishment, but showing "started out without
@@ -2253,11 +2344,11 @@ show_conduct(int final)
         you_have_X(buf);
     }
 
-    if (!u.uconduct.dyed) {
+    if (!u.uconduct.dyer) {
         you_have_never("dyed an item");
     } else if (wizard) {
         Sprintf(buf, "dyed items %ld time%s",
-                u.uconduct.dyed, plur(u.uconduct.dyed));
+                u.uconduct.dyer, plur(u.uconduct.dyer));
         you_have_X(buf);
     }
 
@@ -2305,25 +2396,13 @@ show_conduct(int final)
     if (sokoban_in_play()) {
         const char *presentverb = "have violated", *pastverb = "violated";
 
-        Strcpy(buf, " the special Sokoban rules ");
-        switch (u.uconduct.sokocheat) {
-        case 0L:
+        if (!u.uconduct.sokocheat) {
             presentverb = "have not violated";
             pastverb = "did not violate";
             Strcpy(buf, " any of the special Sokoban rules");
-            break;
-        case 1L:
-            Strcat(buf, "once");
-            break;
-        case 2L:
-            Strcat(buf, "twice");
-            break;
-        case 3L:
-            Strcat(buf, "thrice");
-            break;
-        default:
-            Sprintf(eos(buf), "%ld times", u.uconduct.sokocheat);
-            break;
+        } else {
+            Strcpy(buf, " the special Sokoban rules ");
+            Strcat(buf, N_times(u.uconduct.sokocheat, bufN));
         }
         enl_msg(You_, presentverb, pastverb, buf, "");
         if (u.uroleplay.no_flipped_soko)
@@ -2417,7 +2496,8 @@ show_achievements(
             you_have_X("read from a Discworld novel");
             break;
         case ACH_SOKO:
-            you_have_X("entered Sokoban");
+            Sprintf(buf, "entered %s", snowkoban());
+            you_have_X(buf);
             break;
         case ACH_SOKO_PRIZE: /* hard to reach guaranteed bag or amulet */
             you_have_X("completed Sokoban");
@@ -2494,6 +2574,24 @@ show_achievements(
             you_have_X(buf);
             break;
 
+        case ACH_MAZE:
+            you_have_X("been transported to the Maze");
+            break;
+        case ACH_MTEMPLE:
+            you_have_X("entered the Temple of Moloch");
+            break;
+        case ACH_JUN_ALC:
+            you_have_X("performed alchemy on the floor");
+            break;
+        case ACH_PYRO:
+            you_have_X("indirectly slain a monster using fire");
+            break;
+        case ACH_LOST_BOOT:
+            you_have_X("lost your boots to honey");
+            break;
+        case ACH_BPEEL:
+            you_have_X("slipped on a banana peel");
+            break;
         default:
             Sprintf(buf, " [Unexpected achievement #%d.]", achidx);
             enlght_out(buf);
@@ -2570,6 +2668,9 @@ record_achievement(schar achidx)
            but that's not true in the general case */
         livelog_printf(achieve_msg[achidx].llflag, "%s %s",
                        achieve_msg[achidx].msg, OBJ_NAME(objects[otyp]));
+    } else if (achidx == ACH_SOKO) {
+        livelog_printf(achieve_msg[absidx].llflag, "%s %s",
+                       achieve_msg[achidx].msg, snowkoban());
     } else {
         livelog_printf(achieve_msg[absidx].llflag, "%s",
                        achieve_msg[absidx].msg);
@@ -2994,19 +3095,9 @@ list_vanquished(char defquery, boolean ask)
                     Sprintf(buf, "%s%s",
                             !type_is_pname(&mons[i]) ? "the " : "",
                             mons[i].pmnames[NEUTRAL]);
-                    if (nkilled > 1) {
-                        switch (nkilled) {
-                        case 2:
-                            Sprintf(eos(buf), " (twice)");
-                            break;
-                        case 3:
-                            Sprintf(eos(buf), " (thrice)");
-                            break;
-                        default:
-                            Sprintf(eos(buf), " (%d times)", nkilled);
-                            break;
-                        }
-                    }
+                    if (nkilled > 1)
+                        Sprintf(eos(buf), " (%s)",
+                                N_times((long) nkilled, buftoo));
                     was_uniq = TRUE;
                 } else {
                     if (uniq_header && was_uniq) {
@@ -3609,6 +3700,14 @@ ustatusline(void)
           piousness(FALSE, align_str(u.ualign.type)),
           Upolyd ? mons[u.umonnum].mlevel : u.ulevel, Upolyd ? u.mh : u.uhp,
           Upolyd ? u.mhmax : u.uhpmax, u.uac, info);
+}
+
+const char *
+snowkoban(void)
+{
+    if (svd.dungeons[svd.dungeon_topology.d_sokoban_dnum].biome_ids[0] == BIOME_SNOWY)
+        return "Snowkoban";
+    return "Sokoban";
 }
 
 /* for 'onefile' processing where end of this file isn't necessarily the

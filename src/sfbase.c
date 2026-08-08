@@ -1,4 +1,4 @@
-/* NetHack 3.7	sfbase.c.template $NHDT-Date$  $NHDT-Branch$:$NHDT-Revision$ */
+/* NetHack 5.0	sfbase.c.template $NHDT-Date$  $NHDT-Branch$:$NHDT-Revision$ */
 /* Copyright (c) Michael Allison, 2025. */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -98,8 +98,6 @@ void sf_log(NHFILE *, const char *, size_t, int, char *);
 #define Sfvalue_uint16(a) sfvalue(a)
 #define Sfvalue_uint32(a) sfvalue(a)
 #define Sfvalue_uint64(a) sfvalue(a)
-#define Sfvalue_size_t(a) sfvalue(a)
-#define Sfvalue_time_t(a) sfvalue(a)
 #define Sfvalue_short(a) sfvalue(a)
 #define Sfvalue_ushort(a) sfvalue(a)
 #define Sfvalue_int(a) sfvalue(a)
@@ -108,13 +106,15 @@ void sf_log(NHFILE *, const char *, size_t, int, char *);
 #define Sfvalue_xint16(a) sfvalue(a)
 #endif
 
-/* not in _Generic */ 
+/* not in _Generic */
 #define Sfvalue_long(a) sfvalue_long(a)
 #define Sfvalue_ulong(a) sfvalue_ulong(a)
 #define Sfvalue_char(a, d) sfvalue_char(a, d)
 #define Sfvalue_boolean(a) sfvalue_boolean(a)
 #define Sfvalue_schar(a) sfvalue_schar(a)
 #define Sfvalue_bitfield(a) sfvalue_bitfield(a)
+#define Sfvalue_time_t(a) sfvalue_time_t(a)
+#define Sfvalue_size_t(a) sfvalue_size_t(a)
 
 #define SF_A(dtyp) \
 void sfo_##dtyp(NHFILE *nhfp, dtyp *d_##dtyp, const char *myname)               \
@@ -195,7 +195,7 @@ void sfi_##dtyp(NHFILE *nhfp, keyw dtyp *d_##dtyp, const char *myname)          
                        complex_dump((uchar *) d_##dtyp));                       \
     }                                                                           \
 }
-  
+
 #define SF_X(xxx, dtyp) \
 void sfo_##dtyp(NHFILE *nhfp, xxx *d_##dtyp, const char *myname, int bfsz)      \
 {                                                                               \
@@ -461,7 +461,7 @@ sfvalue_genericptr(genericptr a)
 {
     static char buf[20];
 
-    Snprintf(buf, sizeof buf, "%s", 
+    Snprintf(buf, sizeof buf, "%s",
              (a == 0) ? "0" : "glorkum");
     return buf;
 }
@@ -632,7 +632,8 @@ complex_dump(uchar *a)
     for (i = 0; i < SIZE(x); ++i) {
         x[i] = *uc++;
     }
-    Snprintf(buf, sizeof buf, "%03x %03x %03x %03x %03x %03x %03x %03x %03x %03x", 
+    Snprintf(buf, sizeof buf,
+             "%03x %03x %03x %03x %03x %03x %03x %03x %03x %03x",
              x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[7], x[8], x[9]);
     buf[40] = '\0';
     return buf;
@@ -703,6 +704,7 @@ void norm_ptrs_emin(struct emin *d_emin);
 void norm_ptrs_engr(struct engr *d_engr);
 void norm_ptrs_epri(struct epri *d_epri);
 void norm_ptrs_eshk(struct eshk *d_eshk);
+void norm_ptrs_esum(struct esum *d_esum);
 void norm_ptrs_fakecorridor(struct fakecorridor *d_fakecorridor);
 void norm_ptrs_fe(struct fe *d_fe);
 void norm_ptrs_flag(struct flag *d_flag);
@@ -743,6 +745,10 @@ void norm_ptrs_version_info(struct version_info *d_version_info);
 void norm_ptrs_vlaunchinfo(union vlaunchinfo *d_vlaunchinfo);
 void norm_ptrs_vptrs(union vptrs *d_vptrs);
 void norm_ptrs_you(struct you *d_you);
+#ifdef DEMO_UPLIFTS
+void norm_ptrs_mystruct(struct mystruct *d_mystruct);
+void norm_ptrs_mystruct_rev0(struct mystruct_rev0 *d_mystruct_rev0);
+#endif
 
 void
 norm_ptrs_any(union any *d_any UNUSED)
@@ -909,6 +915,12 @@ norm_ptrs_eshk(struct eshk *d_eshk UNUSED)
 }
 
 void
+norm_ptrs_esum(struct esum *d_esum UNUSED)
+{
+}
+
+
+void
 norm_ptrs_fakecorridor(struct fakecorridor *d_fakecorridor UNUSED)
 {
 }
@@ -1037,6 +1049,17 @@ void
 norm_ptrs_rm(struct rm *d_rm UNUSED)
 {
 }
+
+#ifdef DEMO_UPLIFTS
+void
+norm_ptrs_mystruct(struct mystruct *d_mystruct UNUSED)
+{
+}
+void
+norm_ptrs_mystruct_rev0(struct mystruct_rev0 *d_mystruct_rev0 UNUSED)
+{
+}
+#endif
 
 void
 norm_ptrs_s_level(struct s_level *d_s_level UNUSED)

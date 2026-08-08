@@ -1,4 +1,4 @@
-/* NetHack 3.7	hack.c	$NHDT-Date: 1763708572 2025/11/20 23:02:52 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.494 $ */
+/* NetHack 5.0	hack.c	$NHDT-Date: 1781973050 2026/06/20 16:30:50 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.508 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Derek S. Ray, 2015. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -42,7 +42,6 @@ staticfn boolean avoid_trap_andor_region(coordxy, coordxy);
 staticfn boolean move_out_of_bounds(coordxy, coordxy);
 staticfn boolean carrying_too_much(void);
 staticfn boolean escape_from_sticky_mon(coordxy, coordxy);
-staticfn boolean grappling_finisher(coordxy, coordxy, struct monst *) NONNULLARG3;
 staticfn void domove_core(void);
 staticfn void maybe_smudge_engr(coordxy, coordxy, coordxy, coordxy);
 staticfn struct monst *monstinroom(struct permonst *, int) NONNULLARG1;
@@ -52,6 +51,8 @@ staticfn int pickup_checks(void);
 staticfn void maybe_wail(void);
 staticfn boolean water_turbulence(coordxy *, coordxy *);
 staticfn int QSORTCALLBACK cmp_weights(const void *, const void *);
+staticfn boolean avoid_moving_on_coating(coordxy, coordxy, boolean);
+staticfn boolean grappling_finisher(coordxy, coordxy, struct monst *) NONNULLARG3;
 
 #define IS_SHOP(x) (svr.rooms[x].rtype >= SHOPBASE)
 
@@ -593,6 +594,30 @@ moverock_core(coordxy sx, coordxy sy)
                     }
                     seetrap(ttmp);
                     return sobj_at(BOULDER, sx, sy) ? -1 : 0;
+                case ROLLING_BOULDER_TRAP:
+                {
+                    int tox = rx;
+                    int toy = ry;
+                    /* the boulder continues until it reaches one of
+                       the trap's launch spots or hits a wall / out-of-bounds */
+                    while (isok(tox + u.dx, toy + u.dy)) {
+                        tox += u.dx;
+                        toy += u.dy;
+                        if (tox == ttmp->launch.x && toy == ttmp->launch.y)
+                            break;
+                        if (tox == ttmp->launch2.x && toy == ttmp->launch2.y)
+                            break;
+                    }
+                    pline("%s away from you!",
+                          Tobjnam(otmp, "suddenly roll"));
+                    feeltrap(ttmp);
+                    launch_obj(BOULDER, sx, sy, tox, toy, ROLL | LAUNCH_KNOWN);
+                    return sobj_at(BOULDER, sx, sy) ? -1 : 0;
+                }
+                case SPARK_TRAP:
+                case SLP_GAS_TRAP:
+                    o_trigger_trap(otmp, rx, ry);
+                    break;
                 default:
                     break; /* boulder not affected by this trap */
                 }
@@ -1047,7 +1072,7 @@ test_move(
                     else
                         Sprintf(buf, "impossible [background glyph=%d]",
                                 glyph);
-                    pline_dir(xytod(dx, dy), "It's %s.", buf);
+                    pline_dir(xytodir(dx, dy), "It's %s.", buf);
                 }
             }
             return FALSE;
@@ -1156,6 +1181,12 @@ test_move(
             pline("%s is in your way.", YMonnam(m_at(ux, y)));
         return FALSE;
     }
+    /* Avoid running over mold and glass if possible. */
+    if (svc.context.run >= 2 && (mode != DO_MOVE) && !u_at(x, y)) {
+        if (avoid_moving_on_coating(x, y, FALSE)) {
+            return FALSE;
+        }
+    }
     /* Pick travel path that does not require crossing a trap.
      * Avoid water and lava using the usual running rules.
      * (but not u.ux/u.uy because findtravelpath walks toward u.ux/u.uy) */
@@ -1198,7 +1229,7 @@ test_move(
         if (mode != TEST_TRAV && svc.context.run >= 2
             && !(Blind || Hallucination) && !could_move_onto_boulder(x, y)) {
             if (mode == DO_MOVE && flags.mention_walls)
-                pline_dir(xytod(dx,dy), "A boulder blocks your path.");
+                pline_dir(xytodir(dx,dy), "A boulder blocks your path.");
             return FALSE;
         }
         if (mode == DO_MOVE) {
@@ -1700,7 +1731,7 @@ notice_mon(struct monst *mtmp)
             set_msg_xy(mtmp->mx, mtmp->my);
             You("%s %s.", canseemon(mtmp) ? "see" : "notice",
                 x_monnam(mtmp,
-                     mtmp->mtame ? ARTICLE_YOUR
+                     (mtmp->mtame && !Hallucination) ? ARTICLE_YOUR
                      : (!has_mgivenname(mtmp)
                         && !type_is_pname(mtmp->data)) ? ARTICLE_A
                      : ARTICLE_NONE,
@@ -1836,8 +1867,8 @@ handle_tip(int tip)
     if (!flags.tips)
         return FALSE;
 
-    if (tip >= 0 && tip < NUM_TIPS && !svc.context.tips[tip]) {
-        svc.context.tips[tip] = TRUE;
+    if (tip >= 0 && tip < NUM_TIPS && !(svc.context.tips & (1 << tip))) {
+        svc.context.tips |= (1 << tip);
         /* the "Tip:" prefix is a hint to use of OPTIONS=!tips to suppress */
         switch (tip) {
         case TIP_ENHANCE:
@@ -1856,6 +1887,9 @@ handle_tip(int tip)
         case TIP_ORDER:
             pline("(Tip: use #order ('%s') to issue commands to pets)",
                     visctrl(cmd_from_func(doorder)));
+            break;
+        case TIP_INEFFECTIVE:
+            pline("(Tip: some types of damage are ineffective against certain monsters.)");
             break;
         default:
             impossible("Unknown tip in handle_tip(%i)", tip);
@@ -1892,7 +1926,7 @@ swim_move_danger(coordxy x, coordxy y)
             || liquid_wall) {
             if (svc.context.nopick) {
                 /* moving with m-prefix */
-                svc.context.tips[TIP_SWIM] = TRUE;
+                svc.context.tips |= (1 << TIP_SWIM);
                 return FALSE;
             } else if (ParanoidSwim || liquid_wall) {
                 You("avoid %s into the %s.",
@@ -2285,7 +2319,7 @@ domove_fight_empty(coordxy x, coordxy y)
         } else if (solid) {
             /* glyph might indicate unseen terrain if hero is blind;
                unlike searching, this won't reveal what that terrain is;
-               3.7: used to say "solid rock" for STONE, but that made it be
+               5.0: used to say "solid rock" for STONE, but that made it be
                different from unmapped walls outside of rooms (and was wrong
                on arboreal levels) */
             if (levl[x][y].seenv || IS_STWALL(levl[x][y].typ)
@@ -2306,6 +2340,10 @@ domove_fight_empty(coordxy x, coordxy y)
         } else {
             Strcpy(buf, "thin air");
         }
+
+        /* Crysknives destroy force fields */
+        if (uwep && uwep->otyp == CRYSKNIFE)
+            cancel_force_field(x, y);
 
         /* Ice harmonic weapons can fire icicles even when force attacking */
         if (uwep && uwep->oprop == OPROP_BOREAL
@@ -2610,7 +2648,7 @@ move_out_of_bounds(coordxy x, coordxy y)
                     dy = 0;
             }
             You("have already gone as far %s as possible.",
-                directionname(xytod(dx, dy)));
+                directionname(xytodir(dx, dy)));
         }
         nomul(0);
         svc.context.move = 0;
@@ -2696,7 +2734,7 @@ escape_from_sticky_mon(coordxy x, coordxy y)
                 /*FALLTHRU*/
             default:
                 if (Conflict || u.ustuck->mconf || !u.ustuck->mtame) {
-                    You("cannot escape from %s!", y_monnam(u.ustuck));
+                    You("fail to escape %s's clutches!", y_monnam(u.ustuck));
                     nomul(0);
                     return TRUE;
                 }
@@ -2713,71 +2751,6 @@ escape_from_sticky_mon(coordxy x, coordxy y)
         }
     }
     return FALSE;
-}
-
-/* Move executed by a grappler when moving while holding a monster. Returns
-   true if the grapple is maintained. */
-staticfn boolean
-grappling_finisher(coordxy x, coordxy y, struct monst *mtmp)
-{
-    coord cc;
-    char kbuf[BUFSZ];
-    int future_dist = dist2(x, y, mtmp->mx, mtmp->my);
-    boolean bare_hit = FALSE;
-    boolean break_grapple = TRUE;
-    
-    use_skill(P_GRAPPLING, 1);
-    
-    if (future_dist == 1 && (x == mtmp->mx || y == mtmp->my)) {
-        pline_mon(mtmp, "You hit %s with a lariat!", mon_nam(mtmp));
-        make_mon_prone(mtmp);
-    } else if (future_dist == 2) {
-        pline_mon(mtmp, "You spin-kick %s!", mon_nam(mtmp));
-        if (rn2(8 - P_SKILL(P_GRAPPLING))) {
-            mtmp->mconf = 1;
-            if (canseemon(mtmp))
-                pline_mon(mtmp, "%s looks confused!", Monnam(mtmp));
-        }
-        bare_hit = TRUE;
-    } else if (future_dist == 5) {
-        if (enexto(&cc, x, y, mtmp->data)) {
-            rloc_to(mtmp, cc.x, cc.y);
-            pline_mon(mtmp, "You %s drag %s!",  mbodypart(mtmp, LEG), mon_nam(mtmp));
-            bare_hit = TRUE;
-        } else {
-            pline("Your move fails!");
-        }
-        break_grapple = FALSE;
-    } else if (goodpos(x, y, mtmp, 0)) {
-        pline_mon(mtmp, "You suplex %s!", mon_nam(mtmp));
-        rloc_to(mtmp, x, y);
-        bare_hit = TRUE;
-        mtmp->mhp -= rnd(8);
-    } else {
-        pline_mon(mtmp, "You pummel %s!", mon_nam(mtmp));
-        bare_hit = TRUE;
-    }
-    /* Now do some damage */
-    if (bare_hit) {
-        mtmp->mhp -= rnd(!martial_bonus() ? 2 : 4);
-        if (DEADMONSTER(mtmp)) {
-            killed(mtmp);
-            return TRUE;
-        }
-        if (touch_petrifies(mtmp->data)) {
-            Sprintf(kbuf, "grappling %s", mon_nam(mtmp));
-            instapetrify(kbuf);
-        }
-    }
-    /* Decide whether the grapple is maintained */
-    if (break_grapple && P_SKILL(P_GRAPPLING) > P_BASIC) {
-        break_grapple = !rn2(P_SKILL(P_GRAPPLING));
-    }
-    if (break_grapple || mdistu(mtmp) > 1) {
-        set_ustuck((struct monst *) 0);
-        pline_mon(mtmp, "Your grip on %s is broken.", mon_nam(mtmp));
-    }
-    return break_grapple;
 }
 
 void
@@ -2882,12 +2855,6 @@ domove_core(void)
 
         if (domove_bump_mon(mtmp, glyph))
             return;
-
-        if (Role_if(PM_GRAPPLER) && u.usticker && mtmp == u.ustuck) {
-            You("are already grappling %s!", mon_nam(mtmp));
-            nomul(0);
-            return;
-        }
 
         /* attack monster */
         if (domove_attackmon_at(mtmp, x, y, &displaceu))
@@ -3186,6 +3153,93 @@ invocation_message(void)
     }
 }
 
+/* for status: set up iflags.terrain_typ, an index into terrain_descrp[];
+   some types need fixing up  */
+void
+classify_terrain(void)
+{
+    struct rm *lev = &levl[u.ux][u.uy];
+    int typ = svl.lastseentyp[u.ux][u.uy]; /* lev->typ */
+
+    /*
+     * If the terrain under the hero is different now from what it
+     * was on the previous check, bring iflags.terrain_typ up to date
+     * and request a status update.  Unless hero is running--then the
+     * update request will be suppressed.
+     */
+
+    if (Underwater) {
+        typ = xSUBMERGED;
+    } else {
+        switch (typ) {
+        case STONE:
+            if (svl.level.flags.arboreal)
+                typ = TREE;
+            break;
+        case CORR:
+        case ROOM:
+            /* this matches surface() but 'floor' is odd in many places */
+            typ = !Is_earthlevel(&u.uz) ? xFLOOR : xGROUND;
+            break;
+        case DOOR:
+            /* defaults to "doorway" (door-less or broken) */
+            if ((lev->doormask & D_ISOPEN) != 0)
+                typ = xOPENDOOR;
+            else if ((lev->doormask & (D_CLOSED | D_LOCKED | D_TRAPPED)) != 0)
+                typ = xSHUTDOOR;
+            break;
+        case DRAWBRIDGE_UP:
+            /* ICE, MOAT, LAVA, or 'STONE' (which ought to be 'room') */
+            typ = db_under_typ(lev->drawbridgemask);
+            if (typ == STONE || typ == ROOM)
+                typ = xGROUND;
+            break;
+        case MOAT:
+            /* moat and swamp handling match waterbody_name()'s result */
+            if (Is_medusa_level(&u.uz))
+                typ = xSEA;
+            else if (Is_juiblex_level(&u.uz))
+                typ = xSWAMP;
+            break;
+        case WATER:
+            if (!Is_waterlevel(&u.uz))
+                typ = xWATERWALL;
+            break;
+#if 0   /* don't bother -- Passes_walls for hero is rare, moving
+         * from one type of wall to another even rarer, and the
+         * cost of some extra once per move status updates is low */
+        case VWALL:
+        case HWALL:
+        case TLCORNER:
+        case TRCORNER:
+        case BLCORNER:
+        case BRCORNER:
+        case CROSSWALL:
+        case TUWALL:
+        case TDWALL:
+        case TLWALL:
+        case TRWALL:
+        case SDOOR: /* (note: lastseentyp[][] never yields SDOOR) */
+            /* any wall type would do, terrain_descr[] is "Wall" for all;
+               forcing just one avoids false 'changed' detection below if
+               hero with Passes_walls ability moves from one to another */
+            typ = VWALL;
+            break;
+#endif
+        default:
+            break;
+        }
+    }
+
+    if (typ != iflags.terrain_typ) {
+        /* terrain at hero's spot is different */
+        iflags.terrain_typ = typ;
+        /* request a status update unless hero is running */
+        if (flags.terrainstatus && !svc.context.run)
+            disp.botl = TRUE;
+    }
+}
+
 /* moving onto different terrain;
    might be going into solid rock, inhibiting levitation or flight,
    or coming back out of such, reinstating levitation/flying */
@@ -3226,13 +3280,19 @@ switch_terrain(void)
     }
     if ((!!Levitation ^ was_levitating) || (!!Flying ^ was_flying))
         disp.botl = TRUE; /* update Lev/Fly status condition */
+
+    if (flags.terrainstatus)
+        classify_terrain();
 }
 
 /* set or clear u.uinwater */
 void
 set_uinwater(int in_out)
 {
-    u.uinwater = in_out ? 1 : 0;
+    if (in_out != (int) u.uinwater) {
+        u.uinwater = in_out ? 1 : 0;
+        switch_terrain();
+    }
 }
 
 /* extracted from spoteffects; called by spoteffects to check for entering or
@@ -3350,8 +3410,11 @@ spoteffects(boolean pick)
     spotterrain = levl[u.ux][u.uy].typ;
     spotloc.x = u.ux, spotloc.y = u.uy;
 
-    /* moving onto different terrain might cause Lev or Fly to toggle */
-    if (spotterrain != levl[u.ux0][u.uy0].typ || !on_level(&u.uz, &u.uz0))
+    /* moving onto different terrain might cause Lev or Fly to toggle;
+      level change sets <ux0,uy0> to <ux,uy>, so this spotterrain
+      check always fails then, but it also sets iflags.terrain_typ */
+    if (spotterrain != levl[u.ux0][u.uy0].typ
+        || iflags.terrain_typ == MAX_TYPE)
         switch_terrain();
 
     if (pooleffects(TRUE))
@@ -3980,6 +4043,11 @@ lookaround(void)
                     goto stop;
             }
 
+            if (avoid_moving_on_coating(x, y, FALSE)) {
+                if (infront && !svc.context.travel)
+                    goto stop;
+            }
+
             /* more uninteresting terrain */
             if (IS_OBSTRUCTED(levl[x][y].typ) || levl[x][y].typ == ROOM
                 || IS_AIR(levl[x][y].typ) || levl[x][y].typ == ICE) {
@@ -4156,9 +4224,19 @@ end_running(boolean and_travel)
 {
     /* moveloop() suppresses time_botl when context.run is non-zero; when
        running stops, update 'time' even if other botl status is unchanged */
-    if (flags.time && svc.context.run)
-        disp.time_botl = TRUE;
-    svc.context.run = 0;
+    if (svc.context.run) {
+        svc.context.run = 0;
+        if (flags.time)
+            disp.time_botl = TRUE;
+        /* classify_terrain() suppresses setting disp.botl when
+           running; after that, it can no longer compare current terrain
+           against iflaga.terrain_typ to detect a change, so recompute */
+        if (flags.terrainstatus) {
+            iflags.terrain_typ = MAX_TYPE; /* "none of the above" value */
+            classify_terrain();
+        }
+    }
+
     /* 'context.mv' isn't travel but callers who want to end travel
        all clear it too */
     if (and_travel)
@@ -4260,60 +4338,6 @@ maybe_wail(void)
     }
 }
 
-/* once per game, if receiving a killing blow from above 90% HP,
-   allow the hero to survive with 1 HP */
-int
-saving_grace(int dmg)
-{
-    if (dmg < 0) {
-        impossible("saving_grace check for negative damage? (%d)", dmg);
-        return 0;
-    }
-
-    if (!svc.context.mon_moving) {
-        /* saving grace doesn't protect you from your own actions */
-        return dmg;
-    }
-
-    if (dmg < u.uhp || u.uhp <= 0) {
-        /* no need for saving grace */
-        return dmg;
-    }
-
-    if (gs.saving_grace_turn) {
-        /* saving grace already triggered and prevents HP reducing below 1
-           this turn (specifically: until the next player action or turn
-           boundary), don't print further messages or livelog entries */
-        return u.uhp - 1;
-    }
-
-    if (!u.usaving_grace &&
-        (gu.uhp_at_start_of_monster_turn * 100 / u.uhpmax) >= 90) {
-        /* saving_grace doesn't have it's own livelog classification;
-           we might invent one, or perhaps use LL_LIFESAVE, but surviving
-           certain death (or preserving worn amulet of life saving) via
-           saving-grace feels like breaking a conduct; not sure how best
-           to phrase this though; classifying it as a spoiler will hide it
-           from #chronicle during play but show it to livelog observers */
-        livelog_printf(LL_CONDUCT | LL_SPOILER, "%s (%d damage, %d/%d HP)",
-                       "survived one-shot death via saving-grace",
-                       /* include damage that happened earlier this turn */
-                       gu.uhp_at_start_of_monster_turn - u.uhp + dmg,
-                       gu.uhp_at_start_of_monster_turn, u.uhpmax);
-
-        /* note: this could reduce dmg to 0 if u.uhpmax==1 */
-        dmg = u.uhp - 1;
-        u.usaving_grace = 1; /* used up */
-        gs.saving_grace_turn = TRUE;
-        end_running(TRUE);
-        if (u.usleep)
-            unmul("Suddenly you wake up!");
-        if (is_fainted())
-            reset_faint();
-    }
-    return dmg;
-}
-
 /* show a message how much damage you received */
 void
 showdamage(int dmg)
@@ -4348,7 +4372,6 @@ losehp(int n, const char *knam, schar k_format)
         return;
     }
 
-    n = saving_grace(n);
     u.uhp -= n;
     showdamage(n);
     if (u.uhp > u.uhpmax)
@@ -4489,6 +4512,26 @@ struct weight_table_entry {
 };
 
 static struct weight_table_entry *weightlist;
+
+void
+dump_weapons(void)
+{
+    decl_globals_init();
+    init_objects();
+    raw_printf("weapon_stats[] = {");
+    for (int i = svb.bases[(uchar) WEAPON_CLASS];
+                i < svb.bases[(uchar) WEAPON_CLASS + 1]; ++i) {
+
+        raw_printf("    %dd%d D:%s A:%s /* %s */",
+                    objects[i].oc_wndam, objects[i].oc_wddam,
+                    attr_name(objects[i].oc_scaling),
+                    attr_name(objects[i].oc_hitbon),
+                    OBJ_NAME(objects[i]));
+    }
+    raw_print("};");
+    raw_print("");
+    freedynamicdata();
+}
 
 void
 dump_weights(void)
@@ -4654,6 +4697,155 @@ solid_stone(int x, int y)
     if (levl[x][y].submask == SM_DIRT)
         return "packed dirt";
     return "solid stone";
+}
+
+staticfn boolean
+avoid_moving_on_coating(coordxy x, coordxy y, boolean msg)
+{
+    if (IS_COATABLE(levl[x][y].typ)
+        && !Blind && !Levitation && !Flying
+        && ((has_coating(x, y, COAT_FUNGUS)
+             && levl[x][y].pindex != PM_NIGHTCRUST
+             && levl[x][y].pindex != PM_LICHEN)
+            || has_coating(x, y, COAT_SHARDS))) {
+        if (msg && flags.mention_walls) {
+            set_msg_xy(x, y);
+            You("stop in front of a coating.");
+        }
+        return TRUE;
+    }
+    return FALSE;
+}
+
+/* Move executed by a grappler when moving while holding a monster. Returns
+   true if the grapple is maintained. */
+staticfn boolean
+grappling_finisher(coordxy x, coordxy y, struct monst *mtmp)
+{
+    coord cc;
+    char kbuf[BUFSZ];
+    int future_dist = dist2(x, y, mtmp->mx, mtmp->my);
+    int dmg = 4;
+    boolean break_grapple = FALSE;
+    
+    use_skill(P_GRAPPLING, 1);
+    
+    if (future_dist == 1 && (x == mtmp->mx || y == mtmp->my) && !Prone) {
+        /* Moving around the target */
+        if (mtmp->mprone && mtmp->mstun && mtmp->mfrozen) {
+            You("elbow drop %s!", mon_nam(mtmp));
+            dmg = 20;
+            mtmp->mstun = 0;
+            break_grapple = TRUE;
+        } else if (mtmp->mprone) {
+            You("stomp %s!", mon_nam(mtmp));
+            dmg = 8;
+            break_grapple = TRUE;
+        } else if (mtmp->mfrozen) {
+            You("hit %s with a lariat!", mon_nam(mtmp));
+            if (rn2(8 - P_SKILL(P_GRAPPLING))) {
+                mtmp->mconf = 1;
+                if (canseemon(mtmp))
+                    pline_mon(mtmp, "%s looks confused!", Monnam(mtmp));
+            }
+        } else {
+            You("hit %s with a %s-%s takedown!", 
+            mon_nam(mtmp), rn2(2) ? "single" : "double", mbodypart(mtmp, LEG));
+            make_mon_prone(mtmp);
+            make_prone();
+        }
+    } else if (future_dist == 2) {
+        /* Moving around in front of the target */
+        if (Prone && mtmp->mprone && mtmp->mfrozen) {
+            You("put %s in a sleeper lock!", mon_nam(mtmp));
+            mtmp->msleeping = 1;
+            break_grapple = TRUE;
+        } else if (mtmp->mconf) {
+           You("spin-kick %s!", mon_nam(mtmp));
+           dmg = 8;
+           break_grapple = TRUE; 
+        } else {
+            pline_mon(mtmp, "You elbow smash %s!", mon_nam(mtmp));
+            if (rn2(8 - P_SKILL(P_GRAPPLING))) {
+                mtmp->mstun = 1;
+                if (canseemon(mtmp))
+                    pline_mon(mtmp, "%s is stunned!", Monnam(mtmp));
+            }
+        }
+        
+    } else if (future_dist == 5) {
+        /* Moving away at an angle */
+        /* leg pull should reasonably be next to either where the monster was or where the
+           player is targetting the leg pull. */
+        if (enexto(&cc, x, y, mtmp->data)
+            && (dist2(x, y, cc.x, cc.y) <= 2 || dist2(mtmp->mx, mtmp->my, cc.x, cc.y) <= 2)
+            && !m_will_hit_forcefield(mtmp, x, y)) {
+            rloc_to(mtmp, cc.x, cc.y);
+            pline_mon(mtmp, "You %s drag %s!",  mbodypart(mtmp, LEG), mon_nam(mtmp));
+        } else {
+            pline("Your move fails!");
+            dmg = 0;
+        }
+        break_grapple = FALSE;
+    /* suplexes involve the grappler dragging the victim with them,
+       so the path should check the player's square. */
+    } else if (goodpos(x, y, mtmp, 0) && !m_will_hit_forcefield(mtmp, u.ux, u.uy)
+        && !m_will_hit_forcefield(mtmp, x, y)) {
+        /* moving directly away */
+        pline_mon(mtmp, "You suplex %s!", mon_nam(mtmp));
+        rloc_to(mtmp, x, y);
+        dmg = 8;
+        break_grapple = TRUE;
+    } else {
+        /* Other case, generally back to wall, monster, or force field */
+        if (mtmp->msleeping && mtmp->mfrozen && u.uconduct.killer) {
+            dmg = 20;
+            You("snap %s's %s!", mon_nam(mtmp), mbodypart(mtmp, NECK));
+            break_grapple = TRUE;
+        } else {
+            pline_mon(mtmp, "You %s %s!", breathless(mtmp->data)
+                                            ? "throttle" : "choke", mon_nam(mtmp));
+        }
+    }
+    /* Now do some damage */
+    if (dmg) {
+        dmg = (rnd(dmg) + weapon_dam_bonus(uwep));
+        setmangry(mtmp, TRUE);
+        if (!u.uconduct.killer &&  mtmp->mhp <= dmg) {
+            You("knock out %s!", mon_nam(mtmp));
+            mtmp->msleeping = 1;
+        } else {
+            mtmp->mhp -= dmg;
+        }
+        if (DEADMONSTER(mtmp)) {
+            killed(mtmp);
+            return TRUE;
+        }
+        if (touch_petrifies(mtmp->data)) {
+            Sprintf(kbuf, "grappling %s", mon_nam(mtmp));
+            instapetrify(kbuf);
+        }
+    }
+
+    /* Chance of maintaining grip */
+    if (!break_grapple)
+        break_grapple = !rn2(max(2, P_SKILL(P_GRAPPLING)));
+    if (break_grapple) {
+        /* break the grapple */
+        set_ustuck((struct monst *) 0);
+        if (is_lord(mtmp->data))
+            pline_mon(mtmp, "%s breaks free!", Monnam(mtmp));
+        else if (is_prince(mtmp->data))
+            pline_mon(mtmp, "%s blocks your follow-up grab!", Monnam(mtmp));
+        else
+            pline("Your grip is broken.");
+        mtmp->mcanmove = 1;
+        mtmp->mfrozen = 0;
+    } else {
+        /* grapple is maintained, monster is paralyzed */
+        paralyze_monst(mtmp, 2);
+    }
+    return break_grapple;
 }
 
 

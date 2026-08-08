@@ -1,4 +1,4 @@
-/* NetHack 3.7	sfstruct.c	$NHDT-Date: 1606765215 2020/11/30 19:40:15 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.4 $ */
+/* NetHack 5.0	sfstruct.c	$NHDT-Date: 1781973066 2026/06/20 16:31:06 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.28 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Michael Allison, 2025. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -169,6 +169,7 @@ struct sf_structlevel_procs historical_sfo_procs = {
         historical_sfo_engr,
         historical_sfo_epri,
         historical_sfo_eshk,
+        historical_sfo_esum,
         historical_sfo_fe,
         historical_sfo_flag,
         historical_sfo_fruit,
@@ -194,7 +195,6 @@ struct sf_structlevel_procs historical_sfo_procs = {
         historical_sfo_version_info,
         historical_sfo_you,
         historical_sfo_any,
-
         historical_sfo_aligntyp,
         historical_sfo_boolean,
         historical_sfo_coordxy,
@@ -219,6 +219,10 @@ struct sf_structlevel_procs historical_sfo_procs = {
         historical_sfo_xint8,
         historical_sfo_char,
         historical_sfo_bitfield,
+#ifdef DEMO_UPLIFTS
+        historical_sfo_mystruct,
+        historical_sfo_mystruct_rev0,
+#endif
     }
 };
 
@@ -245,6 +249,7 @@ struct sf_structlevel_procs historical_sfi_procs = {
         historical_sfi_engr,
         historical_sfi_epri,
         historical_sfi_eshk,
+        historical_sfi_esum,
         historical_sfi_fe,
         historical_sfi_flag,
         historical_sfi_fruit,
@@ -295,6 +300,10 @@ struct sf_structlevel_procs historical_sfi_procs = {
         historical_sfi_xint8,
         historical_sfi_char,
         historical_sfi_bitfield,
+#ifdef DEMO_UPLIFTS
+        historical_sfi_mystruct,
+        historical_sfi_mystruct_rev0,
+#endif
     }
 };
 
@@ -308,12 +317,12 @@ static long floc = 0L;
 
 /*
  * historical structlevel savefile writing and reading routines follow.
- * These were moved here from save.c and restore.c between 3.6.3 and 3.7.0.
+ * These were moved here from save.c and restore.c between 3.6.3 and 5.0.0,.
  */
 
 staticfn int getidx(int, int);
 
-#if defined(UNIX) || defined(WIN32)
+#if defined(UNIX) || defined(WIN32) || defined(SFSTRUCT_BUFFERING)
 #define USE_BUFFERING
 #endif
 
@@ -322,6 +331,9 @@ struct restore_info restoreinfo = {
 };
 
 #define MAXFD 5
+#ifdef SFSTRUCT_BUFFERING
+#define BWBUFSZ 16384
+#endif
 enum {NOFLG = 0, NOSLOT = 1};
 static int bw_sticky[MAXFD] = {-1,-1,-1,-1,-1};
 static int bw_buffered[MAXFD] = {0,0,0,0,0};
@@ -424,6 +436,10 @@ bufon(int fd)
         if (!bw_FILE[idx]) {
             if ((bw_FILE[idx] = fdopen(fd, "w")) == 0)
                 panic("buffering of file %d failed", fd);
+#ifdef SFSTRUCT_BUFFERING
+            (void) setvbuf(bw_FILE[idx], (char *) 0, _IOFBF,
+                           (size_t) BWBUFSZ);
+#endif
         }
         bw_buffered[idx] = (bw_FILE[idx] != 0);
 #else
@@ -572,7 +588,8 @@ mread(int fd, genericptr_t buf, unsigned len)
         /* Not perfect, but we don't have ssize_t available. */
     rlen = (readLenType) read(fd, buf, (readLenType) len);
     if ((readLenType) rlen != (readLenType) len) {
-        if (restoreinfo.mread_flags == 1) { /* means "return anyway" */
+        if ((restoreinfo.mread_flags == 1) /* means "return anyway" */
+            || (program_state.reading_bonesfile == 1)) {
             restoreinfo.mread_flags = -1;
             return;
         } else {

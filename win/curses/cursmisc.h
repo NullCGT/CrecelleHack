@@ -1,5 +1,5 @@
 /* vim:set cin ft=c sw=4 sts=4 ts=8 et ai cino=Ls\:0t0(0 : -*- mode:c;fill-column:80;tab-width:8;c-basic-offset:4;indent-tabs-mode:nil;c-file-style:"k&r" -*-*/
-/* NetHack 3.7 cursmisc.h */
+/* NetHack 5.0 cursmisc.h */
 /* Copyright (c) Karl Garrison, 2010. */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -8,8 +8,11 @@
 
 /* Global declarations */
 
+#define CURSES_NUM_BACKGROUND_COLORS 8
+
 int curses_getch(void);
 int curses_read_char(void);
+boolean curses_has_256color(void);
 void curses_toggle_color_attr(WINDOW *win, int color, int attr, int onoff);
 void curses_menu_color_attr(WINDOW *win, int color, int attr, int onoff);
 void curses_bail(const char *mesg);

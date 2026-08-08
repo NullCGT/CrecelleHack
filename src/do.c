@@ -1,4 +1,4 @@
-/* NetHack 3.7	do.c	$NHDT-Date: 1737287889 2025/01/19 03:58:09 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.399 $ */
+/* NetHack 5.0	do.c	$NHDT-Date: 1781973045 2026/06/20 16:30:45 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.411 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Derek S. Ray, 2015. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -21,6 +21,7 @@ staticfn void familiar_level_msg(void);
 staticfn void final_level(void);
 staticfn void temperature_change_msg(schar);
 staticfn void exposure_change_msg(schar);
+staticfn void biome_change_msg(schar);
 staticfn boolean better_not_try_to_drop_that(struct obj *);
 
     /* static boolean badspot(coordxy,coordxy); */
@@ -78,7 +79,7 @@ boulder_hits_pool(
                 levl[rx][ry].typ = ROOM, levl[rx][ry].flags = 0;
                 recalc_block_point(rx, ry);
             }
-            /* 3.7: normally DEADMONSTER() is used when traversing the fmon
+            /* 5.0: normally DEADMONSTER() is used when traversing the fmon
                list--dead monsters usually aren't still at specific map
                locations; however, if ice melts causing a giant to drown,
                that giant would still be on the map when it drops inventory;
@@ -210,7 +211,7 @@ flooreffects(
                     if (svc.context.mon_moving) {
                         /* normally we'd use ohitmon() but it can call
                            drop_throw() which calls flooreffects() */
-                        damage = dmgval(obj, mtmp);
+                        damage = dmgval(obj, mtmp, mtmp);
                         mtmp->mhp -= damage;
                         if (DEADMONSTER(mtmp)) {
                             if (canspotmon(mtmp))
@@ -645,6 +646,11 @@ dosinkring(struct obj *obj)
         nosink = TRUE;
         /* for S_room case, same message as for teleportation is given */
         ideed = (levl[u.ux][u.uy].typ != ROOM);
+        break;
+    case RIN_PROTECTION_FROM_EXPLOSIONS:
+        nosink = TRUE;
+        levl[u.ux][u.uy].typ = ROOM;
+        pline_The("sink suddenly implodes!");
         break;
     default:
         ideed = FALSE;
@@ -1440,6 +1446,11 @@ save_currentstate(void)
 {
     NHFILE *nhfp;
 
+    if (!program_state.something_worth_saving
+        || program_state.in_self_recover
+        || program_state.in_checkpoint)
+        return;
+
     program_state.in_checkpoint++;
     if (flags.ins_chkpt) {
         /* write out just-attained level, with pets and everything */
@@ -1561,7 +1572,8 @@ goto_level(
     int dist = depth(newlevel) - depth(&u.uz);
     boolean do_fall_dmg = FALSE;
     schar prev_temperature = svl.level.flags.temperature;
-    boolean prev_exposure = exposed_to_elements(&u.uz);
+    schar prev_exposure = exposed_to_elements(&u.uz);
+    schar prev_biome = svl.level.flags.biome;
 
     if (dunlev(newlevel) > dunlevs_in_dungeon(newlevel))
         newlevel->dlevel = dunlevs_in_dungeon(newlevel);
@@ -1598,7 +1610,7 @@ goto_level(
      *   -2    5.21   4.17   0.0
      *   -3    2.08   0.0    0.0
      *
-     * 3.7.0: the chance for the "mysterious force" to kick in goes down
+     * 5.0.0: the chance for the "mysterious force" to kick in goes down
      * as it kicks in, starting at 25% per climb attempt and dropping off
      * gradually but substantially.  The drop off is greater when hero is
      * sent down farther so benefits lawfuls more than chaotics this time.
@@ -1725,12 +1737,13 @@ goto_level(
     if (cant_go_back) {
         /* discard unreachable levels; keep #0 */
         for (l_idx = maxledgerno(); l_idx > 0; --l_idx)
-            if (!leaving_tutorial || ledger_to_dnum(l_idx) == tutorial_dnum
-                || ledger_to_dnum(l_idx) == maze_dnum)
+            if ((!leaving_tutorial || ledger_to_dnum(l_idx) == tutorial_dnum)
+                && ledger_to_dnum(l_idx) != maze_dnum)
                 delete_levelfile(l_idx);
         /* mark #overview data for all dungeon branches as uninteresting */
         for (l_idx = 0; l_idx < svn.n_dgns; ++l_idx)
-            if (!leaving_tutorial || l_idx == tutorial_dnum)
+            if ((!leaving_tutorial || l_idx == tutorial_dnum)
+                && l_idx != maze_dnum)
                 remdun_mapseen(l_idx);
         /* get rid of mons & objs scheduled to migrate to discarded levels */
         discard_migrations();
@@ -1803,7 +1816,7 @@ goto_level(
         if (!ttrap) {
             if ((u.uevent.qexpelled
                 && (Is_qstart(&u.uz0) || Is_qstart(&u.uz)))
-                || (Is_magicmaze(&u.uz0) || Is_magicmaze(&u.uz))) {
+                || (In_magicmaze(&u.uz0) || In_magicmaze(&u.uz))) {
                 /* we're coming back from or going into the quest home level,
                    after already getting expelled once. The portal back
                    doesn't exist anymore - see expulsion(). */
@@ -1959,8 +1972,25 @@ goto_level(
         if (new && on_level(&u.uz, &astral_level)) {
             final_level(); /* guardian angel,&c */
             record_achievement(ACH_ASTR); /* reached Astral level */
-        } else if (newdungeon && u.uhave.amulet) {
-            resurrect(); /* force confrontation with Wizard */
+        } else if (newdungeon && u.uhave.amulet && new) {
+            if (Role_if(PM_ROGUE)) {
+                /* Rogues have to deal with extra angry mplayers */
+                if (new && !on_level(&u.uz, &astral_level))
+                    create_mplayers(rn1(3, 3), TRUE);
+                /* force confrontation with quest leader you robbed */
+                mtmp = makemon(&mons[roles[flags.rogvictim].ldrnum], u.ux, u.uy, MM_NOWAIT);
+                verbalize("We've finally found you, %s!", svp.plname);
+                if (roles[flags.rogvictim].ldrnum == PM_MASTER_OF_THIEVES) {
+                    mtmp->mpeaceful = 0;
+                    /* not your fault */
+                    set_malign(mtmp);
+                    verbalize("I'm expelling you from the guild... in a casket!");
+                } else {
+                    verbalize("Now give back what you stole from us!");
+                }
+            } else {
+                resurrect(); /* force confrontation with Wizard */
+            }
         }
     } else if (In_quest(&u.uz)) {
         onquest(); /* might be reaching locate|goal level */
@@ -1979,9 +2009,17 @@ goto_level(
     } else if (In_mines(&u.uz)) {
         if (newdungeon)
             record_achievement(ACH_MINE);
-    } else if (In_sokoban(&u.uz)) {
+    } else if (In_magicmaze(&u.uz)) {
         if (newdungeon)
+            record_achievement(ACH_MAZE);
+    } else if (In_mtemple(&u.uz)) {
+        if (newdungeon)
+            record_achievement(ACH_MTEMPLE);
+    } else if (In_sokoban(&u.uz)) {
+        if (newdungeon) {
             record_achievement(ACH_SOKO);
+            livelog_printf(LL_MINORAC, "entered %s", snowkoban());
+        }
     } else {
         if (new && Is_rogue_level(&u.uz)) {
             You("enter what seems to be an older, more primitive world.");
@@ -2006,8 +2044,11 @@ goto_level(
         }
     }
 
-    temperature_change_msg(prev_temperature);
-    exposure_change_msg(prev_exposure);
+    if (svm.moves) {
+        temperature_change_msg(prev_temperature);
+        exposure_change_msg(prev_exposure);
+        biome_change_msg(prev_biome);
+    }
 
     /* this was originally done earlier; moved here to be logged after
        any achievement related to entering a dungeon branch
@@ -2017,8 +2058,18 @@ goto_level(
     if (new) {
         char dloc[QBUFSZ];
         /* Astral is excluded as a major event here because entry to it
-           is already one due to that being an achievement */
-        boolean major = In_endgame(&u.uz) && !Is_astralevel(&u.uz);
+           is already one such due to that being an achievement;
+           for the quest, listing the start, locate, and goal levels would
+           seem reasonable but all quest levels are included for simplicity--
+           level 2 (or 3 if hero level teleports after obtaining permission
+           to enter) is useful to show since it indicates that hero has
+           actually entered the quest rather than just received permission
+           to do so, and listing the goal level could be used to figure out
+           whether level 5 is the end or there's another level (ESP reveals
+           the same thing, but is part of normal game play as opposed to
+           #chronicle leaking information that hero hasn't discovered yet) */
+        boolean major = ((In_endgame(&u.uz) && !Is_astralevel(&u.uz))
+                         || In_quest(&u.uz));
 
         (void) describe_level(dloc, 2);
         livelog_printf(major ? LL_ACHIEVE : LL_DEBUG, "entered %s", dloc);
@@ -2097,7 +2148,7 @@ temperature_change_msg(schar prev_temperature)
 
 /* give a message when exposed to elements */
 staticfn void
-exposure_change_msg(boolean prev_exposure)
+exposure_change_msg(schar prev_exposure)
 {
     if (prev_exposure != exposed_to_elements(&u.uz)) {
         if (prev_exposure)
@@ -2105,6 +2156,15 @@ exposure_change_msg(boolean prev_exposure)
         else if (!Blind)
             You("can see the sky above you.");
     }
+}
+
+staticfn void
+biome_change_msg(schar prev_biome)
+{
+    if (prev_biome == svl.level.flags.biome)
+        return;
+    if (IS_BIOME(BIOME_SEWER))
+        pline("It smells like a sewer down here.");
 }
 
 /* usually called from goto_level(); might be called from Sting_effects() */
@@ -2338,7 +2398,8 @@ revive_mon(anything *arg, long timeout UNUSED)
     /* corpse will revive somewhere else if there is a monster in the way;
        Riders get a chance to try to bump the obstacle out of their way */
     if (is_displacer(mptr) && body->where == OBJ_FLOOR
-        && get_obj_location(body, &x, &y, 0) && (mtmp = m_at(x, y)) != 0) {
+        && get_obj_location(body, &x, &y, 0) && (mtmp = m_at(x, y)) != 0 &&
+        svl.level.flags.stasis_until < svm.moves) {
         boolean notice_it = canseemon(mtmp); /* before rloc() */
         char *monname = Monnam(mtmp);
 
@@ -2517,7 +2578,7 @@ set_wounded_legs(long side, int timex)
         set_itimeout(&HWounded_legs, (long) timex);
     /* the leg being wounded and its timeout might differ from one
        attack to the next, but we don't track the legs separately;
-       3.7: both legs will ultimately heal together; this used to use
+       5.0: both legs will ultimately heal together; this used to use
        direct assignment instead of bitwise-OR so getting wounded in
        one leg mysteriously healed the other */
     EWounded_legs |= side;

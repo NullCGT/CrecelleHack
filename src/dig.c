@@ -1,4 +1,4 @@
-/* NetHack 3.7	dig.c	$NHDT-Date: 1740629713 2025/02/26 20:15:13 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.227 $ */
+/* NetHack 5.0	dig.c	$NHDT-Date: 1781973044 2026/06/20 16:30:44 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.236 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Michael Allison, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -396,7 +396,7 @@ dig(void)
         } else if (ttmp && ttmp->ttyp == BEAR_TRAP && u.utrap) {
             if (rnl(7) > (Fumbling ? 1 : 4)) {
                 char kbuf[BUFSZ];
-                int dmg = dmgval(uwep, &gy.youmonst) + dbon();
+                int dmg = dmgval(uwep, &gy.youmonst, &gy.youmonst) + dbon();
 
                 if (dmg < 1)
                     dmg = 1;
@@ -467,7 +467,7 @@ dig(void)
         } else if (digtyp == DIGTYP_BOULDER
                    && (obj = sobj_at(BOULDER, dpx, dpy)) != 0) {
             fracture_rock(obj);
-            /*[3.7: this probably isn't necessary anymore]*/
+            /*[5.0: this probably isn't necessary anymore]*/
             if ((bobj = sobj_at(BOULDER, dpx, dpy)) != 0) {
                 /* another boulder here, restack it to the top */
                 obj_extract_self(bobj);
@@ -1277,7 +1277,7 @@ use_pick_axe2(struct obj *obj)
                        && (trap_with_u = t_at(u.ux, u.uy))
                        && is_pit(trap->ttyp)
                        && !conjoined_pits(trap, trap_with_u, FALSE)) {
-                int idx = xytod(u.dx, u.dy);
+                int idx = xytodir(u.dx, u.dy);
 
                 if (idx != DIR_ERR) {
                     int adjidx = DIR_180(idx);
@@ -1638,7 +1638,7 @@ zap_dig(void)
     if (u.utrap && u.utraptype == TT_PIT
         && (trap_with_u = t_at(u.ux, u.uy))) {
         pitdig = TRUE;
-        diridx = xytod(u.dx, u.dy);
+        diridx = xytodir(u.dx, u.dy);
     }
     digdepth = rn1(18, 8);
     tmp_at(DISP_BEAM, cmap_to_glyph(S_digbeam));

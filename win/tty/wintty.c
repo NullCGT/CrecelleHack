@@ -1,4 +1,4 @@
-/* NetHack 3.7	wintty.c	$NHDT-Date: 1737691300 2025/01/23 20:01:40 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.420 $ */
+/* NetHack 5.0	wintty.c	$NHDT-Date: 1781973100 2026/06/20 16:31:40 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.438 $ */
 /* Copyright (c) David Cohrs, 1991                                */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -20,7 +20,7 @@
 /* leave this undefined; it produces bad screen output with rxvt-unicode */
 /*#define DECgraphicsOptimization*/
 
-#ifdef MAC
+#ifdef MAC68K
 #define MICRO /* The Mac is a MICRO only for this file, not in general! */
 #ifdef THINK_C
 extern void msmsg(const char *, ...);
@@ -121,6 +121,7 @@ struct window_procs tty_procs = {
 #if !defined(NO_TERMS) || defined(WIN32CON)
      | WC2_EXTRACOLORS
 #endif
+     | WC2_EXTRASTATUS
     ),
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, /* color availability */
     tty_init_nhwindows, tty_player_selection, tty_askname, tty_get_nh_event,
@@ -142,7 +143,7 @@ struct window_procs tty_procs = {
     tty_getlin, tty_get_ext_cmd, tty_number_pad, tty_delay_output,
 #ifdef CHANGE_COLOR /* the Mac uses a palette device */
     tty_change_color,
-#ifdef MAC
+#ifdef MAC68K
     tty_change_background, set_tty_font_name,
 #endif
     tty_get_color_string,
@@ -181,7 +182,7 @@ static const char winpanicstr[] = "Bad window Id %d (%s)";
 char defmorestr[] = "--More--";
 
 #ifdef CLIPPING
-#if defined(TILES_IN_GLYPHMAP) && defined(MSDOS)
+#if (defined(TILES_IN_GLYPHMAP) || defined(ENHANCED_SYMBOLS)) && defined(MSDOS)
 boolean clipping = FALSE; /* clipping on? */
 int clipx = 0, clipxmax = 0;
 int clipy = 0, clipymax = 0;
@@ -192,7 +193,7 @@ static int clipy = 0, clipymax = 0;
 #endif
 #endif /* CLIPPING */
 
-#if defined(TILES_IN_GLYPHMAP) && defined(MSDOS)
+#if defined(NO_TERMS) && defined(MSDOS)
 extern void adjust_cursor_flags(struct WinDesc *);
 #endif
 
@@ -765,6 +766,8 @@ getret(void)
 #if defined(MICRO) || defined(WIN32CON)
     getreturn("to continue");
 #else
+    if (!isatty(STDIN_FILENO) || program_state.early_options)
+        return;
     HUPSKIP();
     xputs("\n");
     if (flags.standout)
@@ -2069,7 +2072,7 @@ tty_curs(
 
     print_vt_code2(AVTC_SELECT_WINDOW, window);
 
-#if defined(TILES_IN_GLYPHMAP) && defined(MSDOS)
+#if defined(NO_TERMS) && defined(MSDOS)
     adjust_cursor_flags(cw);
 #endif
 
@@ -3559,8 +3562,9 @@ assesstty(
     short *offx, short *offy, long *rows, long *cols,
     long *maxcol, long *minrow, long *maxrow)
 {
-    boolean inuse_only = (invmode & InvInUse) != 0,
-            show_gold = (invmode & InvShowGold) != 0 && !inuse_only;
+    boolean inuse_only = ((int) invmode & (int) InvInUse) != 0,
+            show_gold = ((int) invmode & (int) InvShowGold) != 0
+                            && !inuse_only;
     int perminv_minrow = tty_perminv_minrow + (show_gold ? 1 : 0);
 
     if (!ttyDisplay) {
@@ -3893,18 +3897,17 @@ tty_print_glyph(
             if (ttyDisplay->color != NO_COLOR)
                 term_end_color();
         }
-        /* we don't link with termcap.o if NO_TERMS is defined */
-        if ((tty_procs.wincap2 & WC2_EXTRACOLORS)
-            && glyphinfo->gm.customcolor != 0
-            && iflags.colorcount >= 256
+        if (glyphinfo->gm.customcolor != 0
             && !calling_from_update_inventory) {
-            if ((glyphinfo->gm.customcolor & NH_BASIC_COLOR) == 0) {
+            if ((glyphinfo->gm.customcolor & NH_BASIC_COLOR) != 0) {
+                /* NH_BASIC_COLOR */
+                color = COLORVAL(glyphinfo->gm.customcolor);
+            } else if ((tty_procs.wincap2 & WC2_EXTRACOLORS)
+                       && iflags.colorcount >= 256) {
                 term_start_extracolor(glyphinfo->gm.customcolor,
                                       glyphinfo->gm.color256idx);
                 ttyDisplay->colorflags = 0;
                 colordone = TRUE;
-            } else {
-                color = COLORVAL(glyphinfo->gm.customcolor);
             }
         }
         if (!colordone) {
@@ -4277,28 +4280,30 @@ static const char *const encvals[3][6] = {
     { "", "Brd",      "Strs",     "Strn",     "Ovtx",      "Ovld"       }
 };
 #define blPAD BL_FLUSH
-#define MAX_PER_ROW 16
+#define MAX_PER_ROW 19
 /* 2 or 3 status lines */
 static const enum statusfields
     twolineorder[3][MAX_PER_ROW] = {
     { BL_TITLE, BL_STR, BL_DX, BL_CO, BL_IN, BL_WI, BL_CH, BL_ALIGN,
-      BL_SCORE, BL_TOD, BL_FLUSH, blPAD, blPAD, blPAD, blPAD, blPAD },
+      BL_SCORE, BL_TOD, BL_MC, BL_FLUSH,
+      blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD },
     { BL_LEVELDESC, BL_GOLD, BL_HP, BL_HPMAX, BL_ENE, BL_ENEMAX,
-      BL_AC, BL_MC, BL_XP, BL_EXP, BL_TIME, BL_HUNGER,
-      BL_CAP, BL_CONDITION, BL_VERS, BL_FLUSH },
+      BL_AC, BL_XP, BL_EXP, BL_HD, BL_TIME, BL_HUNGER, BL_CAP,
+      BL_WEAPON, BL_ARMOR, BL_TERRAIN, BL_CONDITION, BL_VERS, BL_FLUSH },
     /* third row of array isn't used for twolineorder */
     { BL_FLUSH, blPAD, blPAD, blPAD, blPAD, blPAD,
       blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD }
 },
     /* Align moved from 1 to 2, Leveldesc+Time+Cond+Vers moved from 2 to 3 */
     threelineorder[3][MAX_PER_ROW] = {
-    { BL_TITLE, BL_STR, BL_DX, BL_CO, BL_IN, BL_WI, BL_CH,
-      BL_SCORE, BL_FLUSH, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD },
+    { BL_TITLE, BL_STR, BL_DX, BL_CO, BL_IN, BL_WI, BL_CH, BL_SCORE, BL_FLUSH,
+      blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD },
     { BL_ALIGN, BL_GOLD, BL_HP, BL_HPMAX, BL_ENE, BL_ENEMAX,
-      BL_AC, BL_MC, BL_XP, BL_EXP, BL_HD, BL_HUNGER,
-      BL_CAP, BL_FLUSH, blPAD, blPAD },
-    { BL_LEVELDESC, BL_TOD, BL_TIME, BL_CONDITION, BL_VERS, BL_FLUSH,
-      blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD }
+      BL_AC, BL_MC, BL_XP, BL_EXP, BL_HD, BL_HUNGER, BL_CAP,
+      BL_FLUSH, blPAD, blPAD, blPAD, blPAD, blPAD },
+    { BL_LEVELDESC, BL_TOD, BL_TIME, BL_WEAPON, BL_ARMOR, BL_TERRAIN, BL_CONDITION,
+      BL_VERS, BL_FLUSH, blPAD,
+      blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD }
 };
 static const enum statusfields (*fieldorder)[MAX_PER_ROW];
 #undef MAX_PER_ROW
@@ -4384,7 +4389,8 @@ tty_status_enablefield(
  *         BL_TITLE, BL_STR, BL_DX, BL_CO, BL_IN, BL_WI, BL_CH,
  *         BL_ALIGN, BL_SCORE, BL_CAP, BL_GOLD, BL_ENE, BL_ENEMAX,
  *         BL_XP, BL_AC, BL_HD, BL_TIME, BL_HUNGER, BL_HP, BL_HPMAX,
- *         BL_LEVELDESC, BL_EXP, BL_CONDITION, BL_VERS
+ *         BL_LEVELDESC, BL_EXP, BL_CONDITION,
+ *         BL_WEAPON, BL_ARMOR, BL_TERRAIN, BL_VERS
  *      -- fldindex could also be BL_FLUSH (-1), which is not really
  *         a field index, but is a special trigger to tell the
  *         windowport that it should output all changes received
@@ -4755,7 +4761,8 @@ status_sanity_check(void)
         "BL_ENE", "BL_ENEMAX", "BL_XP", "BL_AC", "BL_MC", "BL_HD",         /* 11..15 */
         "BL_TIME", "BL_HUNGER", "BL_HP", "BL_HPMAX",              /* 16..19 */
         "BL_LEVELDESC", "BL_EXP", "BL_CONDITION",                 /* 20..22 */
-        "BL_VERS", "BL_TOD",                                    /*   23..25  */
+        "BL_WEAPON", "BL_ARMOR", "BL_TERRAIN",                    /* 23..25 */
+        "BL_VERS", "BL_TOD",                                      /*   27   */
     };
     static boolean in_sanity_check = FALSE;
     int i;
@@ -4775,8 +4782,8 @@ status_sanity_check(void)
                a corresponding expansion of idxtext[] here */
             if (i < SIZE(idxtext))
                 Strcpy(indxtxt, idxtext[i]);
-            else
-                Sprintf(indxtxt, "%d", i);
+            else /* blstats[] increased without doing same for idxtext[] */
+                Sprintf(indxtxt, "#%d", i);
             Sprintf(panicmsg, "failed on tty_status[NOW][%s].", indxtxt);
             paniclog("status_sanity_check", panicmsg);
             tty_status[NOW][i].sanitycheck = FALSE;

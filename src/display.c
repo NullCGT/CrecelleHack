@@ -1,4 +1,4 @@
-/* NetHack 3.7	display.c	$NHDT-Date: 1745114235 2025/04/19 17:57:15 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.260 $ */
+/* NetHack 5.0	display.c	$NHDT-Date: 1781973045 2026/06/20 16:30:45 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.270 $ */
 /* Copyright (c) Dean Luick, with acknowledgements to Kevin Darcy */
 /* and Dave Cohrs, 1990.                                          */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -753,10 +753,9 @@ feel_location(coordxy x, coordxy y)
     /* replicate safeguards used by newsym(); might not be required here */
     if (_suppress_map_output())
         return;
-
     if (!isok(x, y))
         return;
-    lev = &(levl[x][y]);
+    lev = &levl[x][y];
     /* If hero's memory of an invisible monster is accurate, we want to keep
      * him from detecting the same monster over and over again on each turn.
      * We must return (so we don't erase the monster).  (We must also, in the
@@ -917,15 +916,24 @@ feel_location(coordxy x, coordxy y)
 void
 newsym(coordxy x, coordxy y)
 {
+    struct rm *lev;
+    struct engr *ep;
     struct monst *mon;
     int see_it;
     boolean worm_tail;
-    struct rm *lev = &(levl[x][y]);
-    struct engr *ep;
 
     /* don't try to produce map output when level is in a state of flux */
     if (_suppress_map_output())
         return;
+    /* should never happen; same error handling as u_on_newpos() */
+    if (!isok(x, y)) {
+        void (*errfunc)(const char *, ...) PRINTF_F_PTR(1, 2);
+
+        errfunc = (x < 0 || y < 0 || x > COLNO - 1 || y > ROWNO - 1) ? panic
+                  : impossible; /* misuse of column 0 is less severe */
+        (*errfunc)("newsym: attempting screen update for <%d,%d>", x, y);
+        return;
+    }
 
     /* only permit updating the hero when swallowed */
     if (u.uswallow) {
@@ -939,6 +947,7 @@ newsym(coordxy x, coordxy y)
         if (!(is_pool_or_lava(x, y) || is_ice(x, y)) || !next2u(x, y))
             return;
     }
+    lev = &levl[x][y];
 
     /* Can physically see the location. */
     if (cansee(x, y)) {
@@ -1156,6 +1165,7 @@ tether_glyph(coordxy x, coordxy y)
 
 static struct tmp_glyph {
     coord saved[TMP_AT_MAX_GLYPHS]; /* previously updated positions */
+    boolean shown_on_map[TMP_AT_MAX_GLYPHS];
     int sidx;                       /* index of next unused slot in saved[] */
     int style; /* either DISP_BEAM or DISP_FLASH or DISP_ALWAYS */
     int glyph; /* glyph to use when printing */
@@ -1167,6 +1177,7 @@ tmp_at(coordxy x, coordxy y)
 {
     static struct tmp_glyph *tglyph = (struct tmp_glyph *) 0;
     struct tmp_glyph *tmp;
+    boolean suppress_show = FALSE;
 
     switch (x) {
     case DISP_BEAM:
@@ -1212,27 +1223,42 @@ tmp_at(coordxy x, coordxy y)
                 int i;
 
                 /* Erase (reset) from source to end */
-                for (i = 0; i < tglyph->sidx; i++)
+                for (i = 0; i < tglyph->sidx; i++) {
                     newsym(tglyph->saved[i].x, tglyph->saved[i].y);
+                    tglyph->shown_on_map[i] = FALSE;
+                }
             } else if (tglyph->style == DISP_TETHER) {
                 int i;
 
                 if (y == BACKTRACK && tglyph->sidx > 1) {
                     /* backtrack */
                     for (i = tglyph->sidx - 1; i > 0; i--) {
-                        newsym(tglyph->saved[i].x, tglyph->saved[i].y);
-                        show_glyph(tglyph->saved[i - 1].x,
-                                   tglyph->saved[i - 1].y, tglyph->glyph);
-                        flush_screen(0); /* make sure it shows up */
-                        nh_delay_output();
+                        if (tglyph->shown_on_map[i]) {
+                            newsym(tglyph->saved[i].x, tglyph->saved[i].y);
+                            tglyph->shown_on_map[i] = FALSE;
+                        }
+                        if (cansee(tglyph->saved[i - 1].x,
+                                   tglyph->saved[i - 1].y)) {
+                            tglyph->shown_on_map[i - 1] = TRUE;
+                            show_glyph(tglyph->saved[i - 1].x,
+                                       tglyph->saved[i - 1].y, tglyph->glyph);
+                            flush_screen(0); /* make sure it shows up */
+                            nh_delay_output();
+                        }
                     }
                     tglyph->sidx = 1;
                 }
-                for (i = 0; i < tglyph->sidx; i++)
-                    newsym(tglyph->saved[i].x, tglyph->saved[i].y);
+                for (i = 0; i < tglyph->sidx; i++) {
+                    if (tglyph->shown_on_map[i])
+                        newsym(tglyph->saved[i].x, tglyph->saved[i].y);
+                }
             } else {              /* DISP_FLASH or DISP_ALWAYS */
-                if (tglyph->sidx) /* been called at least once */
-                    newsym(tglyph->saved[0].x, tglyph->saved[0].y);
+                if (tglyph->sidx) { /* been called at least once */
+                    if (tglyph->shown_on_map[0]) {
+                        newsym(tglyph->saved[0].x, tglyph->saved[0].y);
+                        tglyph->shown_on_map[0] = FALSE;
+                    }
+                }
             }
             /* tglyph->sidx = 0; -- about to be freed, so not necessary */
             tmp = tglyph->prev;
@@ -1245,10 +1271,13 @@ tmp_at(coordxy x, coordxy y)
             if (!isok(x, y))
                 break;
             if (tglyph->style == DISP_BEAM || tglyph->style == DISP_ALL) {
-                if (tglyph->style != DISP_ALL && !cansee(x, y))
-                    break;
                 if (tglyph->sidx >= TMP_AT_MAX_GLYPHS)
                     break; /* too many locations */
+                if (tglyph->style != DISP_ALL && !cansee(x, y)) {
+                    tglyph->shown_on_map[tglyph->sidx] = FALSE;
+                    suppress_show = TRUE;
+                    break;
+                }
                 /* save pos for later erasing */
                 tglyph->saved[tglyph->sidx].x = x;
                 tglyph->saved[tglyph->sidx].y = y;
@@ -1261,26 +1290,47 @@ tmp_at(coordxy x, coordxy y)
 
                     px = tglyph->saved[tglyph->sidx - 1].x;
                     py = tglyph->saved[tglyph->sidx - 1].y;
-                    show_glyph(px, py, tether_glyph(px, py));
+                    if (cansee(px, py)) {
+                        tglyph->shown_on_map[tglyph->sidx - 1] = TRUE;
+                        show_glyph(px, py, tether_glyph(px, py));
+                    } else {
+                        tglyph->shown_on_map[tglyph->sidx - 1] = FALSE;
+                        suppress_show = TRUE;
+                    }
                 }
                 /* save pos for later use or erasure */
                 tglyph->saved[tglyph->sidx].x = x;
                 tglyph->saved[tglyph->sidx].y = y;
+                if (!cansee(x, y)) {
+                    tglyph->shown_on_map[tglyph->sidx] = FALSE;
+                    suppress_show = TRUE;
+                } else {
+                    /* happens at end of this default case */
+                    tglyph->shown_on_map[tglyph->sidx] = TRUE;
+                }
                 tglyph->sidx += 1;
             } else { /* DISP_FLASH/ALWAYS */
-                if (tglyph
-                        ->sidx) { /* not first call, so reset previous pos */
+                if (tglyph->sidx) { /* not first call, so reset previous pos */
                     newsym(tglyph->saved[0].x, tglyph->saved[0].y);
+                    tglyph->shown_on_map[0] = FALSE;
                     tglyph->sidx = 0; /* display is presently up to date */
                 }
-                if (!cansee(x, y) && tglyph->style != DISP_ALWAYS)
+                if (!cansee(x, y) && tglyph->style != DISP_ALWAYS) {
+                    suppress_show = TRUE;
+                    tglyph->shown_on_map[0] = FALSE;
                     break;
+                } else {
+                    /* happens at end of this default case */
+                    tglyph->shown_on_map[0] = TRUE;
+                }
                 tglyph->saved[0].x = x;
                 tglyph->saved[0].y = y;
                 tglyph->sidx = 1;
             }
 
-            show_glyph(x, y, tglyph->glyph); /* show it */
+            if (!suppress_show)
+                show_glyph(x, y, tglyph->glyph); /* show it */
+
             flush_screen(0);                 /* make sure it shows up */
             break;
         } /* end switch */
@@ -1495,7 +1545,9 @@ see_monsters(void)
 
     /* loop through level.monsters (aka fmon) */
     for (mon = fmon; mon; mon = mon->nmon) {
-        if (DEADMONSTER(mon))
+        if (DEADMONSTER(mon) || PARKEDMONSTER(mon))
+            continue;
+        if ((mon->mstate & MON_STILL_ARRIVING) != 0)
             continue;
         newsym(mon->mx, mon->my);
         if (mon->wormno)
@@ -2208,7 +2260,7 @@ flush_screen(int cursor_on_u)
     glyph_info bkglyphinfo = nul_glyphinfo;
     int bkglyph;
 
-    /* 3.7: don't update map, status, or perm_invent during save/restore */
+    /* 5.0: don't update map, status, or perm_invent during save/restore */
     if (_suppress_map_output())
         return;
 
@@ -2640,7 +2692,7 @@ map_glyphinfo(
        handled elsewhere. */
     if (glyph_is_object(glyph)) {
         struct obj* otmp = vobj_at(x, y);
-        if (otmp)
+        if (otmp && otmp->otyp)
             glyphinfo->gm.sym.color = compute_obj_glyph_color(otmp);
     }
     /* If the floor has extra surface info, we need to track it to swap the color around. */
@@ -2649,7 +2701,9 @@ map_glyphinfo(
         && flags.color_coatings && cansee(x, y)) {
         /* Order matters here. Generally the more important the coating, the higher
             priority it gets. Potions are the highest because they could kill the player. */
-        if ((levl[x][y].coat_info & COAT_POTION) != 0) {
+        if (Hallucination) {
+            glyphinfo->gm.sym.color = rn2_on_display_rng(CLR_MAX);
+        } else if ((levl[x][y].coat_info & COAT_POTION) != 0) {
             if (levl[x][y].pindex == POT_WATER)
                 glyphinfo->gm.sym.color = CLR_BLUE;
             else
@@ -2702,7 +2756,7 @@ const int altarcolors[] = {
     altar_color_unaligned, altar_color_chaotic, altar_color_neutral,
     altar_color_lawful, altar_color_other
 };
-const int explodecolors[7] = {
+const int explodecolors[EXPL_MAX] = {
     explode_color_dark,   explode_color_noxious, explode_color_muddy,
     explode_color_wet,    explode_color_magical, explode_color_fiery,
     explode_color_frosty,
@@ -3497,7 +3551,7 @@ t_warn(struct rm *lev)
     static const char warn_str[] = "wall_angle: %s: case %d: seenv = 0x%x";
     const char *wname;
 
-    /* 3.7: non-T_wall cases added after shop repair (via breaching a wall,
+    /* 5.0: non-T_wall cases added after shop repair (via breaching a wall,
        using locking magic to put a door there, then unlocking the door;
        D_CLOSED carried over to the wall) triggered warning for "unknown" */
     switch (lev->typ) {
@@ -3850,9 +3904,19 @@ int compute_obj_glyph_color(struct obj *otmp)
         if (!flags.invisible_dye
             && has_odye(otmp) && otmp->otyp != POT_DYE) {
             return ODYE(otmp);
-        } else if (!flags.invisible_material
-                    && (otmp->material != objects[otmp->otyp].oc_material)) {
-            return materials[otmp->material].clr;
+        } else if (otmp->otyp == CORPSE) {
+            int color;
+            mon_color(otmp->corpsenm);
+            return color;
+        } else if (!flags.invisible_material) {
+            if (otmp->material == GEMSTONE
+                && otmp->material != objects[otmp->otyp].oc_material) {
+                return objects[otmp->gemtype].oc_color;
+            } else if (otmp->material != objects[otmp->otyp].oc_material) {
+                return materials[otmp->material].clr;
+            } else {
+                return objects[otmp->otyp].oc_color;
+            }
         } else {
             return objects[otmp->otyp].oc_color;
         }

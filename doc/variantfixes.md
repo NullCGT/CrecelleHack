@@ -1,4 +1,244 @@
+# 1.6
+
+## Game Balance
+- Drinking a potion or using it for alchemy no longer results in an empty bottle.
+  - Empty bottles can still be obtained through other means.
+- Changed potion of gain ability to function as it does in xnethack, copying the code and
+  updating it for 5.0 compatability.
+  - Potions of gain ability do not appear randomly, but as rewards for optional branches
+    and in the valley.
+- Remove terrain boosts feature.
+- Remove ability score skill changes through #enhance and restore the exercise system.
+- Fix being able to wish oprops on artifacts.
+- Scrolls of transmute material cost more to write.
+- Dragonhide cannot be explicitly specified as a material. Wishing for a dragonhide
+  item results in a normal item of that types, while transmuting dragonhide results
+  in a random material.
+- Increasing the pet handling skill increases the max number of pets you can have
+  (and increase it by 1 generally).
+
+## Monsters
+- New Monsters:
+  - (Head) Butler/Maid/Servant
+  - Giant Slug
+    - Suggested by Tokage.
+  - Ogre Mage
+    - Functions differently from other variants. Supporter monster that hangs
+      back and heals allies.
+- Some monsters are now supporters, and hang back to heal their allies.
+
+## Roles
+- Complete overhaul of how the grappler role functions.
+
+## Spellcasting
+- As in xnethack, spell success calculations are replaced by energy cost
+  calculations.
+- The energy required to cast a spell also varies based on the terrain the
+  player is standing on and the school of the spell.
+- The cost of a spell is modified by the terrain that the player is standing
+  on. A spell's "preferred terrain" is displayed in the spellcasting menu. The
+  amount by which it varies is determined by a combination of the player's role
+  and race.
+
+## Options
+- biome_overview
+- removed char_blurbs option
+- renamed dnh_enlightenment to attributes_menu (dnh_enlightenment maintained
+  as an alias)
+
+## Objects
+- New Object: Gas Mask
+  - Blocks poison gas and potion clouds.
+  - Blocks eating when worn.
+- Removed potion of normality
+  - Effect was unclear, not useful, and overall not fun.
+- New Object: Ring of Protection from Explosions
+  - Halves explosive damage.
+  - Randomized appearance is "sticky ring," which has a 2/3 chance of sticking to
+    player's finger when trying to take it off.
+- New Object: Bag of Winds
+  - Applying a bag of winds sucks up nearby gases.
+  - Tipping a bag of winds releases a cloud of the last consumed gas, size dependent
+    upon how many gases have been consumed.
+  - The bag grows less reliable the more gases are sucked up and the more often it
+    has been tipped.
+- New Object: Hunk of Charcoal
+  - Created occasionally when a fire burns a wooden item into nothing.
+- Added many new effects to object properties, dependent on the slot that the item
+  in question is worn in.
+
+## Dungeon Generation
+- Give Vlad a nicer throne room.
+- Unlink monster difficulty from player level and link it instead to dungeon depth.
+- Items with higher enchantment values are more likely to generate as
+  the player descends deeper into the dungeon.
+- Limit death drops to specific powerful monsters.
+
+## Misc
+- YAFM for closed shops.
+- Prevent shopkeepers from locking players inside their shops at night.
+- Massively reduce resizing kit weight.
+- T-shirts and 50% of robes spawn pre-dyed.
+- Added the mintroduce patch from SpliceHack (code from xNetHack)
+- Salt does more damage to mummies than previously.
+- Venoms leave behind coatings on the floor.
+- Being hit with acid venom causes the victim to drip acid.
+- Being gifted selenic seat unrestricts the riding skill.
+- Allow pushed boulders to trigger timed traps.
+- Monsters that zap wands of aqua bolt now spread water.
+- Cannot repeatedly sit on a rust trap to permanently drip water.
+- Cancellation destroys force fields.
+- Attacking a force field with a crysknife destroys it.
+- Breaking a wand of locking creates a force field.
+- Port FIQHack xp curve from xNetHack.
+- Tourists begin the game with iron or gold credit cards.
+- The material of an unlocking tool determines how fragile it is.
+- Ensure Aleaxes spawn with same resistances as player.
+- Increased variance of default monster weapon selection.
+- You are considered to be fumbling when you drip oil.
+- Bonfires now light items on fire and properly evaporate liquids.
+
+# 1.5.1
+## Objects
+- Scrolls of transmute material now allow the player to select the material
+  for transmutation.
+- Cursed scrolls of transmute material now select from a list of "bad" materials
+  rather than just changing items to plastic.
+- Move snowballs and bottles into the chain class, renamed the junk class of items.
+- Slipping on a banana peel actually makes one hurtle.
+
+## Monsters
+- Rebalance some monsters that were too strong.
+- Fix Medusa being killed by some forms of reflection.
+- New Monsters:
+  - Giant Silverfish
+    - Eats paper and cloth objects.
+
+## Races
+- Elven wizards recieve aqua bolt instead of kobold wizards.
+
+## Roles
+- The rogue quest is now to steal the quest artifact from another role, determined
+  randomly at the beginning of the game.
+  - Instead of the Wizard of Yendor, the player will be met at the Plane of Earth
+    by the quest leader whose artifact they stole.
+  - The planes are populated with player monsters of the role which was stolen from.
+
+## Level Generation
+- Improve coatings in special levels.
+
+## Misc
+- Added a wizmode command for advancing the time of day.
+
+# 1.5.0-fix
+## Misc
+- Many improvements to wands of growth.
+  - Zapping at preexisting grass creates a tree.
+  - Zapping at a fountain causes it to overflow.
+  - Zapping at a sink creates a fountain.
+  - Zapping at oneself can cause you to be released by a monster.
+- Zapping wands of growth and aqua bolt at the floor now works properly.
+- Ochre jellies now properly drip with acid.
+- Properly update carrying capacity display when increasing attributes via
+  skill.
+- Update display on time change.
+- Fix Sokoban entrance livelog message.
+- Prevent travel and run commands from taking the player over dangerous
+  coatings.
+- Pets mildly balk at stepping on mold.
+- Remove randomization from pet handling training when pet kills monsters.
+- Reduce scroll of control weather probability to zero.
+- Partial poison resistance protects against poisonous corpses.
+
+# 1.5.0
+## Dungeon
+- Rotting corpses rot more slowly in cold levels.
+- Fossils generate in the dungeon.
+  - These are from dNetHack, with some changes to bring them in line
+    with 3.7. Most notable are the following:
+      - Fossils appear very frequently in the caveman quest.
+      - Mimics sometimes mimic fossils.
+      - Fossils do not become skeletal monsters when raised due to the
+        current lack of templates.
+## New Artifacts
+- Chorister (Flamberge)
+  - Can invoke to change its oprop.
+  - Sings rumors upon wielding.
+- Selenic Seat (Silver Saddle)
+  - Provides cold resistance when carried.
+  - Provides cold resistance and reflection to a steed it is applied to.
+  - When put on a monster, advances that monster if it is not advanced.
+- Horn of the Horde (Tooled Horn)
+  - Summons a number of tame barbarians depending on the material of the
+    horn. Barbarians will automatically attack any enemies regardless of
+    level.
+  - The number of barbarians summoned depends on the material the horn is
+    made out of.
+## New Objects
+- Flamberge
+## Misc
+- Allow players to joust if in centuar or quadruped form.
+- Monsters pursue pets more aggressively.
+- Kicking a fountain sprays water across the floor.
+- Rename and recolor acid blobs depending on potion of acid appearance.
+- Potion of Honey enhancements:
+  - Bears spawn peaceful when the player is coated in honey.
+  - Honey vapors have a healing effect.
+- Herbivorous monsters and players polymorphed into them can eat grass.
+  - This makes herbivorous pets much easier to keep alive.
+## Options
+- Added dnh_enlightenment. This changes the attributes menu to a pick
+  list, as used in dnethack. Should be helpful for the extremely
+  lengthy statuses that can occur.
+- Added coatstatus. Takes advantage of new terrainstatus option to
+  display current coating on status line.
+
+# 1.4.2
+## Monsters
+- Frostwurms are far more dangerous but only appear in snowy areas.
+## New Monsters
+- Orange Fungus
+- Moldering Husk
+  - Only appear in fungal biomes.
+## Dungeon
+- Ported Temple of Moloch (originally from SLASH'EM)
+- Biomes now extend into branches.
+## Races
+- Different races have different favored and unfavored terrains. The
+  bonus or penalty from these terrains depends on the player's alignment.
+## Alignments
+- Terrain Differences
+  - Lawful: AC Bonus/Pentalty
+  - Neutral: Energy Regen Bonus / Penalty
+  - Chaotic: Speed Bonus/Penalty
+## Options
+- char_blurbs option displays explanations about character choices in the
+  character selection dialog(curses only).
+
 # 1.4.1
+## Combat
+- Combined several redundant weapon skills to prevent the skill list
+  from becoming too long.
+  - Morningstars are now covered by the mace skill.
+  - Tridents are now covered by the spear skill.
+  - Boomerangs, darts, and shuriken are all covered by the throwing
+    weapons skill.
+- Weapon damage has been rewritten.
+  - Every weapon has two attributes: an accuracy attribute and
+    damage attribute.
+  - Increasing the attribute associated with accuracy will increase
+    your to-hit bonus with that weapon.
+  - Increasing the attribute associated with damage will increase
+    the number of dice rolled when dealing damage with that weapon.
+- Weapon skills have been altered significantly.
+  - Weapon skills no longer provide a bonus to hit.
+  - Basic weapon skill allows you to wield a weapon that uses that
+    skill without spending a turn. Basic skill in bare-handed
+    combat similarly allows you to go bare-handed without spending
+    a turn.
+  - Skilled weapon skill allows you to fully identify any weapon of
+    that type simply by wielding it.
+  - Expert weapon skill adds 1 side to the dice rolled with that weapon.
 ## Races
 - Kobold Rewrite
   - Kobolds can now talk to monsters. Several players complained
@@ -12,6 +252,20 @@
     much more quickly for them. This includes both positive intrinsics
     as well as negative ones, such as terminal illness. They also
     forget spells twice as quickly.
+- Human
+  - Human can advance any attribute skill to master instead of expert.
+## Skills
+- There is now a skill that corresponds to each attribute. Enhancing this
+  skill increases this attribute by one point.
+- In order to train these skills you must exercise that attribute. This
+  replaces the previous exercise and abuse system for attributes.
+- As a result, new ways have been added to exercise attributes.
+## Roles
+- Grapplers can now attack monsters they are currently grappling.
+- Grapplers are treated as martial characters, improvin their kicks
+  and unarmed strikes.
+- Grapplers can use their finishing move to instantly kill stunned monsters,
+  but only when they have full hit points.
 ## Dungeon
 - Mild rewrite of Vlad's Tower.
 ## Objects
@@ -22,8 +276,15 @@
   - Briny
 - Many adjustments to existing oprops.
 - Potions weigh half as much.
+- All objects can be destroyed by erosion, as in EvilHack.
+- Tame monsters follow you more closely if you wield a shepherd's crook.
+- Shepherd's crooks can be used for grappling as a grappling hook might be.
+- You can transfer one wand's charges into another by rubbing the wands together.
+  Warning: wands may explode.
 - Monsters tend to spawn with potions instead of wands as offensive items.
 - Invisible_material option to disable material color glyphs.
+- Gemstone items can be made of different types of gems.
+  - This does not modify the cost of the item.
 - New Materials
   - Nightiron.
     - Generates very rarely.
@@ -41,6 +302,8 @@
 ## Monsters
 - Some monsters are coded as climbers (YANI Archive #1700 by aosdict)
   and can climb out of pits easily.
+- Some monsters can accidentally hit the ground when they miss, causing
+  collateral damage.
 - The open wounds spell can now cause bleeding.
 - Monsters throw potions of hallucination, which can cause short-term
   hallucination.
@@ -54,6 +317,12 @@
     own list containing some of the nastiest spells in the game.
   - The Chromatic Dragon and Ixoth summon monsters from a unique list
     containing dragons and reptiles.
+- As in dnethack, summoned monsters disappear when their summoner is killed,
+  and they do not drop items.
+- Aleaxes appear with an identical inventory to the player. If the player
+  does not have the amulet, all items are +0 and have no charges. If they
+  do have the amulet? Watch out...
+- Monsters may rarely spawn as advanced, with greatly increased levels.
 ## Weather System
 - Weather and daytime visibility now only impacts first five floors of
   dungeon and outdoor levels.
@@ -62,9 +331,19 @@
 ## Miscelaneous
 - Revert cost increase of enchantment scrolls.
 - To-hit bonus of Luck changed to match 3.7.
+## Resistance System
+- Intrinsic or Extrinsic resistance = 50% damage.
+- Intrinsic and Extrinsic resistance = Blocked.
+- Being wet causes most sources of fire damage to deal only a single point
+  of damage. The liquid evaporates after protecting you once.
+- Being wet causes most sources of electricity to deal double damage, and
+  prevents you from being immunee to shock. The liquid evaporates after
+  one such instance of doubling damage.
 ## New Items
 - Spellbook of Aqua Bolt
 - Salt Crystal
+- Pumpkin
+- Jack-O-Lantern
 - Salt Wand
 - Dye
   - Dye is a rare type of tonic that can change the color of items.
@@ -221,8 +500,9 @@
 
 ## Options
 - implicit_material: quash default material names.
-- shorten_buc: shortens full buc name to [B][U][C].
+- shorten_buc: shortens full buc name to +/-.
 - no_flipped_soko: stop sokoban levels from being flipped.
+- koboldname: Default name of starting pet if it is a kobold.
 
 ## Dungeon Changes
 - Every tree grows a specific kind of fruit.
@@ -263,7 +543,6 @@
 - Reverted changes to reflection from 1.0.
 - New feedback for cracked and greasy mirrors. Cracked mirrors scare
   monsters more easily.
-- Support 4 status lines in curses.
 - Many additional options for config files.
   - obscure_role_obj_names is taken from dnethack.
 - Ported xnethack's player orientation patch, based on some ancient

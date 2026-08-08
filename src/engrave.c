@@ -1,4 +1,4 @@
-/* NetHack 3.7	engrave.c	$NHDT-Date: 1737345573 2025/01/19 19:59:33 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.165 $ */
+/* NetHack 5.0	engrave.c	$NHDT-Date: 1781973048 2026/06/20 16:30:48 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.179 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -18,6 +18,7 @@ struct _doengrave_ctx {
     boolean disprefresh; /* TRUE if the display needs a refresh */
     boolean frosted;  /* TRUE if engraving on ice */
     boolean adding;   /* TRUE if adding to existing engraving */
+    boolean hero_told_it_vanished;
 
     int ret;          /* doengrave return value */
     int type;         /* Type of engraving made */
@@ -439,7 +440,7 @@ make_engr_at(
         Strcpy(ep->engr_txt[i], s);
     if (havepristine)
         Strcpy(ep->engr_txt[pristine_text], pristine_s);
-    if (!strcmp(s, "Elbereth")) {
+    if (!strcmpi(s, "Elbereth")) {
         /* engraving "Elbereth":  if done when making a level, it creates
            an old-style Elbereth that deters monsters when any objects are
            present; otherwise (done by the player), exercises wisdom */
@@ -555,6 +556,7 @@ doengrave_ctx_init(struct _doengrave_ctx *de)
     de->zapwand = FALSE;
     de->disprefresh = FALSE;
     de->adding = FALSE;
+    de->hero_told_it_vanished = FALSE;
 
     de->ret = ECMD_OK;
     de->type = DUST;
@@ -591,6 +593,7 @@ doengrave_sfx_item_WAN(struct _doengrave_ctx *de)
         /* NODIR wands */
     case WAN_LIGHT:
     case WAN_SECRET_DOOR_DETECTION:
+    case WAN_STASIS:
     case WAN_CREATE_MONSTER:
     case WAN_WISHING:
     case WAN_ENLIGHTENMENT:
@@ -691,17 +694,21 @@ doengrave_sfx_item_WAN(struct _doengrave_ctx *de)
     case WAN_CANCELLATION:
     case WAN_MAKE_INVISIBLE:
         if (de->oep && de->oep->engr_type != HEADSTONE) {
-            if (!Blind)
+            if (!Blind) {
                 pline_The("engraving on the %s vanishes!",
                           surface(u.ux, u.uy));
+                de->hero_told_it_vanished = TRUE;
+            }
             de->dengr = TRUE;
         }
         break;
     case WAN_TELEPORTATION:
         if (de->oep && de->oep->engr_type != HEADSTONE) {
-            if (!Blind)
+            if (!Blind) {
                 pline_The("engraving on the %s vanishes!",
                           surface(u.ux, u.uy));
+                de->hero_told_it_vanished = TRUE;
+            }
             de->teleengr = TRUE;
         }
         break;
@@ -770,7 +777,6 @@ doengrave_sfx_item(struct _doengrave_ctx *de)
     default:
     case AMULET_CLASS:
     case CHAIN_CLASS:
-    case BOTTLE_CLASS:
     case POTION_CLASS:
     case COIN_CLASS:
         break;
@@ -1091,12 +1097,28 @@ doengrave(void)
         rloc_engr(de->oep);
         de->oep->eread = 0;
         de->oep->erevealed = 0;
+        /* The old engraving indicator is probably still showing
+         * if, for example, the hero is invisible. Get rid of it
+         * right now, if the player has already been told that
+         * it vanished.
+         */
+        if (de->hero_told_it_vanished)
+            newsym(u.ux, u.uy);
+
         de->disprefresh = TRUE;
         de->oep = (struct engr *) 0;
     }
     if (de->dengr) {
         del_engr(de->oep);
         de->oep = (struct engr *) 0;
+        /* The old engraving indicator is probably still showing
+         * if, for example, the hero is invisible. Get rid of it
+         * right now, if the player has already been told that
+         * it vanished.
+         */
+        if (de->hero_told_it_vanished)
+            newsym(u.ux, u.uy);
+
         de->disprefresh = TRUE;
     }
     /* Something has changed the engraving here */

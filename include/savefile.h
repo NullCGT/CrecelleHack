@@ -1,4 +1,4 @@
-/* NetHack 3.7	savefile.h	$NHDT-Date: 1738638877 2025/02/03 19:14:37 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.1476 $ */
+/* NetHack 5.0	savefile.h	$NHDT-Date: 1781973087 2026/06/20 16:31:27 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.5 $ */
 /* Copyright (c) Michael Allison, 2025.                           */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -83,6 +83,7 @@ extern void sfo_emin(NHFILE *, struct emin *, const char *);
 extern void sfo_engr(NHFILE *, struct engr *, const char *);
 extern void sfo_epri(NHFILE *, struct epri *, const char *);
 extern void sfo_eshk(NHFILE *, struct eshk *, const char *);
+extern void sfo_esum(NHFILE *, struct esum *, const char *);
 extern void sfo_trap(NHFILE *, struct trap *, const char *);
 extern void sfo_gamelog_line(NHFILE *, struct gamelog_line *, const char *);
 extern void sfo_fruit(NHFILE *, struct fruit *, const char *);
@@ -171,6 +172,7 @@ extern void sfi_emin(NHFILE *, struct emin *, const char *);
 extern void sfi_engr(NHFILE *, struct engr *, const char *);
 extern void sfi_epri(NHFILE *, struct epri *, const char *);
 extern void sfi_eshk(NHFILE *, struct eshk *, const char *);
+extern void sfi_esum(NHFILE *, struct esum *, const char *);
 extern void sfi_trap(NHFILE *, struct trap *, const char *);
 extern void sfi_fruit(NHFILE *, struct fruit *, const char *);
 extern void sfi_gamelog_line(NHFILE *, struct gamelog_line *, const char *);
@@ -184,6 +186,10 @@ extern void sfi_int(NHFILE *, int *, const char *);
 extern void sfi_unsigned(NHFILE *, unsigned *, const char *);
 extern void sfi_long(NHFILE *, long *, const char *);
 extern void sfi_ulong(NHFILE *, ulong *, const char *);
+#ifdef DEMO_UPLIFTS
+extern void sfi_mystruct(NHFILE *, struct mystruct *, const char *);
+extern void sfi_mystruct_rev0(NHFILE *, struct mystruct_rev0 *, const char *);
+#endif
 #if NH_C < 202300L
 #define Sfo_aligntyp(a,b,c) sfo_aligntyp(a, b, c)
 #define Sfo_any(a,b,c) sfo_any(a, b, c)
@@ -240,6 +246,7 @@ extern void sfi_ulong(NHFILE *, ulong *, const char *);
 #define Sfo_engr(a,b,c) sfo_engr(a, b, c)
 #define Sfo_epri(a,b,c) sfo_epri(a, b, c)
 #define Sfo_eshk(a,b,c) sfo_eshk(a, b, c)
+#define Sfo_esum(a,b,c) sfo_esum(a, b, c)
 #define Sfo_trap(a,b,c) sfo_trap(a, b, c)
 #define Sfo_gamelog_line(a,b,c) sfo_gamelog_line(a, b, c)
 #define Sfo_fruit(a,b,c) sfo_fruit(a, b, c)
@@ -305,6 +312,7 @@ extern void sfi_ulong(NHFILE *, ulong *, const char *);
 #define Sfi_engr(a,b,c) sfi_engr(a, b, c)
 #define Sfi_epri(a,b,c) sfi_epri(a, b, c)
 #define Sfi_eshk(a,b,c) sfi_eshk(a, b, c)
+#define Sfi_esum(a,b,c) sfi_esum(a, b, c)
 #define Sfi_trap(a,b,c) sfi_trap(a, b, c)
 #define Sfi_fruit(a,b,c) sfi_fruit(a, b, c)
 #define Sfi_gamelog_line(a,b,c) sfi_gamelog_line(a, b, c)
@@ -315,6 +323,10 @@ extern void sfi_ulong(NHFILE *, ulong *, const char *);
 #define Sfi_unsigned(a, b, c) sfi_unsigned(a, b, c);
 #define Sfi_xint8(a, b, c) sfi_xint8(a, b, c);
 #define Sfi_xint16(a, b, c) sfi_xint16(a, b, c);
+#ifdef DEMO_UPLIFTS
+#define Sfi_mystruct(a, b, c) sfi_mystruct(a, b, c)
+#define Sfi_mystruct_rev0(a, b, c) sfi_mystruct_rev0(a, b, c)
+#endif
 #else
 
 #define sfo(nhfp, dt, tag)                     \
@@ -349,6 +361,7 @@ extern void sfi_ulong(NHFILE *, ulong *, const char *);
     struct engr *         : sfo_engr,          \
     struct epri *         : sfo_epri,          \
     struct eshk *         : sfo_eshk,          \
+    struct esum *        : sfo_esum,         \
     struct fe *           : sfo_fe,            \
     struct flag *         : sfo_flag,          \
     struct fruit *        : sfo_fruit,         \
@@ -411,6 +424,7 @@ extern void sfi_ulong(NHFILE *, ulong *, const char *);
     struct engr *         : sfi_engr,          \
     struct epri *         : sfi_epri,          \
     struct eshk *         : sfi_eshk,          \
+    struct esum *        : sfi_esum,         \
     struct fe *           : sfi_fe,            \
     struct flag *         : sfi_flag,          \
     struct fruit *        : sfi_fruit,         \
@@ -499,6 +513,7 @@ extern void sfi_ulong(NHFILE *, ulong *, const char *);
 #define Sfo_engr(a,b,c) sfo(a, b, c)
 #define Sfo_epri(a,b,c) sfo(a, b, c)
 #define Sfo_eshk(a,b,c) sfo(a, b, c)
+#define Sfo_esum(a,b,c) sfo(a,b,c)
 #define Sfo_trap(a,b,c) sfo(a, b, c)
 #define Sfo_gamelog_line(a,b,c) sfo(a, b, c)
 #define Sfo_fruit(a,b,c) sfo(a, b, c)
@@ -553,7 +568,7 @@ extern void sfi_ulong(NHFILE *, ulong *, const char *);
 #define Sfi_dest_area(a,b,c) sfi(a, b, c)
 #define Sfi_levelflags(a,b,c) sfi(a, b, c)
 #define Sfi_rm(a,b,c) sfi(a, b, c)
-#define Sfi_cemetery(a,b,c) sfi(a, b, c)
+#define Sfi_cemetery(a,b,c) sfi_cemetery(a, b, c)
 #define Sfi_damage(a,b,c) sfi(a, b, c)
 #define Sfi_stairway(a,b,c) sfi(a, b, c)
 #define Sfi_obj(a,b,c) sfi(a, b, c)
@@ -565,6 +580,7 @@ extern void sfi_ulong(NHFILE *, ulong *, const char *);
 #define Sfi_engr(a,b,c) sfi(a, b, c)
 #define Sfi_epri(a,b,c) sfi(a, b, c)
 #define Sfi_eshk(a,b,c) sfi(a, b, c)
+#define Sfi_esum(a,b,c) sfi(a, b, c)
 #define Sfi_trap(a,b,c) sfi(a, b, c)
 #define Sfi_fruit(a,b,c) sfi(a, b, c)
 #define Sfi_gamelog_line(a,b,c) sfi(a, b, c)
@@ -575,6 +591,10 @@ extern void sfi_ulong(NHFILE *, ulong *, const char *);
 #define Sfi_unsigned(a, b, c) sfi(a, b, c)
 #define Sfi_xint8(a, b, c) sfi(a, b, c)
 #define Sfi_xint16(a, b, c) sfi(a, b, c)
+#ifdef DEMO_UPLIFTS
+#define Sfi_mystruct(a, b, c) sfi(a, b, c)
+#define Sfi_mystruct_rev0(a, b, c) sfi(a, b, c)
+#endif
 #endif
 
 /* not in _Generic */

@@ -1,4 +1,4 @@
-/* NetHack 3.7	role.c	$NHDT-Date: 1737607158 2025/01/22 20:39:18 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.107 $ */
+/* NetHack 5.0	role.c	$NHDT-Date: 1781973065 2026/06/20 16:31:05 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.111 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985-1999. */
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -68,7 +68,7 @@ const struct Role roles[NUM_ROLES+1] = {
       10,
       A_INT,
       SPE_MAGIC_MAPPING,
-      -4 },
+      -4, 20 },
     { { "Barbarian", 0 },
       { { "Plunderer", "Plunderess" },
         { "Pillager", 0 },
@@ -109,7 +109,7 @@ const struct Role roles[NUM_ROLES+1] = {
       8,
       A_INT,
       SPE_HASTE_SELF,
-      -4 },
+      -4, 40 },
     { { "Caveman", "Cavewoman" },
       { { "Troglodyte", 0 },
         { "Aborigine", 0 },
@@ -150,7 +150,7 @@ const struct Role roles[NUM_ROLES+1] = {
       8,
       A_INT,
       SPE_DIG,
-      -4 },
+      -4, 25 },
     { { "Grappler", 0 },
       { { "Jobber", 0 },
         { "Tin Can", 0 },
@@ -191,7 +191,7 @@ const struct Role roles[NUM_ROLES+1] = {
       10,
       A_WIS,
       SPE_JUMPING,
-      -4 },
+      -4, 10 },
     { { "Healer", 0 },
       { { "Rhizotomist", 0 },
         { "Empiric", 0 },
@@ -232,7 +232,7 @@ const struct Role roles[NUM_ROLES+1] = {
       10,
       A_WIS,
       SPE_CURE_SICKNESS,
-      -4 },
+      -4, 10 },
     { { "Knight", 0 },
       { { "Gallant", 0 },
         { "Esquire", 0 },
@@ -273,7 +273,7 @@ const struct Role roles[NUM_ROLES+1] = {
       9,
       A_WIS,
       SPE_TURN_UNDEAD,
-      -4 },
+      -4, 10 },
     { { "Monk", 0 },
       { { "Candidate", 0 },
         { "Novice", 0 },
@@ -314,7 +314,7 @@ const struct Role roles[NUM_ROLES+1] = {
       20,
       A_WIS,
       SPE_RESTORE_ABILITY,
-      -4 },
+      -4, 20 },
     { { "Priest", "Priestess" },
       { { "Aspirant", 0 },
         { "Acolyte", 0 },
@@ -355,7 +355,7 @@ const struct Role roles[NUM_ROLES+1] = {
       10,
       A_WIS,
       SPE_REMOVE_CURSE,
-      -4 },
+      -4, 25 },
     /* Note:  Rogue precedes Ranger so that use of `-R' on the command line
        retains its traditional meaning. */
     { { "Rogue", 0 },
@@ -371,7 +371,7 @@ const struct Role roles[NUM_ROLES+1] = {
       "Issek", "Mog", "Kos", /* Nehwon */
       "Rog",
       "the Thieves' Guild Hall",
-      "the Assassins' Guild Hall",
+      "the Secret Passageway",
       PM_ROGUE,
       NON_PM,
       PM_MASTER_OF_THIEVES,
@@ -398,7 +398,7 @@ const struct Role roles[NUM_ROLES+1] = {
       9,
       A_INT,
       SPE_DETECT_TREASURE,
-      -4 },
+      -4, 5 },
     { { "Ranger", 0 },
       {
 #if 0 /* OBSOLETE */
@@ -453,7 +453,7 @@ const struct Role roles[NUM_ROLES+1] = {
       10,
       A_INT,
       SPE_INVISIBILITY,
-      -4 },
+      -4, 30 },
     { { "Samurai", 0 },
       { { "Hatamoto", 0 },       /* Banner Knight */
         { "Ronin", 0 },          /* no allegiance */
@@ -494,7 +494,7 @@ const struct Role roles[NUM_ROLES+1] = {
       8,
       A_INT,
       SPE_CLAIRVOYANCE,
-      -4 },
+      -4, 40 },
     { { "Tourist", 0 },
       { { "Rambler", 0 },
         { "Sightseer", 0 },
@@ -535,7 +535,7 @@ const struct Role roles[NUM_ROLES+1] = {
       10,
       A_INT,
       SPE_CHARM_MONSTER,
-      -4 },
+      -4, 15 },
     { { "Valkyrie", 0 },
       { { "Stripling", 0 },
         { "Skirmisher", 0 },
@@ -576,7 +576,7 @@ const struct Role roles[NUM_ROLES+1] = {
       9,
       A_WIS,
       SPE_CONE_OF_COLD,
-      -4 },
+      -4, 15 },
     { { "Wizard", 0 },
       { { "Evoker", 0 },
         { "Conjurer", 0 },
@@ -617,7 +617,7 @@ const struct Role roles[NUM_ROLES+1] = {
       10,
       A_INT,
       SPE_MAGIC_MISSILE,
-      -4 },
+      -4, 5 },
     /* Array terminator */
     UNDEFINED_ROLE,
 };
@@ -645,7 +645,8 @@ const struct Race races[NUM_RACES + 1] = {
         { STR18(100), 18, 18, 18, 18, 18 },
         /* Init   Lower  Higher */
         { 2, 0, 0, 2, 1, 0 }, /* Hit points */
-        { 1, 0, 2, 0, 2, 0 }  /* Energy */
+        { 1, 0, 2, 0, 2, 0 }, /* Energy */
+        0.0
     },
     {
         "elf",
@@ -666,7 +667,8 @@ const struct Race races[NUM_RACES + 1] = {
         { 18, 20, 20, 18, 16, 18 },
         /* Init   Lower  Higher */
         { 1, 0, 0, 1, 1, 0 }, /* Hit points */
-        { 2, 0, 3, 0, 3, 0 }  /* Energy */
+        { 2, 0, 3, 0, 3, 0 }, /* Energy */
+        0.9,
     },
     {
         "dwarf",
@@ -687,7 +689,8 @@ const struct Race races[NUM_RACES + 1] = {
         { STR18(100), 16, 16, 20, 20, 16 },
         /* Init   Lower  Higher */
         { 4, 0, 0, 3, 2, 0 }, /* Hit points */
-        { 0, 0, 0, 0, 0, 0 }  /* Energy */
+        { 0, 0, 0, 0, 0, 0 }, /* Energy */
+        0.8,
     },
     {
         "gnome",
@@ -708,7 +711,8 @@ const struct Race races[NUM_RACES + 1] = {
         { STR18(50), 19, 18, 18, 18, 18 },
         /* Init   Lower  Higher */
         { 1, 0, 0, 1, 0, 0 }, /* Hit points */
-        { 2, 0, 2, 0, 2, 0 }  /* Energy */
+        { 2, 0, 2, 0, 2, 0 }, /* Energy */
+        0.7
     },
     {
         "orc",
@@ -729,7 +733,8 @@ const struct Race races[NUM_RACES + 1] = {
         { STR18(50), 16, 16, 18, 18, 16 },
         /* Init   Lower  Higher */
         { 1, 0, 0, 1, 0, 0 }, /* Hit points */
-        { 1, 0, 1, 0, 1, 0 }  /* Energy */
+        { 1, 0, 1, 0, 1, 0 }, /* Energy */
+        0.6,
     },
     {
         "kobold",
@@ -748,7 +753,8 @@ const struct Race races[NUM_RACES + 1] = {
         { 14, 20, 16, 18, 14, 20 },
         /* Init   Lower  Higher */
         { 0, 0, 0, 0, 0, 1 }, /* Hit points */
-        { 2, 1, 2, 1, 2, 1 }  /* Energy */
+        { 2, 1, 2, 1, 2, 1 }, /* Energy */
+        0.5,
     },
     /* Array terminator */
     UNDEFINED_RACE,
@@ -2131,6 +2137,17 @@ role_init(void)
                                                         : (rn2(100) < 50);
     }
 
+    /* If a rogue, select the quest nemesis */
+    if (Role_if(PM_ROGUE)) {
+        if (flags.rogvictim == -1) {
+            do {
+                flags.rogvictim = randrole(FALSE);
+            } while (roles[flags.rogvictim].neminum == PM_MASTER_OF_THIEVES);
+        }
+        gu.urole.neminum = roles[flags.rogvictim].neminum;
+        gu.urole.questarti = roles[flags.rogvictim].questarti;
+    }
+
     /* Fix up the quest guardians */
     if (gu.urole.guardnum != NON_PM) {
         pm = &mons[gu.urole.guardnum];
@@ -2175,6 +2192,9 @@ role_init(void)
     }
     /* 0 or 1; no gods are neuter, nor is gender randomized */
     svq.quest_status.godgend = !strcmpi(align_gtitle(alignmnt), "goddess");
+
+    if (Role_if(PM_CLERIC))
+        objects[SPE_LIGHT].oc_skill = P_CLERIC_SPELL;
 
 #if 0
 /*

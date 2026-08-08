@@ -1,4 +1,4 @@
-/* NetHack 3.7	attrib.c	$NHDT-Date: 1754979443 2025/08/11 22:17:23 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.134 $ */
+/* NetHack 5.0	attrib.c	$NHDT-Date: 1781973041 2026/06/20 16:30:41 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.142 $ */
 /*      Copyright 1988, 1989, 1990, 1992, M. Stephenson           */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -112,7 +112,7 @@ static const struct innate {
 staticfn void exerper(void);
 staticfn int rnd_attr(void);
 staticfn int init_attr_role_redist(int, boolean);
-staticfn void postadjabil(long *);
+staticfn void postadjabil(long *) NONNULLARG1;
 staticfn const struct innate *role_abil(int);
 staticfn const struct innate *check_innate_abil(long *, long);
 staticfn int innately(long *);
@@ -192,11 +192,17 @@ adjattrib(
         return FALSE;
     }
 
+    /* Any successful change also resets abuse / exercise level */
+    AEXE(ndx) = 0;
+
     disp.botl = TRUE;
     if (msgflg <= 0)
         You_feel("%s%s!", (incr > 1 || incr < -1) ? "very " : "", attrstr);
     if (program_state.in_moveloop && (ndx == A_STR || ndx == A_CON))
         encumber_msg();
+    /* must update inventory for weight display purposes */
+    if (ndx == A_STR || ndx == A_CON)
+        update_inventory();
     return TRUE;
 }
 
@@ -275,6 +281,10 @@ losestr(int num, const char *knam, schar k_format)
 void
 poison_strdmg(int strloss, int dmg, const char *knam, schar k_format)
 {
+    if (Poison_resistance) {
+        strloss = (dmg + 1) / 2;
+        dmg = (dmg + 1) / 2;
+    }
     losestr(strloss, knam, k_format);
     losehp(dmg, knam, k_format);
 }
@@ -337,11 +347,15 @@ poisoned(
               isupper((uchar) *reason) ? "" : "The ", reason,
               plural ? "were" : "was");
     }
-    if (Poison_resistance) {
+    if (Poison_immunity) {
         if (blast)
             shieldeff(u.ux, u.uy);
         pline_The("poison doesn't seem to affect you.");
         return;
+    }
+
+    if (Poison_resistance) {
+        fatal = 0;
     }
 
     /* suppress killer prefix if it already has one */
@@ -491,8 +505,6 @@ void
 exercise(int i, boolean inc_or_dec)
 {
     debugpline0("Exercise:");
-    if (i == A_INT || i == A_CHA)
-        return; /* can't exercise these */
 
     /* no physical exercise while polymorphed; the body's temporary */
     if (Upolyd && i != A_WIS)
@@ -685,7 +697,7 @@ rnd_attr(void)
 {
     int i, x = rn2(100);
 
-    /* 3.7: the x -= ... calculation used to have an off by 1 error that
+    /* 5.0: the x -= ... calculation used to have an off by 1 error that
        resulted in the values being biased toward Str and away from Cha */
     for (i = 0; i < A_MAX; ++i)
         if ((x -= gu.urole.attrdist[i]) < 0)
@@ -781,7 +793,7 @@ staticfn
 void
 postadjabil(long *ability)
 {
-    if (!ability)
+    if (!u.ulevel) /* initializing hero; don't attempt screen update yet */
         return;
     if (ability == &(HWarning) || ability == &(HSee_invisible))
         see_monsters();
@@ -1003,6 +1015,23 @@ from_what(
         }
 
     } /*wizard*/
+    return buf;
+}
+
+/* This is used specifically for describing immunities in wizard mode. */
+char *
+from_what_item(int propidx)
+{
+    static char buf[BUFSZ];
+    buf[0] = '\0';
+    struct obj *obj;
+    if (wizard) {
+        obj = what_gives(&u.uprops[propidx].extrinsic);
+        if (obj)
+            Sprintf(buf, " because of %s", obj->oartifact
+                                        ? bare_artifactname(obj)
+                                        : ysimple_name(obj));
+    }
     return buf;
 }
 
@@ -1253,8 +1282,11 @@ acurr(int chridx)
 schar
 amodifier(int chridx)
 {
-    int attr = ACURR(chridx);
-    if (ACURR(A_STR) <= STR18(0))
+    int attr;
+    if (chridx < A_STR || chridx > A_CHA)
+        return 0;
+    attr = ACURR(chridx);
+    if ((chridx != A_STR) || ACURR(A_STR) <= STR18(0))
         return ((attr - 10) + ((attr >= 0) ? 0 : -1)) / 2;
     else if (ACURR(A_STR) < STR18(50))
         return 5;
@@ -1381,6 +1413,15 @@ uchangealign(
         u.ualign.record = 0; /* slate is wiped clean */
         retouch_equipment(0);
     }
+}
+
+const char *
+attr_name(int attr) {
+    if (attr < 0)
+        return "negativity";
+    if (attr >= A_MAX)
+        return "positivity";
+    return attrname[attr];
 }
 
 /*attrib.c*/

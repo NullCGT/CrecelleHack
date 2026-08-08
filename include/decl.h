@@ -1,4 +1,4 @@
-/* NetHack 3.7  decl.h  $NHDT-Date: 1725653004 2024/09/06 20:03:24 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.377 $ */
+/* NetHack 5.0  decl.h  $NHDT-Date: 1781973078 2026/06/20 16:31:18 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.408 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Michael Allison, 2007. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -237,6 +237,7 @@ struct instance_globals_c {
     /* decl.c */
     char chosen_windowtype[WINTYPELEN];
     int cmd_key; /* parse() / rhack() */
+    struct Cmd_bind *cmd_bind;
     cmdcount_nht command_count;
     /* some objects need special handling during destruction or placement */
     struct obj *current_wand;  /* wand currently zapped/applied */
@@ -343,6 +344,7 @@ struct instance_globals_d {
     /* new */
     boolean deferred_showpaths;
     char *deferred_showpaths_dir;
+    boolean disable_glyphname_hash_indices_prefill;
 
     boolean havestate;
 };
@@ -514,6 +516,9 @@ struct instance_globals_k {
 
     /* read.c */
     boolean known;
+
+    /* dog.c */
+    char koboldname[PL_PSIZ];
 
     boolean havestate;
 };
@@ -728,7 +733,8 @@ struct instance_globals_o {
 
     /* options.c */
 
-    int opt_phase; /* builtin_opt, syscf_, rc_file_, environ_, play_opt */
+    /* builtin_opt, syscf_, rc_file_, environ_, play_opt */
+    enum option_phases opt_phase;
     boolean opt_initial;
     boolean opt_from_file;
     boolean opt_need_redraw; /* for doset() */
@@ -804,6 +810,9 @@ struct instance_globals_p {
     int  poly_zapped;
 
     /* new stuff */
+    int puzzling_criteria;
+    char puzzling_ilets[invlet_basic + 1];
+
     boolean havestate;
 };
 
@@ -841,9 +850,6 @@ struct instance_globals_r {
 };
 
 struct instance_globals_s {
-
-    /* allmain.c */
-    boolean saving_grace_turn; /* saving grace was triggered this turn */
 
     /* artifact.c */
     int spec_dbon_applies; /* coordinate effects from spec_dbon() with
@@ -977,14 +983,14 @@ struct instance_globals_t {
 
 struct instance_globals_u {
 
-    /* allmain.c */
-    int uhp_at_start_of_monster_turn;
-
     /* botl.c */
     boolean update_all;
 
     /* decl.c */
     boolean unweapon;
+
+        /* revision.c */
+    int uplift_needed_rev0_to_rev1;
 
     /* role.c */
     struct Role urole; /* player's role. May be munged in role_init() */
@@ -1178,6 +1184,8 @@ struct instance_globals_saved_m {
 struct instance_globals_saved_n {
     /* dungeon.c */
     int n_dgns; /* number of dungeons (also used in mklev.c and do.c) */
+    /* files.c */
+    char nhuuid[NHUUIDSZ];
     /* mkroom.c */
     int nroom;
     /* region.c */
@@ -1227,6 +1235,12 @@ struct instance_globals_saved_t {
 struct instance_globals_saved_u {
     /* decl.c */
     dest_area updest;
+};
+
+struct instance_globals_saved_w {
+    /* reserved */
+    long wreserve;
+    int32_t wtreserved;
 };
 
 struct instance_globals_saved_x {
@@ -1282,9 +1296,15 @@ extern struct instance_globals_saved_r svr;
 extern struct instance_globals_saved_s svs;
 extern struct instance_globals_saved_t svt;
 extern struct instance_globals_saved_u svu;
+extern struct instance_globals_saved_w svw;
 extern struct instance_globals_saved_x svx;
 extern struct instance_globals_saved_y svy;
 extern struct sinfo program_state; /* flags describing game's current state */
+/* flags describing current level's loading/making/readiness status;
+ * restlevelstate() already associated term 'levelstate' for a different
+ * purpose, so attempt to avoid confusion
+ */
+extern struct levelstatus level_status;
 
 struct const_globals {
     const struct obj zeroobj;      /* used to zero out a struct obj */

@@ -1,4 +1,4 @@
-/* NetHack 3.7	winX.h	$NHDT-Date: 1740795096 2025/02/28 18:11:36 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.65 $ */
+/* NetHack 5.0	winX.h	$NHDT-Date: 1781973092 2026/06/20 16:31:32 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.69 $ */
 /* Copyright (c) Dean Luick, 1992                                 */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -286,6 +286,8 @@ struct xwindow {
 #define YN_NO_LOGMESG 1U /* suppress echo of prompt+response to message window
                           * and dumplog message history */
 #define YN_NO_DEFAULT 2U /* don't convert quitchars to 0 or ESC to q/n/def */
+
+#define DELAY_EVENT_ID 66 /* arbitrary byte value */
 
 /* Window variables (winX.c). */
 extern struct xwindow window_list[MAX_WINDOWS];

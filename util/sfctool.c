@@ -1,4 +1,4 @@
-/* NetHack 3.7	sfctool.c */
+/* NetHack 5.0	sfctool.c */
 /* Copyright (c) Michael Allison, 2025.                           */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -96,7 +96,7 @@ int util_strncmpi(const char *s1, const char *s2, size_t sz);
 #ifdef UNIX
 #define nethack_exit exit
 ATTRNORETURN void nh_terminate(int) NORETURN;   /* bwrite() calls this */
-static void chdirx(const char *);
+//static void chdirx(const char *, boolean);
 #else
 ATTRNORETURN extern void nethack_exit(int) NORETURN;
 #ifdef WIN32
@@ -184,7 +184,7 @@ main(int argc, char *argv[])
     folderbuf[1] = '/';
     folderbuf[2] = '\0';
 #ifdef CHDIR
-    chdirx(HACKDIR);
+    chdirx(HACKDIR, FALSE);
 #endif
 #endif
 #ifdef UNIX
@@ -195,7 +195,7 @@ main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     sz = strlen(folderbuf);
     (void) snprintf(eos(folderbuf), sizeof folderbuf - sz,
-                    "\\AppData\\Local\\NetHack\\3.7\\");
+                    "\\AppData\\Local\\NetHack\\5.0\\");
     // initoptions_init(); // This allows OPTIONS in syscf on Windows.
     set_default_prefix_locations(argv[0]);
 #endif
@@ -809,8 +809,8 @@ nethack_exit(int code)
 
 #ifdef UNIX
 #ifdef CHDIR
-static void
-chdirx(const char *dir)
+void
+chdirx(const char *dir, boolean wr UNUSED)
 {
     if (dir) {
 #ifdef SECURE
@@ -1056,6 +1056,27 @@ free_ebones(struct monst *mtmp)
     }
 }
 
+void
+newesum(struct monst *mtmp)
+{
+    if (!mtmp->mextra)
+        mtmp->mextra = newmextra();
+    if (!ESUM(mtmp)) {
+        ESUM(mtmp) = (struct esum *) alloc(sizeof(struct esum));
+        (void) memset((genericptr_t) ESUM(mtmp), 0, sizeof(struct esum));
+    }
+}
+
+void
+free_esum(struct monst *mtmp)
+{
+    if (mtmp->mextra && ESUM(mtmp)) {
+        free((genericptr_t) ESUM(mtmp));
+        ESUM(mtmp) = (struct esum *) 0;
+    }
+}
+
+
 static const struct mextra zeromextra = DUMMY;
 
 static void
@@ -1176,6 +1197,8 @@ dealloc_mextra(struct monst* m)
             free((genericptr_t) x->edog);
         if (x->ebones)
             free((genericptr_t) x->ebones);
+        if (x->esum)
+            free((genericptr_t) x->esum);
         /* [no action needed for x->mcorpsenm] */
 
         free((genericptr_t) x);

@@ -1,4 +1,4 @@
-/* NetHack 3.7	vidtxt.c	$NHDT-Date: 1596498278 2020/08/03 23:44:38 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.12 $ */
+/* NetHack 5.0	vidtxt.c	$NHDT-Date: 1596498278 2020/08/03 23:44:38 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.12 $ */
 /*   Copyright (c) NetHack PC Development Team 1993                 */
 /*   NetHack may be freely redistributed.  See license for details. */
 /*                                                                  */
@@ -109,7 +109,7 @@ txt_get_scr_size(void)
 void txt_gotoxy(int, int);
 
 #if defined(SCREEN_BIOS) && !defined(PC9800)
-void txt_get_cursor(int *, int *);
+static void txt_get_cursor(int *, int *);
 #endif
 
 #ifdef SCREEN_DJGPPFAST
@@ -401,7 +401,7 @@ void txt_xputc(char ch, int attr)
  *
  * This is implemented as a macro under DJGPPFAST.
  */
-void txt_get_cursor(int *x, int *y)
+static void txt_get_cursor(int *x, int *y)
 {
     union REGS regs;
 

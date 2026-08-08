@@ -1,4 +1,4 @@
-/* NetHack 3.7	defsym.h $NHDT-Date: 1725653007 2024/09/06 20:03:27 $ $NHDT-Branch: NetHack-3.7 $ $NHDT-Revision: 1.25 $ */
+/* NetHack 5.0	defsym.h $NHDT-Date: 1781973078 2026/06/20 16:31:18 $ $NHDT-Branch: NetHack-5.0 $ $NHDT-Revision: 1.27 $ */
 /*      Copyright (c) 2016 by Pasi Kallinen              */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -484,10 +484,9 @@
     OBJCLASS2(12, '$', COIN,   GOLD_SYM, S_coin, "coins", "pile of coins")
     OBJCLASS(13,  '*', GEM,    S_gem, "rocks", "gem or rock")
     OBJCLASS(14,  '`', ROCK,   S_rock, "large stones", "boulder or statue")
-    OBJCLASS(15,  '-', BOTTLE, S_bottle, "bottles", "bottle")
-    OBJCLASS(16,  '0', BALL,   S_ball, "iron balls", "iron ball")
-    OBJCLASS(17,  '_', CHAIN,  S_chain, "chains", "iron chain")
-    OBJCLASS(18,  '.', VENOM,  S_venom, "venoms", "splash of venom")
+    OBJCLASS(15,  '0', BALL,   S_ball, "iron balls", "iron ball")
+    OBJCLASS(16,  '_', CHAIN,  S_chain, "junk", "piece of junk")
+    OBJCLASS(17,  '.', VENOM,  S_venom, "venoms", "splash of venom")
 
 #undef OBJCLASS
 #undef OBJCLASS2

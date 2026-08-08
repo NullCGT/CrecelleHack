@@ -1,4 +1,4 @@
-/* NetHack 3.7	restore.c	$NHDT-Date: 1736530208 2025/01/10 09:30:08 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.234 $ */
+/* NetHack 5.0	restore.c	$NHDT-Date: 1781973064 2026/06/20 16:31:04 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.265 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Michael Allison, 2009. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -30,6 +30,7 @@ staticfn int restlevelfile(xint8);
 staticfn void rest_bubbles(NHFILE *);
 staticfn void restore_gamelog(NHFILE *);
 staticfn void reset_oattached_mids(boolean);
+
 /* these ones are declared non-static in extern.h if SFCTOOL is defined */
 staticfn boolean restgamestate(NHFILE *);
 staticfn void rest_bubbles(NHFILE *);
@@ -185,6 +186,7 @@ restobj(NHFILE *nhfp, struct obj *otmp)
     int buflen = 0;
     unsigned omid = 0;
     uchar odye = 0;
+    boolean osum = 0;
 
     Sfi_obj(nhfp, otmp, "obj");
     otmp->lua_ref_cnt = 0;
@@ -225,8 +227,10 @@ restobj(NHFILE *nhfp, struct obj *otmp)
         newomid(otmp); /* superfluous; we're already allocated otmp->oextra */
         Sfi_unsigned(nhfp, &omid, "obj-omid");
         OMID(otmp) = omid;
-        Sfi_unsigned(nhfp, &odye, "obj-odye");
+        Sfi_uchar(nhfp, &odye, "obj-odye");
         ODYE(otmp) = odye;
+        Sfi_boolean(nhfp, &osum, "obj-osum");
+        OSUM(otmp) = osum;
     }
 }
 
@@ -354,10 +358,19 @@ restmon(NHFILE *nhfp, struct monst *mtmp)
         if (buflen > 0) {
             newedog(mtmp);
             Sfi_edog(nhfp, EDOG(mtmp), "monst-edog");
+            /* save or bones held a relative time */
+            relative_time_to_moves(&EDOG(mtmp)->droptime);
+            relative_time_to_moves(&EDOG(mtmp)->hungrytime);
             /* sanity check to prevent rn2(0) */
            if (EDOG(mtmp)->apport <= 0) {
                EDOG(mtmp)->apport = 1;
            }
+        }
+        /* esum - summoned */
+        Sfi_int(nhfp, &buflen, "monst-esum_length");
+        if (buflen > 0) {
+            newesum(mtmp);
+            Sfi_esum(nhfp, ESUM(mtmp), "monst-esum");
         }
         /* ebones */
         Sfi_int(nhfp, &buflen, "monst-ebones_length");
@@ -447,6 +460,13 @@ restmonchn(NHFILE *nhfp)
             restshk(mtmp, ghostly);
         if (mtmp->ispriest)
             restpriest(mtmp, ghostly);
+        if (mtmp->isgd) {
+            /* fixup for new bit MON_PARKED added post 5.0.0 */
+            if (!mtmp->mx
+                && (mtmp->mstate & MON_PARKED) == 0L
+                && (mtmp->mstate & MON_MIGRATING) == 0L)
+                mtmp->mstate |= MON_PARKED;
+        }
 
         if (!ghostly) {
             if (mtmp->m_id == svc.context.polearm.m_id)
@@ -536,6 +556,8 @@ restgamestate(NHFILE *nhfp)
 #endif
 
     Sfi_ulong(nhfp, &uid, "gamestate-uid");
+    Sfi_char(nhfp, &svn.nhuuid[0], "nhuuid", sizeof svn.nhuuid);
+    Sfi_long(nhfp, &svm.moves, "gamestate-moves");
 #ifndef SFCTOOL
     if (SYSOPT_CHECK_SAVE_UID
         && uid != (unsigned long) getuid()) { /* strange ... */
@@ -553,6 +575,8 @@ restgamestate(NHFILE *nhfp)
 #endif  /* SFCTOOL */
     newgamecontext = svc.context; /* copy statically init'd context */
     Sfi_context_info(nhfp, &svc.context, "gamestate-context");
+    relative_time_to_moves(&svc.context.seer_turn);
+    relative_time_to_moves(&svc.context.digging.lastdigtime);
     svc.context.warntype.species = (ismnum(svc.context.warntype.speciesidx))
                                   ? &mons[svc.context.warntype.speciesidx]
                                   : (struct permonst *) 0;
@@ -594,6 +618,8 @@ restgamestate(NHFILE *nhfp)
     amii_setpens(amii_numcolors); /* use colors from save file */
 #endif
 #endif /* !SFCTOOL */
+    Sfi_long(nhfp, &svw.wreserve, "wreserve");
+    Sfi_int32(nhfp, &svw.wtreserved, "wtreserved");
     Sfi_you(nhfp, &u, "gamestate-you");
     gy.youmonst.cham = u.mcham;
 
@@ -695,7 +721,6 @@ restgamestate(NHFILE *nhfp)
 
     restore_dungeon(nhfp);
     restlevchn(nhfp);
-    Sfi_long(nhfp, &svm.moves, "gamestate-moves");
     /* hero_seq isn't saved and restored because it can be recalculated */
     gh.hero_seq = svm.moves << 3; /* normally handled in moveloop() */
     Sfi_q_score(nhfp, &svq.quest_status, "gamestate-quest_status");
@@ -707,6 +732,14 @@ restgamestate(NHFILE *nhfp)
     restore_oracles(nhfp);
     Sfi_char(nhfp, svp.pl_character,
              "gamestate-pl_character", sizeof svp.pl_character);
+    /* Previous versions had a bug that clobbered pl_character on restore.
+       Fill it in if it was clobbered. */
+    if (svp.pl_character[0] == '\0') {
+        if ((Upolyd ? u.mfemale : flags.female) && gu.urole.name.f)
+            Strcpy(svp.pl_character, gu.urole.name.f);
+        else
+            Strcpy(svp.pl_character, gu.urole.name.m);
+    }
     Sfi_char(nhfp, svp.pl_fruit, "gamestate-pl_fruit", sizeof svp.pl_fruit);
     Sfi_char(nhfp, svp.pl_taunt, "gamestate-pl_taunt", sizeof svp.pl_taunt);
     freefruitchn(gf.ffruit); /* clean up fruit(s) made by initoptions() */
@@ -720,7 +753,9 @@ restgamestate(NHFILE *nhfp)
     /* must come after all mons & objs are restored */
     relink_timers(FALSE);
     relink_light_sources(FALSE);
+    adj_mon_colors();
     adj_erinys(u.ualign.abuse);
+    adj_midbosses();
 #ifdef WHEREIS_FILE
     touch_whereis();
 #endif
@@ -789,11 +824,13 @@ dorecover(NHFILE *nhfp)
 {
     xint8 ltmp = 0;
     int rtmp;
+    char plname[PL_NSIZ_PLUS];
 
     /* suppress map display if some part of the code tries to update that */
     program_state.restoring = REST_GSTATE;
 
-    get_plname_from_file(nhfp, svp.plname, TRUE);
+    get_plname_from_file(nhfp, plname, TRUE);
+    Snprintf(svp.plname, sizeof(svp.plname), "%s", plname);
     /*
      * The position in the save file is now here:
      *
@@ -888,8 +925,9 @@ dorecover(NHFILE *nhfp)
     restoreinfo.mread_flags = 0;
 
     rewind_nhfile(nhfp);        /* return to beginning of file */
-    (void) validate(nhfp, (char *) 0, FALSE);
-    get_plname_from_file(nhfp, svp.plname, TRUE);
+    (void) validate(nhfp, (char *) 0, FALSE, 0);
+    get_plname_from_file(nhfp, plname, TRUE);
+    Snprintf(svp.plname, sizeof(svp.plname), "%s", plname);
 
     /* not 0 nor REST_GSTATE nor REST_LEVELS */
     program_state.restoring = REST_CURRENT_LEVEL;
@@ -898,6 +936,11 @@ dorecover(NHFILE *nhfp)
     close_nhfile(nhfp);
     restlevelstate();
     program_state.something_worth_saving = 1; /* useful data now exists */
+
+    if (gu.uplift_needed_rev0_to_rev1 == 1) {
+        /* they've all been uplifted now */
+        gu.uplift_needed_rev0_to_rev1 = 0;
+    }
 
     if (!wizard && !discover)
         (void) delete_savefile();
@@ -1062,6 +1105,8 @@ getlev(NHFILE *nhfp, int pid, xint8 lev)
 #endif
 
     program_state.in_getlev = TRUE;
+    level_status_init();
+    level_status.loading = 1;
 #ifndef SFCTOOL
 
     if (ghostly)
@@ -1105,7 +1150,7 @@ getlev(NHFILE *nhfp, int pid, xint8 lev)
     for (c = 0; c < COLNO; ++c) {
         for (r = 0; r < ROWNO; ++r) {
             Sfi_schar(nhfp, &svl.lastseentyp[c][r], "lastseentyp");
-	}
+        }
     }
     Sfi_long(nhfp, &svo.omoves, "lev-timestmp");
     elapsed = (svm.moves - svo.omoves);
@@ -1114,7 +1159,7 @@ getlev(NHFILE *nhfp, int pid, xint8 lev)
     Sfi_dest_area(nhfp, &svu.updest, "lev-updest");
     Sfi_dest_area(nhfp, &svd.dndest, "lev-dndest");
     Sfi_levelflags(nhfp, &svl.level.flags, "lev-level_flags");
-
+    rest_adjust_levelflags(elapsed);
     if (svd.doors) {
         free(svd.doors);
         svd.doors = 0;
@@ -1167,9 +1212,11 @@ getlev(NHFILE *nhfp, int pid, xint8 lev)
     dealloc_trap(trap);
 
     fobj = restobjchn(nhfp, FALSE);
-#ifndef SFCTOOL
-    find_lev_obj();
-#endif  /* !SFCTOOL */
+    /* more work needs to be done on fobj in find_lev_obj() further down,
+     * but that needs to happen after set_residency() so that shop_keeper()
+     * will return correct results during the processing.
+     */
+
     /* restobjchn()'s `frozen' argument probably ought to be a callback
        routine so that we can check for objects being buried under ice */
     svl.level.buriedobjlist = restobjchn(nhfp, FALSE);
@@ -1184,14 +1231,17 @@ getlev(NHFILE *nhfp, int pid, xint8 lev)
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
         if (mtmp->isshk)
             set_residency(mtmp, FALSE);
+        /* set some monst fields to sane values when coming from a bones file */
+        if (ghostly) {
+            mtmp->movement = 0;
+        }
         if (mtmp->m_id == u.usteed_mid) {
             /* steed is kept on fmon list but off the map */
             u.usteed = mtmp;
             u.usteed_mid = 0;
         } else {
             if (mtmp->m_id == u.ustuck_mid) {
-                set_ustuck(mtmp);
-                u.ustuck_mid = 0;
+                set_ustuck(mtmp); /* set_ustuck clears u.ustuck_mid */
             }
             place_monster(mtmp, mtmp->mx, mtmp->my);
             if (mtmp->wormno)
@@ -1199,7 +1249,6 @@ getlev(NHFILE *nhfp, int pid, xint8 lev)
             if (hides_under(mtmp->data) && mtmp->mundetected)
                 (void) hideunder(mtmp);
         }
-
         /* regenerate monsters while on another level */
         if (!u.uz.dlevel || program_state.restoring == REST_LEVELS)
             continue;
@@ -1222,6 +1271,11 @@ getlev(NHFILE *nhfp, int pid, xint8 lev)
         if (ghostly || (elapsed > 0L && elapsed > (long) rnd(10)))
             hide_monst(mtmp);
     }
+    level_status.shkready = 1;
+    /* post-5.0.0: this is now postponed until here so that it takes place
+       after set_residency() has been called */
+    find_lev_obj();
+
 #endif /* !SFCTOOL */
 
     restdamage(nhfp);
@@ -1308,12 +1362,13 @@ getlev(NHFILE *nhfp, int pid, xint8 lev)
 
     if (ghostly)
         clear_id_mapping();
+#endif
+    level_status.loading = 0, level_status.ready = 1;
     program_state.in_getlev = FALSE;
-#else
+#ifdef SFCTOOL
     nhUse(pid);
     nhUse(lev);
 #endif /* !SFCTOOL */
-    program_state.in_getlev = FALSE;
 }
 
 /* advance dungeon state - grow grass, etc. */
@@ -1354,6 +1409,30 @@ grow_dungeon(void) {
         remove_coating(x, y, COAT_POTION);
         if (cansee(x, y)) pline_xy(x, y, "You see some liquid evaporate.");
     }
+}
+
+void
+rest_adjust_levelflags(long elapsed)
+{
+    /* adjust timestamps */
+    relative_time_to_moves(&svl.level.flags.stasis_until);
+    svl.level.flags.stasis_until -= elapsed;
+}
+
+void
+moves_to_relative_time(long *timestamp)
+{
+    long prevts = *timestamp;
+
+    *timestamp = prevts - svm.moves;
+}
+
+void
+relative_time_to_moves(long *timestamp)
+{
+    long prevts = *timestamp;
+
+    *timestamp = svm.moves + prevts;
 }
 
 /* "name-role-race-gend-algn" occurs very early in a save file; sometimes we

@@ -1,4 +1,4 @@
-/* NetHack 3.7	mklev.c	$NHDT-Date: 1737387068 2025/01/20 07:31:08 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.194 $ */
+/* NetHack 5.0	mklev.c	$NHDT-Date: 1781973055 2026/06/20 16:30:55 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.207 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Alex Smith, 2017. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -308,6 +308,10 @@ add_room(coordxy lowx, coordxy lowy, coordxy hix, coordxy hiy,
 {
     struct mkroom *croom;
 
+#ifdef DEBUG
+    if (svn.nroom >= MAXNROFROOMS)
+        panic("level has too many rooms");
+#endif /*DEBUG*/
     croom = &svr.rooms[svn.nroom];
     do_room_or_subroom(croom, lowx, lowy, hix, hiy, lit, rtype, special,
                        (boolean) TRUE);
@@ -324,6 +328,12 @@ add_subroom(struct mkroom *proom,
 {
     struct mkroom *croom;
 
+#ifdef DEBUG
+    if (gn.nsubroom >= MAXNROFROOMS)
+        panic("level has too many subrooms");
+    if (proom->nsubrooms >= MAX_SUBROOMS)
+        panic("room has too many subrooms");
+#endif /*DEBUG*/
     croom = &gs.subrooms[gn.nsubroom];
     do_room_or_subroom(croom, lowx, lowy, hix, hiy, lit, rtype, special,
                        (boolean) FALSE);
@@ -768,11 +778,11 @@ makeniche(int trap_type)
             dosdoor(xx, yy, aroom, SDOOR);
         } else {
             rm->typ = CORR;
-            if (rn2(7)) {
+            if (rn2(7) && !IS_BIOME(BIOME_SEWER)) {
                 dosdoor(xx, yy, aroom, rn2(5) ? SDOOR : DOOR);
             } else {
                 /* inaccessible niches occasionally have iron bars */
-                if (!rn2(5) && IS_WALL(levl[xx][yy].typ)) {
+                if ((!rn2(5) || IS_BIOME(BIOME_SEWER)) && IS_WALL(levl[xx][yy].typ)) {
                     (void) set_levltyp(xx, yy, IRONBARS);
                     if (rn2(3))
                         (void) mkcorpstat(CORPSE, (struct monst *) 0,
@@ -901,6 +911,7 @@ clear_level_structures(void)
     svl.level.flags.fumaroles = 0;
     svl.level.flags.stormy = 0;
     svl.level.flags.outdoors = 0;
+    svl.level.flags.stasis_until = 0L;
 
     svn.nroom = 0;
     svr.rooms[0].hx = -1;
@@ -1217,9 +1228,6 @@ coat_room(struct mkroom *croom, unsigned char coat_type) {
                     levl[x][y].submask = SM_DIRT;
                 }
             }
-            if ((coat_type & COAT_FUNGUS) != 0)
-                if (!rn2(max(2, abs(13 - u.uz.dlevel))))
-                    add_coating(x, y, COAT_FUNGUS, PM_NIGHTCRUST);
             if ((coat_type & COAT_MUD) != 0)
                 if (!rn2(3)) add_coating(x, y, COAT_MUD, 0);
         }
@@ -1317,19 +1325,12 @@ makelevel(void)
         impossible("makelevel() called when dungeon not yet initialized.");
         init_dungeons();
     }
+    level_status_init();
+    level_status.making = 1;
+
     oinit(); /* assign level dependent obj probabilities */
     clear_level_structures();
-
-    /* Assign the biome */
-    if (!Is_rogue_level(&u.uz)) {
-        for (i = 0; i < DGN_BIOMES; i++) {
-            if (svd.dungeons[u.uz.dnum].biome_cutoff[i] > u.uz.dlevel)
-                break;
-        }
-        svl.level.flags.biome = svd.dungeons[u.uz.dnum].biome_ids[i];
-    } else {
-        svl.level.flags.biome = BIOME_ODUNGEON;
-    }
+    apply_biome_to_level();
 
     slev = Is_special(&u.uz);
     /* check for special levels */
@@ -1366,13 +1367,6 @@ makelevel(void)
         }
         assert(svn.nroom > 0);
         sort_rooms();
-
-        /* Set biome temperature. Must be done here, since initializing
-           the level coder will clobber the temperature flag. */
-        if (IS_BIOME(BIOME_SNOWY)) {
-            svl.level.flags.temperature = -1;
-        } else if (IS_BIOME(BIOME_TROPICAL))
-            svl.level.flags.temperature = 1;
 
         generate_stairs(); /* up and down stairs */
 
@@ -1492,7 +1486,7 @@ makelevel(void)
     for (i = 0; i < svn.nroom; ++i) {
         fill_special_room(&svr.rooms[i]);
     }
-
+    level_status.shkready = 1;
     themerooms_post_level_generate();
 
     if (gl.luacore && nhcb_counts[NHCB_LVL_ENTER]) {
@@ -1501,6 +1495,9 @@ makelevel(void)
         nhl_pcall_handle(gl.luacore, 1, 0, "makelevel", NHLpa_panic);
         lua_settop(gl.luacore, 0);
     }
+    /* apply the biome again, since it's clobbered by the level coder */
+    apply_biome_to_level();
+    level_status.making = 0, level_status.ready = 1;
 }
 
 /* return TRUE if water location at (x,y) should have kelp. */
@@ -1529,6 +1526,7 @@ mineralize(int kelp_pool, int kelp_moat, int goldprob, int gemprob,
     struct obj *otmp;
     coordxy x, y;
     int cnt;
+    int fossilprob;
 
     if (kelp_pool < 0)
         kelp_pool = 10;
@@ -1557,15 +1555,19 @@ mineralize(int kelp_pool, int kelp_moat, int goldprob, int gemprob,
         goldprob = 20 + depth(&u.uz) / 3;
     if (gemprob < 0)
         gemprob = goldprob / 4;
+    fossilprob = gemprob / 2;
 
     /* mines have ***MORE*** goodies - otherwise why mine? */
     if (!skip_lvl_checks) {
         if (In_mines(&u.uz)) {
             goldprob *= 2;
             gemprob *= 3;
+            fossilprob *= 2;
         } else if (In_quest(&u.uz)) {
             goldprob /= 4;
             gemprob /= 6;
+            if (Role_if(PM_CAVE_DWELLER))
+                fossilprob *= 5;
         }
     }
 
@@ -1613,6 +1615,15 @@ mineralize(int kelp_pool, int kelp_moat, int goldprob, int gemprob,
                             }
                         }
                 }
+                if (depth(&u.uz) > 14 && rn2(1000) < fossilprob) {
+                    if ((otmp = mksobj(FOSSIL, TRUE, FALSE)) != 0) {
+                        otmp->quan = 1L;
+                        otmp->owt = weight(otmp);
+                        otmp->ox = x,  otmp->oy = y;
+                        if (!rn2(3)) add_to_buried(otmp);
+                        else place_object(otmp, x, y);
+                    }
+                }
             }
 }
 
@@ -1630,9 +1641,19 @@ coat_floors(void)
             if (!IS_COATABLE(levl[x][y].typ) || IS_STWALL(levl[x][y].typ))
                 continue;
             if (!has_ceiling(&u.uz) && !rn2(3)) 
-                add_coating(x, y,  COAT_GRASS, 0);
+                add_coating(x, y, (svl.level.flags.temperature == -1)
+                                    ? COAT_FROST : COAT_GRASS, 0);
             if (IS_BIOME(BIOME_SNOWY))
                 add_coating(x, y, COAT_FROST, 0);
+            if (IS_BIOME(BIOME_SEWER)) {
+                if (!rn2(10))
+                    add_coating(x, y, COAT_FUNGUS, PM_LICHEN);
+                else if (!rn2(4))
+                    add_coating(x, y, COAT_POTION, POT_WATER);
+            }
+            if (IS_BIOME(BIOME_FUNGAL))
+                if (!rn2(max(2, abs(13 - u.uz.dlevel))))
+                    add_coating(x, y, COAT_FUNGUS, PM_NIGHTCRUST);
         }
     }
 }
@@ -1645,7 +1666,7 @@ level_finalize_topology(void)
 
     bound_digging();
     mineralize(-1, -1, -1, -1, FALSE);
-    if (!In_endgame(&u.uz) && !In_hell(&u.uz) && !In_sokoban(&u.uz))
+    if (!In_endgame(&u.uz) && !In_hell(&u.uz))
         coat_floors();
     gi.in_mklev = FALSE;
     /* avoid coordinates in future lua-loads for this level being thrown off
@@ -2783,6 +2804,26 @@ mk_knox_portal(coordxy x, coordxy y)
 
     debugpline0("Made knox portal.");
     place_branch(br, x, y);
+}
+
+staticfn void
+apply_biome_to_level(void)
+{
+    int i;
+    if (!Is_rogue_level(&u.uz)) {
+        for (i = 0; i < DGN_BIOMES; i++) {
+            if (svd.dungeons[u.uz.dnum].biome_cutoff[i] > u.uz.dlevel)
+                break;
+        }
+        svl.level.flags.biome = svd.dungeons[u.uz.dnum].biome_ids[i];
+    } else {
+        svl.level.flags.biome = BIOME_ODUNGEON;
+    }
+    /* Set up the temperature. */
+    if (IS_BIOME(BIOME_SNOWY)) {
+        svl.level.flags.temperature = -1;
+    } else if (IS_BIOME(BIOME_TROPICAL))
+        svl.level.flags.temperature = 1;
 }
 
 /*mklev.c*/

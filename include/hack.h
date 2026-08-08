@@ -1,4 +1,4 @@
-/* NetHack 3.7	hack.h	$NHDT-Date: 1736530208 2025/01/10 09:30:08 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.266 $ */
+/* NetHack 5.0	hack.h	$NHDT-Date: 1781973080 2026/06/20 16:31:20 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.299 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Pasi Kallinen, 2017. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -38,7 +38,6 @@
 #include "sys.h"
 #include "timeout.h"
 #include "winprocs.h"
-#include "wintype.h"
 #include "vision.h"
 #include "you.h"
 
@@ -64,6 +63,7 @@
 #define CXN_PFX_THE 4   /* prefix with "the " (unless pname) */
 #define CXN_ARTICLE 8   /* include a/an/the prefix */
 #define CXN_NOCORPSE 16 /* suppress " corpse" suffix */
+#define CXN_ADDGNDR 32  /* include a gender */
 
 /* number of turns it takes for vault guard to show up */
 #define VAULT_GUARD_TIME 30
@@ -252,7 +252,7 @@ struct cmd {
     boolean swap_yz;       /* QWERTZ keyboards; use z to move NW, y to zap */
     const char *dirchars;      /* current movement/direction characters */
     const char *alphadirchars; /* same as dirchars if !numpad */
-    const struct ext_func_tab *commands[256]; /* indexed by input character */
+    struct Cmd_bind *cmdbinds;
     const struct ext_func_tab *mousebtn[NUM_MOUSE_BUTTONS];
     char spkeys[NUM_NHKF];
     char extcmd_char;      /* key that starts an extended command ('#') */
@@ -320,7 +320,7 @@ struct _create_particular_data {
     char monclass;
     boolean randmonst;
     boolean maketame, makepeaceful, makehostile;
-    boolean sleeping, saddled, invisible, hidden;
+    boolean sleeping, saddled, invisible, hidden, advanced;
 };
 
 /* dig_check() results */
@@ -382,6 +382,7 @@ struct dgn_topology { /* special dungeon levels for speed */
     xint16 d_mines_dnum, d_quest_dnum;
     xint16 d_tutorial_dnum;
     xint16 d_maze_dnum;
+    xint16 d_mtemple_dnum;
     d_level d_qstart_level, d_qlocate_level, d_nemesis_level;
     d_level d_knox_level, d_maze_level;
     d_level d_mineend_level;
@@ -416,6 +417,7 @@ struct dgn_topology { /* special dungeon levels for speed */
 #define quest_dnum              (svd.dungeon_topology.d_quest_dnum)
 #define tutorial_dnum           (svd.dungeon_topology.d_tutorial_dnum)
 #define maze_dnum               (svd.dungeon_topology.d_maze_dnum)
+#define mtemple_dnum            (svd.dungeon_topology.d_mtemple_dnum)
 #define qstart_level            (svd.dungeon_topology.d_qstart_level)
 #define qlocate_level           (svd.dungeon_topology.d_qlocate_level)
 #define nemesis_level           (svd.dungeon_topology.d_nemesis_level)
@@ -442,6 +444,7 @@ enum earlyarg {
     , ARG_DUMPGLYPHIDS
     , ARG_DUMPMONGEN
     , ARG_DUMPWEIGHTS
+    , ARG_DUMPWEAPONS
 #ifdef WIN32
     , ARG_WINDOWS
 #endif
@@ -592,6 +595,13 @@ enum inventory_counts {
     /* 2023/11/30 invlet_max is not yet used anywhere */
 };
 
+#ifndef IDLECHECKPOINT_WAIT_TIME
+#define IDLECHECKPOINT_WAIT_TIME 10  /* seconds to wait before executing a checkpoint;
+                                      * always #define'd but only has meaning if
+                                      * IDLECHECKPOINT is defined.
+                                      */
+#endif
+
 struct kinfo {
     struct kinfo *next; /* chain of delayed killers */
     int id;             /* uprop keys to ID a delayed killer */
@@ -682,6 +692,7 @@ struct mvitals {
     Bitfield(know_pcorpse, 1);
     Bitfield(know_rcorpse, 1);
     Bitfield(know_stats, 1);
+    Bitfield(know_resist, 1);
     Bitfield(know_attacks, 6);
     Bitfield(photographed, 1);
 };
@@ -710,21 +721,7 @@ enum nhcb_calls {
     NUM_NHCB
 };
 
-/*
- * option setting restrictions
- */
-
-enum optset_restrictions {
-    set_in_sysconf = 0, /* system config file option only */
-    set_in_config  = 1, /* config file option only */
-    set_viaprog    = 2, /* may be set via extern program, not seen in game */
-    set_gameview   = 3, /* may be set via extern program, displayed in game */
-    set_in_game    = 4, /* may be set via extern program or set in the game */
-    set_wizonly    = 5, /* may be set in the game if wizmode */
-    set_wiznofuz   = 6, /* wizard-mode only, but not by fuzzer */
-    set_hidden     = 7  /* placeholder for prefixed entries, never show it  */
-};
-#define SET__IS_VALUE_VALID(s) ((s < set_in_sysconf) || (s > set_wiznofuz))
+#define NHUUIDSZ 37
 
 struct plinemsg_type {
     xint16 msgtype;  /* one of MSGTYP_foo */
@@ -816,6 +813,7 @@ struct sinfo {
     int config_error_ready;     /* config_error_add is ready, available */
     int beyond_savefile_load;   /* set when past savefile loading */
     int savefile_completed;     /* savefile has completed writing */
+    int reading_bonesfile;      /* in the midst of trying to read bones file */
 #ifdef PANICLOG
     int in_paniclog;            /* writing a panicloc entry */
 #endif
@@ -826,6 +824,7 @@ struct sinfo {
        interface to suppress menu commands in similar conditions;
        readchar() always resets it to 'otherInp' prior to returning */
     int input_state; /* whether next key pressed will be entering a command */
+    int early_options; /* inside early_options processing */
 #ifdef TTY_GRAPHICS
     /* resize_pending only matters when handling a SIGWINCH signal for tty;
        getting_char is used along with that and also separately for UNIX;
@@ -833,6 +832,14 @@ struct sinfo {
     volatile int resize_pending; /* set by signal handler */
     volatile int getting_char;  /* referenced during signal handling */
 #endif
+};
+
+/* structure for current 'level_status'; not saved and restored */
+struct levelstatus {
+    int making;                 /* makelevel has begun */
+    int loading;                /* level loading has begun */
+    int shkready;               /* shops ready */
+    int ready;                  /* level is ready */
 };
 
 /* value of program_state.input_state, significant during readchar();
@@ -1130,7 +1137,7 @@ typedef struct nh_file NHFILE;
       /* Attributes */                          \
       {0}, {0}, {0}, {0}, 0, 0,                 \
       /* spell statistics */                    \
-      0, 0, 0, 0, 0, 0, 0 }
+      0, 0, 0, 0, 0, 0, 0, 0 }
 
 /* The UNDEFINED_RACE macro is used to initialize Race variables */
 #define UNDEFINED_RACE \
@@ -1144,7 +1151,8 @@ typedef struct nh_file NHFILE;
       /* Characteristic limits */               \
       {0}, {0},                                 \
       /* Level change HP and Pw adjustments */  \
-      {0}, {0}                                  \
+      {0}, {0},                                 \
+      0.0                                       \
     }
 
 #define MATCH_WARN_OF_MON(mon) \
@@ -1188,6 +1196,8 @@ typedef uint32_t mmflags_nht;     /* makemon MM_ flags */
 #define GP_ALLOW_U      0x00400000L /* don't reject hero's location */
 #define GP_CHECKSCARY   0x00800000L /* check monster for onscary() */
 #define GP_AVOID_MONPOS 0x01000000L /* don't accept existing mon location */
+/* Creckle */
+#define MM_ESUM        0x02000000L /* add esum structure */
 /* 25 bits used */
 
 /* flags for mhidden_description() (pager.c; used for mimics and hiders) */

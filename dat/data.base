@@ -1,4 +1,4 @@
-# NetHack 3.7	data.base
+# NetHack 5.0	data.base
 # $NHDT-Date: 1737609388 2025/01/22 21:16:28 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.141 $
 #	Copyright (c) 1994, 1995, 1996 by the NetHack Development Team
 #	Copyright (c) 1994 by Boudewijn Wayers
@@ -110,8 +110,7 @@ sacrific*
 	For the ashes of his fathers
 	And the temples of his gods?
 		[ Lays of Ancient Rome, by Thomas B. Macaulay ]
-* alligator
-gator
+*gator
 	"A gun is not a weapon, Marge. It's a tool.
 	Like a butcher knife, or a harpoon, or... uh, a... an alligator."
 		[ Homer Simpson ]
@@ -187,7 +186,7 @@ angel*
 	shall come forth, and sever the wicked from among the just,
 	and shall cast them into the furnace of fire; there shall be
 	wailing and gnashing of teeth.
-		[ The Gospel According to Matthew, 13:37-42, 49-50 ]
+		[ The Gospel According to Matthew, 13:37-40, 49-50 ]
 angry god*
 	Cold wind blows.
 	The gods look down in anger on this poor child.
@@ -1405,7 +1404,7 @@ dispater
 	Wealth".  It refers to the wealth of precious stone below the
 	earth.
 		[ Encyclopedia Mythica, ed. M.F. Lindemans ]
-# 3.7; monster adapted from slash'em based on an AD&D Monster Manual entry;
+# 5.0; monster adapted from slash'em based on an AD&D Monster Manual entry;
 # slash'em lacked a description so this entry has been created from scratch;
 # the puma comparison is how the AD&D monster is described (except that
 # that creature has six legs and two tentacles!) but the actual monster's
@@ -1999,6 +1998,7 @@ fruit
 fruitname
 	They say this is edible.  Some adventurers have strange tastes.
 *fung*
+~orange fungus
 	Fungi, division of simple plants that lack chlorophyll, true
 	stems, roots, and leaves.  Unlike algae, fungi cannot
 	photosynthesize, and live as parasites or saprophytes.  The
@@ -2057,6 +2057,12 @@ grotesque
 	taken care not to take off my hat or veil, and so have
 	escaped their suspicions.
 		[ Dracula, by Bram Stoker ]
+gas mask
+	Poison gas? That's the weapon of a coward, and you know it.
+	Staal, you could blast this planet out of the sky, and yet
+	you're sitting up above watching it die. Where's the fight in
+	that, where's the honor?
+		[ Doctor Who, the Poison Sky ]
 # gas spore -- see *spore
 gehenn*
 *h?nnom
@@ -2088,7 +2094,7 @@ glass*
 	same as for jewels:  it is always the false ones that look the
 	most real, the most brilliant.
 		[ Salvador Dali ]
-# 3.7; monster derived from slash'em which lacked a description so this
+# 5.0; monster derived from slash'em which lacked a description so this
 # entry has been created from scratch
 genetic engineer
 	These very odd people have mastered the ability to insert gene
@@ -2480,7 +2486,7 @@ helm of caution
 	A helmet which confers the "warning" property, sensing the
 	strength of threats posed by unseen hostile creatures.
 # note: this quotation had "high of steel" but we're going to cheat--it is
-# now deliberately mistranslated as "high of crystal" to match nethack 3.7's
+# now deliberately mistranslated as "high of crystal" to match nethack 5.0's
 # change to helm of brilliance and become more useful to players.
 # PR #1109 wanted to change it to be for all helms but being covered with
 # gems and gold is not appropriate for ordinary helmets (plus it states that
@@ -4162,6 +4168,15 @@ pear
 	can't find out what it is like unless you can get to that
 	country and taste it for yourself.
 		[ The Last Battle, by C.S. Lewis ]
+orange fungus
+moldering husk
+	There's a fungus that infects insects. Gets inside an ant, for
+	example, travels through its circulatory system to the ant's
+	brain, and then floods it with hallucinogens, thus bending the
+	ant's mind to its will. The fungus starts to direct the ant's
+	behavior, telling it where to go, what to do, like a puppeteer
+	with a marionette. And it gets worse.
+		[ Dr. Neuman, The Last of Us ]
 *orb of detection
 	This Orb is a crystal ball of exceptional powers.  When
 	carried, it grants ESP, limits damage done by spells, and
@@ -5024,6 +5039,13 @@ scroll *
 	I read these words, and read again, and tried
 	My eyes against the heavens, and read again.
 		[ Endymion, by John Keats ]
+servant
+maid
+butler
+	Your best servant is the person who does not attend
+	so much to hearing what he himself wants as to willing
+	what he has heard from you.
+		[ Confessions, by Saint Augustine ]
 set
 seth
 	The ancient Egyptian god of chaos (Set), the embodiment of
@@ -5087,6 +5109,9 @@ shark
 	that no other creature in nature could make -- a bomb from
 	the depths.
 		[ Close to Shore, by Michael Capuzzo ]
+shepherd*
+	See? You wouldn't hit an innocent shepherd, would you?
+		[ Linus van Pelt, a Charlie Brown Christmas]
 ~uruk*
 ~white*
 *shield
@@ -5150,6 +5175,7 @@ shuriken
 	kill her, but she wouldn't be fighting anyone for a while.
 		[ Jhereg, by Steven Brust ]
 skeleton
+fossil
 	Bleached bones upon the dungeon floor. As I watched, they began
 	to shift and move on their own, assembling themselves into
 	something almost more than human...
@@ -5284,6 +5310,7 @@ javelin
 		[ A Connecticut Yankee in King Arthur's Court,
 		    by Mark Twain ]
 *spellbook*
+giant silverfish
 	The Book of Three lay closed on the table.  Taran had never
 	been allowed to read the volume for himself; now he was sure
 	it held more than Dallben chose to tell him.  In the sun-
@@ -6062,6 +6089,7 @@ water troll
 weapon
 club
 flail
+flamberge
 falchion
 ~*broadsword
 ~sunsword

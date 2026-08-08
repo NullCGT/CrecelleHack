@@ -1,4 +1,4 @@
-/* NetHack 3.7	end.c	$NHDT-Date: 1720397752 2024/07/08 00:15:52 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.315 $ */
+/* NetHack 5.0	end.c	$NHDT-Date: 1781973048 2026/06/20 16:30:48 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.349 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -8,9 +8,6 @@
 #include "hack.h"
 #ifndef NO_SIGNAL
 #include <signal.h>
-#endif
-#ifndef LONG_MAX
-#include <limits.h>
 #endif
 #include "dlb.h"
 
@@ -115,11 +112,14 @@ done2(void)
             u.usleep = 0;
         }
 
-        if (abandon_tutorial)
+        if (abandon_tutorial) {
+            /* mention_decor can be processed now */
+            rcfile_only_this_option(opt_mention_decor);
             schedule_goto(&u.ucamefrom, UTOTYPE_ATSTAIRS,
                           "Resuming regular play.", (char *) 0);
         disp.botl = TRUE;
         init_environs();
+        }
         return ECMD_OK;
     }
 
@@ -219,6 +219,8 @@ done_in_by(struct monst *mtmp, int how)
     (void) monhealthdescr(mtmp, TRUE, eos(buf));
     if (mtmp->minvis)
         Strcat(buf, "invisible ");
+    if (is_summoned(mtmp))
+        Strcat(buf, "summoned ");
     if (mtmp->mtraitor)
         Strcat(buf, "traitorous ");
     if (distorted)
@@ -331,6 +333,9 @@ done_in_by(struct monst *mtmp, int how)
         u.ugrave_arise = PM_GHOUL;
     else if (how == DROWNING && rn2(2))
         u.ugrave_arise = PM_SODDEN_ONE;
+    else if (mptr == &mons[PM_MOLDERING_HUSK]
+            || (has_coating(u.ux, u.uy, COAT_FUNGUS) && levl[u.ux][u.uy].pindex == PM_ORANGE_FUNGUS))
+        u.ugrave_arise = PM_MOLDERING_HUSK;
     else if (mptr == &mons[PM_SPECTRE] || u.ulevel > 22)
         u.ugrave_arise = PM_SPECTRE;
     /* this could happen if a high-end vampire kills the hero
@@ -476,7 +481,8 @@ staticfn boolean
 should_query_disclose_option(int category, char *defquery)
 {
     int idx;
-    char disclose, *dop;
+    char disclose;
+    const char *dop;
 
     *defquery = 'n';
     if ((dop = strchr(disclosure_options, category)) != 0) {
@@ -1365,7 +1371,8 @@ really_done(int how)
            so that its presence or absence doesn't tip off the player to
            new bones or their lack; it might be a lie if makemon fails */
         Your("%s as %s...",
-             (u.ugrave_arise != PM_GREEN_SLIME)
+             (u.ugrave_arise != PM_GREEN_SLIME
+                && u.ugrave_arise != PM_MOLDERING_HUSK)
                  ? "body rises from the dead"
                  : "revenant persists",
              an(pmname(&mons[u.ugrave_arise], Ugender)));
@@ -1609,8 +1616,10 @@ really_done(int how)
         raw_print("");
         raw_print("");
     }
+#ifdef DUMPLOG
     if (!startscummed)
         livelog_dump_url(LL_DUMP_ALL | (how == ASCENDED ? LL_DUMP_ASC : 0));
+#endif
     nh_terminate(EXIT_SUCCESS);
 }
 
@@ -1634,7 +1643,8 @@ container_contents(
                     box->lknown = 1;
                 update_inventory();
             }
-            if (box->otyp == BAG_OF_TRICKS) {
+            if (box->otyp == BAG_OF_TRICKS
+                || box->otyp == BAG_OF_WINDS) {
                 continue; /* wrong type of container */
             } else if (box->cobj) {
                 winid tmpwin = create_nhwindow(NHW_MENU);
@@ -1701,9 +1711,6 @@ nh_terminate(int status)
     program_state.in_moveloop = 0; /* won't be returning to normal play */
 
     l_nhcore_call(NHCORE_GAME_EXIT);
-#ifdef MAC
-    getreturn("to exit");
-#endif
     /* don't bother to try to release memory if we're in panic mode, to
        avoid trouble in case that happens to be due to memory problems */
     if (!program_state.panicking) {
@@ -1788,7 +1795,7 @@ save_killers(NHFILE *nhfp)
 
     if (update_file(nhfp)) {
         for (kptr = &svk.killer; kptr; kptr = kptr->next) {
-	    Sfo_kinfo(nhfp, kptr, "kinfo");
+            Sfo_kinfo(nhfp, kptr, "kinfo");
         }
     }
     if (release_data(nhfp)) {
@@ -1918,7 +1925,7 @@ build_english_list(char *in)
 # endif
 
 void
-NH_abort(char *why USED_FOR_CRASHREPORT)
+NH_abort(const char *why USED_FOR_CRASHREPORT)
 {
 #ifdef PANICTRACE
     int gdb_prio = SYSOPT_PANICTRACE_GDB;
@@ -1934,7 +1941,7 @@ NH_abort(char *why USED_FOR_CRASHREPORT)
 
 #ifdef PANICTRACE
 #ifdef CRASHREPORT
-    if(!submit_web_report(1, "Panic", why))
+    if (!submit_web_report(1, "Panic", why))
 #endif
     {
 #ifndef VMS

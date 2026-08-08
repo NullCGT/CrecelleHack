@@ -1,4 +1,4 @@
-/* NetHack 3.7	mhitm.c	$NHDT-Date: 1732979463 2024/11/30 07:11:03 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.253 $ */
+/* NetHack 5.0	mhitm.c	$NHDT-Date: 1781973054 2026/06/20 16:30:54 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.269 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2011. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -787,8 +787,7 @@ gazemm(struct monst *magr, struct monst *mdef, struct attack *mattk)
                 return M_ATTK_MISS;
             }
             if (canseemon(magr))
-                pline("%s is turned to stone!", Monnam(magr));
-            monstone(magr);
+                pline("%s averts %s eyes.", Monnam(magr), mhis(magr));
             if (!DEADMONSTER(magr))
                 return M_ATTK_MISS;
             return M_ATTK_AGR_DIED;
@@ -924,7 +923,7 @@ gulpmm(
          *  -> relmon() used to call remove_monster() for the dead
          *  monster even when it wasn't the one on the map, so we
          *  needed to put magr back after mdef was killed and removed
-         *  from their shared spot.  But now [3.7] relmon() calls
+         *  from their shared spot.  But now [5.0] relmon() calls
          *  mon_leaving_level() and that checks whether the monster at
          *  dying monster's coordinates is that dying monster and only
          *  removes it when they match.  So magr is still at mdef's
@@ -1111,7 +1110,7 @@ mdamagem(
             return (M_ATTK_DEF_DIED | M_ATTK_AGR_DIED);
 
         /* improve pet handling if we see pet kill monsters */
-        if (magr->mtame && canspotmon(magr) && !rn2(3))
+        if (magr->mtame && canspotmon(magr))
             use_skill(P_PET_HANDLING, 1);
 
         if (mattk->adtyp == AD_DGST) {
@@ -1280,7 +1279,7 @@ slept_monst(struct monst *mon)
 void
 rustm(struct monst *mdef, struct obj *obj)
 {
-    int dmgtyp = -1, chance = 1;
+    int dmgtyp = ERODE_NONE, chance = 1;
 
     if (!mdef || !obj)
         return; /* just in case */
@@ -1296,8 +1295,8 @@ rustm(struct monst *mdef, struct obj *obj)
         chance = 6;
     }
 
-    if (dmgtyp >= 0 && !rn2(chance))
-        (void) erode_obj(obj, (char *) 0, dmgtyp, EF_GREASE | EF_VERBOSE);
+    if (dmgtyp != ERODE_NONE && !rn2(chance))
+        (void) erode_obj(obj, (char *) 0, dmgtyp, EF_GREASE | EF_VERBOSE | EF_DESTROY);
 }
 
 staticfn void
@@ -1453,6 +1452,15 @@ passivemm(
             }
             tmp = 0;
             break;
+        case AD_HALU:
+            if (!magr->mconf) {
+                magr->mconf = 1;
+                if (canseemon(magr))
+                    pline_mon(magr, "%s %s...", Monnam(magr),
+                          makeplural(stagger(magr->data, "stagger")));
+            }
+            tmp = 0;
+            break;
         case AD_FIRE:
             if (resists_fire(magr)) {
                 if (canseemon(magr)) {
@@ -1490,6 +1498,7 @@ passivemm(
         tmp = 0;
 
  assess_dmg:
+    adjust_damage(magr, &tmp, mddat->mattk[i].adtyp);
     if ((magr->mhp -= tmp) <= 0) {
         monkilled(magr, "", (int) mddat->mattk[i].adtyp);
         return (mdead | mhit | M_ATTK_AGR_DIED);

@@ -1,4 +1,4 @@
-/* NetHack 3.7	potion.c	$NHDT-Date: 1737605675 2025/01/22 20:14:35 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.274 $ */
+/* NetHack 5.0	potion.c	$NHDT-Date: 1781973062 2026/06/20 16:31:02 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.288 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2013. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -39,6 +39,7 @@ staticfn void peffect_oil(struct obj *);
 staticfn void peffect_acid(struct obj *);
 staticfn void peffect_polymorph(struct obj *);
 staticfn void peffect_waste(struct obj *);
+staticfn void peffect_alkahest(struct obj *);
 staticfn boolean H2Opotion_dip(struct obj *, struct obj *, boolean,
                              const char *);
 staticfn short mixtype(struct obj *, struct obj *);
@@ -436,6 +437,7 @@ make_hallucinated(
             see_monsters();
             see_objects();
             see_traps();
+            docrt();
         }
 
         /* for perm_inv and anything similar
@@ -457,10 +459,7 @@ make_dripping(long xtime, int otyp, int pm)
     if (otyp == POT_BLOOD) {
         otyp = -1 * pm;
     }
-    if (u.udriptype == otyp)
-        incr_itimeout(&HDripping, xtime);
-    else
-        set_itimeout(&HDripping, xtime);
+    set_itimeout(&HDripping, xtime);
     u.udriptype = otyp;
 }
 
@@ -622,7 +621,7 @@ dodrink(void)
      * was no longer dealing with an inventory item.  Unwearing
      * the current potion is intended to keep it in inventory.]
      *
-     * 3.7: switch back to relying on useup() unless the object is
+     * 5.0: switch back to relying on useup() unless the object is
      * actually worn.  Otherwise drinking a stack of unpaid potions
      * one by one in a shop makes each one a separate used-up item
      * for 'Ix' invent display and for itemized shop billing instead
@@ -676,7 +675,7 @@ dopotion(struct obj *otmp)
         } else
             trycall(otmp);
     }
-    debottle_potion(otmp);
+    useup(otmp);
     return ECMD_TIME;
 }
 
@@ -707,6 +706,9 @@ peffect_restore_ability(struct obj *otmp)
                WEAK or worse, but that's handled via ATEMP(A_STR) now */
             if (ABASE(i) < lim) {
                 ABASE(i) = lim;
+                /* reset stat abuse (but not exercise) to 0 as well */
+                AEXE(i) = max(AEXE(i), 0);
+
                 disp.botl = TRUE;
                 /* only first found if not blessed */
                 if (!otmp->blessed)
@@ -752,10 +754,15 @@ peffect_hallucination(struct obj *otmp)
 
 staticfn void
 peffect_blood(struct obj *otmp) {
-    if (is_vampire(gy.youmonst.data)) {
+    if (is_vampire(gy.youmonst.data)
+        || (uarmh && uarmh->oprop == OPROP_SANGUINE)) {
         You_feel("better.");
         healup(8 + d(4 + 2 * bcsign(otmp), 4), !otmp->cursed ? 1 : 0,
            !!otmp->blessed, !otmp->cursed);
+        if (uarmh && uarmh->oprop == OPROP_SANGUINE && !uarmh->pknown) {
+            uarmh->pknown = TRUE;
+            update_inventory();
+        }
     } else {
         pline("Yech! This tastes like blood!");
     }
@@ -925,6 +932,7 @@ staticfn void
 peffect_see_invisible(struct obj *otmp)
 {
     int msg = Invisible && !Blind;
+    int permchance = 10 - (HInvis ? 3 : 0) - (HSee_invisible ? 6 : 0);
 
     gp.potion_unkn++;
     if (otmp->cursed)
@@ -947,7 +955,7 @@ peffect_see_invisible(struct obj *otmp)
          */
         make_blinded(0L, TRUE);
     }
-    if (otmp->blessed)
+    if (otmp->blessed && !rn2(permchance))
         HSee_invisible |= FROMOUTSIDE;
     else
         incr_itimeout(&HSee_invisible, rn1(100, 750));
@@ -1059,6 +1067,8 @@ peffect_sickness(struct obj *otmp)
                   fruitname(TRUE));
         if (Role_if(PM_HEALER)) {
             pline("Fortunately, you have been immunized.");
+        } else if (Poison_immunity) {
+            pline("Fortunately, you have a strong immune system.");
         } else {
             char contaminant[BUFSZ];
             int typ = rn2(A_MAX);
@@ -1112,21 +1122,121 @@ peffect_confusion(struct obj *otmp)
 staticfn void
 peffect_gain_ability(struct obj *otmp)
 {
+    int i, ii;
     if (otmp->cursed) {
-        pline("Ulch!  That tonic tasted foul!");
-        gp.potion_unkn++;
+        pline("Ulch!  That potion tasted foul!");
+        if (Fixed_abil) {
+            gp.potion_unkn++; /* not potion_nothing because you got message */
+            return;
+        }
+        /* gain a point in an ability by stealing it from another ability;
+         * point will always be given to the lowest score and taken from
+         * somewhere else, so it can be used somewhat reliably to increase the
+         * worst scores */
+        int lowest = A_STR; /* attrib_types with lowest known score */
+        int nlowest = 0; /* number of attribs with the same lowest known score;
+                            pick randomly if tie; start at 0 because we haven't
+                            actually evaluated A_STR yet (note assumption that
+                            A_STR is first in attrib_types) */
+        int highest = A_STR;
+        int nhighest = 0;
+        for (i = 0; i < A_MAX; ++i) {
+            if (ABASE(i) < ABASE(lowest)) {
+                lowest = i;
+                nlowest = 1;
+            }
+            else if (ABASE(i) == ABASE(lowest)) {
+                nlowest++;
+                if (!rn2(nlowest + 1))
+                    lowest = i;
+            }
+            if (ABASE(i) > ABASE(highest)) {
+                highest = i;
+                nhighest = 1;
+            }
+            else if (ABASE(i) == ABASE(highest)) {
+                nhighest++;
+                if (!rn2(nhighest + 1))
+                    highest = i;
+            }
+        }
+        if (ABASE(lowest) == ABASE(highest)) {
+            /* possible for this if the hero has the same in every attribute */
+            gp.potion_unkn++;
+            return;
+        }
+        adjattrib(highest, -1, 0);
+        adjattrib(lowest, 1, 0);
     } else if (Fixed_abil) {
         gp.potion_nothing++;
-    } else {      /* If blessed, increase all; if not, try up to */
-        int itmp; /* 6 times to find one which can be increased. */
-        int ii, i = -1;   /* increment to 0 */
-        for (ii = A_MAX; ii > 0; ii--) {
-            i = (otmp->blessed ? i + 1 : rn2(A_MAX));
-            /* only give "your X is already as high as it can get"
-               message on last attempt (except blessed potions) */
-            itmp = (otmp->blessed || ii == 1) ? 0 : -1;
-            if (adjattrib(i, 1, itmp) && !otmp->blessed)
-                break;
+    } else {
+        char response = '*'; /* random by default */
+        uchar attr_selected;
+        /* Ability scores are defined in a different order than they're
+            * displayed on the status line. The menu presents them in display
+            * order, so we need to map them to their real order in the case of
+            * a blessed potion that presented a menu. */
+        int attribs[A_MAX] = {A_STR, A_DEX, A_CON, A_INT, A_WIS, A_CHA};
+        if (otmp->blessed) {
+            /* Allow the player to choose what to increase, and give a bit
+                * more increase than an uncursed potion. */
+            menu_item *choice = (menu_item *) 0;
+            winid win = create_nhwindow(NHW_MENU);
+            anything any;
+            char attrname[BUFSZ];
+            static const char* attrnames[A_MAX] = {
+                "Strength", "Dexterity", "Constitution", "Intelligence",
+                "Wisdom", "Charisma"
+            };
+            start_menu(win, MENU_BEHAVE_STANDARD);
+            for (ii = 0; ii < A_MAX; ii++) {
+                if (ABASE(attribs[ii]) < ATTRMAX(attribs[ii])) {
+                    Strcpy(attrname, attrnames[ii]);
+                    any.a_char = 'a' + ii;
+                }
+                else {
+                    Sprintf(attrname, "    %s (MAX)", attrnames[ii]);
+                    any.a_char = 0;
+                }
+                add_menu(win, &nul_glyphinfo, &any, any.a_char, '\0',
+                            ATR_NONE, NO_COLOR, attrname, MENU_ITEMFLAGS_NONE);
+            }
+            any.a_char = '*';
+            add_menu(win, &nul_glyphinfo, &any, 0, '*', ATR_NONE,
+                        NO_COLOR,
+                        "pick one randomly", MENU_ITEMFLAGS_NONE);
+            end_menu(win, "What attribute do you want to increase?");
+            if (select_menu(win, PICK_ONE, &choice) <= 0) {
+                /* cancelled; pick one randomly */
+                response = '*';
+            }
+            else {
+                response = choice->item.a_char;
+                free((genericptr_t) choice);
+            }
+            destroy_nhwindow(win);
+        }
+
+        if (response == '*') {
+            /* Shuffle the attributes. (Fisher-Yates) */
+            for (ii = A_MAX-1; ii >= 1; ii--) {
+                int tmp = attribs[ii];
+                i = rn2(ii + 1);
+                attribs[ii] = attribs[i];
+                attribs[i] = tmp;
+            }
+            for (ii = 0; ii < A_MAX; ii++) {
+                /* only give "your X is already as high as it can get"
+                    message on last attempt */
+                if (adjattrib(attribs[ii], otmp->blessed ? rnd(2) : 1,
+                                (ii == A_MAX - 1) ? 0 : -1)) {
+                    break;
+                }
+            }
+        } else {
+            /* non-* response should always mean blessed potion */
+            attr_selected = attribs[response - 'a'];
+            adjattrib(attr_selected, rnd(2), 0);
         }
     }
 }
@@ -1434,6 +1544,25 @@ peffect_waste(struct obj *otmp)
     }
 }
 
+staticfn void
+peffect_alkahest(struct obj *otmp)
+{
+    if (Acid_resistance) {
+        /* Not necessarily a creature who _likes_ acid */
+        pline("This tastes utterly flavorless.");
+    } else {
+        int dmg;
+        pline("Your insides are dissolving!");
+        dmg = d(otmp->cursed ? 8 : 10, otmp->blessed ? 8 : 4);
+        adjust_damage(&gy.youmonst, &dmg, AD_ACID);
+        losehp(dmg, "drinking universal solvent", KILLED_BY);
+        exercise(A_CON, FALSE);
+    }
+    if (Stoned)
+        fix_petrification();
+    gp.potion_unkn++; /* holy/unholy water can burn like acid too */
+}
+
 int
 peffects(struct obj *otmp)
 {
@@ -1536,6 +1665,9 @@ peffects(struct obj *otmp)
         break;
     case POT_HAZARDOUS_WASTE:
         peffect_waste(otmp);
+        break;
+    case POT_ALKAHEST:
+        peffect_alkahest(otmp);
         break;
     default:
         impossible("What a comic tonic! (%u)", otmp->otyp);
@@ -1775,10 +1907,15 @@ add_coating(coordxy x, coordxy y, short coatflags, int pindex) {
     if ((coatflags & COAT_POTION) != 0) {
         remove_coating(x, y, COAT_BLOOD | COAT_FROST | COAT_FUNGUS);
         levl[x][y].pindex = pindex;
-        if (pindex == POT_ACID) {
+        if (pindex == POT_ACID || pindex == POT_ALKAHEST) {
             remove_coating(x, y, COAT_GRASS | COAT_ASHES);
         } else if (pindex < POT_GAIN_ABILITY || pindex > POT_WATER) {
             impossible("coating at <%d,%d> with invalid tonic %d?", x, y, pindex);
+        }
+        /* Alkahest will burn through floor */
+        if (pindex == POT_ALKAHEST && !rn2(4)) {
+            struct trap *t = t_at(u.ux, u.uy);
+            do_pit(x, y, t ? is_pit(t->ttyp) : FALSE);
         }
     } else if ((coatflags & COAT_BLOOD) != 0) {
         remove_coating(x, y, COAT_POTION | COAT_FROST | COAT_FUNGUS);
@@ -1881,10 +2018,12 @@ coateffects(coordxy x, coordxy y, struct monst *mon) {
         }
         if (isyou) {
             You("slip on %s%s!", banana_peel ? "" : "a patch of ", buf);
-            nomul(-1);
+            hurtle(u.dx, u.dy, 1, FALSE);
             gm.multi_reason = "slipping on something";
             gn.nomovemsg = "You regain your footing.";
             if (!banana_peel) makeknown(POT_OIL);
+            if (banana_peel)
+                record_achievement(ACH_BPEEL);
             make_prone();
         } else {
             if (canseemon(mon)) {
@@ -1892,8 +2031,7 @@ coateffects(coordxy x, coordxy y, struct monst *mon) {
                 pline_mon(mon, "%s slips on %s%s!",
                             Monnam(mon), banana_peel ? "" : "a patch of ", buf);
             }
-            mon->mfrozen = 1;
-            mon->mcanmove = 0;
+            mhurtle(mon, mon->mx - x, mon->my - y, 1);
             make_mon_prone(mon);
         }
     } else if (stepper && isyou && has_coating(x, y, COAT_POTION)
@@ -1908,6 +2046,7 @@ coateffects(coordxy x, coordxy y, struct monst *mon) {
                 otmp = uarmf;
                 remove_worn_item(otmp, TRUE);
                 dropx(otmp);
+                record_achievement(ACH_LOST_BOOT);
             } else {
                 pline("Some %s sticks to your %s.", buf, body_part(FOOT));
             }
@@ -1924,7 +2063,9 @@ coateffects(coordxy x, coordxy y, struct monst *mon) {
             minstapetrify(mon, FALSE);
         }
         remove_coating(x, y, COAT_BLOOD);
-    } else if (has_coating(x, y, COAT_FUNGUS)) {
+    } else if (has_coating(x, y, COAT_FUNGUS)
+                && !(isyou && (Levitation || Flying))
+                && !(!isyou && !grounded(mon->data))) {
         return moldeffects(x, y, mon);
     }
     return DEADMONSTER(mon);
@@ -1936,14 +2077,18 @@ moldeffects(coordxy x, coordxy y, struct monst *mon)
     boolean isyou = (mon == &gy.youmonst);
     boolean flier = (!grounded(mon->data) || (isyou && (Levitation || Flying)));
     struct monst fakemon = cg.zeromonst;
+    int pindex = levl[x][y].pindex;
 
     fakemon.mx = u.ux;
     fakemon.my = u.uy;
-    fakemon.cham = levl[x][y].pindex;
-    set_mon_data(&fakemon, &mons[levl[x][y].pindex]);
+    fakemon.cham = pindex;
+    set_mon_data(&fakemon, &mons[pindex]);
     if (isyou) {
         passive(&fakemon, flier ? NULL : uarmf,
             TRUE, TRUE, AT_KICK, FALSE);
+        if (pindex != PM_NIGHTCRUST
+            && pindex != PM_LICHEN)
+            end_running(TRUE);
     } else {
         passivemm(mon, &fakemon, TRUE, FALSE,
                     flier ? NULL : which_armor(mon, W_ARMF));
@@ -1975,17 +2120,32 @@ evaporate_potion_puddles(coordxy x, coordxy y) {
    in order to accomplish this. */
 void
 floor_spillage(int x, int y, short otyp, int corpsenm) {
-    struct obj *objchain;
+    struct obj *objchain, *oldchain;
     if (objects[otyp].oc_class != POTION_CLASS)
         impossible("Trying to spill non-tonic %d on floor?", otyp);
-    if (otyp == POT_WATER || otyp == POT_ACID) {
+    if (otyp == POT_WATER || otyp == POT_ACID || otyp == POT_ALKAHEST) {
         if ((objchain = svl.level.objects[x][y]) != 0) {
-            if (otyp == POT_WATER)
-                water_damage_chain(objchain, TRUE);
-            else if (otyp == POT_ACID) {
+            if (otyp == POT_WATER
+                || otyp == POT_ACID
+                || otyp == POT_ALKAHEST) {
                 while (objchain) {
-                    acid_damage(objchain);
+                    oldchain = objchain;
                     objchain = objchain->nexthere;
+                    switch(otyp) {
+                    case POT_WATER:
+                        water_damage(oldchain, (char *) 0, FALSE);
+                        break;
+                    case POT_ACID:
+                        acid_damage(oldchain);
+                        break;
+                    case POT_ALKAHEST:
+                        if (!is_ascension_obj(oldchain))
+                            delobj(oldchain);
+                        break;
+                    default:
+                        impossible("Bad tonic erosion %d? What?", otyp);
+                        break;
+                    }
                 }
             }
         }
@@ -2049,6 +2209,8 @@ floor_alchemy(int x, int y, short otyp) {
     if (bomb || !rn2(10)) {
         remove_coating(x, y, COAT_POTION);
         explode(x, y, PHYS_EXPL_TYPE, d(1, 10), 0, EXPL_NOXIOUS);
+        if (!gi.in_mklev && !svc.context.mon_moving)
+            record_achievement(ACH_JUN_ALC);
         return 0;
     } else {
         /* potion coatings are handled by floor_spillage() */
@@ -2158,12 +2320,22 @@ do_illness:
         }
         break;
     case POT_INVISIBILITY: {
-        boolean sawit = canspotmon(mon);
+        boolean sawit = canspotmon(mon),
+                cursed_potion = obj->cursed ? TRUE : FALSE;
 
-        angermon = FALSE;
-        mon_set_minvis(mon);
-        if (sawit && !canspotmon(mon) && cansee(mon->mx, mon->my))
-            map_invisible(mon->mx, mon->my);
+        angermon = mon->minvis && cursed_potion;
+        mon_set_minvis(mon, cursed_potion);
+        if (sawit && !canspotmon(mon)) {
+            if (cansee(mon->mx, mon->my))
+                map_invisible(mon->mx, mon->my);
+        } else if (sawit && cursed_potion) {
+            pline("%s briefly seems to be transparent.", Monnam(mon));
+            /* see use_misc(muse.c) for comment about map_invisible() */
+        } else if (!sawit && canspotmon(mon)) {
+            /* if an invisible mon glyph was present, mon_set_minvis()'s
+                newsym() has gotten rid of it */
+            pline("%s appears!", Monnam(mon));
+        }
         break;
     }
     case POT_SLEEPING:
@@ -2238,13 +2410,17 @@ do_illness:
         if (obj->lamplit)
             explode_oil(obj, mon->mx, mon->my);
         break;
+    case POT_ALKAHEST:
     case POT_ACID:
         if (!resists_acid(mon) && !resist(mon, POTION_CLASS, 0, NOTELL)) {
+            int damage;
+            if (obj->otyp == POT_ACID) damage = d(obj->cursed ? 2 : 1, obj->blessed ? 4 : 8);
+            else damage = d(obj->cursed ? 4 : 6, obj->blessed ? 8 : 4);
             pline("%s %s in pain!", Monnam(mon),
                     is_silent(mon->data) ? "writhes" : "shrieks");
             if (!is_silent(mon->data))
                 wake_nearto(mon->mx, mon->my, mon->data->mlevel * 10);
-            mon->mhp -= d(obj->cursed ? 2 : 1, obj->blessed ? 4 : 8);
+            mon->mhp -= damage;
             if (DEADMONSTER(mon)) {
                 if (your_fault)
                     killed(mon);
@@ -2290,6 +2466,7 @@ potionhit(struct monst *mon, struct obj *obj, int how)
     int tx, ty;
     struct obj *saddle = (struct obj *) 0;
     struct permonst *blood_data;
+    boolean nocall = FALSE;
     boolean hit_saddle = FALSE, your_fault = (how <= POTHIT_HERO_THROW);
 
     if (isyou) {
@@ -2376,18 +2553,31 @@ potionhit(struct monst *mon, struct obj *obj, int how)
                       obj->blessed ? " a little"
                                    : obj->cursed ? " a lot" : "");
                 dmg = d(obj->cursed ? 2 : 1, obj->blessed ? 4 : 8);
-                losehp(Maybe_Half_Phys(dmg), "tonic of acid", KILLED_BY_AN);
+                adjust_damage(&gy.youmonst, &dmg, AD_ACID);
+                losehp(dmg, "tonic of acid", KILLED_BY_AN);
+            }
+            break;
+        case POT_ALKAHEST:
+            if (!Acid_resistance) {
+                int dmg;
+                pline("You are melting!");
+                dmg = d(obj->cursed ? 4 : 6, obj->blessed ? 8 : 4);
+                adjust_damage(&gy.youmonst, &dmg, AD_ACID);
+                losehp(dmg, "alkahest", KILLED_BY);
             }
             break;
         case POT_BLOOD: {
             char buf[BUFSZ];
             blood_data = &mons[obj->corpsenm < LOW_PM ? PM_HUMAN : obj->corpsenm];
             if (touch_petrifies(blood_data) && !Stone_resistance) {
-                Sprintf(buf, "being doussed in %s blood", pmname(blood_data, MALE));
+                Sprintf(buf, "being doused in %s blood", pmname(blood_data, MALE));
                 instapetrify(buf);
             }
             break;
         }
+        default:
+            nocall = TRUE;
+            break;
         }
     } else if (hit_saddle && saddle) {
         char *mnam, buf[BUFSZ], saddle_glows[BUFSZ];
@@ -2417,7 +2607,7 @@ potionhit(struct monst *mon, struct obj *obj, int how)
     /* potions splatter */
     potion_splatter(tx, ty, obj->otyp, obj->corpsenm);
     potion_fumigate(tx, ty, obj);
-    if (obj->dknown && cansee(tx, ty))
+    if (obj->dknown && !nocall && cansee(tx, ty))
         trycall(obj);
 
     if (*u.ushops && obj->unpaid) {
@@ -2542,6 +2732,10 @@ potionbreathe(struct obj *obj)
                              TRUE, 0L);
         break;
     case POT_HONEY:
+        if (Upolyd && u.mh < u.mhmax)
+            u.mh++, disp.botl = TRUE;
+        if (u.uhp < u.uhpmax)
+            u.uhp++, disp.botl = TRUE;
         Norep("Something smells sweet.");
         break;
     case POT_DYE:
@@ -2624,13 +2818,19 @@ potionbreathe(struct obj *obj)
         }
         break;
     case POT_POLYMORPH:
-        peffect_polymorph(obj);
+        if (!Antimagic)
+            peffect_polymorph(obj);
         break;
-    case POT_ACID:
-        /* Not all forms have noses, maybe check if humanoid? */
-        Norep("Your nose burns.");
-        exercise(A_CON, FALSE);
+    case POT_ALKAHEST:
+    case POT_ACID: {
+        int dmg = rnd((obj->otyp == POT_ACID) ? 8 : 16);
+        if (!Acid_immunity && !u.uinvulnerable) {
+            You("are dissolving!");
+            adjust_damage(&gy.youmonst, &dmg, AD_ACID);
+            losehp(dmg, "acidic vapors", KILLED_BY);
+        }
         break;
+    }
     case POT_FRUIT_JUICE:
     case POT_SEE_INVISIBLE:
         if (olfaction(gy.youmonst.data))
@@ -2713,10 +2913,14 @@ mpotionbreathe(struct obj *obj, struct monst *mtmp, boolean heros_fault)
     case POT_HAZARDOUS_WASTE:
         harmless = FALSE; /* monsters know what this means... */
         break;
+    case POT_ALKAHEST:
     case POT_ACID:
-        harmless = FALSE;
-        if (cansee)
-            Norep("%s looks uncomfortable.", Monnam(mtmp));
+        if (!resists_acid(mtmp)) {
+            harmless = FALSE;
+            mtmp->mhp -= rnd((obj->otyp == POT_ACID) ? 8 : 16);
+            if (mtmp->mhp <= 0)
+                monkilled(mtmp, "", AD_ACID);
+        }
         break;
     case POT_GAIN_ENERGY:
         if (cansee)
@@ -3093,7 +3297,7 @@ dodip(void)
                 } else if (obj->oclass == GEM_CLASS) {
                     floor_alchemy(u.ux, u.uy, obj->otyp);
                 } else {
-                    pline("The liquid here is spread to thin for things to get interesting...");
+                    pline("The liquid here is spread too thin for things to get interesting...");
                 }
                 return ECMD_TIME;
             }
@@ -3259,6 +3463,13 @@ potion_dip(struct obj *obj, struct obj *potion)
         }
         potion->in_use = FALSE; /* didn't go poof */
         return ECMD_TIME;
+    } else if (potion->otyp == POT_ALKAHEST
+                && obj->oclass != POTION_CLASS
+                && !is_ascension_obj(obj)) {
+        pline("%s dissolves!", The(xname(obj)));
+        useup(obj);
+        poof(potion);
+        return ECMD_TIME;
     } else if (potion->otyp == POT_DYE) {
         if (!objects[potion->otyp].oc_name_known) {
             pline("Suddenly, the %s turns %s.",
@@ -3305,7 +3516,7 @@ potion_dip(struct obj *obj, struct obj *potion)
               otense(obj, "mix"), (potion->quan > 1L) ? "one of " : "",
               thesimpleoname(potion));
         /* get rid of 'dippee' before potential perm_invent updates */
-        debottle_potion(potion); /* now gone */
+        useup(potion); /* now gone */
         /* Mixing potions is dangerous...
            KMH, balance patch -- acid is particularly unstable */
         if (dip_potion_explosion(obj, amt + rnd(9)))
@@ -3406,7 +3617,7 @@ potion_dip(struct obj *obj, struct obj *potion)
     }
 
     if (potion->otyp == POT_ACID) {
-        if (erode_obj(obj, 0, ERODE_CORRODE, EF_GREASE) != ER_NOTHING) {
+        if (erode_obj(obj, 0, ERODE_CORRODE, EF_GREASE | EF_DESTROY) != ER_NOTHING) {
             poof(potion);
             return ECMD_TIME;
         }
@@ -3726,7 +3937,7 @@ dye_obj(struct obj *obj, int color, boolean your_fault) {
         newodye(obj);
     ODYE(obj) = color;
     if (your_fault)
-        u.uconduct.dyed++;
+        u.uconduct.dyer++;
 }
 
 /* convert an object's dye index to a string */
@@ -3815,6 +4026,7 @@ mix_gem(struct obj *o1)
         break;
         /* black */
     case BLACK_OPAL:
+    case HUNK_OF_CHARCOAL:
         potion_descr = "black";
         break;
     case JET:

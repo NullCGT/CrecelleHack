@@ -234,6 +234,7 @@ struct nhdatatypes_t readtagstypes[] = {
     { NHTYPE_COMPLEX, (char *) "engr", sizeof(struct engr) },
     { NHTYPE_COMPLEX, (char *) "epri", sizeof(struct epri) },
     { NHTYPE_COMPLEX, (char *) "eshk", sizeof(struct eshk) },
+    { NHTYPE_COMPLEX, (char *) "esum", sizeof(struct esum) },
     { NHTYPE_COMPLEX, (char *) "fakecorridor", sizeof(struct fakecorridor) },
     { NHTYPE_COMPLEX, (char *) "fe", sizeof(struct fe) },
     { NHTYPE_COMPLEX, (char *) "flag", sizeof(struct flag) },
@@ -548,8 +549,8 @@ static void parseExtensionFields (struct tagstruct *tmptag, char *buf)
             if (colon == (char *)0) {
                 tmptag->tagtype = *field;
             } else {
-                const char *key = field;
-                const char *value = colon + 1;
+                char *key = field;
+                char *value = colon + 1;
                 *colon = '\0';
                 if ((strcmp (key, "struct") == 0) ||
                     (strcmp (key, "union") == 0)) {
@@ -1424,6 +1425,7 @@ static void generate_c_files(void)
                                    || !strcmp(t->ptr, "struct eshk *")
                                    || !strcmp(t->ptr, "struct emin *")
                                    || !strcmp(t->ptr, "struct ebones *")
+                                   || !strcmp(t->ptr, "struct esum *")
                                    || !strcmp(t->ptr, "struct edog *"))) {
                         Strcpy(altbuf, "genericptr");
                     } else if (isptr
@@ -1844,14 +1846,15 @@ static char *
 bfsize(const char *str)
 {
     static char buf[128];
-    const char *c1;
-    char *c2, *subst;
+    char *copy_str, *c1, *c2, *subst;
+    char *retval = buf;
 
     if (!str)
         return (char *)0;
 
+    copy_str = dupstr(str);
     /* kludge */
-    subst = strstr(str, ",$/");
+    subst = strstr(copy_str, ",$/");
     if (subst != 0) {
         subst++;
         *subst++ = ' ';
@@ -1859,7 +1862,7 @@ bfsize(const char *str)
     }
 
     c2 = buf;
-    c1 = str;
+    c1 = copy_str;
     while (*c1) {
         if (*c1 == ',')
             break;
@@ -1873,9 +1876,10 @@ bfsize(const char *str)
         }
         *c2 = '\0';
     } else {
-        return (char *)0;
+        retval = (char *) 0; 
     }
-    return buf;
+    free((genericptr_t) copy_str);
+    return retval;
 }
 
 /* Read one line from input, up to and including the next newline
@@ -1979,6 +1983,7 @@ const struct already_in_sfbase already[] = {
     { NHTYPE_COMPLEX, "Sfi_engr", "Sfi_x_engr" },
     { NHTYPE_COMPLEX, "Sfi_epri", "Sfi_x_epri" },
     { NHTYPE_COMPLEX, "Sfi_eshk", "Sfi_x_eshk" },
+    { NHTYPE_COMPLEX, "Sfi_esum", "Sfi_x_esum" },
     { NHTYPE_COMPLEX, "Sfi_fe", "Sfi_x_fe" },
     { NHTYPE_COMPLEX, "Sfi_flag", "Sfi_x_flag" },
     { NHTYPE_COMPLEX, "Sfi_fruit", "Sfi_x_fruit" },
@@ -2034,6 +2039,7 @@ const struct already_in_sfbase already[] = {
     { NHTYPE_COMPLEX, "Sfo_engr", "Sfo_x_engr" },
     { NHTYPE_COMPLEX, "Sfo_epri", "Sfo_x_epri" },
     { NHTYPE_COMPLEX, "Sfo_eshk", "Sfo_x_eshk" },
+    { NHTYPE_COMPLEX, "Sfo_esum", "Sfo_x_esum" },
     { NHTYPE_COMPLEX, "Sfo_fe", "Sfo_x_fe" },
     { NHTYPE_COMPLEX, "Sfo_flag", "Sfo_x_flag" },
     { NHTYPE_COMPLEX, "Sfo_fruit", "Sfo_x_fruit" },
@@ -2125,6 +2131,7 @@ struct nh_classification nhdatatypes[] = {
     { 0, NHTYPE_COMPLEX, "sfi_engrave_info", "sfi_engrave_info" },
     { 0, NHTYPE_COMPLEX, "sfi_epri", "sfi_epri" },
     { 0, NHTYPE_COMPLEX, "sfi_eshk", "sfi_eshk" },
+    { 0, NHTYPE_COMPLEX, "sfi_esum", "sfi_esum" },
     { 0, NHTYPE_COMPLEX, "sfi_fakecorridor", "sfi_fakecorridor" },
     { 0, NHTYPE_COMPLEX, "sfi_fe", "sfi_fe" },
     { 0, NHTYPE_COMPLEX, "sfi_flag", "sfi_flag" },
@@ -2196,6 +2203,7 @@ struct nh_classification nhdatatypes[] = {
     { 0, NHTYPE_COMPLEX, "sfo_engrave_info", "sfo_engrave_info" },
     { 0, NHTYPE_COMPLEX, "sfo_epri", "sfo_epri" },
     { 0, NHTYPE_COMPLEX, "sfo_eshk", "sfo_eshk" },
+    { 0, NHTYPE_COMPLEX, "sfo_esum", "sfo_esum" },
     { 0, NHTYPE_COMPLEX, "sfo_fakecorridor", "sfo_fakecorridor" },
     { 0, NHTYPE_COMPLEX, "sfo_fe", "sfo_fe" },
     { 0, NHTYPE_COMPLEX, "sfo_flag", "sfo_flag" },

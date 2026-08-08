@@ -1,4 +1,4 @@
-/* NetHack 3.7  wintype.h       $NHDT-Date: 1717880364 2024/06/08 20:59:24 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.52 $ */
+/* NetHack 5.0  wintype.h       $NHDT-Date: 1781973092 2026/06/20 16:31:32 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.60 $ */
 /* Copyright (c) David Cohrs, 1991                                */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -59,6 +59,7 @@ enum any_types {
     ANY_NFUNC,       /* pointer to function taking no args, returning int */
     ANY_MASK32,      /* 32-bit mask (stored as unsigned long) */
     ANY_UINT64,      /* 64-bit unsigned int */
+    ANY_INT16,      /* xint16 / coordxy (16-bit signed) */
 
     ANY_INVALID      /* leave this last */
 };
@@ -181,7 +182,7 @@ typedef struct glyphinfo {
 #define MENU_ITEMFLAGS_SKIPINVERT     0x0000002U
 #define MENU_ITEMFLAGS_SKIPMENUCOLORS 0x0000004U
 
-/* 3.7+ enhanced menu flags that not all window ports are likely to
+/* 5.0+ enhanced menu flags that not all window ports are likely to
  * support initially.
  *
  * As behavior and appearance modification flags are added, the various

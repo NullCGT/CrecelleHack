@@ -1,4 +1,4 @@
-/* NetHack 3.7	dungeon.c	$NHDT-Date: 1737343478 2025/01/19 19:24:38 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.228 $ */
+/* NetHack 5.0	dungeon.c	$NHDT-Date: 1781973047 2026/06/20 16:30:47 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.239 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -12,6 +12,10 @@
 #define X_START "x-strt"
 #define X_LOCATE "x-loca"
 #define X_GOAL "x-goal"
+
+#define BIOME(id, nam) { nam }
+struct biome all_biomes[] = { BIOME_LIST };
+#undef BIOME
 
 struct proto_dungeon {
     struct tmpdungeon tmpdungeon[MAXDUNGEON];
@@ -1059,11 +1063,22 @@ init_dungeon_dungeons(
     pd->tmpdungeon[dngidx].chance = dgn_chance;
     pd->tmpdungeon[dngidx].entry_lev = dgn_entry;
 
-    /* FIXME: these should have length checks */
+    if (Strlen(dgn_fill) >= sizeof svd.dungeons[dngidx].fill_lvl)
+        panic("fill_lvl too long for dungeon %d", dngidx);
     Strcpy(svd.dungeons[dngidx].fill_lvl, dgn_fill);
+
+    if (Strlen(dgn_name) >= sizeof svd.dungeons[dngidx].dname)
+        panic("dname too long for dungeon %d", dngidx);
     Strcpy(svd.dungeons[dngidx].dname, dgn_name);
+
+    if (Strlen(dgn_protoname) >= sizeof svd.dungeons[dngidx].proto)
+        panic("proto too long for dungeon %d", dngidx);
     Strcpy(svd.dungeons[dngidx].proto, dgn_protoname);
+
+    if (Strlen(dgn_themerms) >= sizeof svd.dungeons[dngidx].themerms)
+        panic("themerms too long for dungeon %d", dngidx);
     Strcpy(svd.dungeons[dngidx].themerms, dgn_themerms);
+
     /* FIXME: accept "none", convert that to '\0' */
     svd.dungeons[dngidx].boneid = *dgn_bonetag ? *dgn_bonetag : 0;
     free((genericptr) dgn_fill);
@@ -1138,8 +1153,15 @@ fixup_level_locations(void)
                 /* This is where the name substitution on the
                  * levels of the quest dungeon occur.
                  */
-                Sprintf(x->proto, "%s%s", gu.urole.filecode,
-                        &lev_map->lev_name[1]);
+                if (Role_if(PM_ROGUE)
+                    && !strncmp(lev_map->lev_name, "x-goal", 6)) {
+                    Sprintf(x->proto, "%s%s",
+                            roles[flags.rogvictim].filecode,
+                            &lev_map->lev_name[1]);
+                } else {
+                    Sprintf(x->proto, "%s%s", gu.urole.filecode,
+                            &lev_map->lev_name[1]);
+                }
             } else if (lev_map->lev_spec == &knox_level) {
                 branch *br;
                 /*
@@ -1168,6 +1190,7 @@ fixup_level_locations(void)
     tower_dnum = dname_to_dnum("Vlad's Tower");
     tutorial_dnum = dname_to_dnum("The Tutorial");
     maze_dnum = dname_to_dnum("The Maze");
+    mtemple_dnum = dname_to_dnum("Temple of Moloch");
 
     /* one special fixup for dummy surface level */
     if ((x = find_level("dummy")) != 0) {
@@ -1587,12 +1610,18 @@ u_on_newpos(coordxy x, coordxy y)
         u.usteed->mx = u.ux, u.usteed->my = u.uy;
     /* when changing levels, don't leave old position set with
        stale values from previous level */
-    if (!on_level(&u.uz, &u.uz0))
+    if (!on_level(&u.uz, &u.uz0)) {
         u.ux0 = u.ux, u.uy0 = u.uy;
-    else if (!Blind && !Hallucination && !u.uswallow)
+        /* sets lastseentyp[u.ux][u.uy]; needed for switch_terrain()
+           somewhere back up the call chain */
+        map_location(u.ux, u.uy, FALSE);
+        iflags.terrain_typ = MAX_TYPE; /* "none of the above" value */
+    } else {
         /* still on same level; might have come close enough to
            generic object(s) to redisplay them as specific objects */
-        see_nearby_objects();
+        if (!Blind && !Hallucination && !u.uswallow)
+            see_nearby_objects();
+    }
     earth_sense();
 }
 
@@ -2576,6 +2605,8 @@ query_annotation(d_level *lev)
 int
 donamelevel(void)
 {
+    if (iflags.menu_requested)
+        return dooverview();
     query_annotation((d_level *) 0);
     return ECMD_OK;
 }
@@ -2876,7 +2907,8 @@ init_mapseen(d_level *lev)
 
 #define OF_INTEREST(feat) \
     ((feat).nfount || (feat).nsink || (feat).nthrone || (feat).naltar   \
-     || (feat).ngrave || (feat).ntree || (feat).nshop || (feat).ntemple)
+     || (feat).ngrave || (feat).ntree || (feat).nshop || (feat).ntemple \
+     || ((feat).msbiome && flags.biome_overview))
   /* || (feat).water || (feat).ice || (feat).lava */
 
 /* returns true if this level has something interesting to print out */
@@ -3116,6 +3148,7 @@ recalc_mapseen(void)
     }
     mptr->flags.knownbones = 0;
     mptr->flags.sokosolved = In_sokoban(&u.uz) && !Sokoban;
+    mptr->feat.msbiome = svl.level.flags.biome;
     /* mptr->flags.bigroom retains previous value when hero can't see */
     if (!Blind)
         mptr->flags.bigroom = Is_bigroom(&u.uz);
@@ -3562,6 +3595,9 @@ print_mapseen(
     if (In_endgame(&mptr->lev))
         Sprintf(buf, "%s%s:", (final != -1) ? TAB : "",
                 endgamelevelname(tmpbuf, i));
+    else if (mptr->feat.msbiome && flags.biome_overview)
+        Sprintf(buf, "%sLevel %d [%s]:", (final != -1) ? TAB : "", i,
+                all_biomes[mptr->feat.msbiome].name);
     else
         Sprintf(buf, "%sLevel %d:", (final != -1) ? TAB : "", i);
 
@@ -3733,20 +3769,23 @@ print_mapseen(
 
 /* Initialize the biomes of the dungeon */
 void
-init_biomes(void)
+init_biomes(int dnum)
 {
+    int biome, i;
+    struct branch *br;
+    struct dungeon *branchptr;
+    struct dungeon *dptr = &svd.dungeons[dnum];
     int cutoff = 0;
-    int biome;
-    for (int i = 0; i < DGN_BIOMES; i++) {
+    for (i = 0; i < DGN_BIOMES; i++) {
         /* Set the cutoff */
         cutoff += rn1(3, 3);
-        svd.dungeons[u.uz.dnum].biome_cutoff[i] = cutoff;
+        dptr->biome_cutoff[i] = cutoff;
         /* Character choice changes*/
         if (!i) {
             if (Role_if(PM_VALKYRIE))
-                svd.dungeons[u.uz.dnum].biome_ids[0] = BIOME_SNOWY;
+                dptr->biome_ids[0] = BIOME_SNOWY;
             else if (Race_if(PM_ELF))
-                svd.dungeons[u.uz.dnum].biome_ids[0] = BIOME_WOODLAND;
+                dptr->biome_ids[0] = BIOME_WOODLAND;
             continue;
         }
         /* Randomize the biome */
@@ -3754,12 +3793,26 @@ init_biomes(void)
         else biome = rn2(BIOME_MAX);
         /* Don't flip between opposite temps */
         if ((i - 1 < 0) && biome == BIOME_TROPICAL
-            && svd.dungeons[u.uz.dnum].biome_ids[i - 1] == BIOME_SNOWY)
+            && dptr->biome_ids[i - 1] == BIOME_SNOWY)
             biome = BIOME_SNOWY;
         if ((i - 1 < 0) && biome == BIOME_SNOWY
-            && svd.dungeons[u.uz.dnum].biome_ids[i - 1] == BIOME_TROPICAL)
+            && dptr->biome_ids[i - 1] == BIOME_TROPICAL)
             biome = BIOME_TROPICAL;
-        svd.dungeons[u.uz.dnum].biome_ids[i] = biome;
+        dptr->biome_ids[i] = biome;
+    }
+    /* Branches take on the biome of the level that they branched from. */
+    for (br = svb.branches; br; br = br->next) {
+        if (br->type != BR_STAIR || (br->end1.dnum != dnum))
+            continue;
+        /* pline("Biome set: %s", svd.dungeons[br->end2.dnum].dname); */
+        branchptr = &svd.dungeons[br->end2.dnum];
+        for (i = 0; i < DGN_BIOMES; i++) {
+            if (br->end1.dlevel < dptr->biome_cutoff[i])
+                break;
+        }
+        /* Ugly hack, but it works */
+        branchptr->biome_cutoff[0] = branchptr->num_dunlevs + 1;
+        branchptr->biome_ids[0] = dptr->biome_ids[i];
     }
 }
 #endif /* !SFCTOOL */

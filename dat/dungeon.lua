@@ -1,4 +1,4 @@
--- NetHack 3.6	dungeon dungeon.lua	$NHDT-Date: 1652196135 2022/05/10 15:22:15 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.4 $
+-- NetHack 3.6	dungeon dungeon.lua	$NHDT-Date: 1781994881 2026/06/20 22:34:41 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.11 $
 -- Copyright (c) 1990-95 by M. Stephenson
 -- NetHack may be freely redistributed.  See license for details.
 --
@@ -22,6 +22,11 @@ dungeon = {
             chainlevel = "oracle",
             base = 1,
             direction = "up"
+         },
+         {
+            name = "Temple of Moloch",
+            base = 5,
+            range = 20
          },
          {
             name = "The Quest",
@@ -186,7 +191,7 @@ dungeon = {
          },
          {
             name = "minend",
---          3.7.0: minend changed to no-bones to simplify achievement tracking
+--          5.0.0: minend changed to no-bones to simplify achievement tracking
 --          bonetag = "E"
             base = -1,
             nlevels = 3
@@ -349,5 +354,19 @@ dungeon = {
             base = 2,
          }
       }
-   }
+   },
+   {
+      name = "Temple of Moloch",
+      base = 1,
+      bonetag = "Z",
+      flags = { "mazelike" },
+      alignment = "unaligned",
+      levels = {
+         {
+            name = "mtemple",
+            bonetag = "Z",
+            base = 1
+         }
+      }
+   },
 }

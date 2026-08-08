@@ -1,5 +1,5 @@
 #	NetHack Makefile (VMS) - for building nethack itself.
-#	NetHack 3.7	Makefile.src	$NHDT-Date: 1683748060 2023/05/10 19:47:40 $	$NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.60 $
+#	NetHack 5.0	Makefile.src	$NHDT-Date: 1683748060 2023/05/10 19:47:40 $	$NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.60 $
 # Copyright (c) 2011 by Robert Patrick Rankin
 # NetHack may be freely redistributed.  See license for details.
 
@@ -136,7 +136,7 @@ RANDOBJ = isaac64.obj,random.obj
 # Other things that have to be reconfigured are in vmsconf.h,
 # and config.h
 
-VERSION  = 3.7.0
+VERSION  = 5.0.0
 
 MAKEDEFS = $(UTL)makedefs.exe;
 
@@ -149,7 +149,7 @@ HACK_H	= $(SRC)hack.h-t
 HACKCSRC = allmain.c alloc.c apply.c artifact.c attrib.c ball.c bones.c \
 	   botl.c calendar.c cfgfiles.c cmd.c coloratt.c dbridge.c decl.c detect.c \
 	   dig.c display.c dlb.c do.c do_name.c do_wear.c dog.c dogmove.c dokick.c \
-	   dothrow.c drawing.c dungeon.c eat.c end.c engrave.c exper.c \
+	   dothrow.c drawing.c dungeon.c earlyarg.c eat.c end.c engrave.c exper.c \
 	   explode.c extralev.c files.c fountain.c getpos.c glyphs.c hack.c \
 	   hacklib.c iactions.c insight.c invent.c light.c lock.c \
 	   mail.c makemon.c mcastu.c mhitm.c mhitu.c minion.c \
@@ -157,12 +157,12 @@ HACKCSRC = allmain.c alloc.c apply.c artifact.c attrib.c ball.c bones.c \
 	   monmove.c monst.c mplayer.c mthrowu.c muse.c music.c o_init.c \
 	   objects.c objnam.c options.c pager.c pickup.c pline.c polyself.c \
 	   potion.c pray.c priest.c quest.c questpgr.c read.c rect.c \
-	   region.c report.c restore.c rip.c rnd.c role.c rumors.c save.c \
-	   selvar.c sfstruct.c shk.c shknam.c sit.c sounds.c sp_lev.c \
-	   spell.c stairs.c steal.c steed.c strutil.c sys.c teleport.c \
-	   timeout.c topten.c track.c trap.c u_init.c uhitm.c vault.c \
-	   version.c vision.c weapon.c were.c wield.c windows.c wizard.c \
-	   wizcmds.c worm.c worn.c write.c zap.c
+	   region.c report.c restore.c revision.c rip.c rnd.c role.c \
+	   rumors.c save.c selvar.c sfstruct.c shk.c shknam.c sit.c sounds.c \
+	   sp_lev.c spell.c stairs.c steal.c steed.c strutil.c sys.c \
+	   teleport.c timeout.c topten.c track.c trap.c u_init.c uhitm.c \
+	   vault.c version.c vision.c weapon.c were.c wield.c windows.c \
+	   wizard.c wizcmds.c worm.c worn.c write.c zap.c
 
 #-# generated source files (vis_tab.c is gone; tile.c is handled separately
 #-# via WINxxxSRC)
@@ -180,11 +180,11 @@ HACKINCL = align.h artifact.h artilist.h attrib.h botl.h \
 	fnamesiz.h func_tab.h global.h warnings.h hack.h lint.h mextra.h \
 	micro.h mkroom.h monattk.h mondata.h monflag.h monst.h monsters.h \
 	mfndpos.h nhmd4.h obj.h objects.h objclass.h optlist.h patchlevel.h \
-	pcconf.h permonst.h prop.h rect.h region.h savefile.h selvar.h sym.h \
-	rm.h sp_lev.h spell.h sndprocs.h seffects.h stairs.h sys.h \
-	tcap.h timeout.h tradstdc.h trap.h unixconf.h vision.h vmsconf.h \
-	wintty.h wincurs.h winX.h winprocs.h wintype.h you.h youprop.h \
-	weight.h
+	pcconf.h permonst.h prop.h rect.h region.h revision.h savefile.h \
+	selvar.h sym.h rm.h sp_lev.h spell.h sndprocs.h seffects.h \
+	stairs.h sys.h tcap.h timeout.h tradstdc.h trap.h unixconf.h \
+	vision.h vmsconf.h wintty.h wincurs.h winX.h winprocs.h wintype.h \
+	you.h youprop.h weight.h
 
 
 #HSOURCES = $(HACKINCL) date.h onames.h pm.h
@@ -198,7 +198,7 @@ HOBJ1 = allmain.obj,alloc.obj,apply.obj,artifact.obj,attrib.obj, \
 	coloratt.obj,dbridge.obj,decl.obj,detect.obj,dig.obj,display.obj, \
 	dlb.obj,do.obj,do_name.obj,do_wear.obj
 HOBJ2 = dog.obj,dogmove.obj,dokick.obj,dothrow.obj,drawing.obj, \
-	dungeon.obj,eat.obj,end.obj,engrave.obj,exper.obj,explode.obj, \
+	dungeon.obj,earlyarg.obj,eat.obj,end.obj,engrave.obj,exper.obj,explode.obj, \
 	extralev.obj,files.obj,fountain.obj,getpos.obj,glyphs.obj,hack.obj, \
 	hacklib.obj,iactions.obj,insight.obj,invent.obj
 HOBJ3 = light.obj,lock.obj,mail.obj,makemon.obj,mcastu.obj, \
@@ -519,6 +519,7 @@ dokick.obj :	dokick.c $(HACK_H)
 dothrow.obj :	dothrow.c $(HACK_H)
 drawing.obj :	drawing.c $(HACK_H) $(INC)tcap.h
 dungeon.obj :	dungeon.c $(HACK_H) $(INC)dgn_file.h $(INC)dlb.h
+earlyarg.obj :	earlyarg.c $(HACK_H)
 eat.obj :	eat.c $(HACK_H)
 end.obj :	end.c $(HACK_H) $(INC)dlb.h
 engrave.obj :	engrave.c $(HACK_H)
@@ -574,6 +575,7 @@ read.obj :	read.c $(HACK_H)
 rect.obj :	rect.c $(HACK_H)
 region.obj :	region.c $(HACK_H)
 restore.obj :	restore.c $(HACK_H) $(INC)tcap.h
+revision.obj :	revision.c $(HACK_H)
 rip.obj :	rip.c $(HACK_H)
 rnd.obj :	rnd.c $(HACK_H)
 role.obj :	role.c $(HACK_H)

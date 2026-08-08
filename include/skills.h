@@ -1,4 +1,4 @@
-/* NetHack 3.7	skills.h	$NHDT-Date: 1596498559 2020/08/03 23:49:19 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.16 $ */
+/* NetHack 5.0	skills.h	$NHDT-Date: 1781973087 2026/06/20 16:31:27 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.21 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985-1999. */
 /*-Copyright (c) Pasi Kallinen, 2017. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -32,42 +32,38 @@ enum p_skills {
     P_SABER              =  9, /* Curved sword, includes scimitar */
     P_CLUB               = 10, /* Heavy-shafted bludgeon */
     P_MACE               = 11,
-    P_MORNING_STAR       = 12, /* Spiked bludgeon */
-    P_FLAIL              = 13, /* Two pieces hinged or chained together */
-    P_HAMMER             = 14, /* Heavy head on the end */
-    P_QUARTERSTAFF       = 15, /* Long-shafted bludgeon */
-    P_POLEARMS           = 16, /* attack two or three steps away */
-    P_SPEAR              = 17, /* includes javelin */
-    P_TRIDENT            = 18,
-    P_LANCE              = 19,
-    P_BOW                = 20, /* launchers */
-    P_SLING              = 21,
-    P_CROSSBOW           = 22,
-    P_DART               = 23, /* hand-thrown missiles */
-    P_SHURIKEN           = 24,
-    P_BOOMERANG          = 25,
-    P_WHIP               = 26, /* flexible, one-handed */
-    P_UNICORN_HORN       = 27, /* last weapon, two-handed */
+    P_FLAIL              = 12, /* Two pieces hinged or chained together */
+    P_HAMMER             = 13, /* Heavy head on the end */
+    P_QUARTERSTAFF       = 14, /* Long-shafted bludgeon */
+    P_POLEARMS           = 15, /* attack two or three steps away */
+    P_SPEAR              = 16, /* includes javelin and trident */
+    P_LANCE              = 17,
+    P_BOW                = 18, /* launchers */
+    P_SLING              = 19,
+    P_CROSSBOW           = 20,
+    P_MISSILES           = 21, /* hand-thrown missiles */
+    P_WHIP               = 22, /* flexible, one-handed */
+    P_UNICORN_HORN       = 23, /* last weapon, two-handed */
 
     /* Spell Skills added by Larry Stewart-Zerba */
-    P_ATTACK_SPELL       = 28,
-    P_HEALING_SPELL      = 29,
-    P_DIVINATION_SPELL   = 30,
-    P_ENCHANTMENT_SPELL  = 31,
-    P_CLERIC_SPELL       = 32,
-    P_ESCAPE_SPELL       = 33,
-    P_MATTER_SPELL       = 34,
+    P_ATTACK_SPELL       = 24,
+    P_HEALING_SPELL      = 25,
+    P_DIVINATION_SPELL   = 26,
+    P_ENCHANTMENT_SPELL  = 27,
+    P_CLERIC_SPELL       = 28,
+    P_ESCAPE_SPELL       = 29,
+    P_MATTER_SPELL       = 30,
 
     /* Other types of combat */
-    P_BARE_HANDED_COMBAT = 35, /* actually weaponless; gloves are ok */
-    P_TWO_WEAPON_COMBAT  = 36, /* pair of weapons, one in each hand */
-    P_RIDING             = 37, /* How well you control your steed */
-    P_TRIPPING           = 38, /* How well you can trip others and avoid trips */
-    P_GRAPPLING          = 39, /* How well you can grapple others and escape grapples */
-    P_PET_HANDLING       = 40, /* How well you command pets */
-    P_IMPROV             = 41, /* How well can you improvise weapons */
+    P_BARE_HANDED_COMBAT = 31, /* actually weaponless; gloves are ok */
+    P_TWO_WEAPON_COMBAT  = 32, /* pair of weapons, one in each hand */
+    P_RIDING             = 33, /* How well you control your steed */
+    P_TRIPPING           = 34, /* How well you can trip others and avoid trips */
+    P_GRAPPLING          = 35, /* How well you can grapple others and escape grapples */
+    P_PET_HANDLING       = 36, /* How well you command pets */
+    P_IMPROV             = 37, /* How well can you improvise weapons */
 
-    P_NUM_SKILLS         = 42
+    P_NUM_SKILLS         = 38
 };
 
 #define P_MARTIAL_ARTS P_BARE_HANDED_COMBAT /* Role distinguishes */
@@ -82,7 +78,7 @@ enum p_skills {
 #define P_FIRST_H_TO_H P_BARE_HANDED_COMBAT
 
 /* These roles qualify for a martial arts bonus */
-#define martial_bonus() (Role_if(PM_SAMURAI) || Role_if(PM_MONK))
+#define martial_bonus() (Role_if(PM_SAMURAI) || Role_if(PM_MONK) || Role_if(PM_GRAPPLER))
 
 /*
  * These are the standard weapon skill levels.  It is important that

@@ -1,4 +1,4 @@
--- NetHack sokoban soko3-2.lua	$NHDT-Date: 1652196036 2022/05/10 15:20:36 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.1 $
+-- NetHack sokoban soko3-2.lua	$NHDT-Date: 1781994888 2026/06/20 22:34:48 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.5 $
 --	Copyright (c) 1998-1999 by Kevin Hugo
 -- NetHack may be freely redistributed.  See license for details.
 --
@@ -48,8 +48,9 @@ des.object("boulder",10,10)
 des.object("boulder",03,11)
 
 -- prevent monster generation over the (filled) holes
-des.exclusion({ type = "monster-generation", region = { 12,10, 24,10 } });
+des.exclusion({ type = "monster-generation", region = { 11,10, 24,10 } });
 -- Traps
+des.trap("rolling boulder",11,10)
 des.trap("hole",12,10)
 des.trap("hole",13,10)
 des.trap("hole",14,10)

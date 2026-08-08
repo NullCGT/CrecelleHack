@@ -1,4 +1,4 @@
-/* NetHack 3.7	you.h	$NHDT-Date: 1702349061 2023/12/12 02:44:21 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.75 $ */
+/* NetHack 5.0	you.h	$NHDT-Date: 1781973093 2026/06/20 16:31:33 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.89 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2016. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -151,7 +151,14 @@ enum achivements {
     ACH_RNK1 = 23, ACH_RNK2 = 24, ACH_RNK3 = 25, ACH_RNK4 = 26,
     ACH_RNK5 = 27, ACH_RNK6 = 28, ACH_RNK7 = 29, ACH_RNK8 = 30,
     ACH_TUNE = 31, /* discovered the castle drawbridge's open/close tune */
-    N_ACH = 32     /* allocate room for 31 plus a slot for 0 terminator */
+    /* achieve2 starts here */
+    ACH_MAZE = 32, /* sent to the Maze */
+    ACH_MTEMPLE = 33, /* entered the temple of moloch */
+    ACH_JUN_ALC = 34, /* performed floor alchemy */
+    ACH_PYRO = 35, /* indirectly slay a monster with a bonfire */
+    ACH_LOST_BOOT = 36, /* get your boots removed by honey */
+    ACH_BPEEL = 37, /* slip on a banana peel */
+    N_ACH = 38     /* allocate room for 63 plus a slot for 0 terminator */
 };
     /*
      * Other potential achievements to track (this comment briefly resided
@@ -210,8 +217,12 @@ struct u_conduct {     /* number of times... */
     long pets;         /* obtained a pet */
     long conflicting;  /* generated conflict */
     long holy_water;   /* blessed an object with holy water */
-    long dyed;         /* player has explicitly dyed an item */
+    long dyer;         /* player has explicitly dyed an item */
     /* genocides already listed at end of game */
+    long reserved1;
+    long reserved2;
+    long reserved3;
+    long reserved4;
 };
 
 struct u_roleplay {
@@ -223,7 +234,10 @@ struct u_roleplay {
     boolean perfect_bestiary; /* automatically know all monsters */
     boolean no_flipped_soko;  /* do not flip sokoban */
     boolean altstarts;  /* alternate location starts for certain roles and races */
-    long numbones;  /* # of bones files loaded  */
+    boolean reserved1;
+    boolean reserved2;
+    boolean reserved3;
+    long numbones;   /* # of bones files loaded */
     long numrerolls; /* # of rerolls used */
 };
 
@@ -277,6 +291,7 @@ struct Role {
     int spelstat; /* which stat (A_) is used */
     int spelspec; /* spell (SPE_) the class excels at */
     int spelsbon; /* penalty (-bonus) for that spell */
+    int geobon;   /* boost to spell success rate from terrain */
 
     /*** Properties in variable-length arrays ***/
     /* intrinsics (see attrib.c) */
@@ -326,6 +341,7 @@ struct Race {
     xint16 attrmax[A_MAX];     /* maximum allowable attribute */
     struct RoleAdvance hpadv; /* hit point advancement */
     struct RoleAdvance enadv; /* energy advancement */
+    float geomult;            /* pw mult from terrain for spellcasting */
 #if 0 /* DEFERRED */
     int   nv_range;           /* night vision range */
     int   xray_range;         /* X-ray vision range */
@@ -490,7 +506,6 @@ struct you {
     Bitfield(uinvulnerable, 1); /* you're invulnerable (praying) */
     Bitfield(uburied, 1);       /* you're buried */
     Bitfield(uedibility, 1);    /* blessed food detect; sense unsafe food */
-    Bitfield(usaving_grace, 1); /* prevents death once */
     Bitfield(uhandedness, 1); /* There is no advantage for either handedness.
                                  The distinction is only for flavor variation
                                  and for use in messages. */
@@ -566,6 +581,7 @@ struct you {
     short mcham;             /* vampire mndx if shapeshifted to bat/cloud */
     short umovement;         /* instead of youmonst.movement */
     schar uachieved[N_ACH];  /* list of achievements in the order attained */
+    struct monst *umonst;    /* for future conversion of &gy.youmonst to u.umonst */
 }; /* end of `struct you' */
 
 
@@ -592,6 +608,7 @@ struct _hitmon_data {
     int barehand_hated_rings;
     boolean hatedmsg;
     boolean hatedobj;
+    boolean resist;
     boolean lightobj;
     int material;
     int jousting;

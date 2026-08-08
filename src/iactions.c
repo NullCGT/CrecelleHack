@@ -1,4 +1,4 @@
-/* NetHack 3.7	iactions.c	$NHDT-Date: 1762680996 2025/11/09 01:36:36 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.543 $ */
+/* NetHack 5.0	iactions.c	$NHDT-Date: 1781973051 2026/06/20 16:30:51 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.4 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Pasi Kallinen, 2026. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -317,9 +317,15 @@ itemactions(struct obj *otmp)
     else if (otmp->otyp == GRAPPLING_HOOK)
         ia_addmenu(win, IA_APPLY_OBJ, 'a',
                    "Grapple something with this hook");
+    else if (otmp->otyp == SHEPHERD_S_CROOK)
+        ia_addmenu(win, IA_APPLY_OBJ, 'a',
+                    "Grapple something with this crook");
     else if (otmp->otyp == BAG_OF_TRICKS && objects[otmp->otyp].oc_name_known)
         /* bag of tricks skips this unless discovered */
         ia_addmenu(win, IA_APPLY_OBJ, 'a', "Reach into this bag");
+    else if (otmp->otyp == BAG_OF_WINDS && objects[otmp->otyp].oc_name_known)
+        /* bag of tricks skips this unless discovered */
+        ia_addmenu(win, IA_APPLY_OBJ, 'a', "Release the contents of this bag");
     else if (Is_container(otmp))
         /* bag of tricks gets here only if not yet discovered */
         ia_addmenu(win, IA_APPLY_OBJ, 'a', "Open this container");
@@ -333,9 +339,17 @@ itemactions(struct obj *otmp)
         ia_addmenu(win, IA_APPLY_OBJ, 'a', "Use this kit to tin a corpse");
     else if (otmp->otyp == RESIZING_KIT)
         ia_addmenu(win, IA_APPLY_OBJ, 'a', "Use this kit to resize an object");
-    else if (otmp->otyp == LEASH)
-        ia_addmenu(win, IA_APPLY_OBJ, 'a', "Tie a pet to this leash");
-    else if (otmp->otyp == SADDLE)
+    else if (otmp->otyp == LEASH) {
+        if (!otmp->leashmon) {
+            Strcpy(buf, "Attach this leash to a pet");
+        } else {
+            mtmp = find_mid(otmp->leashmon, FM_FMON);
+            if (!mtmp) /* assume this won't happen */
+                panic("Can't find leash's monster");
+            Sprintf(buf, "Detach this leash from %s", some_mon_nam(mtmp));
+        }
+        ia_addmenu(win, IA_APPLY_OBJ, 'a', buf);
+    } else if (otmp->otyp == SADDLE)
         ia_addmenu(win, IA_APPLY_OBJ, 'a', "Place this saddle on a pet");
     else if (otmp->otyp == MAGIC_WHISTLE
              || otmp->otyp == PEA_WHISTLE)

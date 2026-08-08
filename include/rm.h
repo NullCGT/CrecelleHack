@@ -1,4 +1,4 @@
-/* NetHack 3.7	rm.h	$NHDT-Date: 1745114235 2025/04/19 17:57:15 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.120 $ */
+/* NetHack 5.0	rm.h	$NHDT-Date: 1781973087 2026/06/20 16:31:27 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.126 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Pasi Kallinen, 2017. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -92,7 +92,20 @@ enum levl_typ_types {
     CLOUD     = 36,
 
     MAX_TYPE  = 37,
+    /* for special levels */
     MATCH_WALL = 38,
+
+    /* these aren't levl[][].typ values, they're additional indices
+       into terrain_descr[] for status feedback */
+    xFLOOR     = 39,
+    xGROUND    = 40,
+    xOPENDOOR  = 41,
+    xSHUTDOOR  = 42,
+    xSWAMP     = 43,
+    xSUBMERGED = 44,
+    xSEA       = 45,
+    xWATERWALL = 46,
+
     INVALID_TYPE = 127
 };
 
@@ -126,7 +139,8 @@ enum levl_typ_types {
 #define IS_AIR(typ) ((typ) == AIR || (typ) == CLOUD)
 #define IS_SOFT(typ) ((typ) == AIR || (typ) == CLOUD || IS_POOL(typ))
 #define IS_WATERWALL(typ) ((typ) == WATER)
-#define IS_COATABLE(typ) (IS_STWALL(typ) || ((typ) >= IRONBARS && (typ) < ALTAR))
+#define IS_COATABLE(typ) ((IS_STWALL(typ) || ((typ) >= IRONBARS && (typ) < ALTAR)) \
+                            && !IS_FOUNTAIN(typ))
 #define IS_SUBMASKABLE(typ) (typ == ROOM || typ == CORR || typ == STONE)
 #define IS_OVERWRITABLE(typ) (typ != STAIRS && typ != LADDER)
 /* for surface checks when it's unknown whether a drawbridge is involved;
@@ -164,6 +178,7 @@ struct floor_coating {
     short val;
 };
 extern struct floor_coating all_coatings[];
+#define COAT_DIRTY (COAT_BLOOD | COAT_POTION | COAT_ASHES | COAT_SHARDS | COAT_FUNGUS)
 
 /* flags for do_heatmaps() */
 #define HMAP_LIST HMAP(PLAYER, "player", 0x001), \
@@ -536,6 +551,7 @@ struct levelflags {
     Bitfield(outdoors, 1);      /* is the level outdoors */
 
     schar temperature;         /* +1 == hot, -1 == cold */
+    long stasis_until;         /* wand of stasis effect lasts until when? */
 };
 
 typedef struct {

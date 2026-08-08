@@ -1,4 +1,4 @@
-/* NetHack 3.7	mkobj.c	$NHDT-Date: 1764044196 2025/11/24 20:16:36 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.326 $ */
+/* NetHack 5.0	mkobj.c	$NHDT-Date: 1781973055 2026/06/20 16:30:55 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.335 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Derek S. Ray, 2015. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -44,10 +44,10 @@ static const struct icp oprop_probs[] = {
 #undef OPROP
 
 static const struct icp mkobjprobs[] = { { 10, WEAPON_CLASS },
-                                         { 10, ARMOR_CLASS },
+                                         { 11, ARMOR_CLASS },
                                          { 20, FOOD_CLASS },
                                          { 8, TOOL_CLASS },
-                                         { 8, GEM_CLASS },
+                                         { 7, GEM_CLASS },
                                          { 16, POTION_CLASS },
                                          { 16, SCROLL_CLASS },
                                          { 4, SPBOOK_CLASS },
@@ -178,6 +178,20 @@ free_odye(struct obj *otmp)
 }
 
 void
+newosum(struct obj *otmp)
+{
+    if (!otmp->oextra)
+        otmp->oextra = newoextra();
+    OSUM(otmp) = 1;
+}
+
+void
+free_osum(struct obj *otmp)
+{
+    OSUM(otmp) = 0;
+}
+
+void
 new_omailcmd(struct obj *otmp, const char *response_cmd)
 {
     if (!otmp->oextra)
@@ -244,7 +258,7 @@ mkobj_erosions(struct obj *otmp)
             otmp->greased = 1;
         /* and an extremely small fraction of the time, erodable items
            will generate dyed */
-        if (!rn2(3000))
+        if (!has_odye(otmp) && !rn2(3000))
             dye_obj(otmp, (otmp->o_id % CLR_BRIGHT_CYAN) + 1, FALSE);
     }
 }
@@ -504,6 +518,11 @@ copy_oextra(struct obj *obj2, struct obj *obj1)
         if (!ODYE(obj2))
             newodye(obj2);
         ODYE(obj2) = ODYE(obj1);
+    }
+    if (has_osum(obj1)) {
+        if (!OSUM(obj2))
+            newosum(obj2);
+        OSUM(obj2) = OSUM(obj1);
     }
 }
 
@@ -967,7 +986,9 @@ mksobj_init(struct obj **obj, boolean artif)
             tryct = 50;
             do
                 otmp->corpsenm = undead_to_corpse(rndmonnum());
-            while ((svm.mvitals[otmp->corpsenm].mvflags & G_NOCORPSE)
+            while (((svm.mvitals[otmp->corpsenm].mvflags & G_NOCORPSE)
+                        || (otmp->otyp == SKELETON
+                            && !has_bones(&mons[otmp->corpsenm])))
                    && (--tryct > 0));
             if (tryct == 0) {
                 /* perhaps rndmonnum() only wants to make G_NOCORPSE
@@ -1024,7 +1045,7 @@ mksobj_init(struct obj **obj, boolean artif)
             /* for emphasis; glob quantity is always 1 and weight varies
                when other globs coalesce with it or this one shrinks */
             otmp->quan = 1L;
-            /* 3.7: globs in 3.6.x left owt as 0 and let weight() fix
+            /* 5.0: globs in 3.6.x left owt as 0 and let weight() fix
                that up during 'obj->owt = weight(obj)' below, but now
                we initialize glob->owt explicitly so weight() doesn't
                need to perform any fix up and returns glob->owt as-is */
@@ -1053,6 +1074,11 @@ mksobj_init(struct obj **obj, boolean artif)
             otmp->quan = 1L;
         break;
     case TOOL_CLASS:
+        if (artif && !rn2(20 + (10 * nartifact_exist()))) {
+            /* mk_artifact() with otmp and A_NONE will never return NULL */
+            otmp = mk_artifact(otmp, (aligntyp) A_NONE, 99, TRUE);
+            *obj = otmp;
+        }
         if (is_weptool(otmp)) {
             if (otmp->otyp == UNICORN_HORN || rn2(20))
                 set_obj_size(otmp, MZ_MEDIUM, FALSE);
@@ -1068,6 +1094,9 @@ mksobj_init(struct obj **obj, boolean artif)
             otmp->lamplit = 0;
             otmp->quan = 1L + (long) (rn2(2) ? rn2(7) : 0);
             blessorcurse(otmp, 5);
+            break;
+        case LOCK_PICK:
+            otmp->quan = rn1(5, 5);
             break;
         case LANTERN:
         case OIL_LAMP:
@@ -1157,7 +1186,6 @@ mksobj_init(struct obj **obj, boolean artif)
         break;
     case VENOM_CLASS:
     case CHAIN_CLASS:
-    case BOTTLE_CLASS:
     case BALL_CLASS:
         break;
     case POTION_CLASS: /* note: potions get some additional init below */
@@ -1202,13 +1230,21 @@ mksobj_init(struct obj **obj, boolean artif)
 #endif
         }
         /* Armor has a slightly lower chance than weapons of being harmonic */
-        if (!rn2(80)) {
+        if (!rn2(65)) {
             add_oprop_to_object(otmp, 0);
         }
+        /* Shirts are always dyed */
+        if (otmp->otyp == T_SHIRT
+            || (otmp->otyp == ROBE && rn2(2)))
+            dye_obj(otmp, (otmp->o_id % CLR_BRIGHT_CYAN) + 1, FALSE);
         break;
     case WAND_CLASS:
         if (otmp->otyp == WAN_WISHING)
             otmp->spe = 1;
+        else if (otmp->otyp == WAN_STASIS)
+            /* just as easy to recharge as other NODIR wands, but starts with
+               fewer charges */
+            otmp->spe = rn1(4, 3);
         else
             otmp->spe = rn1(5,
                             (objects[otmp->otyp].oc_dir == NODIR) ? 11 : 4);
@@ -1325,6 +1361,7 @@ mksobj(int otyp, boolean init, boolean artif)
         /*FALLTHRU*/
     case STATUE:
     case FIGURINE:
+    case FOSSIL: /* TODO: ACTUAL FOSSIL CHOICE */
         if (otmp->corpsenm == NON_PM)
             otmp->corpsenm = rndmonnum();
         if (otmp->corpsenm != NON_PM
@@ -1387,7 +1424,7 @@ stone_object_type(unsigned mappearance)
 
     /* we exclude wands, rings, and gems even though some qualify as stone;
        there aren't any weapons or armor classified as made out of stone */
-    return (otyp == BOULDER || otyp == STATUE || otyp == FIGURINE);
+    return (otyp == BOULDER || otyp == STATUE || otyp == FIGURINE || otyp == FOSSIL);
 }
 
 /* possible mimic shapes that are affected by stone-to-flesh;
@@ -2048,7 +2085,7 @@ weight(struct obj *obj)
        manage glob->owt and there is nothing for weight() to do except
        return the current value as-is */
     if (obj->globby) {
-        /* 3.7: in 3.6.x this checked for owt==0 and then used
+        /* 5.0: in 3.6.x this checked for owt==0 and then used
            owt as-is when non-zero or objects[].oc_weight if zero;
            we don't do that anymore because it confused calculating
            the weight of a container when a glob inside shrank down
@@ -2110,6 +2147,9 @@ weight(struct obj *obj)
         if (obj->oeaten)
             wt = eaten_stat(wt, obj);
         return wt;
+    } else if (obj->otyp == FOSSIL && obj->corpsenm >= LOW_PM) {
+		    wt = (int)obj->quan *
+			        ((int)mons[obj->corpsenm].cwt * 1 / 2);
     } else if ((obj->otyp == SKULL || obj->otyp == SKULL_HELM) && ismnum(obj->corpsenm)) {
         /* Yuck */
         return max(obj->otyp == SKULL ? 1 : 10, mons[obj->corpsenm].cwt / 50);
@@ -2118,7 +2158,7 @@ weight(struct obj *obj)
     } else if (obj->oclass == FOOD_CLASS && obj->oeaten) {
         return eaten_stat((int) obj->quan * wt, obj);
     } else if (obj->oclass == COIN_CLASS) {
-        /* 3.7: always weigh at least 1 unit; used to yield 0 for 1..49 */
+        /* 5.0: always weigh at least 1 unit; used to yield 0 for 1..49 */
         wt = (int) ((obj->quan + 50L) / 100L);
         return max(wt, 1);
     } else if (obj->otyp == HEAVY_IRON_BALL && obj->owt != 0) {
@@ -2558,7 +2598,7 @@ place_object(struct obj *otmp, coordxy x, coordxy y)
     otmp->where = OBJ_FLOOR;
 
     /* if placed outside of shop, no_charge is no longer applicable */
-    if (otmp->no_charge && !costly_spot(x, y)
+    if (level_status.shkready && otmp->no_charge && !costly_spot(x, y)
         && !costly_adjacent(find_objowner(otmp, x, y), x, y))
         otmp->no_charge = 0;
 
@@ -4529,6 +4569,19 @@ void force_material(struct obj *otmp, int material)
 {
     otmp->material = material;
     otmp->owt = weight(otmp);
+    if (material == GEMSTONE) {
+        /* don't force a gemstone to have a random gemtype */ 
+        if (otmp->oclass == GEM_CLASS
+                && otmp->otyp >= FIRST_REAL_GEM
+                && otmp->otyp <= LAST_REAL_GEM) {
+            otmp->gemtype = otmp->otyp;
+        } else {
+            otmp->gemtype = FIRST_REAL_GEM + rn2(NUM_REAL_GEMS);
+            if (otmp->gemtype == SALT_CRYSTAL || otmp->gemtype == DILITHIUM_CRYSTAL
+                || otmp->gemtype == HUNK_OF_CHARCOAL)
+                otmp->gemtype = OBSIDIAN;
+        }
+    }
     if (!erosion_matters(otmp))
         return;
     if (!is_rustprone(otmp) && !is_flammable(otmp) && !is_crackable(otmp))
@@ -4548,13 +4601,16 @@ transmute_obj(struct obj *otmp, int newmat)
     if (!newmat) {
         do {
             newmat = 2 + rn2(NUM_MATERIAL_TYPES - 2);
-        } while (newmat == oldmat);
+        } while (newmat == oldmat || newmat == DRAGON_HIDE);
     }
     if (in_invent)
         pline("%s!", Yobjnam2(otmp, "vibrate"));
     force_material(otmp, newmat);
     if (in_invent) {
-        pline("It is now %s.", an(xname(otmp)));
+        if (otmp->quan > 1)
+            pline("They are now %s.", xname(otmp));
+        else
+            pline("It is now %s.", an(xname(otmp)));
         retouch_object(&otmp, FALSE, FALSE);
         disp.botl = TRUE;
         update_inventory();
@@ -4592,7 +4648,7 @@ oprop_from_permonst(struct permonst *pm)
         return OPROP_SANGUINE;
     if (pm->mflags4 & M4_BST_ICE)
         return OPROP_BOREAL;
-    if (pm->mflags4 & M4_BST_ASHES)
+    if (pm->mflags4 & M4_KICK_ASHES)
         return OPROP_BLAZING;
     if (is_roguish(pm))
         return OPROP_SUBTLE;

@@ -1,4 +1,4 @@
-/* NetHack 3.7	files.c	$NHDT-Date: 1740532826 2025/02/25 17:20:26 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.417 $ */
+/* NetHack 5.0	files.c	$NHDT-Date: 1781973049 2026/06/20 16:30:49 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.448 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Derek S. Ray, 2015. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -45,7 +45,7 @@
 #endif
 #endif
 
-#if (!defined(MAC) && !defined(O_WRONLY) && !defined(AZTEC_C)) \
+#if (!defined(MAC68K) && !defined(O_WRONLY) && !defined(AZTEC_C)) \
     || defined(USE_FCNTL)
 #include <fcntl.h>
 #endif
@@ -126,10 +126,6 @@ static void write_whereis(boolean);
 
 #ifdef AMIGA
 extern char PATH[]; /* see sys/amiga/amidos.c */
-extern char bbs_id[];
-#ifdef __SASC_60
-#include <proto/dos.h>
-#endif
 
 #include <libraries/dos.h>
 extern void amii_set_text_font(char *, int);
@@ -153,7 +149,7 @@ extern boolean get_user_home_folder(char *, size_t);
 #endif
 #endif
 
-#ifdef MAC
+#ifdef MAC68K
 #undef unlink
 #define unlink macunlink
 #endif
@@ -526,7 +522,7 @@ free_nhfile(NHFILE *nhfp)
 {
     if (nhfp) {
         init_nhfile(nhfp);
-        free(nhfp);
+        free((genericptr_t) nhfp);
     }
 }
 
@@ -663,7 +659,7 @@ create_levelfile(int lev, char errbuf[])
         nhfp->fd = open(fq_lock, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY,
                         FCMASK);
 #else
-#ifdef MAC
+#ifdef MAC68K
         nhfp->fd = maccreat(fq_lock, LEVL_TYPE);
 #else
         nhfp->fd = creat(fq_lock, FCMASK);
@@ -676,8 +672,9 @@ create_levelfile(int lev, char errbuf[])
             Sprintf(errbuf,
                     "Cannot create file \"%s\" for level %d (errno %d).",
                     gl.lock, lev, errno);
-#if defined(MSDOS)
-        setmode(nhfp->fd, O_BINARY);
+#if defined(MSDOS) || defined(WIN32)
+        if (nhfp->fd >= 0)
+            (void) setmode(nhfp->fd, O_BINARY);
 #endif
     }
     nhfp = viable_nhfile(nhfp);
@@ -708,7 +705,7 @@ open_levelfile(int lev, char errbuf[])
         nhfp->fpdef = (FILE *) 0;
     }
     if (nhfp && nhfp->structlevel) {
-#ifdef MAC
+#ifdef MAC68K
         nhfp->fd = macopen(fq_lock, O_RDONLY | O_BINARY, LEVL_TYPE);
 #else
         nhfp->fd = open(fq_lock, O_RDONLY | O_BINARY, 0);
@@ -721,8 +718,9 @@ open_levelfile(int lev, char errbuf[])
             Sprintf(errbuf,
                     "Cannot open file \"%s\" for level %d (errno %d).",
                     gl.lock, lev, errno);
-#if defined(MSDOS)
-        setmode(nhfp->fd, O_BINARY);
+#if defined(MSDOS) || defined(WIN32)
+        if (nhfp->fd >= 0)
+            (void) setmode(nhfp->fd, O_BINARY);
 #endif
     }
     nhfp = viable_nhfile(nhfp);
@@ -963,6 +961,9 @@ create_bonesfile(d_level *lev, char **bonesid, char errbuf[])
     const char *file;
     NHFILE *nhfp = (NHFILE *) 0;
     int failed = 0;
+#if defined(WIN32)
+    errno_t err;
+#endif
 
     if (errbuf)
         *errbuf = '\0';
@@ -981,7 +982,7 @@ create_bonesfile(d_level *lev, char **bonesid, char errbuf[])
         nhfp->style.binary = TRUE;
         nhfp->fnidx = historical;
         nhfp->fd = -1;
-        nhfp->fpdef = fopen(file, nhfp->style.binary ? WRBMODE : WRTMODE);
+        nhfp->fpdef = (FILE *) 0;
         if (nhfp->fpdef) {
 #ifdef SAVEFILE_DEBUGGING
             nhfp->fpdebug = fopen("create_bonesfile-debug.log", "a");
@@ -990,24 +991,29 @@ create_bonesfile(d_level *lev, char **bonesid, char errbuf[])
             failed = errno;
         }
         if (nhfp->structlevel) {
-#if defined(MICRO) || defined(WIN32)
+#if defined(MICRO)
             /* Use O_TRUNC to force the file to be shortened if it already
              * exists and is currently longer.
              */
             nhfp->fd = open(file,
                             O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, FCMASK);
+#elif defined(WIN32)
+            err = _sopen_s(&nhfp->fd, file,
+                           O_WRONLY | O_CREAT | O_TRUNC | O_BINARY,
+                           _SH_DENYRW, _S_IREAD | _S_IWRITE);
 #else /* ?MICRO || WIN32 */
-/* implies UNIX or MAC (MAC is for OS9 or earlier) */
-#ifdef MAC
+/* implies UNIX or MAC68K (MAC68K is for OS9 or earlier) */
+#ifdef MAC68K
             nhfp->fd = maccreat(file, BONE_TYPE);
 #else
             nhfp->fd = creat(file, FCMASK);
-#endif  /* ?MAC */
+#endif  /* ?MAC68K */
 #endif  /* ?MICRO || WIN32 */
             if (nhfp->fd < 0)
                 failed = errno;
-#if defined(MSDOS)
-            setmode(nhfp->fd, O_BINARY);
+#if defined(MSDOS) || defined(WIN32)
+            if (nhfp->fd >= 0)
+                (void) setmode(nhfp->fd, O_BINARY);
 #endif
         }
         if (failed && errbuf)  /* failure explanation */
@@ -1061,6 +1067,9 @@ open_bonesfile(d_level *lev, char **bonesid)
 {
     const char *fq_bones;
     NHFILE *nhfp = (NHFILE *) 0;
+#if defined(WIN32)
+    errno_t err UNUSED;
+#endif
 
     *bonesid = set_bonesfile_name(gb.bones, lev);
     fq_bones = fqname(gb.bones, BONESPREFIX, 0);
@@ -1068,6 +1077,10 @@ open_bonesfile(d_level *lev, char **bonesid)
 
     nhfp = new_nhfile();
     if (nhfp) {
+#if defined(WIN32) && defined(DEBUG)
+        if (nhfp->fd >= 0)
+            impossible("bones file NHFILE * has odd fd (%d)", nhfp->fd);
+#endif
         nhfp->structlevel = TRUE;
         nhfp->fieldlevel = FALSE;
         nhfp->ftype = NHF_BONESFILE;
@@ -1077,20 +1090,24 @@ open_bonesfile(d_level *lev, char **bonesid)
         nhfp->style.binary = (sysopt.bonesformat[0] != exportascii);
         nhfp->fnidx = sysopt.bonesformat[0];
         nhfp->fd = -1;
-        nhfp->fpdef = fopen(fq_bones, nhfp->style.binary ? RDBMODE : RDTMODE);
+        nhfp->fpdef = (FILE *) 0;
         if (nhfp->fpdef) {
 #ifdef SAVEFILE_DEBUGGING
             nhfp->fpdebug = fopen("open_bonesfile-debug.log", "a");
 #endif
         }
         if (nhfp->structlevel) {
-#ifdef MAC
+#if defined(MAC68K)
             nhfp->fd = macopen(fq_bones, O_RDONLY | O_BINARY, BONE_TYPE);
+#elif defined(WIN32)
+            err = _sopen_s(&nhfp->fd, fq_bones, _O_RDONLY | _O_BINARY,
+                           _SH_DENYRW, _S_IREAD | _S_IWRITE);
 #else
             nhfp->fd = open(fq_bones, O_RDONLY | O_BINARY, 0);
 #endif
-#if defined(MSDOS)
-            setmode(nhfp->fd, O_BINARY);
+#if defined(MSDOS) || defined(WIN32)
+            if (nhfp->fd >= 0)
+                (void) setmode(nhfp->fd, O_BINARY);
 #endif
         }
     }
@@ -1174,11 +1191,6 @@ set_savefile_name(boolean regularize_it)
 #if defined(MICRO) && !defined(WIN32) && !defined(MSDOS)
     if (strlen(gs.SAVEP) < (SAVESIZE - 1))
         Strcpy(gs.SAVEF, gs.SAVEP);
-    else
-#ifdef AMIGA
-        if (strlen(gs.SAVEP) + strlen(bbs_id) < (SAVESIZE - 1))
-            strncat(gs.SAVEF, bbs_id, PATHLEN);
-#endif
     {
         int i = strlen(gs.SAVEP);
 #ifdef AMIGA
@@ -1254,7 +1266,7 @@ set_error_savefile(void)
     }
     Strcat(gs.SAVEF, ".e;1");
 #else
-#ifdef MAC
+#ifdef MAC68K
     Strcat(gs.SAVEF, "-e");
 #else
     Strcat(gs.SAVEF, ".e");
@@ -1293,18 +1305,18 @@ create_savefile(void)
             nhfp->fd = open(fq_save, O_WRONLY | O_BINARY | O_CREAT | O_TRUNC,
                             FCMASK);
 #else /* !MICRO && !WIN32 */
-/* UNIX || MAC implied (MAC is OS9 or earlier only) */
-#ifdef MAC
+/* UNIX || MAC68K implied (MAC68K is OS9 or earlier only) */
+#ifdef MAC68K
             nhfp->fd = maccreat(fq_save, SAVE_TYPE);
 #else
             nhfp->fd = creat(fq_save, FCMASK);
 #endif
 #endif /* MICRO || WIN32 */
 #if defined(MSDOS) || defined(WIN32)
-        if (nhfp->fd >= 0)
-            (void) setmode(nhfp->fd, O_BINARY);
+            if (nhfp->fd >= 0)
+                (void) setmode(nhfp->fd, O_BINARY);
 #endif
-	}
+        }
     }
 #if defined(VMS) && !defined(SECURE)
     /*
@@ -1348,8 +1360,8 @@ open_savefile(void)
 #ifdef SAVEFILE_DEBUGGING
             nhfp->fplog = fopen("open-savefile.log", "w");
 #endif
-	}
-#ifdef MAC
+        }
+#ifdef MAC68K
         nhfp->fd = macopen(fq_save, O_RDONLY | O_BINARY, SAVE_TYPE);
 #else
         nhfp->fd = open(fq_save, O_RDONLY | O_BINARY, 0);
@@ -1387,7 +1399,7 @@ restore_saved_game(void)
 
     nh_uncompress(fq_save);
     if ((nhfp = open_savefile()) != 0) {
-        if ((sfstatus = validate(nhfp, fq_save, FALSE)) != SF_UPTODATE) {
+        if ((sfstatus = validate(nhfp, fq_save, FALSE, 0)) != SF_UPTODATE) {
             close_nhfile(nhfp);
             nhfp = problematic_savefile(sfstatus, fq_save);
         }
@@ -1465,7 +1477,7 @@ check_panic_save(void)
 char *
 plname_from_file(
     const char *filename,
-    boolean without_wait_synch_per_file)
+    boolean without_wait_synch_per_file, int additional_utd_flags)
 {
     NHFILE *nhfp;
     unsigned ln;
@@ -1486,7 +1498,8 @@ plname_from_file(
     nh_uncompress(gs.SAVEF);
     if ((nhfp = open_savefile()) != 0) {
         if ((sfstatus = validate(nhfp, filename,
-                                without_wait_synch_per_file)) == SF_UPTODATE) {
+                                without_wait_synch_per_file,
+                                additional_utd_flags)) == SF_UPTODATE) {
             /* room for "name+role+race+gend+algn X" where the space before
                X is actually NUL and X is playmode: one of '-', 'X', or 'D' */
             ln = (unsigned) PL_NSIZ_PLUS;
@@ -1523,7 +1536,7 @@ get_saved_games(void)
         const char *fq_old_save;
 #endif
         char **files = 0;
-        int i, count_failures = 0;
+        int i, count_failures = 0, utd_flags_to_pass_downstream = 0;
 
         Strcpy(svp.plname, "*");
         set_savefile_name(FALSE);
@@ -1556,7 +1569,11 @@ get_saved_games(void)
             (void) memset((genericptr_t) result, 0, (n + 1) * sizeof (char *));
             for(i = 0; i < n; i++) {
                 char *r;
-                r = plname_from_file(files[i], SUPPRESS_WAITSYNCH_PERFILE);
+                if (!wizard)
+                    utd_flags_to_pass_downstream = UTD_QUIETLY;
+                r = plname_from_file(files[i],
+                                     SUPPRESS_WAITSYNCH_PERFILE,
+                                     utd_flags_to_pass_downstream);
 
                 if (r) {
                     /* this renaming of the savefile is not compatible
@@ -1583,7 +1600,7 @@ get_saved_games(void)
         }
 
         free_saved_games(files);
-        if (count_failures)
+        if (count_failures && !(utd_flags_to_pass_downstream & UTD_QUIETLY))
             wait_synch();
     }
 #endif /* WIN32 */
@@ -1617,7 +1634,7 @@ get_saved_games(void)
 
                         Sprintf(filename, "save/%d%s", uid, name);
                         r = plname_from_file(filename,
-                                             ALLOW_WAITSYNCH_PERFILE);
+                                             ALLOW_WAITSYNCH_PERFILE, 0);
                         if (r)
                             result[j++] = r;
                     }
@@ -1659,6 +1676,7 @@ free_saved_games(char **saved)
         free((genericptr_t) saved);
     }
 }
+
 #endif /* !SFCTOOL */
 
 /* ----------  END SAVE FILE HANDLING ----------- */
@@ -2158,7 +2176,7 @@ problematic_savefile(int sfstatus, const char *savefilenm)
 
 /* ----------  BEGIN EXTERNAL CONVERSION HANDLING ----------- */
 
-static boolean cvtinit = FALSE;
+/* static boolean cvtinit = FALSE; */
 
 #ifndef SFCTOOL
 static char *unconverted_filename = 0, *converted_filename = 0;
@@ -2176,13 +2194,15 @@ doconvert_file(const char *filename, int sfstatus, boolean unconvert)
 }
 
 /* convert file */
-void nh_sfconvert(const char *filename)
+void
+nh_sfconvert(const char *filename)
 {
     (void) doconvert_file(filename, 0, FALSE);
 }
 
 /* unconvert file if it exists */
-void nh_sfunconvert(const char *filename)
+void
+nh_sfunconvert(const char *filename)
 {
     (void) doconvert_file(filename, 0, TRUE);
 }
@@ -2230,7 +2250,7 @@ make_converted_name(const char *filename)
             size_t sz = strlen(folderbuf);
 
             Snprintf(eos(folderbuf), sizeof folderbuf - sz,
-                     "\\AppData\\Local\\NetHack\\3.7\\");
+                     "\\AppData\\Local\\NetHack\\5.0\\");
             dir = (const char *) folderbuf;
         }
 #endif /* UNIX || WIN32 */
@@ -2270,13 +2290,14 @@ delete_convertedfile(const char *basefilename)
     return 0;
 }
 
-void free_convert_filenames(void)
+void
+free_convert_filenames(void)
 {
     if (converted_filename)
         free((genericptr_t) converted_filename), converted_filename = 0;
     if (unconverted_filename)
         free((genericptr_t) unconverted_filename), unconverted_filename = 0;
-    cvtinit = FALSE;
+/*    cvtinit = FALSE; */
 }
 
 /* return TRUE if s contains a directory, not just a filespec */
@@ -2605,7 +2626,7 @@ fopen_wizkit_file(void)
 #endif
     }
 
-#if defined(MICRO) || defined(MAC) || defined(__BEOS__) || defined(WIN32)
+#if defined(MICRO) || defined(MAC68K) || defined(__BEOS__) || defined(WIN32)
     if ((fp = fopen(fqname(gw.wizkit, CONFIGPREFIX, 0), "r")) != (FILE *) 0)
         return fp;
 #else
@@ -2673,8 +2694,10 @@ proc_wizkit_line(char *buf)
     otmp = readobjnam(buf, (struct obj *) 0);
 
     if (otmp) {
-        if (otmp != &hands_obj)
+        if (otmp != &hands_obj) {
+            wish_history_add(buf);
             wizkit_addinv(otmp);
+        }
     } else {
         /* .60 limits output line width to 79 chars */
         config_error_add("Bad wizkit item: \"%.60s\"", buf);
@@ -2882,13 +2905,13 @@ check_recordfile(const char *dir UNUSED_if_not_OS2_CODEVIEW)
     }
 #else /* MICRO || WIN32*/
 
-#ifdef MAC
+#ifdef MAC68K
     /* Create the "record" file, if necessary */
     fq_record = fqname(RECORD, SCOREPREFIX, 0);
     fd = macopen(fq_record, O_RDWR | O_CREAT, TEXT_TYPE);
     if (fd != -1)
         macclose(fd);
-#endif /* MAC */
+#endif /* MAC68K */
 
 #endif /* MICRO || WIN32*/
 }
@@ -3096,6 +3119,9 @@ recover_savefile(void)
     if (savewrite_failure)
         goto cleanup;
 
+    if (snhfp->structlevel)
+        bufoff(snhfp->fd);
+
     /* TODO: this is not a single byte, so a big-endian byte swap
      * might be necessary here, if anyone is concerned about big-endian */
     Sfo_int(snhfp, &pltmpsiz, "plname-size");
@@ -3148,6 +3174,8 @@ recover_savefile(void)
             }
         }
     }
+    if (snhfp->structlevel)
+        bufon(snhfp->fd);
     close_nhfile(snhfp);
     /*
      * We have a successful savefile!
@@ -3266,11 +3294,6 @@ debugcore(const char *filename, boolean wildcards)
 #endif /*DEBUG*/
 
 #ifndef SFCTOOL
-#ifdef UNIX
-#ifndef PATH_MAX
-#include <limits.h>
-#endif
-#endif
 
 #define SYSCONFFILE "system configuration file"
 

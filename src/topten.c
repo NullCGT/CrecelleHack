@@ -1,4 +1,4 @@
-/* NetHack 3.7	topten.c	$NHDT-Date: 1606009004 2020/11/22 01:36:44 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.74 $ */
+/* NetHack 5.0	topten.c	$NHDT-Date: 1781973070 2026/06/20 16:31:10 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.111 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -365,9 +365,9 @@ writexlentry(FILE *rfile, struct toptenentry *tt, int how)
     if (gm.multi < 0)
         Fprintf(rfile, "%cwhile=%s", XLOG_SEP,
                 gm.multi_reason ? gm.multi_reason : "helpless");
-    Fprintf(rfile, "%cconduct=0x%lx%cturns=%ld%cachieve=0x%lx", XLOG_SEP,
+    Fprintf(rfile, "%cconduct=0x%lx%cturns=%ld%cachieve=0x%lx%cachieve2=0x%lx", XLOG_SEP,
             encodeconduct(), XLOG_SEP, svm.moves, XLOG_SEP,
-            encodeachieve(FALSE));
+            encodeachieve(FALSE), XLOG_SEP, encodeachieve(TRUE));
     Fprintf(rfile, "%cachieveX=%s", XLOG_SEP,
             encode_extended_achievements(achbuf));
     Fprintf(rfile, "%cconductX=%s", XLOG_SEP,
@@ -453,7 +453,7 @@ encodeconduct(void)
         e |= 1L << 15;
     if (u.uconduct.holy_water)
         e |= 1L << 16;
-    if (u.uconduct.dyed)
+    if (u.uconduct.dyer)
         e |= 1L << 17;
 
     return e;
@@ -579,6 +579,24 @@ encode_extended_achievements(char *buf)
             strNsubst(rnkbuf, " ", "_", 0); /* replace every ' ' with '_' */
             achievement = lcase(rnkbuf);
             break;
+        case ACH_MAZE:
+            achievement = "entered_maze";
+            break;
+        case ACH_MTEMPLE:
+            achievement = "entered_mtemple";
+            break;
+        case ACH_JUN_ALC:
+            achievement = "junior_alchemist";
+            break;
+        case ACH_PYRO:
+            achievement = "pyro";
+            break;
+        case ACH_LOST_BOOT:
+            achievement = "lost_boot";
+            break;
+        case ACH_BPEEL:
+            achievement = "banana_peel";
+            break;
         default:
             continue;
         }
@@ -615,7 +633,7 @@ encode_extended_conducts(char *buf)
     add_achieveX(buf, "petless",      !u.uconduct.pets);
     add_achieveX(buf, "conflictless", !u.uconduct.conflicting);
     add_achieveX(buf, "blessless",    !u.uconduct.holy_water);
-    add_achieveX(buf, "dyeless",      !u.uconduct.dyed);
+    add_achieveX(buf, "dyer",         u.uconduct.dyer);
     add_achieveX(buf, "unrerolled",   !u.uroleplay.reroll);
 
     return buf;

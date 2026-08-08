@@ -1,4 +1,4 @@
-/* NetHack 3.7	youprop.h	$NHDT-Date: 1725653018 2024/09/06 20:03:38 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.45 $ */
+/* NetHack 5.0	youprop.h	$NHDT-Date: 1781973093 2026/06/20 16:31:33 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.50 $ */
 /* Copyright (c) 1989 Mike Threepoint                             */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -23,47 +23,35 @@
 
 /*** Resistances to troubles ***/
 /* With intrinsics and extrinsics */
-#define HFire_vulnerability u.uprops[FIRE_VUL].intrinsic
 #define HFire_resistance u.uprops[FIRE_RES].intrinsic
-#define EFire_vulnerability u.uprops[FIRE_VUL].extrinsic
 #define EFire_resistance u.uprops[FIRE_RES].extrinsic
-#define Fire_resistance ((HFire_resistance || EFire_resistance) && !(HFire_vulnerability || EFire_vulnerability))
-#define Fire_vulnerability ((HFire_vulnerability || EFire_vulnerability) && !(HFire_resistance || EFire_resistance))
+#define Fire_resistance (HFire_resistance || EFire_resistance)
+#define Fire_immunity (HFire_resistance && EFire_resistance)
 
-#define HCold_vulnerability u.uprops[COLD_VUL].intrinsic
 #define HCold_resistance u.uprops[COLD_RES].intrinsic
-#define ECold_vulnerability u.uprops[COLD_VUL].extrinsic
 #define ECold_resistance u.uprops[COLD_RES].extrinsic
-#define Cold_resistance ((HCold_resistance || ECold_resistance) && !(HCold_vulnerability || ECold_vulnerability))
-#define Cold_vulnerability ((HCold_vulnerability || ECold_vulnerability) && !(HCold_resistance || ECold_resistance))
+#define Cold_resistance (HCold_resistance || ECold_resistance)
+#define Cold_immunity (HCold_resistance && ECold_resistance)
 
-#define HSleep_vulnerability u.uprops[SLEEP_VUL].intrinsic
 #define HSleep_resistance u.uprops[SLEEP_RES].intrinsic
-#define ESleep_vulnerability u.uprops[SLEEP_VUL].extrinsic
 #define ESleep_resistance u.uprops[SLEEP_RES].extrinsic
-#define Sleep_resistance ((HSleep_resistance || ESleep_resistance) && !(HSleep_vulnerability || ESleep_vulnerability))
-#define Sleep_vulnerability ((HSleep_vulnerability || ESleep_vulnerability) && !(HSleep_resistance || ESleep_resistance))
+#define Sleep_resistance (HSleep_resistance || ESleep_resistance)
+#define Sleep_immunity (HSleep_resistance && ESleep_resistance)
 
-#define HDisint_vulnerability u.uprops[DISINT_VUL].intrinsic
 #define HDisint_resistance u.uprops[DISINT_RES].intrinsic
-#define EDisint_vulnerability u.uprops[DISINT_VUL].extrinsic
 #define EDisint_resistance u.uprops[DISINT_RES].extrinsic
-#define Disint_resistance ((HDisint_resistance || EDisint_resistance) && !(HDisint_vulnerability || EDisint_vulnerability))
-#define Disint_vulnerability ((HDisint_vulnerability || EDisint_vulnerability) && !(HDisint_resistance || EDisint_resistance))
+#define Disint_resistance (HDisint_resistance || EDisint_resistance)
+#define Disint_immunity (HDisint_resistance && EDisint_resistance)
 
-#define HShock_vulnerability u.uprops[SHOCK_VUL].intrinsic
 #define HShock_resistance u.uprops[SHOCK_RES].intrinsic
-#define EShock_vulnerability u.uprops[SHOCK_VUL].extrinsic
 #define EShock_resistance u.uprops[SHOCK_RES].extrinsic
-#define Shock_resistance ((HShock_resistance || EShock_resistance) && !(HShock_vulnerability || EShock_vulnerability))
-#define Shock_vulnerability ((HShock_vulnerability || EShock_vulnerability) && !(HShock_resistance || EShock_resistance))
+#define Shock_resistance (HShock_resistance || EShock_resistance)
+#define Shock_immunity (HShock_resistance && EShock_resistance)
 
-#define HPoison_vulnerability u.uprops[POISON_VUL].intrinsic
 #define HPoison_resistance u.uprops[POISON_RES].intrinsic
-#define EPoison_vulnerability u.uprops[POISON_VUL].extrinsic
 #define EPoison_resistance u.uprops[POISON_RES].extrinsic
-#define Poison_resistance ((HPoison_resistance || EPoison_resistance) && !(HPoison_vulnerability || EPoison_vulnerability))
-#define Poison_vulnerability ((HPoison_vulnerability || EPoison_vulnerability) && !(HPoison_resistance || EPoison_resistance))
+#define Poison_resistance (HPoison_resistance || EPoison_resistance)
+#define Poison_immunity (HPoison_resistance && EPoison_resistance)
 
 #define HDrain_resistance u.uprops[DRAIN_RES].intrinsic
 #define EDrain_resistance u.uprops[DRAIN_RES].extrinsic
@@ -77,6 +65,7 @@
 #define HAcid_resistance u.uprops[ACID_RES].intrinsic
 #define EAcid_resistance u.uprops[ACID_RES].extrinsic
 #define Acid_resistance (HAcid_resistance || EAcid_resistance)
+#define Acid_immunity (HAcid_resistance && EAcid_resistance)
 
 #define HStone_resistance u.uprops[STONE_RES].intrinsic
 #define EStone_resistance u.uprops[STONE_RES].extrinsic
@@ -142,14 +131,15 @@
 #define EDeaf u.uprops[DEAF].extrinsic
 #define Deaf (HDeaf || EDeaf || u.uroleplay.deaf)
 
-#define HFumbling u.uprops[FUMBLING].intrinsic
-#define EFumbling u.uprops[FUMBLING].extrinsic
-#define Fumbling (HFumbling || EFumbling)
-
 /* Dripping */
 #define HDripping u.uprops[DRIPPING].intrinsic
 #define EDripping u.uprops[DRIPPING].extrinsic
 #define Dripping (HDripping || EDripping)
+
+#define HFumbling u.uprops[FUMBLING].intrinsic
+#define EFumbling u.uprops[FUMBLING].extrinsic
+#define Fumbling (HFumbling || EFumbling \
+                    || (Dripping && u.udriptype == POT_OIL))
 
 /* HWounded_legs indicates whether wounded leg(s) condition exists and
    holds the timeout for recovery; EWounded_legs uses the worn-ring bits
@@ -410,6 +400,13 @@
 #define Lifesaved u.uprops[LIFESAVED].extrinsic
 
 #define Prone u.uprops[PRONE].extrinsic
+
+#define HProtection_from_explosions \
+    u.uprops[PROT_FROM_EXPLOSIONS].intrinsic
+#define EProtection_from_explosions \
+    u.uprops[PROT_FROM_EXPLOSIONS].extrinsic
+#define Protection_from_explosions \
+    (HProtection_from_explosions || EProtection_from_explosions)
 
 /*
  * Some pseudo-properties.

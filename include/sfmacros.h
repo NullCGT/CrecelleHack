@@ -1,4 +1,4 @@
-/* NetHack 3.7	sfmacros.h $NHDT-Date$  $NHDT-Branch$:$NHDT-Revision$ */
+/* NetHack 5.0	sfmacros.h $NHDT-Date$  $NHDT-Branch$:$NHDT-Revision$ */
 /* Copyright (c) Michael Allison, 2025. */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -25,6 +25,7 @@ SF_C(struct, emin)
 SF_C(struct, engr)
 SF_C(struct, epri)
 SF_C(struct, eshk)
+SF_C(struct, esum)
 SF_C(struct, fe)
 SF_C(struct, flag)
 SF_C(struct, fruit)
@@ -49,6 +50,10 @@ SF_C(struct, s_level)
 SF_C(struct, trap)
 SF_C(struct, you)
 SF_C(union, any)
+#ifdef DEMO_UPLIFTS
+SF_C(struct, mystruct)
+SF_C(struct, mystruct_rev0)
+#endif
 
 SF_A(aligntyp)
 SF_A(boolean)

@@ -1,4 +1,4 @@
-#      NetHack Datafiles Makefile.dat $NHDT-Date: 1596486993 2020/08/03 20:36:33 $ $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.32 $
+#      NetHack Datafiles Makefile.dat $NHDT-Date: 1596486993 2020/08/03 20:36:33 $ $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.32 $
 # Copyright (c) 2018 by Pasi Kallinen
 # NetHack may be freely redistributed.  See license for details.
 
@@ -27,10 +27,12 @@ all:	$(VARDAT) spec_levs quest_levs
 
 x11tiles: ../util/tile2x11 ../win/share/monsters.txt ../win/share/objects.txt \
 				../win/share/other.txt \
-                                ../win/share/monsters.txt
+                                ../win/share/monsters.txt \
+				../win/share/decals.txt
 	../util/tile2x11 ../win/share/monsters.txt ../win/share/objects.txt \
 				../win/share/other.txt \
-                                -grayscale ../win/share/monsters.txt
+                                -grayscale ../win/share/monsters.txt \
+				../win/share/decals.txt
 
 beostiles: ../util/tile2beos ../win/share/monsters.txt \
 				../win/share/objects.txt \

@@ -1,9 +1,17 @@
-/* NetHack 3.7	nhlua.c	$NHDT-Date: 1744963460 2025/04/18 00:04:20 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.153 $ */
+/* NetHack 5.0	nhlua.c	$NHDT-Date: 1781973059 2026/06/20 16:30:59 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.168 $ */
 /*      Copyright (c) 2018 by Pasi Kallinen */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
 #include "dlb.h"
+
+/* minimum and maximum LUA_VERSION_NUM expected by this version of NetHack */
+#ifndef NHL_MIN_VERSION_NUM_EXPECTED
+#define NHL_MIN_VERSION_NUM_EXPECTED 504
+#endif
+#ifndef NHL_MAX_VERSION_NUM_EXPECTED
+#define NHL_MAX_VERSION_NUM_EXPECTED 505
+#endif
 
 #ifndef LUA_VERSION_RELEASE_NUM
 #ifdef NHL_SANDBOX
@@ -31,10 +39,13 @@ struct e;
 staticfn int nhl_dump_fmtstr(lua_State *);
 #endif /* DUMPLOG */
 staticfn int nhl_dnum_name(lua_State *);
+staticfn int nhl_int_to_pm_name(lua_State *);
+staticfn int nhl_int_to_obj_name(lua_State *);
 staticfn int nhl_stairways(lua_State *);
 staticfn int nhl_pushkey(lua_State *);
 staticfn int nhl_doturn(lua_State *);
 staticfn int nhl_debug_flags(lua_State *);
+staticfn int nhl_flip_level(lua_State *);
 staticfn int nhl_timer_has_at(lua_State *);
 staticfn int nhl_timer_peek_at(lua_State *);
 staticfn int nhl_timer_stop_at(lua_State *);
@@ -483,7 +494,7 @@ nhl_deltrap(lua_State *L)
         struct trap *ttmp = t_at(x, y);
 
         if (ttmp)
-            deltrap(ttmp);
+            deltrap_with_ammo(ttmp, DELTRAP_DESTROY_AMMO);
     }
     return 0;
 }
@@ -1165,6 +1176,51 @@ nhl_dnum_name(lua_State *L)
     return 1;
 }
 
+/* return gender-neutral monster type name by integer value,
+   or empty string if outside LOW_PM - HIGH_PM range */
+/* local montypename = int_to_pmname(12); */
+staticfn int
+nhl_int_to_pm_name(lua_State *L)
+{
+    int argc = lua_gettop(L);
+
+    if (argc == 1) {
+        lua_Integer i = luaL_checkinteger(L, 1);
+
+        if (i >= LOW_PM && i <= HIGH_PM)
+            lua_pushstring(L, mons[i].pmnames[NEUTRAL]);
+        else
+            lua_pushstring(L, "");
+    } else
+        nhl_error(L, "Expected an integer parameter");
+    return 1;
+}
+
+/* convert integer to object type name and class */
+/* local oname,oclass = int_to_objname(25); */
+staticfn int
+nhl_int_to_obj_name(lua_State *L)
+{
+    int argc = lua_gettop(L);
+
+    if (argc == 1) {
+        char buf[8];
+        lua_Integer i = luaL_checkinteger(L, 1);
+
+        if (i >= 0 && i < NUM_OBJECTS && OBJ_NAME(objects[i])) {
+            lua_pushstring(L, OBJ_NAME(objects[i]));
+            buf[0] = def_oc_syms[(int)objects[i].oc_class].sym;
+            buf[1] = '\0';
+            lua_pushstring(L, buf);
+        } else {
+            lua_pushstring(L, "");
+            lua_pushstring(L, "");
+        }
+    } else
+        nhl_error(L, "Expected an integer parameter");
+    return 2;
+}
+
 DISABLE_WARNING_UNREACHABLE_CODE
 /* because nhl_error() does not return */
 
@@ -1382,7 +1438,10 @@ nhl_pushkey(lua_State *L)
     if (argc == 1) {
         const char *key = luaL_checkstring(L, 1);
 
-        cmdq_add_key(CQ_CANNED, key[0]);
+        while (*key) {
+            cmdq_add_key(CQ_CANNED, *key);
+            key++;
+        }
     }
 
     return 0;
@@ -1444,6 +1503,28 @@ nhl_debug_flags(lua_State *L)
     if (val != -1) {
         iflags.debug_overwrite_stairs = (boolean) val;
     }
+
+    /* prevent pline going out to the UI */
+    val = get_table_boolean_opt(L, "prevent_pline", -1);
+    if (val != -1) {
+        iflags.debug_prevent_pline = (boolean) val;
+    }
+
+    return 0;
+}
+
+/* flip level */
+/* nh.flip_level(n); */
+staticfn int
+nhl_flip_level(lua_State *L)
+{
+    int argc = lua_gettop(L);
+    int flp = 0;
+
+    if (argc == 1)
+        flp = lua_tointeger(L, 1);
+
+    flip_level(flp, !gi.in_mklev);
 
     return 0;
 }
@@ -1818,11 +1899,14 @@ static const struct luaL_Reg nhl_functions[] = {
     { "dump_fmtstr", nhl_dump_fmtstr },
 #endif /* DUMPLOG */
     { "dnum_name", nhl_dnum_name },
+    { "int_to_pmname", nhl_int_to_pm_name },
+    { "int_to_objname", nhl_int_to_obj_name },
     { "variable", nhl_variable },
     { "stairways", nhl_stairways },
     { "pushkey", nhl_pushkey },
     { "doturn", nhl_doturn },
     { "debug_flags", nhl_debug_flags },
+    { "flip_level", nhl_flip_level },
     { NULL, NULL }
 };
 
@@ -1832,6 +1916,11 @@ static const struct {
 } nhl_consts[] = {
     { "COLNO",  COLNO },
     { "ROWNO",  ROWNO },
+    { "NUMMONS", NUMMONS },
+    { "LOW_PM", LOW_PM },
+    { "HIGH_PM", HIGH_PM },
+    { "FIRST_OBJECT", FIRST_OBJECT },
+    { "LAST_OBJECT", NUM_OBJECTS-1 },
 #ifdef DLB
     { "DLB", 1 },
 #else
@@ -1875,6 +1964,10 @@ nhl_push_anything(lua_State *L, int anytype, void *src)
         any.a_schar = *(schar *) src;
         lua_pushinteger(L, any.a_schar);
         break;
+    case ANY_INT16:
+        any.a_int = *(xint16 *) src;
+        lua_pushinteger(L, any.a_int);
+        break;
     }
     return 1;
 }
@@ -1889,13 +1982,13 @@ nhl_meta_u_index(lua_State *L)
         void *ptr;
         int type;
     } ustruct[] = {
-        { "ux", &(u.ux), ANY_UCHAR },
-        { "uy", &(u.uy), ANY_UCHAR },
+        { "ux", &(u.ux), ANY_INT16 },
+        { "uy", &(u.uy), ANY_INT16 },
         { "dx", &(u.dx), ANY_SCHAR },
         { "dy", &(u.dy), ANY_SCHAR },
         { "dz", &(u.dz), ANY_SCHAR },
-        { "tx", &(u.tx), ANY_UCHAR },
-        { "ty", &(u.ty), ANY_UCHAR },
+        { "tx", &(u.tx), ANY_INT16 },
+        { "ty", &(u.ty), ANY_INT16 },
         { "ulevel", &(u.ulevel), ANY_INT },
         { "ulevelmax", &(u.ulevelmax), ANY_INT },
         { "uhunger", &(u.uhunger), ANY_INT },
@@ -1906,8 +1999,8 @@ nhl_meta_u_index(lua_State *L)
         { "mh", &(u.mh), ANY_INT },
         { "mhmax", &(u.mhmax), ANY_INT },
         { "mtimedone", &(u.mtimedone), ANY_INT },
-        { "dlevel", &(u.uz.dlevel), ANY_SCHAR }, /* actually coordxy */
-        { "dnum", &(u.uz.dnum), ANY_SCHAR },     /* actually coordxy */
+        { "dlevel", &(u.uz.dlevel), ANY_INT16 },
+        { "dnum", &(u.uz.dnum), ANY_INT16 },
         { "uluck", &(u.uluck), ANY_SCHAR },
         { "uhp", &(u.uhp), ANY_INT },
         { "uhpmax", &(u.uhpmax), ANY_INT },
@@ -2218,22 +2311,20 @@ DISABLE_WARNING_CONDEXPR_IS_CONSTANT
 lua_State *
 nhl_init(nhl_sandbox_info *sbi)
 {
-    /* It would be nice to import EXPECTED from each build system. XXX */
-    /* And it would be nice to do it only once, but it's cheap. */
-#ifndef NHL_VERSION_EXPECTED
-#if LUA_VERSION_NUM >= 505
-#define NHL_VERSION_EXPECTED 50500
-#else
-#define NHL_VERSION_EXPECTED 50408
-#endif
-#endif
-
 #ifdef NHL_SANDBOX
-    if (NHL_VERSION_EXPECTED != LUA_VERSION_RELEASE_NUM) {
-        panic(
-            "sandbox doesn't know this Lua version: this=%d != expected=%d ",
-            LUA_VERSION_RELEASE_NUM, NHL_VERSION_EXPECTED);
-    }
+#define SANDBOX_DOESNT_KNOW "sandbox doesn't know this Lua version: "
+if (LUA_VERSION_NUM < NHL_MIN_VERSION_NUM_EXPECTED
+    || LUA_VERSION_NUM > NHL_MAX_VERSION_NUM_EXPECTED) {
+        if (NHL_MIN_VERSION_NUM_EXPECTED == NHL_MAX_VERSION_NUM_EXPECTED)
+            panic("%sthis=%d != expected=%d", SANDBOX_DOESNT_KNOW,
+                  LUA_VERSION_NUM, NHL_MIN_VERSION_NUM_EXPECTED);
+        else
+            panic("%sthis=%d, but expected %d to %d", SANDBOX_DOESNT_KNOW,
+                  LUA_VERSION_NUM,
+                  NHL_MIN_VERSION_NUM_EXPECTED,
+                  NHL_MAX_VERSION_NUM_EXPECTED);
+}
+#undef SANDBOX_DOESNT_KNOW
 #endif
 
     lua_State *L = nhlL_newstate(sbi, "nhl_init");

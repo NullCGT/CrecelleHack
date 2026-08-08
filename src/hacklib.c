@@ -1,4 +1,4 @@
-/* NetHack 3.7	hacklib.c	$NHDT-Date: 1706213796 2024/01/25 20:16:36 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.116 $ */
+/* NetHack 5.0	hacklib.c	$NHDT-Date: 1781973051 2026/06/20 16:30:51 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.133 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Michael Allison, 2007. */
 /* Copyright (c) Robert Patrick Rankin, 1991                      */
@@ -936,11 +936,17 @@ case_insensitive_comp(const char *s1, const char *s2)
     return u1 - u2;
 }
 
+#if defined(MACOS)
+#define RETTYPE ssize_t
+#else
+#define RETTYPE int
+#endif
+
 boolean
 copy_bytes(int ifd, int ofd)
 {
     char buf[BUFSIZ];
-    int nfrom, nto;
+    RETTYPE nfrom, nto;
 
     do {
         nto = 0;
@@ -950,9 +956,11 @@ copy_bytes(int ifd, int ofd)
             nto = write(ofd, buf, nfrom);
         if (nto != nfrom || nfrom < 0)
             return FALSE;
-    } while (nfrom == BUFSIZ);
+    } while (nfrom == (RETTYPE) BUFSIZ);
     return TRUE;
 }
+#undef RETTYPE
+
 #define MAX_D 5
 struct datamodel_information {
     int sz[MAX_D];
@@ -966,7 +974,7 @@ static struct datamodel_information dm[] = {
       "", "" },
     { { 2, 4, 4, 8, 4 }, "ILP32LL64", "x86 32-bit" }, /* Windows or Unix */
     { { 2, 4, 4, 8, 8 }, "IL32LLP64", "Windows x64 64-bit" },
-    { { 2, 4, 8, 8, 8 }, "I32LP64", "Unix 64-bit"}, 
+    { { 2, 4, 8, 8, 8 }, "I32LP64", "Unix 64-bit"},
     { { 2, 8, 8, 8, 8 }, "ILP64", "Unix ILP64"},      /* HAL, SPARC64 */
 };
 

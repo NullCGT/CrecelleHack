@@ -1,4 +1,4 @@
-/* NetHack 3.7	pray.c	$NHDT-Date: 1762680996 2025/11/09 01:36:36 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.244 $ */
+/* NetHack 5.0	pray.c	$NHDT-Date: 1781973062 2026/06/20 16:31:02 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.253 $ */
 /* Copyright (c) Benson I. Margulies, Mike Stephenson, Steve Linhart, 1989. */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -632,7 +632,7 @@ god_zaps_you(aligntyp resp_god)
             else
                 (void) ureflects("%s reflects from your %s.", "It");
             monstseesu(M_SEEN_REFL);
-        } else if (Shock_resistance) {
+        } else if (Shock_immunity) {
             shieldeff(u.ux, u.uy);
             pline("It seems not to affect you.");
             monstseesu(M_SEEN_ELEC);
@@ -660,15 +660,15 @@ god_zaps_you(aligntyp resp_god)
          */
         if (uarms && !(EReflecting & W_ARMS)
             && !(EDisint_resistance & W_ARMS))
-            (void) destroy_arm(uarms);
+            (void) disintegrate_arm(uarms);
         if (uarmc && !(EReflecting & W_ARMC)
             && !(EDisint_resistance & W_ARMC))
-            (void) destroy_arm(uarmc);
+            (void) disintegrate_arm(uarmc);
         if (uarm && !(EReflecting & W_ARM) && !(EDisint_resistance & W_ARM)
             && !uarmc)
-            (void) destroy_arm(uarm);
+            (void) disintegrate_arm(uarm);
         if (uarmu && !uarm && !uarmc)
-            (void) destroy_arm(uarmu);
+            (void) disintegrate_arm(uarmu);
         if (!Disint_resistance) {
             fry_by_god(resp_god, TRUE);
             monstunseesu(M_SEEN_DISINT);
@@ -895,7 +895,7 @@ gcrownu(void)
         /* not an artifact, but treat like one for this situation;
            classify as a spoiler in case player hasn't IDed the book yet */
         livelog_printf(LL_DIVINEGIFT | LL_ARTIFACT | LL_SPOILER,
-                       "was bestowed with %s, %s", bbuf, an(OBJ_NAME(objects[obj->otyp])));
+                       "was bestowed with %s", bbuf);
 
         /* when getting a new book for known spell, enhance
            currently wielded weapon rather than the book */
@@ -1838,7 +1838,10 @@ bestow_artifact(uchar max_giftvalue)
                             artiname(otmp->oartifact),
                             align_gname(u.ualign.type));
             /* make sure we can use this weapon */
-            unrestrict_weapon_skill(weapon_type(otmp));
+            if (otmp->oartifact == ART_SELENIC_SEAT)
+                unrestrict_weapon_skill(P_RIDING);
+            else
+                unrestrict_weapon_skill(weapon_type(otmp));
             if (!Hallucination && !Blind) {
                 observe_object(otmp);
                 makeknown(otmp->otyp);
@@ -2194,7 +2197,7 @@ pray_revive(void)
     struct obj *otmp;
 
     for (otmp = svl.level.objects[u.ux][u.uy]; otmp; otmp = otmp->nexthere)
-        if ((otmp->otyp == CORPSE || otmp->otyp == STATUE)
+        if ((otmp->otyp == CORPSE || otmp->otyp == STATUE || otmp->otyp == FOSSIL)
             && has_omonst(otmp)
             && OMONST(otmp)->mtame && !OMONST(otmp)->isminion)
             break;

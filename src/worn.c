@@ -1,4 +1,4 @@
-/* NetHack 3.7	worn.c	$NHDT-Date: 1736530208 2025/01/10 09:30:08 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.116 $ */
+/* NetHack 5.0	worn.c	$NHDT-Date: 1781973075 2026/06/20 16:31:15 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.124 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2013. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -139,6 +139,9 @@ setworn(struct obj *obj, long mask)
         /* tux -> tuxedo -> "monkey suit" -> monk's suit */
         iflags.tux_penalty = (uarm && Role_if(PM_MONK) && gu.urole.spelarmr);
     }
+    if ((flags.weaponstatus && (mask & W_WEP) != 0L)
+        || (flags.armorstatus && (mask & W_ARMOR) != 0L))
+        disp.botl = TRUE;
     update_inventory();
     recalc_telepat_range();
 }
@@ -150,6 +153,7 @@ setnotworn(struct obj *obj)
 {
     const struct worn *wp;
     int p;
+    long unworn = 0L;
 
     if (!obj)
         return;
@@ -164,6 +168,7 @@ setnotworn(struct obj *obj)
             cancel_doff(obj, wp->w_mask);
 
             *(wp->w_obj) = (struct obj *) 0;
+            unworn |= wp->w_mask;
             p = objects[obj->otyp].oc_oprop;
             u.uprops[p].extrinsic = u.uprops[p].extrinsic & ~wp->w_mask;
             monstunseesu_prop(p); /* remove this extrinsic from seenres */
@@ -175,6 +180,9 @@ setnotworn(struct obj *obj)
         }
     if (!uarm)
         iflags.tux_penalty = FALSE;
+    if ((flags.weaponstatus && (unworn & W_WEP) != 0L)
+        || (flags.armorstatus && (unworn & W_ARMOR) != 0L))
+        disp.botl = TRUE;
     update_inventory();
     recalc_telepat_range();
 }
@@ -481,11 +489,13 @@ check_wornmask_slots(void)
 } /* check_wornmask_slots() */
 
 void
-mon_set_minvis(struct monst *mon)
+mon_set_minvis(
+    struct monst *mon,
+    boolean cursed_potion)
 {
-    mon->perminvis = 1;
+    mon->perminvis = !cursed_potion ? 1 : 0;
     if (!mon->invis_blkd) {
-        mon->minvis = 1;
+        mon->minvis = mon->perminvis;
         newsym(mon->mx, mon->my); /* make it disappear */
         if (mon->wormno)
             see_wsegs(mon); /* and any tail too */
@@ -595,6 +605,11 @@ update_mon_extrinsics(
     struct obj *otmp;
     int which = (int) objects[obj->otyp].oc_oprop,
         altwhich = altprop(obj);
+
+    if (obj->oartifact == ART_SELENIC_SEAT) {
+        which = REFLECTING;
+        altwhich = COLD_RES;
+    }
 
     unseen = !canseemon(mon);
     if (!which && !altwhich)
@@ -851,7 +866,8 @@ m_dowear_type(
     old = which_armor(mon, flag);
     if (old && old->cursed)
         return;
-    if (old && flag == W_AMUL && old->otyp != AMULET_OF_GUARDING)
+    if (old && flag == W_AMUL
+        && (old->otyp == AMULET_OF_REFLECTION || old->otyp == AMULET_OF_LIFE_SAVING))
         return; /* no amulet better than life-saving or reflection */
     best = old;
 
@@ -869,9 +885,11 @@ m_dowear_type(
             /* for 'best' to be non-Null, it must be an amulet of guarding;
                life-saving and reflection don't get here due to early return
                and other amulets of guarding can't be any better */
-            if (!best || obj->otyp != AMULET_OF_GUARDING) {
+            if (!best || obj->otyp == AMULET_OF_LIFE_SAVING
+                || obj->otyp == AMULET_OF_REFLECTION) {
                 best = obj;
-                if (best->otyp != AMULET_OF_GUARDING)
+                if (best->otyp == AMULET_OF_REFLECTION
+                    || best->otyp == AMULET_OF_LIFE_SAVING)
                     goto outer_break; /* life-saving or reflection; use it */
             }
             continue; /* skip post-switch armor handling */
@@ -1049,7 +1067,7 @@ m_dowear_type(
             makeknown(obj->otyp);
         }
         mon->female = !mon->female;
-        m_useup(mon, obj);
+        m_useup(mon, best);
     }
 }
 #undef RACE_EXCEPTION

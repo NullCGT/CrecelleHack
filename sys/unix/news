@@ -1,0 +1,17 @@
+# NEWS
+
+Welcome to CrecelleHack 1.5.0
+
+If you are new to CrecelleHack, please consider playing the
+tutorial.
+
+New in 1.5.0:
+- A rewrite to weapon damage and accuracy scaling, along
+  with a general rebalance of weapons.
+- New artifacts such as Chorister, a flamberge with a
+  unique invoke effect.
+- New Options: dnh_status, coatstatus.
+- Much more...
+
+CrecelleHack brought to you by Antigulp.
+NetHack is by the NetHack DevTeam. Please see the LICENSE.

@@ -1,4 +1,4 @@
-/* NetHack 3.7	apply.c	$NHDT-Date: 1753856387 2025/07/29 22:19:47 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.472 $ */
+/* NetHack 5.0	apply.c	$NHDT-Date: 1781973040 2026/06/20 16:30:40 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.482 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -31,7 +31,9 @@ staticfn int grease_ok(struct obj *);
 staticfn int use_grease(struct obj *);
 staticfn void use_trap(struct obj *);
 staticfn int touchstone_ok(struct obj *);
+staticfn int rub_wand(struct obj *);
 staticfn int use_sympathy(struct obj *);
+staticfn int carve_pumpkin(struct obj *);
 staticfn int use_stone(struct obj *);
 staticfn int set_trap(void); /* occupation callback */
 staticfn void display_polearm_positions(boolean);
@@ -55,7 +57,7 @@ staticfn boolean check_jump(genericptr_t, coordxy, coordxy);
 staticfn boolean is_valid_jump_pos(coordxy, coordxy, int, boolean);
 staticfn boolean get_valid_jump_position(coordxy, coordxy);
 staticfn boolean get_valid_polearm_position(coordxy, coordxy);
-staticfn boolean find_poleable_mon(coord *, int, int);
+staticfn boolean find_poleable_mon(coord *);
 
 static const char
     no_elbow_room[] = "don't have enough elbow-room to maneuver.";
@@ -404,7 +406,10 @@ use_stethoscope(struct obj *obj)
     }
     if ((mtmp = m_at(rx, ry)) != 0) {
         const char *mnm = x_monnam(mtmp, ARTICLE_A, (const char *) 0,
-                                   SUPPRESS_IT | SUPPRESS_INVISIBLE, FALSE);
+                                   (SUPPRESS_IT | SUPPRESS_INVISIBLE
+                                    /* stethoscope reveals true form; seemimic
+                                       below will clear mtmp->mappearance */
+                                    | SUPPRESS_MAPPEARANCE), FALSE);
 
         /* gb.bhitpos needed by mstatusline() iff mtmp is a long worm */
         gb.bhitpos.x = rx, gb.bhitpos.y = ry;
@@ -514,7 +519,7 @@ use_magic_whistle(struct obj *obj)
         You("produce a %shigh-%s.", Underwater ? "very " : "",
             Deaf ? "frequency vibration" : "pitched humming noise");
         wake_nearby(TRUE);
-        if (!rn2(2))
+        if (!rn2(2) && !noteleport_level(&gy.youmonst))
             tele_to_rnd_pet();
     } else {
         /* it's magic!  it works underwater too (at a higher pitch) */
@@ -539,6 +544,10 @@ magic_whistled(struct obj *obj)
     boolean oseen, nseen,
             already_discovered = objects[obj->otyp].oc_name_known != 0;
     int omx, omy, shift = 0, appear = 0, disappear = 0, trapped = 0;
+
+    /* stasis prevents magic-whistling */
+    if (svl.level.flags.stasis_until >= svm.moves)
+        return;
 
     /* need to copy (up to 3) names as they're collected rather than just
        save pointers to them, otherwise churning through every mbuf[] might
@@ -1270,9 +1279,7 @@ use_mirror(struct obj *obj)
             return ECMD_TIME;
         }
         if (vis)
-            pline("%s is turned to stone!", Monnam(mtmp));
-        gs.stoned = TRUE;
-        killed(mtmp);
+            pline("%s averts %s gaze.", Monnam(mtmp), mhis(mtmp));
     } else if (monable && mtmp->data == &mons[PM_FLOATING_EYE]) {
         int tmp = d((int) mtmp->m_lev, (int) mtmp->data->mattk[0].damd);
         if (!rn2(4))
@@ -1412,7 +1419,7 @@ use_bell(struct obj **optr)
 
             mm.x = u.ux;
             mm.y = u.uy;
-            mkundead(&mm, FALSE, NO_MINVENT);
+            mkundead((struct monst *) NULL, &mm, FALSE, NO_MINVENT);
             wakem = TRUE;
 
         } else if (invoking) {
@@ -1920,10 +1927,11 @@ rub_ok(struct obj *obj)
     if (!obj)
         return GETOBJ_EXCLUDE;
 
-    if (obj->otyp == OIL_LAMP || obj->otyp == MAGIC_LAMP
+    if (obj->oclass == WAND_CLASS
+        || obj->otyp == OIL_LAMP || obj->otyp == MAGIC_LAMP
         || obj->otyp == LANTERN || is_graystone(obj)
         || obj->otyp == LUMP_OF_ROYAL_JELLY
-        || obj->otyp == TOWEL)
+        || obj->otyp == TOWEL || obj->otyp == PUMPKIN)
         return GETOBJ_SUGGEST;
     
     if (obj->oartifact == ART_SYMPATHY)
@@ -1950,13 +1958,18 @@ dorub(void)
             return use_stone(obj);
         } else if (obj->otyp == LUMP_OF_ROYAL_JELLY) {
             return use_royal_jelly(&obj);
+        } else if (obj->otyp == PUMPKIN) {
+            return carve_pumpkin(obj);
         } else {
             pline("Sorry, I don't know how to use that.");
             return ECMD_OK;
         }
-    }
-    if (obj->oartifact == ART_SYMPATHY)
+    } else if (obj->oclass == WAND_CLASS) {
+        return rub_wand(obj);
+    } else if (obj->oartifact == ART_SYMPATHY) {
         return use_sympathy(obj);
+    }
+
     if (obj != uwep) {
         if (wield_tool(obj, "rub")) {
             cmdq_add_ec(CQ_CANNED, dorub);
@@ -2869,6 +2882,77 @@ use_sympathy(struct obj *symp)
     return ECMD_TIME;
 }
 
+/* TODO: IF we ever add a carve command call this from there instead of rub */
+staticfn int
+carve_pumpkin(struct obj *pumpkin)
+{
+    struct obj *obj;
+    if ((obj = getobj("carve the pumpkin with", any_obj_ok, GETOBJ_PROMPT)) == 0)
+        return ECMD_CANCEL;
+    if (!(objects[obj->otyp].oc_dir & PIERCE)) {
+        pline("That's not a proper carving implement.");
+        return ECMD_CANCEL;
+    }
+    if (pumpkin->quan > 1L) {
+        pumpkin = splitobj(pumpkin, 1L);
+    }
+    You("carve %s with your %s.", the(xname(pumpkin)), xname(obj));
+    if (pumpkin->quan > 1L)
+        pumpkin = splitobj(pumpkin, 1);
+    pumpkin = poly_obj(pumpkin, JACK_O_LANTERN);
+    costly_alteration(pumpkin, COST_SPLAT);
+    obj_extract_self(pumpkin); /* free from inv */
+    pumpkin = hold_another_object(pumpkin, "You bumpkin! You fumbled the pumpkin!",
+                                (const char *) 0, (const char *) 0);
+    update_inventory();
+    return ECMD_TIME;
+}
+
+staticfn int
+rub_wand(struct obj *wand)
+{
+    char wandbuf[QBUFSZ];
+    struct obj *obj;
+    int n;
+    int lim = (objects[wand->otyp].oc_dir != NODIR ? 8 : 15);
+
+    Sprintf(wandbuf, "rub on the wand%s", plur(wand->quan));
+    if ((obj = getobj(wandbuf, any_obj_ok, GETOBJ_PROMPT)) == 0)
+        return ECMD_CANCEL;
+
+    if (obj == wand) {
+        pline("Try as you might, %s is not that flexible.", the(xname(obj)));
+        return ECMD_OK;
+    }
+    if (wand->otyp != obj->otyp) {
+        pline("Nothing happens.");
+        return ECMD_OK;
+    }
+    if (obj->cursed && !rn2(WAND_BACKFIRE_CHANCE)) {
+        backfire(obj);
+        return ECMD_OK;
+    }
+    if (obj->spe <= 0 || obj->otyp == WAN_WISHING || wand->otyp == WAN_WISHING) {
+        pline("Nothing interesting happens.");
+        return ECMD_OK;
+    }
+    wand->spe += max(obj->spe - 1, 1);
+
+    n = (int) wand->recharged;
+    if (((wand->spe > lim) && rn2(2 + n))
+        || (n * n * n > rn2(7 * 7 * 7))) {
+        useupall(obj);
+        wand_explode(wand, rnd(lim));
+        return ECMD_OK;
+    }
+    /* didn't explode, so increment the recharge count */
+    wand->recharged++;
+    pline("You transfer the magic of %s into %s.", the(xname(obj)), the(xname(wand)));
+    useupall(obj);
+    update_inventory();
+    return ECMD_OK;
+}
+
 /* touchstones - by Ken Arnold */
 staticfn int
 use_stone(struct obj *tstone)
@@ -3393,10 +3477,11 @@ use_whip(struct obj *obj)
                     if (!rn2(25)) {
                         /* proficient with whip, but maybe not
                            so proficient at catching weapons */
-                        int hitu, hitvalu;
+                        int dam, hitvalu, hitu;
 
+                        dam = dmgval(otmp, &gy.youmonst);
                         hitvalu = 8 + otmp->spe;
-                        hitu = thitu(hitvalu, dmgval(otmp, &gy.youmonst),
+                        hitu = thitu(hitvalu, Maybe_Half_Phys(dam),
                                      &otmp, (char *) 0);
                         if (hitu) {
                             pline_The("%s hits you as you try to snatch it!",
@@ -3483,7 +3568,7 @@ static const char
 
 /* find pos of monster in range, if only one monster */
 staticfn boolean
-find_poleable_mon(coord *pos, int min_range, int max_range)
+find_poleable_mon(coord *pos)
 {
     struct monst *mtmp;
     coord mpos = { 0, 0 }; /* no candidate location yet */
@@ -3492,13 +3577,12 @@ find_poleable_mon(coord *pos, int min_range, int max_range)
     int glyph;
 
     impaired = (Confusion || Stunned || Hallucination);
-    rt = isqrt(max_range);
+    rt = isqrt(gp.polearm_range_max);
     lo_x = max(u.ux - rt, 1), hi_x = min(u.ux + rt, COLNO - 1);
     lo_y = max(u.uy - rt, 0), hi_y = min(u.uy + rt, ROWNO - 1);
     for (x = lo_x; x <= hi_x; ++x) {
         for (y = lo_y; y <= hi_y; ++y) {
-            if (distu(x, y) < min_range || distu(x, y) > max_range
-                || !isok(x, y) || !cansee(x, y))
+            if (!get_valid_polearm_position(x, y))
                 continue;
             glyph = glyph_at(x, y);
             if (!impaired
@@ -3604,7 +3688,7 @@ could_pole_mon(void)
 
     cc.x = u.ux;
     cc.y = u.uy;
-    if (!find_poleable_mon(&cc, min_range, max_range)) {
+    if (!find_poleable_mon(&cc)) {
         if (hitm && !DEADMONSTER(hitm) && sensemon(hitm)
             && mdistu(hitm) <= max_range && mdistu(hitm) >= min_range)
             return TRUE;
@@ -3657,7 +3741,7 @@ use_pole(struct obj *obj, boolean autohit)
         pline(where_to_hit);
     cc.x = u.ux;
     cc.y = u.uy;
-    if (!find_poleable_mon(&cc, min_range, max_range) && hitm
+    if (!find_poleable_mon(&cc) && hitm
         && !DEADMONSTER(hitm) && sensemon(hitm)
         && mdistu(hitm) <= max_range && mdistu(hitm) >= min_range) {
         cc.x = hitm->mx;
@@ -3937,6 +4021,7 @@ use_grapple(struct obj *obj)
     struct monst *mtmp;
     struct obj *otmp;
 
+    pline("BANG");
     /* Are you allowed to use the hook? */
     if (u.uswallow) {
         pline(not_enough_room);
@@ -4187,11 +4272,11 @@ do_break_wand(struct obj *obj)
         /*FALLTHRU*/
     case WAN_WISHING:
     case WAN_NOTHING:
-    case WAN_LOCKING:
     case WAN_GROWTH:
     case WAN_PROBING:
     case WAN_ENLIGHTENMENT:
     case WAN_SECRET_DOOR_DETECTION:
+    case WAN_STASIS:
         pline(nothing_else_happens);
         discard_broken_wand();
         return ECMD_TIME;
@@ -4208,6 +4293,14 @@ do_break_wand(struct obj *obj)
     case WAN_MAGIC_MISSILE:
         broken_wand_explode(obj, dmg, EXPL_MAGICAL);
         return ECMD_TIME;
+    case WAN_LOCKING:
+        if (obj->spe) {
+            create_force_field(u.ux, u.uy, 3, (long) obj->spe);
+        } else {
+            pline(nothing_else_happens);
+        }
+        discard_broken_wand();
+        return ECMD_TIME;
     case WAN_STRIKING:
         /* we want this before the explosion instead of at the very end */
         Soundeffect(se_wall_of_force, 65);
@@ -4217,6 +4310,12 @@ do_break_wand(struct obj *obj)
         FALLTHROUGH;
         /*FALLTHRU*/
     case WAN_CANCELLATION:
+        /* The fallthrough from wand of striking is intentional, because
+           walls of force crashing down and destroying the force field is 
+           a pretty funny pun. - K*/
+        cancel_force_field(u.ux, u.uy);
+        FALLTHROUGH;
+        /*FALLTHRU*/
     case WAN_POLYMORPH:
     case WAN_TELEPORTATION:
     case WAN_UNDEAD_TURNING:
@@ -4371,7 +4470,8 @@ apply_ok(struct obj *obj)
     /* certain weapons */
     if (obj->oclass == WEAPON_CLASS
         && (is_pick(obj) || is_axe(obj) || is_pole(obj)
-            || obj->otyp == BULLWHIP))
+            || obj->otyp == BULLWHIP
+            || obj->otyp == SHEPHERD_S_CROOK))
         return GETOBJ_SUGGEST;
 
     if (obj->oclass == POTION_CLASS) {
@@ -4450,6 +4550,7 @@ doapply(void)
     case SUNGLASSES:
     case TINKER_GOGGLES:
     case MIRRORED_GLASSES:
+    case GAS_MASK:
         if (obj == ublindf) {
             if (!cursed(obj))
                 Blindf_off(obj);
@@ -4459,7 +4560,8 @@ doapply(void)
             You("are already %s.",
                 (ublindf->otyp == TOWEL) ? "covered by a towel"
                 : (ublindf->otyp == BLINDFOLD) ? "wearing a blindfold"
-                  : "wearing glasses");
+                    : (ublindf->otyp == GAS_MASK) ? "wearing a mask"
+                        : "wearing glasses");
         }
         break;
     case CREAM_PIE:
@@ -4473,6 +4575,7 @@ doapply(void)
         res = use_whip(obj);
         break;
     case GRAPPLING_HOOK:
+    case SHEPHERD_S_CROOK:
         res = use_grapple(obj);
         break;
     case LARGE_BOX:
@@ -4482,6 +4585,9 @@ doapply(void)
     case BAG_OF_HOLDING:
     case OILSKIN_SACK:
         res = use_container(&obj, TRUE, FALSE);
+        break;
+    case BAG_OF_WINDS:
+        bagowinds(obj, FALSE);
         break;
     case BAG_OF_TRICKS:
         (void) bagotricks(obj, FALSE, (int *) 0);
@@ -4765,6 +4871,57 @@ flip_coin(struct obj *obj)
         pline("It comes up %s.", rn2(2) ? "heads" : "tails");
     }
     return ECMD_TIME;
+}
+
+/* suck up nearby gases, or perhaps release all winds in the bag.
+   the more times gas is released, the less reliable the bag becomes. */
+boolean
+bagowinds(
+    struct obj *bag,
+    boolean tipping)
+{
+    NhRegion *reg;
+
+    if (!bag || bag->otyp != BAG_OF_WINDS) {
+        impossible("bad bag o' winds");
+    } else if (!bag->cursed && !tipping
+                && (bag->spe < (10 - bag->recharged) || !rn2(max(2, bag->spe)))) {
+        reg = visible_region_at(u.ux, u.uy);
+        if (reg && is_gasregion(reg)) {
+            pline("%s sucks up nearby gas!", The(xname(bag)));
+            bag->corpsenm = suck_up_gas(u.ux, u.uy);
+            bag->spe++;
+        } else {
+            pline("Howling winds rush into %s!", the(xname(bag)));
+        }
+        makeknown(BAG_OF_WINDS);
+        update_inventory();
+    } else if (bag->spe > 0) {
+        pline("Gas spews from %s!", the(xname(bag)));
+        if (objects[bag->corpsenm].oc_class == POTION_CLASS) {
+            struct obj pseudo = cg.zeroobj;
+            pseudo.otyp = bag->corpsenm;
+            pseudo.blessed = bag->blessed;
+            pseudo.cursed = bag->cursed;
+            create_gas_cloud(u.ux, u.uy, bag->spe * 2, &pseudo, bag->spe * 4);
+        } else if (bag->corpsenm == SCR_STINKING_CLOUD) {
+            create_gas_cloud(u.ux, u.uy, bag->spe * 2, NULL, 8);
+        } else {
+            create_gas_cloud(u.ux, u.uy, bag->spe * 2, NULL, 0);
+        }
+        bag->spe = 0;
+        bag->recharged++;
+        makeknown(BAG_OF_WINDS);
+        update_inventory();
+    } else {
+        pline1(nothing_happens);
+        if (bag->dknown && objects[bag->otyp].oc_name_known) {
+            bag->cknown = 1;
+            update_inventory();
+        }
+        return FALSE;
+    }
+    return TRUE;
 }
 
 /*apply.c*/

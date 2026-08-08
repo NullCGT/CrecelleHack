@@ -1,4 +1,4 @@
-/* NetHack 3.7	spell.c	$NHDT-Date: 1762680996 2025/11/09 01:36:36 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.179 $ */
+/* NetHack 5.0	spell.c	$NHDT-Date: 1781973068 2026/06/20 16:31:08 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.189 $ */
 /*      Copyright (c) M. Stephenson 1988                          */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -42,6 +42,7 @@ staticfn void sortspells(void);
 staticfn boolean spellsortmenu(void);
 staticfn boolean dospellmenu(const char *, int, int *);
 staticfn int percent_success(int);
+staticfn int energy_cost(int);
 staticfn char *spellretention(int, char *);
 staticfn int throwspell(void);
 staticfn void cast_protection(void);
@@ -55,6 +56,9 @@ staticfn boolean spell_aim_step(genericptr_t, coordxy, coordxy);
 staticfn void propagate_chain_lightning(struct chain_lightning_queue *,
             struct chain_lightning_zap);
 staticfn void cast_force_field(void);
+staticfn int boost_type(int);
+static const char *boost_text(int);
+staticfn boolean geomantic_boost(int);
 
 /* The roles[] table lists the role-specific values for tuning
  * percent_success().
@@ -156,7 +160,7 @@ cursed_book(struct obj *bp)
     case 5:
         pline_The("book was coated with contact poison!");
         if (uarmg) {
-            erode_obj(uarmg, "gloves", ERODE_CORRODE, EF_GREASE | EF_VERBOSE);
+            erode_obj(uarmg, "gloves", ERODE_CORRODE, EF_GREASE | EF_VERBOSE | EF_DESTROY);
             break;
         }
         /* temp disable in_use; death should not destroy the book */
@@ -321,7 +325,7 @@ deadbook(struct obj *book2)
         /* last place some monsters around you */
         mm.x = u.ux;
         mm.y = u.uy;
-        mkundead(&mm, TRUE, NO_MINVENT);
+        mkundead((struct monst *) NULL, &mm, TRUE, NO_MINVENT);
     } else if (book2->blessed) {
         iter_mons(deadbook_pacify_undead);
     } else {
@@ -550,6 +554,7 @@ study_book(struct obj *spellbook)
                     svm.mvitals[mnum].know_pcorpse = 1;
                     svm.mvitals[mnum].know_rcorpse = 1;
                     svm.mvitals[mnum].know_stats = 1;
+                    svm.mvitals[mnum].know_resist = 1;
                 }
                 spellbook->spestudied = MAX_SPELL_STUDY;
             } else {
@@ -1248,7 +1253,6 @@ spell_backfire(int spell)
 staticfn boolean
 spelleffects_check(int spell, int *res, int *energy)
 {
-    int chance;
     boolean confused = (Confusion != 0);
 
     *energy = 0;
@@ -1309,6 +1313,13 @@ spelleffects_check(int spell, int *res, int *energy)
                 "Your concentration falters while carrying so much stuff.")) {
         *res = ECMD_TIME;
         return TRUE;
+    }
+
+    *energy = energy_cost(spell);
+    /* if spell is impossible to cast, kludge this to u.uen + 1 to make it fail
+     * the checks below as not having enough energy. */
+    if (*energy < 0) {
+        *energy = u.uen + 1;
     }
 
     /* if the cast attempt is already going to fail due to insufficient
@@ -1397,8 +1408,8 @@ spelleffects_check(int spell, int *res, int *energy)
         }
     }
 
-    chance = percent_success(spell);
-    if (confused || (rnd(100) > chance)) {
+    /* confused casting always fails, and is assessed after hunger penalty */
+    if (confused) {
         You("fail to cast the spell correctly.");
         u.uen -= *energy / 2;
         disp.botl = TRUE;
@@ -1426,6 +1437,7 @@ spelleffects(int spell_otyp, boolean atme, boolean force)
     u.uen -= energy;
     disp.botl = TRUE;
     exercise(A_WIS, TRUE);
+    exercise(A_INT, TRUE);
     /* pseudo is a temporary "false" object containing the spell stats */
     pseudo = mksobj(force ? spell : spellid(spell), FALSE, FALSE);
     pseudo->blessed = pseudo->cursed = 0;
@@ -1579,13 +1591,23 @@ spelleffects(int spell_otyp, boolean atme, boolean force)
     case SPE_CURE_BLINDNESS:
         healup(0, 0, FALSE, TRUE);
         break;
-    case SPE_CURE_SICKNESS:
-        if (Sick)
-            You("are no longer ill.");
-        if (Slimed)
-            make_slimed(0L, "The slime disappears!");
+    case SPE_CURE_SICKNESS: {
+        boolean was_sick = !!Sick, was_slimed = !!Slimed;
+
+        /* cure conditions (which updates status) before feedback */
         healup(0, 0, TRUE, FALSE);
+        /*
+         *  Sick + !Slimed -- You are no longer ill.
+         * !Sick + !Slimed -- You are not ill.
+         * !Sick +  Slimed -- The slime disappears.
+         *  Sick +  Slimed -- You are no longer ill.  The slime disappears.
+         */
+        if (was_sick || !was_slimed)
+            You("are %s ill.", was_sick ? "no longer" : "not");
+        if (was_slimed)
+            make_slimed(0L, "The slime disappears!");
         break;
+    }
     case SPE_CREATE_FAMILIAR:
         (void) make_familiar((struct obj *) 0, u.ux, u.uy, FALSE);
         break;
@@ -2082,11 +2104,11 @@ void
 show_spells(void)
 {
     int unused = SPELLMENU_DUMP;
+    putstr(0, ATR_HEADING, "Spells:");
     if (spellid(0) == NO_SPELL) {
         pline("You didn't know any spells.");
         pline("%s", "");
     } else {
-        pline("Spells:");
         nhUse(dospellmenu("", SPELLMENU_DUMP, &unused));
     }
 }
@@ -2103,7 +2125,7 @@ dospellmenu(
 {
     winid tmpwin;
     int i, n, how, splnum;
-    char buf[BUFSZ], retentionbuf[24], sep;
+    char buf[BUFSZ], retentionbuf[24], sep, pw_buf[5], boost_buf[12];
     const char *fmt;
     menu_item *selected;
     anything any;
@@ -2123,33 +2145,46 @@ dospellmenu(
      * need to be subtracted.
      */
     if (!iflags.menu_tab_sep) {
-        Sprintf(buf, "%s%-20s Level %-12s Fail Retention",
+        Sprintf(buf, "%s%-20s Level %-14s Pw  Boost Retention",
                 splaction == SPELLMENU_DUMP ? "" : "    ",
                 "Name",
                 "Category");
-        fmt = "%-20s  %2d   %-12s %3d%% %9s";
+        fmt = "%-20s  %2d   %-12s %4s %6s %9s";
         sep = ' ';
     } else {
-        Sprintf(buf, "Name\tLevel\tCategory\tFail\tRetention");
-        fmt = "%s\t%-d\t%s\t%-d%%\t%s";
+        Sprintf(buf, "Name\tLevel\tCategory\\Pw\tBoost\tRetention");
+        fmt = "%s\t%-d\t%s\t%-d\t%s\t%s";
         sep = '\t';
     }
     if (wizard)
         Sprintf(eos(buf), "%c%6s", sep, "turns");
 
-    add_menu_heading(tmpwin, buf);
+    if (splaction == SPELLMENU_DUMP)
+        /* html dumplogs: add_menu_heading does not let us use ATR_PREFORM */
+        putstr(tmpwin, ATR_PREFORM, buf);
+    else
+        add_menu_heading(tmpwin, buf);
+
     for (i = 0; i < MAXSPELL && spellid(i) != NO_SPELL; i++) {
         splnum = !gs.spl_orderindx ? i : gs.spl_orderindx[i];
+        if (energy_cost(splnum) < 0) {
+            strcpy(pw_buf, "Inf");
+        } else {
+            /* maximum possible should be 3500 */
+            Sprintf(pw_buf, "%d", energy_cost(splnum));
+        }
+        Sprintf(boost_buf, boost_text(spellid(splnum)));
         Sprintf(buf, fmt, spellname(splnum), spellev(splnum),
                 spelltypemnemonic(spell_skilltype(spellid(splnum))),
-                100 - percent_success(splnum),
+                pw_buf, boost_buf,
                 spellretention(splnum, retentionbuf));
         if (wizard)
             Sprintf(eos(buf), "%c%6d", sep, spellknow(i));
 
         any.a_int = splnum + 1; /* must be non-zero */
         add_menu(tmpwin, &nul_glyphinfo, &any, spellet(splnum), 0,
-                 ATR_NONE, clr, buf,
+                 (splaction == SPELLMENU_DUMP ? ATR_PREFORM : ATR_NONE),
+                 clr, buf,
                  (splnum == splaction)
                     ? MENU_ITEMFLAGS_SELECTED : MENU_ITEMFLAGS_NONE);
     }
@@ -2306,6 +2341,10 @@ percent_success(int spell)
      */
     chance = chance * (20 - splcaster) / 15 - splcaster;
 
+    /* Provide a boost depending on what the player is standing on. */
+    if (geomantic_boost(spellid(spell)))
+        chance += gu.urole.geobon;
+
     /* Clamp to percentile */
     if (chance > 100)
         chance = 100;
@@ -2313,6 +2352,49 @@ percent_success(int spell)
         chance = 0;
 
     return chance;
+}
+
+/* Return the amount of energy a spell will take to cast.
+   Spells can no longer fail. Instead, the percent_success() function is used
+   to increase the required energy of the spell, so a spell with a 100% success
+   chance costs the same as always, whereas a spell with a 50% success chance
+   costs twice as much Pw, and a spell with a 1% success chance costs 100 times
+   as much Pw.
+   Return -1 if the success rate would be 0 and the spell cannot be cast.
+*/
+staticfn int
+energy_cost(int spell)
+{
+    int base_energy = (spellev(spell) * 5); /* 5 <= energy <= 35 */
+    int energy = base_energy;
+    int old_success_rate = percent_success(spell);
+
+    if (old_success_rate == 0) {
+        /* With a 0% success chance, the spell should take infinite power to
+         * cast, and is thus still uncastable. However, this should work well
+         * enough to prevent it from being cast. */
+        return -1;
+    } else {
+        energy = (energy * 100) / old_success_rate;
+    }
+
+    /* If currently wielding the spellbook containing the spell that we're
+     * trying to cast, reduce the Pw cost of casting by half rounded up.
+     * But don't reduce further than the innate base amount of power the spell
+     * normally takes to cast. */
+    if (uwep && uwep->otyp == spellid(spell)) {
+        int half_energy = (energy + 1) / 2;
+        if (half_energy < base_energy)
+            half_energy = base_energy;
+        energy = half_energy;
+    }
+
+    /* In addition to boosting success rate, geomancy can drop spells below
+       their usual casting rate */
+    if (geomantic_boost(spellid(spell)))
+        energy = (int) (energy * gu.urace.geomult);
+
+    return max(1, energy);
 }
 
 staticfn char *
@@ -2455,6 +2537,51 @@ void cast_force_field(void)
         create_force_field(u.dx, u.dy, 2, 10L);
         You("create a force field!");
     }
+}
+
+static int boost_areas[] = {
+    COAT_FROST, COAT_ASHES, COAT_GRASS,
+    COAT_BLOOD, COAT_FUNGUS, COAT_POTION
+};
+
+staticfn
+int boost_type(int spell_id) {
+    if (spell_skilltype(spell_id) == P_CLERIC_SPELL) {
+        if (u.ualign.type == A_LAWFUL)
+            return COAT_POTION;
+        else if (u.ualign.type == A_NEUTRAL)
+            return COAT_GRASS;
+        else
+            return COAT_BLOOD;
+    } else if (spell_id == SPE_FIREBALL)
+        return COAT_ASHES;
+    else if (spell_id == SPE_CONE_OF_COLD)
+        return COAT_FROST;
+    else if (spell_id == SPE_AQUA_BOLT)
+        return COAT_POTION;
+    else
+        return boost_areas[objects[spell_id].oc_descr_idx % SIZE(boost_areas)];
+}
+
+staticfn
+const char *boost_text(int spell_id) {
+    int type = boost_type(spell_id);
+    if (type == COAT_POTION)
+        return "water";
+    for (int i = 0; i < NUM_COATINGS; i++) {
+        if (all_coatings[i].val == type)
+            return all_coatings[i].name;
+    }
+    return "???";
+}
+
+staticfn
+boolean geomantic_boost(int spell_id) {
+    int boost_index = boost_type(spell_id);
+    if (boost_index == COAT_POTION)
+        return (has_coating(u.ux, u.uy, COAT_POTION)
+                && levl[u.ux][u.uy].pindex == POT_WATER);
+    return (has_coating(u.ux, u.uy, boost_index));
 }
 
 /*spell.c*/

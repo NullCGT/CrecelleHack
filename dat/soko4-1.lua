@@ -1,4 +1,4 @@
--- NetHack sokoban soko4-1.lua	$NHDT-Date: 1652196036 2022/05/10 15:20:36 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.2 $
+-- NetHack sokoban soko4-1.lua	$NHDT-Date: 1781994888 2026/06/20 22:34:48 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.6 $
 --	Copyright (c) 1998-1999 by Kevin Hugo
 -- NetHack may be freely redistributed.  See license for details.
 --
@@ -74,16 +74,21 @@ des.object("boulder",10,10)
 
 -- prevent monster generation over the (filled) pits
 des.exclusion({ type = "monster-generation", region = { 01,06, 07,11 } });
+
 -- Traps
-des.trap("pit",03,06)
 des.trap("pit",04,06)
-des.trap("pit",05,06)
+
+des.trap("pit",02,06)
+des.trap("pit",02,07)
 des.trap("pit",02,08)
-des.trap("pit",02,09)
+des.trap("rolling boulder",02,09)
+
+des.trap("pit",02,10)
+des.trap("pit",03,10)
 des.trap("pit",04,10)
 des.trap("pit",05,10)
 des.trap("pit",06,10)
-des.trap("pit",07,10)
+des.trap("rolling boulder",07,10)
 
 -- A little help
 des.object("scroll of earth",02,11)

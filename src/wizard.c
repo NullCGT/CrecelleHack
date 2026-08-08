@@ -1,4 +1,4 @@
-/* NetHack 3.7	wizard.c	$NHDT-Date: 1741407262 2025/03/07 20:14:22 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.116 $ */
+/* NetHack 5.0	wizard.c	$NHDT-Date: 1781973074 2026/06/20 16:31:14 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.121 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2016. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -383,36 +383,9 @@ tactics(struct monst *mtmp)
 {
     unsigned long strat = strategy(mtmp);
     coordxy sx = 0, sy = 0, mx, my;
-    coordxy nx, ny;
 
     mtmp->mstrategy =
         (mtmp->mstrategy & (STRAT_WAITMASK | STRAT_APPEARMSG)) | strat;
-
-    /* if monster is magically scared, don't 'flee' right next
-     * to the player */
-    if (mtmp->mflee) {
-        mtmp->mavenge = 1;
-        for (int j = 0; j < 400; j++) {
-            nx = rnd(COLNO - 1);
-            ny = rn2(ROWNO);
-            if (rloc_pos_ok(nx, ny, mtmp)
-                && distu(nx, ny) > 64) {
-                rloc_to(mtmp, nx, ny);
-                if (mtmp->mhp <= mtmp->mhpmax - 8)
-                    mtmp->mhp += rnd(8);
-                return 1;
-            }
-        }
-        /* we couldn't find someplace far enough away from the player
-         * to run to, which should be very rare, but...
-         * and in that case, just fall through so we do something */
-        pline("%s looks around nervously.", Monnam(mtmp));
-    }
-
-    /* once a covetous monster gets close enough, they will start
-       to move normally 95% of the time */
-    if (rn2(20) && distu(mtmp->mx, mtmp->my) <= 8)
-        return m_move(mtmp, 0);
 
     switch (strat) {
     case STRAT_HEAL: /* hide and recover */
@@ -426,10 +399,12 @@ tactics(struct monst *mtmp)
         mtmp->mavenge = 1; /* covetous monsters attack while fleeing */
         if (In_W_tower(mx, my, &u.uz)
             || (mtmp->iswiz && !sx && !mon_has_amulet(mtmp))) {
-            if (!rn2(3 + mtmp->mhp / 10))
+            if (!noteleport_level(mtmp) &&
+                !rn2(3 + mtmp->mhp / 10))
                 (void) rloc(mtmp, RLOC_MSG);
         } else if (sx && (mx != sx || my != sy)) {
-            if (!mnearto(mtmp, sx, sy, TRUE, RLOC_MSG)) {
+            if (!noteleport_level(mtmp) &&
+                !mnearto(mtmp, sx, sy, TRUE, RLOC_MSG)) {
                 /* couldn't move to the target spot for some reason,
                    so stay where we are (don't actually need rloc_to()
                    because mtmp is still on the map at <mx,my>... */
@@ -448,53 +423,25 @@ tactics(struct monst *mtmp)
         /*FALLTHRU*/
 
     case STRAT_NONE: /* harass */
-    {
-        coordxy tx = mtmp->mgoal.x, ty = mtmp->mgoal.y;
-        coordxy dx = 0, dy = 0, stx = tx, sty = ty;
-        mx = mtmp->mx, my = mtmp->my;
-        /* If we're close enough, pounce */
-        if (distu(mx, my) <= 25) {
+        if (!rn2(!mtmp->mflee ? 5 : 33))
             mnexto(mtmp, RLOC_MSG);
-        } else {
-            /* figure out what direction the player's in */
-            dx = sgn(u.ux - mx);
-            dy = sgn(u.uy - my);
-            /* since we're not close enough, use short jumps to change that */
-            stx = mx + ((rn2(3) + 4) * dx);
-            sty = my + ((rn2(3) + 3) * dy);
-            if (!mnearto(mtmp, stx, sty, TRUE, RLOC_MSG))
-                rloc_to(mtmp, mx, my);
-        }
         return 0;
-    }
 
     default: /* kill, maim, pillage! */
     {
         long where = (strat & STRAT_STRATMASK);
         coordxy tx = mtmp->mgoal.x, ty = mtmp->mgoal.y;
-        coordxy dx = 0, dy = 0, stx = tx, sty = ty;
         int targ = (int) (strat & STRAT_GOAL);
         struct obj *otmp;
 
-        if (!targ) { /* simply wants you to close */
+        if (!targ || !isok(tx, ty)) { /* simply wants you to close */
             return 0;
         }
-        /* player is standing on it (or has it) */
         if (u_at(tx, ty) || where == STRAT_PLAYER) {
+            /* player is standing on it (or has it) */
             mx = mtmp->mx, my = mtmp->my;
-            /* If we're close enough, pounce */
-            if (distu(mx, my) <= 25) {
-                mnexto(mtmp, RLOC_MSG);
-            } else {
-                /* figure out what direction the player's in */
-                dx = sgn(u.ux - mx);
-                dy = sgn(u.uy - my);
-                /* since we're not close enough, use short jumps to change that */
-                stx = mx + ((rn2(3) + 4) * dx);
-                sty = my + ((rn2(3) + 3) * dy);
-                if (!mnearto(mtmp, stx, sty, TRUE, RLOC_MSG))
-                    rloc_to(mtmp, mx, my); /* no room? stay put */
-            }
+            if (!mnearto(mtmp, tx, ty, FALSE, RLOC_MSG))
+                rloc_to(mtmp, mx, my); /* no room? stay put */
             return 0;
         }
         if (where == STRAT_GROUND) {
@@ -513,13 +460,14 @@ tactics(struct monst *mtmp)
                     return 0;
             } else {
                 /* a monster is standing on it - cause some trouble */
-                if (!rn2(5))
+                if (!rn2(5) && !noteleport_level(mtmp))
                     mnexto(mtmp, RLOC_MSG);
                 return 0;
             }
         } else { /* a monster has it - 'port beside it. */
             mx = mtmp->mx, my = mtmp->my;
-            if (!mnearto(mtmp, tx, ty, FALSE, RLOC_MSG))
+            if (!noteleport_level(mtmp) &&
+                !mnearto(mtmp, tx, ty, FALSE, RLOC_MSG))
                 rloc_to(mtmp, mx, my); /* no room? stay put */
             return 0;
         }
@@ -605,9 +553,9 @@ pick_nasty(struct monst *summoner,
     int alt, res;
 
     /* The list we roll from depends on the summoner. */
-    if (summoner->data == &mons[PM_DEMOGORGON])
+    if (summoner && summoner->data == &mons[PM_DEMOGORGON])
         res = ROLL_FROM(demo_nasties);
-    else if (summoner->data->mlet == S_DRAGON)
+    else if (summoner && summoner->data->mlet == S_DRAGON)
         res = ROLL_FROM(dragon_nasties);
     else
         res = ROLL_FROM(nasties);
@@ -670,6 +618,7 @@ nasty(struct monst *summoner)
     /* when a monster casts the "summon nasties" spell, it gives feedback;
        when random post-Wizard harassment casts that, we give feedback */
     unsigned mmflags = summoner ? MM_NOMSG : NO_MM_FLAGS;
+    mmflags |= MM_ESUM;
 
 #define MAXNASTIES 10 /* more than this can be created */
 
@@ -693,7 +642,7 @@ nasty(struct monst *summoner)
         for (i = rnd(tmp); i > 0 && count < MAXNASTIES; --i) {
             /* Of the 44 nasties[], 10 are lawful, 14 are chaotic,
              * and 20 are neutral.  [These numbers are up date for
-             * 3.7.0; the ones in the next paragraph are not....]
+             * 5.0.0; the ones in the next paragraph are not....]
              *
              * Neutral caster, used for late-game harassment,
              * has 18/42 chance to stop the inner loop on each
@@ -732,6 +681,11 @@ nasty(struct monst *summoner)
                 if ((mtmp = makemon(&mons[makeindex], bypos.x, bypos.y,
                                     mmflags)) != 0) {
                     mtmp->msleeping = mtmp->mpeaceful = mtmp->mtame = 0;
+                    if (summoner) {
+                        if (!has_esum(summoner))
+                            newesum(summoner);
+                        ESUM(mtmp)->ownermid = summoner->m_id;
+                    }
                     set_malign(mtmp);
                 } else {
                     /* random monster to substitute for geno'd selection;

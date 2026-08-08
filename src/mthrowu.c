@@ -1,4 +1,4 @@
-/* NetHack 3.7	mthrowu.c	$NHDT-Date: 1737392015 2025/01/20 08:53:35 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.173 $ */
+/* NetHack 5.0	mthrowu.c	$NHDT-Date: 1781973057 2026/06/20 16:30:57 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.192 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Pasi Kallinen, 2016. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -8,6 +8,7 @@
 staticfn int monmulti(struct monst *, struct obj *, struct obj *);
 staticfn void monshoot(struct monst *, struct obj *, struct obj *);
 staticfn boolean ucatchgem(struct obj *, struct monst *);
+staticfn boolean u_catch_thrown_obj(struct obj *);
 staticfn const char *breathwep_name(int);
 staticfn boolean drop_throw(struct obj *, boolean, coordxy, coordxy);
 staticfn boolean blocking_terrain(coordxy, coordxy);
@@ -92,7 +93,7 @@ thitu(
         kprefix = KILLED_BY; /* killer_name supplies "an" if warranted */
     } else {
         knm = name;
-        /* [perhaps ought to check for plural here to] */
+        /* [perhaps ought to check for plural here too] */
         if (!strncmpi(name, "the ", 4) || !strncmpi(name, "an ", 3)
             || !strncmpi(name, "a ", 2))
             kprefix = KILLED_BY;
@@ -150,6 +151,8 @@ thitu(
             losehp(dam, knm, kprefix); /* acid damage */
             exercise(A_STR, FALSE);
         }
+        if (is_acid)
+            make_dripping(rnd(6), POT_ACID, NON_PM);
         return 1;
     }
 }
@@ -177,6 +180,10 @@ drop_throw(
         return TRUE;
     } else {
         broken = (ohit && should_mulch_missile(obj));
+    }
+
+    if (broken) {
+        handle_thrown_coatings(obj, x, y);
     }
 
     if (broken && obj) {
@@ -223,6 +230,8 @@ monmulti(
             multishot++;
         /* fake players treated as skilled (regardless of role limits) */
         else if (is_mplayer(mtmp->data))
+            multishot++;
+        else if (is_cleaner(mtmp->data))
             multishot++;
 
         /* this portion is different from hero multishot; from slash'em?
@@ -374,7 +383,7 @@ ohitmon(
     } else {
         boolean harmless = (stone_missile(otmp) && passes_rocks(mtmp->data));
 
-        damage = dmgval(otmp, mtmp);
+        damage = dmgval(otmp, (struct monst *) 0, mtmp);
         if (otmp->otyp == ACID_VENOM && resists_acid(mtmp))
             damage = 0;
 #if 0 /* can't use this because we don't have the attacker */
@@ -434,6 +443,7 @@ ohitmon(
                 else if (verbose && !gm.mtarget)
                     pline("It is burned!");
             }
+            make_mdripping(mtmp, POT_ACID);
         }
         if (otmp->otyp == EGG && touch_petrifies(&mons[otmp->corpsenm])) {
             if (!munstone(mtmp, FALSE))
@@ -521,6 +531,27 @@ ucatchgem(
             (void) hold_another_object(gem, "You catch, but drop, %s.",
                                        gem_xname, "You catch:");
         }
+        return TRUE;
+    }
+    return FALSE;
+}
+
+/* hero may catch thrown obj. it is added to inventory, if possible */
+staticfn boolean
+u_catch_thrown_obj(struct obj *otmp)
+{
+    int catch_chance = 100 - ACURR(A_DEX)
+                       - ((Role_if(PM_MONK) || Role_if(PM_ROGUE)) ? 20 : 0);
+
+    if (!Blind && !Confusion && !Stunned && !Fumbling
+        && otmp->oclass != VENOM_CLASS
+        && !nohands(gy.youmonst.data) && freehand()
+        && calc_capacity(otmp->owt) <= SLT_ENCUMBER && !rn2(catch_chance)) {
+        char buf[BUFSZ];
+
+        Snprintf(buf, BUFSZ, "You catch the %s!", simpleonames(otmp));
+        (void) hold_another_object(otmp, "You catch, but drop, the %s.",
+                                   simpleonames(otmp), buf);
         return TRUE;
     }
     return FALSE;
@@ -614,7 +645,8 @@ m_throw(
     }
 
     if (MT_FLIGHTCHECK(TRUE, 0)) {
-        (void) drop_throw(singleobj, 0, gb.bhitpos.x, gb.bhitpos.y);
+        if (singleobj) /* hits_bars can null singleobj */
+            (void) drop_throw(singleobj, 0, gb.bhitpos.x, gb.bhitpos.y);
         return;
     }
     gm.mesg_given = 0; /* a 'missile misses' message has not yet been shown */
@@ -665,13 +697,16 @@ m_throw(
             if (gm.multi)
                 nomul(0);
 
+            /* hero might be poly'd into a unicorn */
+            if (singleobj->oclass == GEM_CLASS && ucatchgem(singleobj, mon))
+                break;
+
+            if (!tethered_weapon && u_catch_thrown_obj(singleobj))
+                break;
+
             if (singleobj->oclass == POTION_CLASS) {
                 potionhit(&gy.youmonst, singleobj, POTHIT_MONST_THROW);
                 break;
-            } else if (singleobj->oclass == GEM_CLASS) {
-                /* hero might be poly'd into a unicorn */
-                if (ucatchgem(singleobj, mon))
-                    break;
             }
             oldumort = u.umortality;
 
@@ -694,7 +729,7 @@ m_throw(
                 {
                     int dam, hitv;
 
-                    dam = dmgval(singleobj, &gy.youmonst);
+                    dam = dmgval(singleobj, mon, &gy.youmonst);
                     hitv = 3 - distmin(u.ux, u.uy, mon->mx, mon->my);
                     if (hitv < -4)
                         hitv = -4;
@@ -712,6 +747,8 @@ m_throw(
                     hitv += 8 + singleobj->spe;
                     if (dam < 1)
                         dam = 1;
+                    if (singleobj->otyp != ACID_VENOM)
+                        dam = Maybe_Half_Phys(dam);
                     hitu = thitu(hitv, dam, &singleobj, (char *) 0);
                 }
             }
@@ -1027,6 +1064,8 @@ spitmm(struct monst *mtmp, struct attack *mattk, struct monst *mtarg)
             otmp = mksobj(ACID_VENOM, TRUE, FALSE);
             break;
         }
+        if (is_summoned(mtmp))
+            newosum(otmp);
         if (!rn2(BOLT_LIM-distmin(mtmp->mx,mtmp->my,tx,ty))) {
             if (canseemon(mtmp))
                 pline("%s spits venom!", Monnam(mtmp));
@@ -1101,7 +1140,8 @@ breamm(struct monst *mtmp, struct attack *mattk, struct monst *mtarg)
                           Monnam(mtmp), breathwep_name(typ));
                 gb.buzzer = mtmp;
                 dobuzz(BZ_M_BREATH(BZ_OFS_AD(typ)), (int) mattk->damn,
-                       mtmp->mx, mtmp->my, sgn(gt.tbx), sgn(gt.tby), utarget, utarget);
+                       mtmp->mx, mtmp->my, sgn(gt.tbx), sgn(gt.tby),
+                       utarget, utarget, FALSE);
                 gb.buzzer = 0;
                 nomul(0);
                 /* breath runs out sometimes. Also, give monster some
@@ -1204,7 +1244,7 @@ thrwmu(struct monst *mtmp)
                   obj_is_pname(otmp) ? the(onm) : an(onm));
         }
 
-        dam = dmgval(otmp, &gy.youmonst);
+        dam = dmgval(otmp, mtmp, &gy.youmonst);
         hitv = 3 - distmin(u.ux, u.uy, mtmp->mx, mtmp->my);
         if (hitv < -4)
             hitv = -4;
@@ -1214,7 +1254,7 @@ thrwmu(struct monst *mtmp)
         if (dam < 1)
             dam = 1;
 
-        (void) thitu(hitv, dam, &otmp, (char *) 0);
+        (void) thitu(hitv, Maybe_Half_Phys(dam), &otmp, (char *) 0);
         stop_occupation();
         return;
     } else if ((arw = autoreturn_weapon(otmp)) != 0 && !mwelded(otmp)) {
@@ -1494,7 +1534,7 @@ hits_bars(
             int oskill = objects[obj_type].oc_skill;
 
             hits = (oskill != -P_BOW && oskill != -P_CROSSBOW
-                    && oskill != -P_DART && oskill != -P_SHURIKEN
+                    && oskill != -P_MISSILES
                     && oskill != P_SPEAR
                     && oskill != P_KNIFE); /* but not dagger */
             break;

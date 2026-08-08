@@ -1,11 +1,17 @@
 /* vim:set cin ft=c sw=4 sts=4 ts=8 et ai cino=Ls\:0t0(0 : -*- mode:c;fill-column:80;tab-width:8;c-basic-offset:4;indent-tabs-mode:nil;c-file-style:"k&r" -*-*/
-/* NetHack 3.7 curswins.h */
+/* NetHack 5.0 curswins.h */
 /* Copyright (c) Karl Garrison, 2010. */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef CURSWIN_H
 # define CURSWIN_H
 
+struct glyph_attributes {
+    int basic_color; // basic color
+    int color256;    // extended color (0 if not defined), used when supported
+    int framecolor;
+    int attribute_flags;
+};
 
 /* Global declarations */
 
@@ -27,11 +33,11 @@ void curses_del_wid(winid wid);
 void curs_destroy_all_wins(void);
 #ifdef ENHANCED_SYMBOLS
 void curses_putch(winid wid, int x, int y, int ch,
-                  struct unicode_representation *ur, int color,
-                  int framecolor, int attrs);
+                  struct unicode_representation *ur,
+                  const struct glyph_attributes *attr);
 #else
-void curses_putch(winid wid, int x, int y, int ch, int color,
-                  int framecolor, int attrs);
+void curses_putch(winid wid, int x, int y, int ch,
+                  const struct glyph_attributes *attr);
 #endif
 void curses_get_window_xy(winid wid, int *x, int *y);
 boolean curses_window_has_border(winid wid);

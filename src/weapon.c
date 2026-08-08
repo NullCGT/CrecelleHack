@@ -1,4 +1,4 @@
-/* NetHack 3.7	weapon.c	$NHDT-Date: 1725227810 2024/09/01 21:56:50 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.128 $ */
+/* NetHack 5.0	weapon.c	$NHDT-Date: 1781973073 2026/06/20 16:31:13 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.147 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2011. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -30,21 +30,22 @@ staticfn void add_skills_to_menu(winid, boolean, boolean);
 #define PN_POLEARMS (-8)
 #define PN_SABER (-9)
 #define PN_HAMMER (-10)
-#define PN_WHIP (-11)
-#define PN_ATTACK_SPELL (-12)
-#define PN_HEALING_SPELL (-13)
-#define PN_DIVINATION_SPELL (-14)
-#define PN_ENCHANTMENT_SPELL (-15)
-#define PN_CLERIC_SPELL (-16)
-#define PN_ESCAPE_SPELL (-17)
-#define PN_MATTER_SPELL (-18)
+#define PN_MISSILES (-11)
+#define PN_WHIP (-12)
+#define PN_ATTACK_SPELL (-13)
+#define PN_HEALING_SPELL (-14)
+#define PN_DIVINATION_SPELL (-15)
+#define PN_ENCHANTMENT_SPELL (-16)
+#define PN_CLERIC_SPELL (-17)
+#define PN_ESCAPE_SPELL (-18)
+#define PN_MATTER_SPELL (-19)
 
 static NEARDATA const short skill_names_indices[P_NUM_SKILLS] = {
     /* Weapon */
     0, DAGGER, KNIFE, AXE, PICK_AXE, SHORT_SWORD, BROADSWORD, LONG_SWORD,
-    TWO_HANDED_SWORD, PN_SABER, CLUB, MACE, MORNING_STAR, FLAIL, PN_HAMMER,
-    QUARTERSTAFF, PN_POLEARMS, SPEAR, TRIDENT, LANCE, BOW, SLING, CROSSBOW,
-    DART, SHURIKEN, BOOMERANG, PN_WHIP, UNICORN_HORN,
+    TWO_HANDED_SWORD, PN_SABER, CLUB, MACE, FLAIL, PN_HAMMER,
+    QUARTERSTAFF, PN_POLEARMS, SPEAR, LANCE, BOW, SLING, CROSSBOW,
+    PN_MISSILES, PN_WHIP, UNICORN_HORN,
     /* Spell */
     PN_ATTACK_SPELL, PN_HEALING_SPELL, PN_DIVINATION_SPELL,
     PN_ENCHANTMENT_SPELL, PN_CLERIC_SPELL, PN_ESCAPE_SPELL, PN_MATTER_SPELL,
@@ -58,7 +59,7 @@ static NEARDATA const char *const odd_skill_names[] = {
     "no skill", "bare hands", /* use barehands_or_martial[] instead */
     "two weapon combat", "riding", "tripping", "grappling",
     "pet handling", "improvised weaponry",
-    "polearms", "saber", "hammer", "whip",
+    "polearms", "saber", "hammer", "throwing weapons", "whip",
     "attack spells", "healing spells", "divination spells",
     "enchantment spells", "clerical spells", "escape spells", "matter spells",
 };
@@ -83,11 +84,11 @@ staticfn void
 give_may_advance_msg(int skill)
 {
     You_feel("more confident in your %s%sskills.",
-             (skill == P_NONE) ? ""
-                 : (skill <= P_LAST_WEAPON) ? "weapon"
-                     : (skill <= P_LAST_SPELL) ? "spell casting"
-                         : P_NAME(skill),
-             (skill == P_NONE) ? "" : " ");
+            (skill == P_NONE) ? ""
+                : (skill <= P_LAST_WEAPON) ? "weapon"
+                    : (skill <= P_LAST_SPELL) ? "spell casting"
+                        : P_NAME(skill),
+            (skill == P_NONE) ? "" : " ");
     (void) handle_tip(TIP_ENHANCE);
 }
 
@@ -194,6 +195,108 @@ hitval(struct obj *otmp, struct monst *mon)
     return tmp;
 }
 
+/* Helper for dmgval(). Calculates the number of dice rolled for an attack.*/
+int
+dmgval_ndice(struct obj *otmp)
+{
+    int otyp = otmp->otyp;
+    int tmp = objects[otyp].oc_wndam;
+    if (tmp < 1)
+        tmp = 1;
+    return tmp;
+}
+
+int 
+dmgval_nsides(struct obj *otmp)
+{
+    int otyp = otmp->otyp;
+    int tmp = objects[otyp].oc_wddam;
+    int type = weapon_type(otmp);
+    tmp += size_mult(otmp->osize);
+    if (type >= P_FIRST_WEAPON && type <= P_LAST_WEAPON
+        && P_SKILL(type) >= P_EXPERT) {
+        tmp += 1;
+    }
+    if (tmp < 1)
+        tmp = 1;
+    return tmp;
+}
+
+int
+dmgval_dbonus(struct obj *otmp, struct monst *magr)
+{
+    int tmp = 0;
+    int scaler = get_scaling_type(otmp);
+    if (otmp->oclass == WEAPON_CLASS || is_weptool(otmp))
+        tmp += otmp->spe;
+    /* It's debatable whether a rusted blunt instrument
+        should do less damage than a pristine one, since
+        it will hit with essentially the same impact, but
+        there ought to some penalty for using damaged gear
+        so always subtract erosion even for blunt weapons. */
+    tmp -= greatest_erosion(otmp);
+    /* adjust for scaling attribute */
+    if (magr == &gy.youmonst && scaler >= A_STR) {
+        tmp += AMOD(scaler);
+    }
+    /* adjust for various materials */
+    if ((otmp->material == GLASS || otmp->material == GEMSTONE
+        || otmp->material == SALT)
+        && (objects[otmp->otyp].oc_dir & (PIERCE | SLASH))) {
+        /* glass, salt, and gemstone are sharp */
+        tmp += 3;
+    } else if (otmp->material == GOLD || otmp->material == PLATINUM) {
+        /* heavy metals, but softer than stone */
+        if (objects[otmp->otyp].oc_dir & (SLASH | WHACK)) {
+            tmp += 1;
+        }
+    } else if (otmp->material == MINERAL) {
+        /* stone is heavy */
+        if (objects[otmp->otyp].oc_dir & (SLASH | WHACK)) {
+            tmp += 2;
+        }
+    } else if (otmp->material == LODEN) {
+        /* bludgeoning weapons made of lodenstone deal a massive
+           amount of damage*/
+        if (objects[otmp->otyp].oc_dir & WHACK)
+            tmp += 5;
+    } else if (otmp->material == PLASTIC || otmp->material == PAPER
+                || otmp->material == COAL) {
+        /* just terrible weapons all around */
+        tmp -= 2;
+    } else if (otmp->material == METAL) {
+        /* steel has roughly the same density as iron,
+           but is stronger and makes for a finer edge
+           on bladed weapons */
+        tmp += 1;
+    } else if (otmp->material == NIGHTIRON) {
+        /* nightiron grows more deadly at night, but weaker during the
+           day. */
+        if (night()) tmp += 3;
+        else tmp -= 1;
+    }
+    
+    return tmp;
+}
+
+char *
+stringify_dmgval(char *buf, struct monst *mon, struct obj *otmp)
+{
+    int ndice = dmgval_ndice(otmp);
+    int nsides = dmgval_nsides(otmp);
+    int bonus = dmgval_dbonus(otmp, mon);
+    if (!otmp->known && (otmp->oclass == WEAPON_CLASS || is_weptool(otmp)))
+        bonus -= otmp->spe;
+    Sprintf(buf, "%s Damage: %dd%d%s%d%s%s%s",
+                mon ? "Adjusted" : "Base",
+                ndice, nsides,
+                (bonus >= 0) ? "+" : "-", abs(bonus),
+                (objects[otmp->otyp].oc_dir & PIERCE) ? " piercing" : "",
+                (objects[otmp->otyp].oc_dir & SLASH) ? " slashing" : "",
+                (objects[otmp->otyp].oc_dir & WHACK) ? " bludgeoning" : "");
+    return buf;
+}
+
 /* Historical note: The original versions of Hack used a range of damage
  * which was similar to, but not identical to, the damage used in Advanced
  * Dungeons and Dragons.  I figured that since it was so close, I may as well
@@ -221,135 +324,17 @@ hitval(struct obj *otmp, struct monst *mon)
  *      of "otmp" against the monster.
  */
 int
-dmgval(struct obj *otmp, struct monst *mon)
+dmgval(struct obj *otmp, struct monst *magr, struct monst *mdef)
 {
     int tmp = 0, otyp = otmp->otyp;
-    struct permonst *ptr = mon->data;
-    boolean Is_weapon = (otmp->oclass == WEAPON_CLASS || is_weptool(otmp));
+    struct permonst *ptr = mdef->data;
 
     if (otyp == CREAM_PIE)
         return 0;
 
-    if (bigmonst(ptr)) {
-        if (objects[otyp].oc_wldam)
-            tmp = rnd(max(2, (objects[otyp].oc_wldam + size_mult(otmp->osize))));
-        switch (otyp) {
-        case IRON_CHAIN:
-        case CROSSBOW_BOLT:
-        case MORNING_STAR:
-        case PARTISAN:
-        case RUNESWORD:
-        case ELVEN_BROADSWORD:
-        case BROADSWORD:
-            tmp++;
-            break;
-
-        case FLAIL:
-        case RANSEUR:
-        case VOULGE:
-            tmp += rnd(4);
-            break;
-
-        case ACID_VENOM:
-        case HALBERD:
-        case SPETUM:
-            tmp += rnd(6);
-            break;
-
-        case BATTLE_AXE:
-        case BARDICHE:
-        case TRIDENT:
-            tmp += d(2, 4);
-            break;
-
-        case TSURUGI:
-        case DWARVISH_MATTOCK:
-        case TWO_HANDED_SWORD:
-            tmp += d(2, 6);
-            break;
-        }
-    } else {
-        if (objects[otyp].oc_wsdam)
-            tmp = rnd(objects[otyp].oc_wsdam + size_mult(otmp->osize));
-        switch (otyp) {
-        case IRON_CHAIN:
-        case CROSSBOW_BOLT:
-        case MACE:
-        case WAR_HAMMER:
-        case FLAIL:
-        case SPETUM:
-        case TRIDENT:
-            tmp++;
-            break;
-
-        case BATTLE_AXE:
-        case BARDICHE:
-        case BILL_GUISARME:
-        case GUISARME:
-        case LUCERN_HAMMER:
-        case MORNING_STAR:
-        case RANSEUR:
-        case BROADSWORD:
-        case ELVEN_BROADSWORD:
-        case RUNESWORD:
-        case VOULGE:
-            tmp += rnd(4);
-            break;
-
-        case ACID_VENOM:
-            tmp += rnd(6);
-            break;
-        }
-    }
-    if (Is_weapon) {
-        tmp += otmp->spe;
-    }
-
-    /* adjust for various materials */
-    if ((otmp->material == GLASS || otmp->material == GEMSTONE
-        || otmp->material == SALT)
-        && (objects[otmp->otyp].oc_dir & (PIERCE | SLASH))) {
-        /* glass, salt, and gemstone are sharp */
-        tmp += 3;
-    }
-    else if (otmp->material == GOLD || otmp->material == PLATINUM) {
-        /* heavy metals, but softer than stone */
-        if (objects[otmp->otyp].oc_dir & (SLASH | WHACK)) {
-            tmp += 1;
-        }
-    }
-    else if (otmp->material == MINERAL) {
-        /* stone is heavy */
-        if (objects[otmp->otyp].oc_dir & (SLASH | WHACK)) {
-            tmp += 2;
-        }
-    }
-    else if (otmp->material == LODEN) {
-        /* bludgeoning weapons made of lodenstone deal a massive
-           amount of damage*/
-        if (objects[otmp->otyp].oc_dir & WHACK)
-            tmp += 5;
-    }
-    else if (otmp->material == PLASTIC || otmp->material == PAPER) {
-        /* just terrible weapons all around */
-        tmp -= 2;
-    } else if ((otmp->material == WOOD || otmp->material == BLEAKWOOD)
-                && !is_elven_weapon(otmp)) {
-        /* poor at holding an edge */
-        if (is_blade(otmp)) {
-            tmp -= 1;
-        }
-    } else if (otmp->material == METAL) {
-        /* steel has roughly the same density as iron,
-           but is stronger and makes for a finer edge
-           on bladed weapons */
-        tmp += 1;
-    } else if (otmp->material == NIGHTIRON) {
-        /* nightiron grows more deadly at night, but weaker during the
-           day. */
-        if (night()) tmp += 3;
-        else tmp -= 1;
-    }
+    if (objects[otyp].oc_wndam && objects[otyp].oc_wddam)
+        tmp = d(dmgval_ndice(otmp), dmgval_nsides(otmp));
+    tmp += dmgval_dbonus(otmp, magr);
 
     /* negative modifiers mustn't produce negative damage */
     if (tmp < 0)
@@ -369,102 +354,39 @@ dmgval(struct obj *otmp, struct monst *mon)
             wt = ((int) otmp->owt - wt) / WT_IRON_BALL_INCR;
             tmp += rnd(4 * wt);
             if (tmp > 25)
-                tmp = 25; /* objects[].oc_wldam */
+                tmp = 25; /* objects[].oc_wddam */
         }
     }
 
     /* Put weapon vs. monster type damage bonuses in below: */
-    if (Is_weapon || otmp->oclass == GEM_CLASS || otmp->oclass == BALL_CLASS
-        || otmp->oclass == CHAIN_CLASS || otmp->oclass == BOTTLE_CLASS) {
+    {
         int bonus = 0;
 
-        if (otmp->blessed && mon_hates_blessings(mon))
+        if (otmp->blessed && mon_hates_blessings(mdef))
             bonus += rnd(4);
-        if (is_axe(otmp) && is_wooden(ptr))
+        if (is_axe(otmp) && (monmaterial(mdef->mnum) == WOOD))
             bonus += rnd(4);
-        if (mon_hates_material(mon, otmp->material))
+        if (mon_hates_material(mdef, otmp->material))
             bonus += rnd(sear_damage(otmp->material));
         if (artifact_light(otmp) && otmp->lamplit && hates_light(ptr))
             bonus += rnd(8);
 
         /* if the weapon is going to get a double damage bonus, adjust
            this bonus so that effectively it's added after the doubling */
-        if (bonus > 1 && otmp->oartifact && spec_dbon(otmp, mon, 25) >= 25)
+        if (bonus > 1 && otmp->oartifact && spec_dbon(otmp, mdef, 25) >= 25)
             bonus = (bonus + 1) / 2;
 
         tmp += bonus;
     }
 
-    if (tmp > 0) {
-        /* It's debatable whether a rusted blunt instrument
-           should do less damage than a pristine one, since
-           it will hit with essentially the same impact, but
-           there ought to some penalty for using damaged gear
-           so always subtract erosion even for blunt weapons. */
-        tmp -= greatest_erosion(otmp);
-        if (tmp < 1)
-            tmp = 1;
+    /* adjustments for damage types */
+    if (resist_oc_dir(mdef, otmp->otyp)) {
+        tmp = (tmp + 1) / 2;
+        svm.mvitals[mdef->mnum].know_resist = 1;
+        (void) handle_tip(TIP_INEFFECTIVE);
     }
 
     return  tmp;
-}
-
-const char *
-stringify_dmgval(int otyp, boolean large) {
-    if (large) {
-        switch (otyp) {
-        case IRON_CHAIN:
-        case CROSSBOW_BOLT:
-        case MORNING_STAR:
-        case PARTISAN:
-        case RUNESWORD:
-        case ELVEN_BROADSWORD:
-        case BROADSWORD:
-            return "1";
-        case FLAIL:
-        case RANSEUR:
-        case VOULGE:
-            return "+1d4";
-        case ACID_VENOM:
-        case HALBERD:
-        case SPETUM:
-            return "+1d6";
-        case BATTLE_AXE:
-        case BARDICHE:
-        case TRIDENT:
-            return "+2d4";
-        case TSURUGI:
-        case DWARVISH_MATTOCK:
-        case TWO_HANDED_SWORD:
-            return "+2d6";
-        }
-    } else {
-        switch (otyp) {
-        case IRON_CHAIN:
-        case CROSSBOW_BOLT:
-        case MACE:
-        case WAR_HAMMER:
-        case FLAIL:
-        case SPETUM:
-        case TRIDENT:
-            return "+1";
-        case BATTLE_AXE:
-        case BARDICHE:
-        case BILL_GUISARME:
-        case GUISARME:
-        case LUCERN_HAMMER:
-        case MORNING_STAR:
-        case RANSEUR:
-        case BROADSWORD:
-        case ELVEN_BROADSWORD:
-        case RUNESWORD:
-        case VOULGE:
-            return "+1d4";
-        case ACID_VENOM:
-            return "+1d6";
-        }
-    }
-    return "";
 }
 
 /* Find an object that magr is wearing (or even magr's body itself) that has a
@@ -481,7 +403,6 @@ special_dmgval(struct monst *magr, struct monst *mdef,
 {
     boolean youattack = (magr == &gy.youmonst);
     const int magr_material = monmaterial(monsndx(magr->data));
-    int i;
     int bonus = 0;
     int tmpbonus = 0;
     boolean try_body = FALSE;
@@ -495,25 +416,9 @@ special_dmgval(struct monst *magr, struct monst *mdef,
                *leftring  = (youattack ? uleft : which_armor(magr, W_RINGL)),
                *rightring = (youattack ? uright : which_armor(magr, W_RINGR));
 
-    /* The order of armor slots in this array doesn't really matter because we
-     * roll for everything that applies and take the highest damage. */
-    struct {
-        long mask;
-        struct obj **obj;
-    } array[9] = {
-        { W_ARMG, &gloves },
-        { W_ARMH, &helm   },
-        { W_ARMS, &shield },
-        { W_ARMF, &boots  },
-        { W_ARM,  &armor  },
-        { W_ARMC, &cloak  },
-        { W_ARMU, &shirt  },
-        { W_RINGL, &leftring },
-        { W_RINGR, &rightring }
-    };
-
-    if (hated_obj)
+    if (hated_obj) {
         *hated_obj = 0;
+    }
 
     /* Simple exclusions where we ignore a certain type of armor because it is
      * covered by some other equipment. */
@@ -543,12 +448,32 @@ special_dmgval(struct monst *magr, struct monst *mdef,
     if (try_body && mon_hates_material(mdef, magr_material)) {
         bonus = sear_damage(magr_material);
         if (hated_obj)
-            *hated_obj = (struct obj *) &cg.zeroobj;
+            *hated_obj = &hands_obj;
     }
 
+    /* The order of armor slots in this array doesn't really matter because we
+     * roll for everything that applies and take the highest damage. */
+    struct {
+        long mask;
+        struct obj* obj;
+    } array[9] = {
+        { W_ARMG, gloves },
+        { W_ARMH, helm   },
+        { W_ARMS, shield },
+        { W_ARMF, boots  },
+        { W_ARM,  armor  },
+        { W_ARMC, cloak  },
+        { W_ARMU, shirt  },
+        { W_RINGL, leftring },
+        { W_RINGR, rightring }
+    };
+
+    int i;
     for (i = 0; i < 9; ++i) {
-        if (*array[i].obj && (armask & array[i].mask)) {
-            tmpbonus = dmgval(*array[i].obj, mdef);
+        if (array[i].obj && (armask & array[i].mask)) {
+            /* note: dmgval contains blessed-vs-undead interaction, so there is
+             * no need to handle it separately in this function */
+            tmpbonus = dmgval(array[i].obj, magr, mdef);
             if (tmpbonus > bonus) {
                 bonus = tmpbonus;
                 if (hated_obj) {
@@ -562,11 +487,11 @@ special_dmgval(struct monst *magr, struct monst *mdef,
                      * one, so that searmsg will get called with the most
                      * appropriate message.
                      */
-                    if (mon_hates_material(mdef, (*array[i].obj)->material)
+                    if (mon_hates_material(mdef, array[i].obj->material)
                         && (*hated_obj == NULL
-                            || (sear_damage((*array[i].obj)->material)
+                            || (sear_damage(array[i].obj->material)
                                 > sear_damage((*hated_obj)->material)))) {
-                        *hated_obj = *array[i].obj;
+                        *hated_obj = array[i].obj;
                     }
                 }
             }
@@ -598,7 +523,7 @@ searmsg(struct monst *magr UNUSED, struct monst *mdef,
     if (!youdefend && !canspotmon(mdef))
         return;
 
-    if (obj == &cg.zeroobj) {
+    if (obj == &cg.zeroobj || obj == &hands_obj) {
         if (youattack) {
             Strcpy(whose, "your ");
         } else if (!magr) {
@@ -923,7 +848,8 @@ monmightthrowwep(struct obj *obj)
 /* Weapons in order of preference */
 static const NEARDATA short hwep[] = {
     CORPSE, /* cockatrice corpse */
-    TSURUGI, RUNESWORD, DWARVISH_MATTOCK, FALCHION, TWO_HANDED_SWORD, DUAL_AXE, BATTLE_AXE,
+    TSURUGI, RUNESWORD, DWARVISH_MATTOCK, FALCHION, FLAMBERGE,
+    TWO_HANDED_SWORD, DUAL_AXE, BATTLE_AXE,
     KATANA, UNICORN_HORN, CRYSKNIFE, TRIDENT, LONG_SWORD, ELVEN_BROADSWORD,
     BROADSWORD, SCIMITAR, SABER, MORNING_STAR, ELVEN_SHORT_SWORD,
     DWARVISH_SHORT_SWORD, SHORT_SWORD, ORCISH_SHORT_SWORD, MACE, AXE,
@@ -1470,6 +1396,7 @@ add_skills_to_menu(winid win, boolean selectable, boolean speedy)
     char sklmaxnambuf[80];
     const char *prefix;
     int clr = NO_COLOR;
+    boolean dumping = program_state.gameover;
 
     /* Find the longest skill name. */
     for (longest = 0, i = 0; i < P_NUM_SKILLS; i++) {
@@ -1488,8 +1415,14 @@ add_skills_to_menu(winid win, boolean selectable, boolean speedy)
              i++) {
             /* Print headings for skill types */
             any = cg.zeroany;
-            if (i == skill_ranges[pass].first)
-                add_menu_heading(win, skill_ranges[pass].name);
+            if (i == skill_ranges[pass].first) {
+                if (dumping)
+                    /* html dumplogs: add_menu_heading does not permit
+                       formatting */
+                    putstr(win, ATR_SUBHEAD, skill_ranges[pass].name);
+                else
+                    add_menu_heading(win, skill_ranges[pass].name);
+            }
 
             if (P_RESTRICTED(i))
                 continue;
@@ -1552,7 +1485,7 @@ show_skills(void)
     winid win;
     menu_item *selected;
 
-    pline("Skills:");
+    putstr(0, ATR_HEADING, "Skills:");
     win = create_nhwindow(NHW_MENU);
     start_menu(win, MENU_BEHAVE_STANDARD);
     add_skills_to_menu(win, FALSE, FALSE);
@@ -1579,7 +1512,7 @@ enhance_weapon_skill(void)
     boolean speedy = FALSE;
 
     /* player knows about #enhance, don't show tip anymore */
-    svc.context.tips[TIP_ENHANCE] = TRUE;
+    svc.context.tips |= (1 << TIP_ENHANCE);
 
     if (wizard && y_n("Advance skills without practice?") == 'y')
         speedy = TRUE;
@@ -1626,8 +1559,8 @@ enhance_weapon_skill(void)
 
         Strcpy(buf, (to_advance > 0) ? "Pick a skill to advance:"
                                      : "Current skills:");
-        if (wizard && !speedy)
-            Sprintf(eos(buf), "  (%d slot%s available)", u.weapon_slots,
+        if (!speedy)
+            Sprintf(eos(buf), "  (%d point%s available)", u.weapon_slots,
                     plur(u.weapon_slots));
         end_menu(win, buf);
         n = select_menu(win, to_advance ? PICK_ONE : PICK_NONE, &selected);
@@ -1664,17 +1597,23 @@ unrestrict_weapon_skill(int skill)
     }
 }
 
-void
+/* return true if a message was printed */
+boolean
 use_skill(int skill, int degree)
 {
     boolean advance_before;
 
     if (skill != P_NONE && !P_RESTRICTED(skill)) {
         advance_before = can_advance(skill, FALSE);
-        P_ADVANCE(skill) += degree;
-        if (!advance_before && can_advance(skill, FALSE))
+        /* Prevent looping to max via abuse */
+        if (degree >= 0 || P_ADVANCE(skill) > degree)
+            P_ADVANCE(skill) += degree;
+        if (!advance_before && can_advance(skill, FALSE)) {
             give_may_advance_msg(skill);
+            return TRUE;
+        }
     }
+    return FALSE;
 }
 
 void
@@ -1788,7 +1727,7 @@ uwep_skill_type(void)
 int
 weapon_hit_bonus(struct obj *weapon)
 {
-    int type, wep_type, skill, bonus = 0;
+    int type, wep_type, skill, ochitbon, bonus = 0;
     static const char bad_skill[] = "weapon_hit_bonus: bad skill %d";
 
     wep_type = weapon_type(weapon);
@@ -1799,7 +1738,7 @@ weapon_hit_bonus(struct obj *weapon)
                : wep_type;
     if (type == P_NONE) {
         bonus = 0;
-    } else if (type <= P_LAST_WEAPON || type == P_IMPROV) {
+    } else if (type == P_IMPROV) {
         switch (P_SKILL(type)) {
         default:
             impossible(bad_skill, P_SKILL(type));
@@ -1857,6 +1796,10 @@ weapon_hit_bonus(struct obj *weapon)
         bonus = P_SKILL(type);
         bonus = max(bonus, P_UNSKILLED) - 1; /* unskilled => 0 */
         bonus = ((bonus + 2) * (martial_bonus() ? 2 : 1)) / 2;
+    } else if (weapon) {
+        ochitbon = get_hitbon_type(weapon);
+        if (ochitbon >= A_STR)
+            bonus += AMOD(ochitbon);
     }
 
     /* KMH -- It's harder to hit while you are riding */
@@ -2040,13 +1983,15 @@ skill_init(const struct def_skill *class_skill)
     if (Role_if(PM_HEALER) && svc.context.startingpet_typ != NON_PM)
         P_SKILL(P_PET_HANDLING) = P_BASIC;
 
+    /* Kobolds start with dart knowledge */
+    if (Race_if(PM_KOBOLD) && !u.uroleplay.pauper
+        && P_MAX_SKILL(P_MISSILES) < P_BASIC) {
+        P_MAX_SKILL(P_MISSILES) = P_BASIC;
+    }
+
     /* Roles that start with a horse know how to ride it */
     if (can_saddle(&mons[gu.urole.petnum])) 
         P_SKILL(P_RIDING) = P_BASIC;
-
-    /* Kobolds know darts */
-    if (Race_if(PM_KOBOLD) && P_MAX_SKILL(P_DART) < P_BASIC)
-        P_MAX_SKILL(P_DART) = P_BASIC;
 
     /*
      * Make sure we haven't missed setting the max on a skill
@@ -2085,6 +2030,58 @@ setmnotwielded(struct monst *mon, struct obj *obj)
     if (MON_WEP(mon) == obj)
         MON_NOWEP(mon);
     obj->owornmask &= ~W_WEP;
+}
+
+boolean
+resist_oc_dir(struct monst *mon, int otyp)
+{
+    return (((objects[otyp].oc_dir & WHACK)
+            && resists_whack(mon->data))
+        || ((objects[otyp].oc_dir & SLASH)
+            && resists_slash(mon->data))
+        || ((objects[otyp].oc_dir & PIERCE)
+            && resists_pierce(mon->data)));
+}
+
+int
+get_scaling_type(struct obj *obj) {
+    int ocscal = objects[obj->otyp].oc_scaling;
+    if (obj->material == objects[obj->otyp].oc_material){
+        return ocscal;
+    }
+    switch (obj->material) {
+    case GEMSTONE:
+        return A_INT;
+    case LODEN:
+        return A_STR;
+    case BLEAKWOOD:
+        return A_WIS;
+    case WOOD:
+    case LIQUID:
+    case WAX:
+        return -1;
+    default:
+        return ocscal;
+    }
+}
+
+int
+get_hitbon_type(struct obj *obj) {
+    int ochitbon = objects[obj->otyp].oc_hitbon;
+    if (obj->material == objects[obj->otyp].oc_material) {
+        return ochitbon;
+    }
+    switch (obj->material) {
+    case ICECRYSTAL:
+        return A_DEX;
+    case WOOD:
+    case LIQUID:
+    case WAX:
+    case LODEN:
+        return -1;
+    default:
+        return ochitbon;
+    }
 }
 
 #undef PN_BARE_HANDED

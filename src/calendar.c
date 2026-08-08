@@ -1,4 +1,4 @@
-/* NetHack 3.7	calendar.c	$NHDT-Date: 1706213796 2024/01/25 20:16:36 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.116 $ */
+/* NetHack 5.0	calendar.c	$NHDT-Date: 1781973042 2026/06/20 16:30:42 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.3 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Michael Allison, 2007. */
 /* Copyright (c) Robert Patrick Rankin, 1991                      */
@@ -240,6 +240,13 @@ phase_of_the_moon(void) /* 0-7, with 0: new, 4: full */
 }
 
 boolean
+halloween(void)
+{
+    struct tm *lt = getlt();
+    return (boolean) (lt->tm_mon == 9 && lt->tm_mday == 31);
+}
+
+boolean
 friday_13th(void)
 {
     struct tm *lt = getlt();
@@ -385,16 +392,16 @@ weather_effects(void)
     if (IS_RAINING) {
         if (rn2(CURR_WEATHER(WTH_DRIZZLE) ? 2 
                 : CURR_WEATHER(WTH_DOWNBURST) ? 8 : 4)) {
-            x = rn2(COLNO);
-            y = rn2(ROWNO);
+            x = rn1(1, COLNO - 1);
+            y = rn1(1, ROWNO - 1);
             floor_spillage(x, y, CURR_WEATHER(WTH_ACIDRAIN) ? POT_ACID 
                                                           : POT_WATER, 0);
         }
     }
     /* Ash fall */
     if (CURR_WEATHER(WTH_ASHES)) {
-        x = rn2(COLNO);
-        y = rn2(ROWNO);
+        x = rn1(1, COLNO - 1);
+        y = rn1(1, ROWNO - 1);
         add_coating(x, y, COAT_ASHES, 0);
     }
     /* Hailstones */
@@ -407,8 +414,8 @@ weather_effects(void)
     }
     /* Rain of Fire */
     if (CURR_WEATHER(WTH_FIRERAIN)) {
-        x = rn2(COLNO);
-        y = rn2(ROWNO);
+        x = rn1(1, COLNO - 1);
+            y = rn1(1, ROWNO - 1);
         if (isok(x, y)) {
             clear_heros_fault(create_bonfire(x, y, 1, 1));
         }
@@ -442,11 +449,14 @@ weather_messages(void)
         pline("The clouds are starting to %s.", acidrain_msg[rn2(3) + hallu]);
     }
     if (INC_PRECIP(WTH_RAIN) && !CURR_WEATHER(WTH_RAIN) && !rn2(200)) {
-        static const char *const incrain_msg[4] = {
-            "It smells like rain.", "The clouds are darkening.",
-            "A storm begins to roll in.", "Get ready for a shower!",
+        static const char *const incrain_msg[3] = {
+            "The clouds are darkening.", "A storm begins to roll in.",
+            "Get ready for a shower!",
         };
-        pline("%s", incrain_msg[rn2(3) + hallu]);
+        if (!hallu && !rn2(4))
+            pline("It %s like rain.", olfaction(gy.youmonst.data) ? "smells" : "feels");
+        else
+            pline("%s", incrain_msg[rn2(2) + hallu]);
     }
     if (INC_WIND(WTH_TORNADO) && !CURR_WEATHER(WTH_TORNADO) && !rn2(200)) {
         static const char *const tornado_msg[4] = {
@@ -460,11 +470,10 @@ weather_messages(void)
 const char *
 tod_string(void)
 {
-    if (midnight()) return "Midnight";
-    if (night()) return "Night";
-    if (midday()) return "Midday";
     if (u.uenvirons.tod == TOD_MORNING) return "Morning";
-    return "Evening";
+    if (u.uenvirons.tod == TOD_EARLYNIGHT) return "Night";
+    if (u.uenvirons.tod == TOD_LATENIGHT) return "Late night";
+    return "Afternoon";
 }
 
 void
@@ -610,13 +619,15 @@ timechange_message(boolean new_game)
         pline("It is midnight.");
     }
     /* object messages? */
-    if (uwep && uwep->material == NIGHTIRON){
+    if (uwep && uwep->material == NIGHTIRON) {
         if (u.uenvirons.tod == TOD_MORNING) {
             pline("%s wickedly.", Tobjnam(uwep, "gleam"));
         } else if (u.uenvirons.tod == TOD_EARLYNIGHT) {
             pline("%s dully.", Tobjnam(uwep, "glint"));
         }
     }
+    /* Update display */
+    disp.botl = TRUE;
 }
 
 void

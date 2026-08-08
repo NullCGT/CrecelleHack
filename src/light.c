@@ -1,4 +1,4 @@
-/* NetHack 3.7	light.c	$NHDT-Date: 1726609514 2024/09/17 21:45:14 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.75 $ */
+/* NetHack 5.0	light.c	$NHDT-Date: 1781973052 2026/06/20 16:30:52 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.88 $ */
 /* Copyright (c) Dean Luick, 1994                                       */
 /* NetHack may be freely redistributed.  See license for details.       */
 
@@ -303,7 +303,7 @@ show_transient_light(struct obj *obj, coordxy x, coordxy y)
 
     radius_squared = ls->range * ls->range;
     for (mon = fmon; mon; mon = mon->nmon) {
-        if (DEADMONSTER(mon) || (mon->isgd && !mon->mx))
+        if (DEADMONSTER(mon) || PARKEDMONSTER(mon))
             continue;
         /* light range is the radius of a circle and we're limiting
            canseemon() to a square enclosing that circle, but setting
@@ -343,7 +343,7 @@ transient_light_cleanup(void)
        so need to be replaced by "remembered, unseen monster" glyph */
     mtempcount = 0;
     for (mon = fmon; mon; mon = mon->nmon) {
-        if (DEADMONSTER(mon))
+        if (DEADMONSTER(mon) || PARKEDMONSTER(mon))
             continue;
         if (mon->mtemplit) {
             mon->mtemplit = 0;
@@ -522,7 +522,7 @@ relink_light_sources(boolean ghostly)
 
     /*
      * Caveat:
-     *  There has been at least one instance during to-be-3.7 development
+     *  There has been at least one instance during to-be-5.0 development
      *  where the light_base linked list ended up with a circular link.
      *  If that happens, then once all the traversed elements have their
      *  LSF_NEEDS_FIXUP flag cleared, the traversal attempt will run wild.
@@ -974,9 +974,12 @@ wiz_light_sources(void)
     return ECMD_OK;
 }
 #endif /* !SFCTOOL */
+
 /* for 'onefile' processing where end of this file isn't necessarily the
    end of the source code seen by the compiler */
 #undef LSF_SHOW
 #undef LSF_NEEDS_FIXUP
+#undef LSF_IS_PROBLEMATIC
 #undef mon_is_local
+
 /*light.c*/

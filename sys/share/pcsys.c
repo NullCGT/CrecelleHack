@@ -1,4 +1,4 @@
-/* NetHack 3.7	pcsys.c	$NHDT-Date: 1596498283 2020/08/03 23:44:43 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.42 $ */
+/* NetHack 5.0	pcsys.c	$NHDT-Date: 1596498283 2020/08/03 23:44:43 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.42 $ */
 /*      Copyright (c) 2012 by Michael Allison              */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -271,7 +271,9 @@ msexit(void)
         restore_colors();
 #endif
     wait_synch();
+#if !(defined(MSDOS) && !defined(TTY_GRAPHICS))
     term_curs_set(1);
+#endif
     return;
 }
 #endif /* MICRO || OS2 */

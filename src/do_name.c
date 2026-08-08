@@ -1,4 +1,4 @@
-/* NetHack 3.7	do_name.c	$NHDT-Date: 1737013431 2025/01/15 23:43:51 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.326 $ */
+/* NetHack 5.0	do_name.c	$NHDT-Date: 1781973046 2026/06/20 16:30:46 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.339 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Pasi Kallinen, 2018. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -452,7 +452,7 @@ objtyp_is_callable(int i)
 
     switch(objects[i].oc_class) {
     case AMULET_CLASS:
-        /* 3.7: calling these used to be allowed but that enabled the
+        /* 5.0: calling these used to be allowed but that enabled the
            player to tell whether two unID'd amulets of yendor were both
            fake or one was real by calling them distinct names and then
            checking discoveries to see whether first name was replaced
@@ -1033,6 +1033,10 @@ x_monnam(
         if (mtmp->data == &mons[PM_GIANT_MUSTELID] && (!has_mgivenname(mtmp) || called))
             strcat(buf, "giant ");
         pm_name = mustelid_types[mtmp->m_id % SIZE(mustelid_types)];
+    } else if (mtmp->data == &mons[PM_ACID_BLOB]) {
+        strcat(buf, OBJ_DESCR(objects[POT_ACID]));
+        strcat(buf, " ");
+        pm_name = "blob";
     } else {
         pm_name = mon_pmname(mtmp);
     }
@@ -1066,6 +1070,10 @@ x_monnam(
         Strcat(strcat(buf, adjective), " ");
     if (do_invis)
         Strcat(buf, "invisible ");
+    if (is_summoned(mtmp))
+        Strcat(buf, "summoned ");
+    if (mtmp->madvanced)
+        Strcat(buf, "advanced ");
     if (mtmp->mtraitor)
         Strcat(buf, "treacherous ");
     if (do_saddle && (mtmp->misc_worn_check & W_SADDLE) && !Blind
@@ -1463,7 +1471,7 @@ obj_pmname(struct obj *obj)
 #endif
     if ((obj->otyp == CORPSE || obj->otyp == STATUE || obj->otyp == FIGURINE
         || obj->otyp == SKULL || obj->otyp == SKULL_HELM
-        || obj->otyp == SKELETON)
+        || obj->otyp == SKELETON || obj->otyp == FOSSIL)
         && ismnum(obj->corpsenm)) {
         int cgend = (obj->spe & CORPSTAT_GENDER),
             mgend = ((cgend == CORPSTAT_MALE) ? MALE
@@ -1615,7 +1623,7 @@ static NEARDATA const char *const hliquids[] = {
     "caramel sauce", "ink", "aqueous humour", "milk substitute",
     "fruit juice", "glowing lava", "gastric acid", "mineral water",
     "cough syrup", "quicksilver", "sweet vitriol", "grey goo", "pink slime",
-    "cosmic latte",
+    "cosmic latte", "bone oil", "custard", "lard", "vinegar", "creosote",
     /* "new coke (tm)", --better not */
 };
 
@@ -1789,6 +1797,63 @@ lookup_novel(const char *lookname, int *idx)
         return sir_Terry_novels[*idx];
 
     return (const char *) 0;
+}
+
+/* Most of these are actual names of nymphs from mythology. */
+const char* nymphnames[] = {
+    "Erythea", "Hesperia", "Arethusa", "Pasithea", "Thaleia", "Halimede",
+    "Actaea", "Electra", "Maia", "Nesaea", "Alcyone", "Asterope",
+    "Callianeira", "Nausithoe", "Dione", "Thetis", "Ephyra", "Eulimene",
+    "Nerea", "Laomedeia", "Echo", "Maera", "Eurydice", "Lysianassa", "Phoebe",
+    "Daphnis", "Daphnae", "Melinoe", "Othreis", "Polychrome"
+};
+
+const char* maldemonnames[] = {
+    "Agiel", "Kali", "Amon", "Foras", "Armaros", "Orias", "Malthus", "Asag",
+    "Raum", "Iblis", "Vanth", "Bael", "Leonard", "Barbas", "Charun", "Ishmael",
+    "Balthamel", "Rahvin"
+};
+
+const char* femdemonnames[] = {
+    "Mara", "Lamia", "Meraxes", "Daeva", "Amy", "Lilith", "Aliss", "Berith",
+    "Euryale", "Zorya", "Rhaenyra", "Bellatrix", "Rusalka", "Messaana",
+    "Jadis", "Anzu", "Eve", "Bilquis", "Cyndane", "Vanessa", "Graendal"
+};
+#define rnd_name(list) list[rn2(SIZE(list))]
+
+/* Monster introduces themselves. If they're not currently named, give them a
+ * random name from the specified list. */
+void
+mintroduce(struct monst *mtmp)
+{
+    if (!has_mgivenname(mtmp)
+        && !type_is_pname(mtmp->data)
+        && !mtmp->isshk) {
+        const char* name;
+        if (mtmp->data->mlet == S_NYMPH) {
+            name = rnd_name(nymphnames);
+        } else if (is_demon(mtmp->data)) {
+            if (mtmp->female)
+                name = rnd_name(femdemonnames);
+            else
+                name = rnd_name(maldemonnames);
+        } else {
+            impossible("mintroduce: monster type for %s has no defined names!",
+                       noit_mon_nam(mtmp));
+            return;
+        }
+        const char* pronoun =
+            genders[is_neuter(mtmp->data) ? 2 : mtmp->female].him;
+        if (!Deaf) {
+            pline("%s introduces %sself to you as %s.", Monnam(mtmp), pronoun,
+                  name);
+            christen_monst(mtmp, name);
+        } else {
+            pline("%s seems to be introducing %sself, but you can't hear %s.",
+                  Monnam(mtmp), pronoun, pronoun);
+        }
+    }
+    return;
 }
 
 /*do_name.c*/

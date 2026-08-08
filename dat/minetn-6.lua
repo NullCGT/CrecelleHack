@@ -1,4 +1,4 @@
--- NetHack mines minetn-6.lua	$NHDT-Date: 1652196031 2022/05/10 15:20:31 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.3 $
+-- NetHack mines minetn-6.lua	$NHDT-Date: 1781994885 2026/06/20 22:34:45 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.7 $
 --	Copyright (c) 1989-95 by Jean-Christophe Collet
 --	Copyright (c) 1991-95 by M. Stephenson
 -- NetHack may be freely redistributed.  See license for details.
@@ -93,6 +93,14 @@ des.monster("gnome lord")
 des.monster("dwarf")
 des.monster("dwarf")
 des.monster("dwarf")
+des.monster({ id = "dwarf", peaceful = 1 })
+des.monster({ id = "dwarf", peaceful = 1 })
+des.monster({ id = "gnome", peaceful = 1 })
+des.monster({ id = "gnome", peaceful = 1 })
+des.monster({ id = "hobbit", peaceful = 1 })
+des.monster({ id = "goblin", peaceful = 1 })
+des.monster({ id = "kobold", peaceful = 1 })
+des.monster({ id = "dog", peaceful = 1 })
 des.monster({ id = "watchman", peaceful = 1 })
 des.monster({ id = "watchman", peaceful = 1 })
 des.monster({ id = "watchman", peaceful = 1 })

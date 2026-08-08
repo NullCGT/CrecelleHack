@@ -1,4 +1,4 @@
-/* NetHack 3.7	teleport.c	$NHDT-Date: 1736129950 2025/01/05 18:19:10 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.235 $ */
+/* NetHack 5.0	teleport.c	$NHDT-Date: 1781973069 2026/06/20 16:31:09 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.246 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2011. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -33,8 +33,13 @@ noteleport_level(struct monst *mon)
         if (get_iter_mons(m_blocks_teleporting))
             return TRUE;
 
-    /* natural no-teleport level */
-    if (svl.level.flags.noteleport)
+    /* natural no-teleport level; covetous monsters can bypass these */
+    if (svl.level.flags.noteleport && !is_covetous(mon->data))
+        return TRUE;
+
+    /* wand of stasis prevents teleportation while the effect is active
+       (even for covetous monsters) */
+    if (svl.level.flags.stasis_until >= svm.moves)
         return TRUE;
 
     return FALSE;
@@ -815,6 +820,12 @@ tele_to_rnd_pet(void)
     struct monst *mtmp, *pet = (struct monst *) 0;
     int cnt = 0;
 
+    if (noteleport_level(&gy.youmonst)) {
+        impossible("%s", "attempt to teleport hero to be near a pet"
+                         " on no-teleport level");
+        return;
+    }
+
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon)
         if (!DEADMONSTER(mtmp) && mtmp->mtame && !mon_offmap(mtmp)) {
             cnt++;
@@ -1492,7 +1503,7 @@ tele_trap(struct trap *trap)
         return;
 
     in_tele_trap = TRUE;
-    if (In_endgame(&u.uz) || Antimagic) {
+    if (In_endgame(&u.uz) || Antimagic || noteleport_level(&gy.youmonst)) {
         if (Antimagic)
             shieldeff(u.ux, u.uy);
         You_feel("a wrenching sensation.");
@@ -1957,8 +1968,11 @@ mtele_trap(struct monst *mtmp, struct trap *trap, int in_sight)
 {
     char *monname;
 
-    if (tele_restrict(mtmp))
+    /* don't print feedback here: a monster stepping on a trap and not
+       teleporting from it isn't visible */
+    if (noteleport_level(mtmp))
         return;
+
     if (teleport_pet(mtmp, FALSE)) {
         /* save name with pre-movement visibility */
         monname = Monnam(mtmp);
@@ -2132,9 +2146,10 @@ rloco(struct obj *obj)
                                            svd.dndest.nhx, svd.dndest.nhy)));
 
     if (flooreffects(obj, tx, ty, "fall")) {
-        /* update old location since flooreffects() couldn't;
+        /* update old location (if any) since flooreffects() couldn't;
            unblock_point() for boulder handled by obj_extract_self() */
-        newsym(otx, oty);
+        if (!(otx == 0 && oty == 0))
+            newsym(otx, oty);
         return FALSE;
     } else if (otx == 0 && oty == 0) {
         ; /* fell through a trap door; no update of old loc needed */
@@ -2258,7 +2273,12 @@ u_teleport_mon(
 {
     coord cc;
 
-    if (mtmp->ispriest && *in_rooms(mtmp->mx, mtmp->my, TEMPLE)) {
+    if (svl.level.flags.stasis_until >= svm.moves) {
+        if (give_feedback)
+            pline("A mysterious force prevents you teleporting %s!",
+                  mon_nam(mtmp));
+        return FALSE;
+    } else if (mtmp->ispriest && *in_rooms(mtmp->mx, mtmp->my, TEMPLE)) {
         if (give_feedback)
             pline("%s resists your magic!", Monnam(mtmp));
         return FALSE;

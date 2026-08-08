@@ -1,4 +1,4 @@
-/* NetHack 3.7	sit.c	$NHDT-Date: 1718136168 2024/06/11 20:02:48 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.95 $ */
+/* NetHack 5.0	sit.c	$NHDT-Date: 1781973067 2026/06/20 16:31:07 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.112 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -74,11 +74,16 @@ throne_sit_effect(void)
             (void) adjattrib(rn2(A_MAX), 1, FALSE);
             break;
         case 3:
-            pline("A%s electric shock shoots through your body!",
-                  (Shock_resistance) ? "n" : " massive");
-            losehp(Shock_resistance ? rnd(6) : rnd(30), "electric chair",
-                   KILLED_BY_AN);
-            exercise(A_CON, FALSE);
+            if (Shock_immunity) {
+                pline("You feel a little tingle. How shocking!");
+                exercise(A_CON, TRUE);
+            } else {
+                pline("A%s electric shock shoots through your body!",
+                    (Shock_resistance) ? "n" : " massive");
+                losehp(Shock_resistance ? rnd(6) : rnd(30), "electric chair",
+                    KILLED_BY_AN);
+                exercise(A_CON, FALSE);
+            }
             break;
         case 4:
             You_feel("much, much better!");
@@ -214,7 +219,7 @@ throne_sit_effect(void)
             You_feel("somehow out of place...");
     }
 
-    /* 3.7: when the random chance for removal is hit, ask for confirmation
+    /* 5.0: when the random chance for removal is hit, ask for confirmation
        if in wizard mode, and remove the throne even if hero was teleported
        away from it.  [This used to remove a throne at hero's current
        location if there happened to be one, so for the teleport case that
@@ -325,9 +330,13 @@ special_throne_effect(int effect) {
     case 11:
         /* polymorph effect (not blocked by magic resistance, but other things
            that protect from polymorphs work) */
-        pline("This throne was not meant for those such as you!");
-        You_feel("a change coming over you.");
-        polyself(POLY_NOFLAGS);
+        if (is_vampire(gy.youmonst.data)) {
+            You_feel("unworthy.");
+        } else {
+            pline("This throne was not meant for those such as you!");
+            You_feel("a change coming over you.");
+            polyself(POLY_NOFLAGS);
+        }
         break;
     case 12:
         /* acid damage */

@@ -1,4 +1,4 @@
-/* NetHack 3.7	obj.h	$NHDT-Date: 1718999845 2024/06/21 19:57:25 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.116 $ */
+/* NetHack 5.0	obj.h	$NHDT-Date: 1781973084 2026/06/20 16:31:24 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.131 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Michael Allison, 2006. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -31,6 +31,7 @@ struct oextra {
     unsigned omid;        /* for corpse: m_id of corpse's ghost; overloaded
                            * for glob: owt at time added to shop's bill */
     uchar odye;           /* dye color */
+    boolean osum;          /* summoned */
 };
 
 struct obj {
@@ -174,6 +175,7 @@ struct obj {
     int usecount;           /* overloaded for various things that tally */
 #define spestudied usecount /* # of times a spellbook has been studied */
 #define wishedfor usecount  /* flag for hold_another_object() if from wish */
+#define gemtype usecount    /* index of the type of gemstone for gemstone items */
     unsigned oeaten;        /* nutrition left in food, if partly eaten */
     int oprop;              /* The oprop of the item */
     long age;               /* creation date */
@@ -200,12 +202,14 @@ struct obj {
 #define OMAILCMD(o) ((o)->oextra->omailcmd)
 #define OMID(o) ((o)->oextra->omid) /* non-zero => set, zero => not set */
 #define ODYE(o) ((o)->oextra->odye)
+#define OSUM(o) ((o)->oextra->osum)
 
 #define has_oname(o) ((o)->oextra && ONAME(o))
 #define has_omonst(o) ((o)->oextra && OMONST(o))
 #define has_omailcmd(o) ((o)->oextra && OMAILCMD(o))
 #define has_omid(o) ((o)->oextra && OMID(o))
 #define has_odye(o) ((o)->oextra && ODYE(o))
+#define has_osum(o) ((o)->oextra && OSUM(o))
 
 /* Weapons and weapon-tools */
 /* KMH -- now based on skill categories.  Formerly:
@@ -255,8 +259,7 @@ struct obj {
 #define ammo_and_launcher(a, l) (is_ammo(a) && matching_launcher(a, l))
 #define is_missile(otmp)                                          \
     ((otmp->oclass == WEAPON_CLASS || otmp->oclass == TOOL_CLASS) \
-     && objects[otmp->otyp].oc_skill >= -P_BOOMERANG              \
-     && objects[otmp->otyp].oc_skill <= -P_DART)
+     && objects[otmp->otyp].oc_skill == -P_MISSILES)
 #define is_weptool(o) \
     ((o)->oclass == TOOL_CLASS && objects[(o)->otyp].oc_skill != P_NONE)
         /* towel is not a weptool:  spe isn't an enchantment, cursed towel
@@ -270,11 +273,11 @@ struct obj {
      && objects[otmp->otyp].oc_bimanual)
 #define is_multigen(otmp)                           \
     (otmp->oclass == WEAPON_CLASS                   \
-     && objects[otmp->otyp].oc_skill >= -P_SHURIKEN \
+     && objects[otmp->otyp].oc_skill >= -P_MISSILES \
      && objects[otmp->otyp].oc_skill <= -P_BOW)
 #define is_poisonable(otmp)                          \
     ((otmp->oclass == WEAPON_CLASS                   \
-      && ((objects[otmp->otyp].oc_skill >= -P_SHURIKEN \
+      && ((objects[otmp->otyp].oc_skill >= -P_MISSILES \
             && objects[otmp->otyp].oc_skill <= -P_BOW) \
             || (is_blade(otmp))))     \
      || permapoisoned(otmp))
@@ -361,7 +364,8 @@ struct obj {
      (o)->cobj != (struct obj *) 0)
 #define Is_container(o) ((o)->otyp >= LARGE_BOX && (o)->otyp <= BAG_OF_TRICKS)
 #define Is_box(o) ((o)->otyp == LARGE_BOX || (o)->otyp == CHEST)
-#define Is_mbag(o) ((o)->otyp == BAG_OF_HOLDING || (o)->otyp == BAG_OF_TRICKS)
+#define Is_mbag(o) ((o)->otyp == BAG_OF_HOLDING || (o)->otyp == BAG_OF_TRICKS \
+                    || (o)->otyp == BAG_OF_WINDS)
 #define SchroedingersBox(o) ((o)->otyp == LARGE_BOX && (o)->spe == 1)
 /* usually waterproof; random chance to be subjected to leakage if cursed;
    excludes statues, which aren't vulnerable to water even when cursed */
@@ -457,6 +461,7 @@ struct obj {
                     || (o)->otyp == MIRRORED_GLASSES || is_gloves(o) || is_boots(o))
 #define is_glasses(o) ((o)->otyp && ((o)->otyp == LENSES || (o)->otyp == SUNGLASSES \
                                     || (o)->otyp == MIRRORED_GLASSES \
+                                    || (o)->otyp == GAS_MASK \
                                     || (o)->otyp == TINKER_GOGGLES))
 
 #define unpolyable(o) ((o)->otyp == WAN_POLYMORPH \
@@ -484,6 +489,7 @@ struct obj {
 #define BURIED_TOO 0x2
 
 /* object erosion types */
+#define ERODE_NONE -1
 #define ERODE_BURN 0
 #define ERODE_RUST 1
 #define ERODE_ROT 2

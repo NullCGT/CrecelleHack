@@ -1,4 +1,4 @@
-/* NetHack 3.7	region.c	$NHDT-Date: 1727251269 2024/09/25 08:01:09 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.104 $ */
+/* NetHack 5.0	region.c	$NHDT-Date: 1781973064 2026/06/20 16:31:04 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.112 $ */
 /* Copyright (c) 1996 by Jean-Christophe Collet  */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -517,8 +517,8 @@ run_regions(void)
 void
 spread_bonfire(NhRegion *reg) {
     NhRegion *newreg = NULL;
-    int startx = max(0, reg->bounding_box.lx - 1);
-    int starty = max(0, reg->bounding_box.ly - 1);
+    int startx = max(1, reg->bounding_box.lx - 1);
+    int starty = max(1, reg->bounding_box.ly - 1);
     int stopx = min(COLNO - 1, reg->bounding_box.hx + 1);
     int stopy = min(ROWNO - 1, reg->bounding_box.hy + 1);
     for (int x = startx; x <= stopx; x++) {
@@ -543,12 +543,19 @@ spread_bonfire(NhRegion *reg) {
                 remove_coating(x, y, COAT_POTION);
                 newreg = create_bonfire(x, y, rn1(20, 10), d(4, 4));
             }
-            detonate_waste(x, y);
-            if (x == reg->bounding_box.lx && y == reg->bounding_box.ly) {
-                evaporate_potion_puddles(x, y);
-            }
+            /* set faults */
             if (heros_fault(reg) && newreg)
                 set_heros_fault(newreg);
+            else if (newreg)
+                clear_heros_fault(newreg);
+            /* HCollateral damage */
+            if (newreg
+                || (x >= reg->bounding_box.lx && x <= reg->bounding_box.hx
+                    && y >= reg->bounding_box.lx && y <= reg->bounding_box.hy)) {
+                fire_damage_chain(svl.level.objects[x][y], TRUE, TRUE, x, y);
+                detonate_waste(x, y);
+                evaporate_potion_puddles(x, y);
+            }
         }
     }
 }
@@ -654,6 +661,30 @@ m_in_out_region(struct monst *mon, coordxy x, coordxy y)
 
     return TRUE;
 }
+
+/*
+ * check whether a monster CAN enter/leave their position due to a forcefield.
+ * TODO: make a version of this function that does the callback silently. currently,
+ * this function only checks forcefields, which is not future-proof.
+ */
+boolean
+m_will_hit_forcefield(struct monst *mon, coordxy x, coordxy y)
+{
+    int i, f_indx = 0;
+    for (i = 0; i < svn.n_regions; i++) {
+        if (gr.regions[i]->attach_2_m == mon->m_id)
+            continue;
+        if (inside_region(gr.regions[i], x, y)
+            ? (!mon_in_region(gr.regions[i], mon)
+               && (f_indx = gr.regions[i]->can_enter_f) == ENTER_FF)
+            : (mon_in_region(gr.regions[i], mon)
+               && (f_indx = gr.regions[i]->can_leave_f) == ENTER_FF)) {
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+
 
 /*
  * Checks player's regions after a teleport for instance.
@@ -1241,7 +1272,7 @@ poisongas_damage(NhRegion *reg, int dam, struct monst *mtmp) {
             Your("%s sting.", makeplural(body_part(EYE)));
             make_blinded(1L, FALSE);
         }
-        if (!Poison_resistance) {
+        if (!Poison_immunity) {
             pline("%s is burning your %s!", Something,
                   makeplural(body_part(LUNG)));
             You("cough and spit blood!");
@@ -1319,7 +1350,8 @@ inside_gas_cloud(genericptr_t p1, genericptr_t p2)
         fakeobj.otyp = otyp;
         fakeobj.blessed = REGION_BLESSED(reg);
         fakeobj.cursed = REGION_CURSED(reg);
-        if (!mtmp && (!breathless(gy.youmonst.data) || haseyes(gy.youmonst.data))) {
+        if (!mtmp && (!breathless(gy.youmonst.data) || haseyes(gy.youmonst.data))
+            && !(ublindf && ublindf->otyp == GAS_MASK)) {
             potionbreathe(&fakeobj);
         } else if (mtmp && (!breathless(mtmp->data) || haseyes(mtmp->data))
                     && !can_magbreathe(mtmp)) {
@@ -1553,9 +1585,9 @@ region_danger(void)
             /* completely harmless if you don't need to breathe */
             if (nonliving(gy.youmonst.data) || Breathless)
                 continue;
-            /* minor inconvenience if you're poison resistant;
+            /* minor inconvenience if you're poison immune;
                not harmful enough to be a prayer-level trouble */
-            if (Poison_resistance)
+            if (Poison_immunity)
                 continue;
             ++n;
         }
@@ -1677,7 +1709,7 @@ inside_bonfire(genericptr_t p1, genericptr_t p2)
 
     if (!mtmp) {
         if (m_bonfire_ok(&gy.youmonst) == M_BONFIRE_OK) {
-            if (Fire_resistance) monstseesu(M_SEEN_FIRE); /* Kludge */
+            if (Fire_immunity) monstseesu(M_SEEN_FIRE); /* Kludge */
             return FALSE;
         }
         pline("You're burning up!");
@@ -1686,7 +1718,7 @@ inside_bonfire(genericptr_t p1, genericptr_t p2)
             monstunseesu(M_SEEN_FIRE);
             rehumanize();
             return FALSE;
-        } else if (Fire_resistance) {
+        } else if (Fire_immunity) {
             monstseesu(M_SEEN_FIRE);
             dam = 1;
         } else {
@@ -1697,6 +1729,7 @@ inside_bonfire(genericptr_t p1, genericptr_t p2)
             ignite_items(gi.invent);
         }
         burn_away_slime();
+        adjust_damage(&gy.youmonst, &dam, AD_FIRE);
         u.uhp -= dam;
         if (u.uhp < 1) {
             Sprintf(svk.killer.name, "was consumed in an inferno");
@@ -1710,9 +1743,10 @@ inside_bonfire(genericptr_t p1, genericptr_t p2)
         wakeup(mtmp, heros_fault(reg));
         /* Message and complete burning */
         if (completelyburns(mtmp->data)) {
-            if (heros_fault(reg))
+            if (heros_fault(reg)) {
+                record_achievement(ACH_PYRO);
                 killed(mtmp);
-            else
+            } else
                 monkilled(mtmp, "bonfire", AD_FIRE);
             return TRUE;
         } else if (canseemon(mtmp)) {
@@ -1729,11 +1763,13 @@ inside_bonfire(genericptr_t p1, genericptr_t p2)
         /* Damage */
         dam += destroy_items(mtmp, AD_FIRE, dam);
         ignite_items(mtmp->minvent);
-        mtmp->mhp -= rnd(dam);
+        adjust_damage(mtmp, &dam, AD_FIRE);
+        mtmp->mhp -= dam;
         if (DEADMONSTER(mtmp)) {
-            if (heros_fault(reg))
+            if (heros_fault(reg)) {
+                record_achievement(ACH_PYRO);
                 killed(mtmp);
-            else
+            } else
                 monkilled(mtmp, "bonfire", AD_FIRE);
             if (DEADMONSTER(mtmp)) { /* not lifesaved */
                 return TRUE;
@@ -1782,6 +1818,35 @@ create_bonfire(coordxy x, coordxy y, int lifetime, int damage)
 boolean
 is_bonfire(NhRegion *reg) {
     return (reg->inside_f == INSIDE_BONFIRE);
+}
+
+boolean
+is_force_field(NhRegion *reg) {
+    return (reg->inside_f == INSIDE_FF);
+}
+
+/* cancel a force field at a given set of coordinates */
+boolean
+cancel_force_field(coordxy x, coordxy y) {
+    NhRegion *reg = visible_region_at(x, y);
+    if (!reg || !is_force_field(reg))
+        return FALSE;
+    pline("A force field is destroyed!");
+    remove_region(reg);
+    return TRUE;
+}
+
+int
+suck_up_gas(coordxy x, coordxy y) {
+    int ret;
+    NhRegion *reg = visible_region_at(x, y);
+    if (!reg || !is_gasregion(reg))
+        panic("Sucking up nonexistent gas?");
+    ret = REGION_OTYP(reg);
+    if (!ret)
+        ret = REGION_DAMAGE(reg) ? SCR_STINKING_CLOUD : SCR_LIGHT;
+    remove_region(reg);
+    return ret;
 }
 
 /*region.c*/

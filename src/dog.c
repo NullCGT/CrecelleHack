@@ -1,4 +1,4 @@
-/* NetHack 3.7	dog.c	$NHDT-Date: 1753856387 2025/07/29 22:19:47 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.190 $ */
+/* NetHack 5.0	dog.c	$NHDT-Date: 1781973045 2026/06/20 16:30:45 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.197 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2011. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -165,12 +165,13 @@ make_familiar(struct obj *otmp, coordxy x, coordxy y, boolean quietly)
         if (!(pm = pick_familiar_pm(otmp, quietly)))
             break;
 
-        mmflags = MM_EDOG | MM_IGNOREWATER | NO_MINVENT | MM_NOMSG;
+        mmflags = MM_EDOG | MM_IGNOREWATER | NO_MINVENT | MM_NOMSG | MM_ESUM;
         cgend = otmp ? (otmp->spe & CORPSTAT_GENDER) : 0;
         mmflags |= ((cgend == CORPSTAT_FEMALE) ? MM_FEMALE
                     : (cgend == CORPSTAT_MALE) ? MM_MALE : 0L);
 
         mtmp = makemon(pm, x, y, mmflags);
+        ESUM(mtmp)->ownermid = gy.youmonst.m_id;
         if (otmp) { /* figurine */
             if (!mtmp) {
                 /* monster has been genocided or target spot is occupied */
@@ -237,6 +238,7 @@ makedog(void)
     struct monst *mtmp;
     const char *petname;
     int pettype;
+    int petsym;
 
     if (gp.preferred_pet == 'n') {
         /* static init yields 0 (PM_GIANT_ANT); fix that up now */
@@ -245,12 +247,12 @@ makedog(void)
     }
 
     pettype = svc.context.startingpet_typ = pet_type();
-    petname = (pettype == PM_LITTLE_DOG 
-                || pettype == PM_LARGE_DOG 
-                || pettype == PM_KOBOLD) ? gd.dogname
-              : (pettype == PM_KITTEN) ? gc.catname
-                : (pettype == PM_PONY) ? gh.horsename
-                  : "";
+    petsym = mons[pettype].mlet;
+    petname = (petsym == S_DOG) ? gd.dogname
+              : (petsym == S_FELINE) ? gc.catname
+                : (petsym == S_UNICORN) ? gh.horsename
+                  : (petsym == S_KOBOLD) ? gk.koboldname
+                    : "";
 
     /* default pet names */
     if (!*petname && pettype == PM_LITTLE_DOG) {
@@ -453,6 +455,7 @@ mon_arrive(struct monst *mtmp, int when)
     stairway *stway;
     d_level fromdlev;
 
+    mtmp->mstate |= MON_STILL_ARRIVING;
     mtmp->nmon = fmon;
     fmon = mtmp;
     if (mtmp->isshk)
@@ -488,8 +491,10 @@ mon_arrive(struct monst *mtmp, int when)
        here for monsters migrating to a newly created level */
     restore_cham(mtmp);
 
-    if (mtmp == u.usteed)
+    if (mtmp == u.usteed) {
+        mtmp->mstate &= ~MON_STILL_ARRIVING;
         return; /* don't place steed on the map */
+    }
     if (when == With_you) {
         /* When a monster accompanies you, sometimes it will arrive
            at your intended destination and you'll end up next to
@@ -501,6 +506,7 @@ mon_arrive(struct monst *mtmp, int when)
             rloc_to(mtmp, u.ux, u.uy);
         else
             mnexto(mtmp, RLOC_NOMSG);
+        mtmp->mstate &= ~MON_STILL_ARRIVING;
         return;
     } else if (when == Wiz_arrive) {
         /* resurrect() is bringing existing wizard to harass the hero */
@@ -585,9 +591,8 @@ mon_arrive(struct monst *mtmp, int when)
             /* debugfuzzer returns from or enters another branch */
             xlocale = stway->sx, ylocale = stway->sy;
             break;
-        } else if ((u.uevent.qexpelled
-                && (Is_qstart(&u.uz0) || Is_qstart(&u.uz)))
-                || (Is_magicmaze(&u.uz0) || Is_magicmaze(&u.uz))) {
+        } else if (u.uevent.qexpelled
+                && (Is_qstart(&u.uz0) || Is_qstart(&u.uz))) {
             impossible("mon_arrive: no corresponding portal?");
         }
         FALLTHROUGH;
@@ -631,6 +636,7 @@ mon_arrive(struct monst *mtmp, int when)
 
     mtmp->mx = 0; /*(already is 0)*/
     mtmp->my = xyflags;
+
     if (xlocale)
         failed_to_place = !mnearto(mtmp, xlocale, ylocale, FALSE, RLOC_NOMSG);
     else
@@ -643,6 +649,7 @@ mon_arrive(struct monst *mtmp, int when)
         else /* when==Wiz_arrive => not being called by losedogs() */
             m_into_limbo(mtmp);
     }
+    mtmp->mstate &= ~MON_STILL_ARRIVING;
 }
 
 /* heal monster for time spent elsewhere */
@@ -1161,6 +1168,9 @@ dogfood(struct monst *mon, struct obj *obj)
             return (is_rustprone(obj) && !obj->oerodeproof) ? DOGFOOD
                                                             : ACCFOOD;
         }
+        if (paper_eater(mptr)
+            && (obj->material == PAPER || obj->material == CLOTH))
+            return (obj->oclass == SPBOOK_CLASS) ? DOGFOOD : ACCFOOD;
         if (!obj->cursed
             && obj->oclass != BALL_CLASS
             && obj->oclass != CHAIN_CLASS)

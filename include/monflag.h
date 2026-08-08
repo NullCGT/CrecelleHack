@@ -1,4 +1,4 @@
-/* NetHack 3.7	monflag.h	$NHDT-Date: 1596498549 2020/08/03 23:49:09 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.21 $ */
+/* NetHack 5.0	monflag.h	$NHDT-Date: 1781973083 2026/06/20 16:31:23 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.33 $ */
 /* Copyright (c) 1989 Mike Threepoint                             */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -43,20 +43,21 @@ enum ms_sounds {
     MS_GUARD    = 28,   /* "Please drop that gold and follow me." */
     MS_DJINNI   = 29,   /* "Thank you for freeing me!" */
     MS_NURSE    = 30,   /* "Take off your shirt, please." */
-    MS_SEDUCE   = 31,   /* "Hello, sailor." (Nymphs) */
-    MS_VAMPIRE  = 32,   /* vampiric seduction, Vlad's exclamations */
-    MS_BRIBE    = 33,   /* asks for money, or berates you */
-    MS_CUSS     = 34,   /* berates (demons) or intimidates (Wiz) */
-    MS_RIDER    = 35,   /* astral level special monsters */
-    MS_LEADER   = 36,   /* your class leader */
-    MS_NEMESIS  = 37,   /* your nemesis */
-    MS_GUARDIAN = 38,   /* your leader's guards */
-    MS_SELL     = 39,   /* demand payment, complain about shoplifters */
-    MS_ORACLE   = 40,   /* do a consultation */
-    MS_PRIEST   = 41,   /* ask for contribution; do cleansing */
-    MS_SPELL    = 42,   /* spellcaster not matching any of the above */
-    MS_BOAST    = 43,   /* giants */
-    MS_GROAN    = 44,   /* zombies groan */
+    MS_SERVANT  = 31,   /* "It's filthy in here!" */
+    MS_SEDUCE   = 32,   /* "Hello, sailor." (Nymphs) */
+    MS_VAMPIRE  = 33,   /* vampiric seduction, Vlad's exclamations */
+    MS_BRIBE    = 34,   /* asks for money, or berates you */
+    MS_CUSS     = 35,   /* berates (demons) or intimidates (Wiz) */
+    MS_RIDER    = 36,   /* astral level special monsters */
+    MS_LEADER   = 37,   /* your class leader */
+    MS_NEMESIS  = 38,   /* your nemesis */
+    MS_GUARDIAN = 39,   /* your leader's guards */
+    MS_SELL     = 40,   /* demand payment, complain about shoplifters */
+    MS_ORACLE   = 41,   /* do a consultation */
+    MS_PRIEST   = 42,   /* ask for contribution; do cleansing */
+    MS_SPELL    = 43,   /* spellcaster not matching any of the above */
+    MS_BOAST    = 44,   /* giants */
+    MS_GROAN    = 45,   /* zombies groan */
 };
 
 #define MR_FIRE         0x01 /* resists fire */
@@ -123,10 +124,10 @@ enum ms_sounds {
 #endif
 
 #define M2_NOPOLY       0x00000001L /* players mayn't poly into one */
-// #define M2_UNDEAD       0x00000002L /* is walking dead */
-// #define M2_WERE         0x00000004L /* is a lycanthrope */
-// #define M2_HUMAN        0x00000008L /* is a human */
-// #define M2_ELF          0x00000010L /* is an elf */
+#define M2_COLLAT       0x00000002L /* smashes items on floor when missing */
+#define M2_IGNOREPETS   0x00000004L /* ignores pets in favor of attacking player */
+#define M2_SUPPORTER    0x00000008L /* attempts to support allies */
+#define M2_DEATHDROP    0x00000010L /* has death drops */
 // #define M2_DWARF        0x00000020L /* is a dwarf */
 // #define M2_GNOME        0x00000040L /* is a gnome */
 // #define M2_ORC          0x00000080L /* is an orc */
@@ -175,7 +176,7 @@ enum ms_sounds {
 #define M3_INFRAVISIBLE 0x0200 /* visible by infravision */
 
 #define M3_DISPLACES    0x0400 /* moves monsters out of its way */
-#define M3_AMBUSHER     0x0800 /* monster uses advanced corridor tactics */
+/* #define M3_AMBUSHER     0x0800 */
 #define M3_TRAITOR      0x1000 /* monster can turn traitor (SLASH'EM)*/
 #define M3_TRIPPER      0x2000 /* monster can trip the player */
 #define M3_CALLOUT      0x4000 /* monster coordinates with others by calling out player position */
@@ -185,12 +186,16 @@ enum ms_sounds {
 #define M4_BST_ROCK  0x0004
 #define M4_BST_WATER 0x0008
 #define M4_BST_ICE   0x0010
-#define M4_BST_ASHES 0x0020
+#define M4_KICK_ASHES 0x0020
 #define M4_BST_FUNGI 0x0040
 #define M4_BST_BLOOD 0x0080
 #define M4_BST_SAND 0x0100
 #define M4_BST_POTION 0x0200
 #define M4_BST_HONEY  0x0400
+
+#define M4_RWHACK 0x0800
+#define M4_RPIERCE 0x1000
+#define M4_RSLASH 0x2000
 
 #define MZ_RANDOM      -1 /* used in set_obj_size */
 #define MZ_TINY         0 /* < 2' */

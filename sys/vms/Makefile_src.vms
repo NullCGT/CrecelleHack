@@ -1,4 +1,4 @@
-# NetHack 3.7 Makefile.src $NHDT-Date: 1654287121 2022/06/03 20:12:01 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.145 $
+# NetHack 5.0 Makefile.src $NHDT-Date: 1654287121 2022/06/03 20:12:01 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.145 $
 # Copyright (c) 2024 by Michael Allison
 # NetHack may be freely redistributed.  See license for details.
 #
@@ -35,7 +35,7 @@ WINSHIM=[-.win.shim]
 WINCHAIN=[-.win.chain]
 
 # Lua
-LUAVER=546
+LUAVER=548
 LUADOTVER=5.4.8
 LUAUNDERVER=5_4_8
 # Lua location relative to src
@@ -102,7 +102,7 @@ CONFIGBASEH := color config config1 patchlevel tradstdc hacklib integer \
 HACKBASEH := hack lint align dungeon wintype sym defsym \
 		mkroom artilist objclass objects youprop \
 		prop permonst monattk monflag monsters \
-		mondata context rm botl rect region trap \
+		mondata context rm botl rect region revision trap \
 		display vision seffects selvar sndprocs stairs decl \
 		quest spell obj engrave you attrib monst \
 		mextra skills timeout flag winprocs sys
@@ -117,10 +117,10 @@ HACK_H = $(addsuffix .h, $(addprefix $(INCL), $(CONFIGBASEH) $(HACKBASEH)))
 HACKFILES := allmain alloc apply artifact attrib ball bones botl \
 	   calendar cfgfiles cmd coloratt dbridge decl detect \
 	   dig display dlb do do_name do_wear dog dogmove dokick \
-           dothrow drawing dungeon eat end engrave exper explode extralev \
-	   files fountain getpos glyphs hack hacklib insight invent isaac64 \
-	   light lock mail makemon mcastu mdlib mhitm mhitu minion mklev \
-	   mkmap mkmaze mkobj mkroom mon \
+           dothrow drawing dungeon earlyarg eat end engrave exper explode \
+	   extralev files fountain getpos glyphs hack hacklib iactions \
+	   insight invent isaac64 light lock mail makemon mcastu mdlib mhitm \
+	   mhitu minion mklev mkmap mkmaze mkobj mkroom mon \
 	   mondata monmove monst mplayer mthrowu muse music \
 	   nhlua nhlsel nhlobj objnam o_init objects \
 	   options pager pickup pline polyself potion pray \
@@ -130,7 +130,7 @@ HACKFILES := allmain alloc apply artifact attrib ball bones botl \
 	   sp_lev spell stairs steal steed strutil symbols sys teleport \
 	   timeout topten track trap u_init utf8map \
 	   uhitm vault version vision weapon were wield \
-	   windows wizard wizcmds worm worn write zap iactions
+	   windows wizard wizcmds worm worn write zap
 
 # the date file
 DATEFILES = date
@@ -800,6 +800,7 @@ $(TARGETPFX)rect.obj: rect.c $(HACK_H)
 $(TARGETPFX)region.obj: region.c $(HACK_H)
 $(TARGETPFX)report.obj: report.c $(HACK_H)
 $(TARGETPFX)restore.obj: restore.c $(HACK_H) $(INCL)tcap.h
+$(TARGETPFX)revision.obj: revision.c $(HACK_H)
 $(TARGETPFX)rip.obj: rip.c $(HACK_H)
 $(TARGETPFX)rnd.obj: rnd.c $(HACK_H) $(INCL)isaac64.h
 $(TARGETPFX)role.obj: role.c $(HACK_H)

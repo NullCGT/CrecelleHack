@@ -1,4 +1,4 @@
-/* NetHack 3.7	mhmenu.c	$NHDT-Date: 1596498354 2020/08/03 23:45:54 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.74 $ */
+/* NetHack 5.0	mhmenu.c	$NHDT-Date: 1781973104 2026/06/20 16:31:44 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.96 $ */
 /* Copyright (c) Alex Kompel, 2002                                */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -35,6 +35,7 @@ typedef struct mswin_menu_item {
     int color;
     char str[NHMENU_STR_SIZE];
     boolean presel;
+    boolean group_accelerator_collision;
     unsigned int itemflags;
     int count;
     BOOL has_focus;
@@ -191,7 +192,18 @@ mswin_menu_window_select_menu(HWND hWnd, int how, MENU_ITEM_P **_selected,
         /* collect group accelerators */
         for (i = 0; i < data->menui.menu.size; i++) {
             if (data->how != PICK_NONE) {
-                if (data->menui.menu.items[i].group_accel
+                /* Check for conflict between a specific selectable
+                 * menu item and its group accelerator.
+                 */
+                if (NHMENU_IS_SELECTABLE(data->menui.menu.items[i])
+                    && data->menui.menu.items[i].group_accel
+                           == data->menui.menu.items[i].accelerator) {
+                    /* collision between specific menu item
+                       and its group accelerator */
+                    data->menui.menu.items[i].group_accelerator_collision = TRUE;
+                }
+                if (!data->menui.menu.items[i].group_accelerator_collision
+                    && data->menui.menu.items[i].group_accel
                     && !strchr(data->menui.menu.gacc,
                                data->menui.menu.items[i].group_accel)) {
                     *ap++ = data->menui.menu.items[i].group_accel;
@@ -651,6 +663,7 @@ onMSNHCommand(HWND hWnd, WPARAM wParam, LPARAM lParam)
             /* prevent & being interpreted as a mnemonic start */
             strNsubst(data->menui.menu.items[new_item].str, "&", "&&", 0);
             data->menui.menu.items[new_item].presel = msg_data->presel;
+            data->menui.menu.items[new_item].group_accelerator_collision = FALSE;
             data->menui.menu.items[new_item].itemflags = msg_data->itemflags;
 
             /* calculate tabstop size */

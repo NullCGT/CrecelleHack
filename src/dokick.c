@@ -1,4 +1,4 @@
-/* NetHack 3.7	dokick.c	$NHDT-Date: 1712453347 2024/04/07 01:29:07 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.223 $ */
+/* NetHack 5.0	dokick.c	$NHDT-Date: 1781973046 2026/06/20 16:30:46 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.237 $ */
 /* Copyright (c) Izchak Miller, Mike Stephenson, Steve Linhart, 1989. */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -152,8 +152,8 @@ kick_monster(struct monst *mon, coordxy x, coordxy y)
     /* anger target even if wild miss will occur */
     setmangry(mon, TRUE);
 
-    if (Levitation && !rn2(3) && verysmall(mon->data)
-        && !is_flyer(mon->data)) {
+    if (Levitation && !Role_if(PM_GRAPPLER)
+        && !rn2(3) && verysmall(mon->data) && !is_flyer(mon->data)) {
         pline("Floating in the air, you miss wildly!");
         exercise(A_DEX, FALSE);
         (void) passive(mon, uarmf, FALSE, 1, AT_KICK, FALSE);
@@ -210,7 +210,8 @@ kick_monster(struct monst *mon, coordxy x, coordxy y)
                 Your("%s %s.", kick_passes_thru, mon_nam(mon));
                 break; /* skip any additional kicks */
             } else if (tmp > kickdieroll) {
-                You("kick %s.", mon_nam(mon));
+                You("%skick %s.", mon_nam(mon),
+                    !Role_if(PM_GRAPPLER) ? "" : Levitation ? "drop" : "super");
                 sum = damageum(mon, uattk, specialdmg);
                 if (hated_obj)
                     searmsg(&gy.youmonst, mon, hated_obj, FALSE);
@@ -265,7 +266,7 @@ kick_monster(struct monst *mon, coordxy x, coordxy y)
             pline_mon(mon, "You kick ashes in the %s of %s.",
                 mbodypart(mon, FACE), mon_nam(mon));
     }
-    You("kick %s.", mon_nam(mon));
+    You("%skick %s.", !Role_if(PM_GRAPPLER) ? "" : Levitation ? "drop" : "super", mon_nam(mon));
     if (!rn2(clumsy ? 3 : 4) && (clumsy || !bigmonst(mon->data))
         && mon->mcansee && !mon->mtrapped && !thick_skinned(mon->data)
         && mon->data->mlet != S_EEL && haseyes(mon->data) && mon->mcanmove
@@ -430,6 +431,7 @@ container_impact_dmg(
     struct obj *otmp, *otmp2;
     long loss = 0L;
     boolean costly, insider, frominv, wchange = FALSE;
+    int pot_otyp = 0;
 
     /* only consider normal containers */
     if (!Is_container(obj) || !Has_contents(obj) || Is_mbag(obj))
@@ -468,6 +470,13 @@ container_impact_dmg(
                 Soundeffect(se_glass_shattering, 25);
             }
             You_hear("a muffled %s.", result);
+            if (otmp->oclass == POTION_CLASS) {
+                if (!pot_otyp) {
+                    pot_otyp = otmp->otyp;
+                } else if (pot_otyp != otmp->otyp) {
+                    You_hear("a muffled bang.");
+                }
+            }
             if (costly) {
                 if (frominv && !otmp->unpaid)
                     otmp->no_charge = 1;
@@ -621,13 +630,13 @@ really_kick_object(coordxy x, coordxy y)
         || closed_door(x + u.dx, y + u.dy))
         range = 1;
 
-    /* 3.7: this used to skip 'costly' handling if kickedobj->no_charge
+    /* 5.0: this used to skip 'costly' handling if kickedobj->no_charge
        was set but that optimization could result in no_charge staying set
        for objects kicked out of the shop */
     shkp = find_objowner(gk.kickedobj, x, y);
     costly = (shkp && (costly_spot(x, y) || (costly_adjacent(shkp, x, y)
                                              && gk.kickedobj->unpaid)));
-    /* 3.7: give feedback about the item being kicked; some follow-on
+    /* 5.0: give feedback about the item being kicked; some follow-on
        messages refer to "it" */
     Norep("You kick %s.",
           !isgold ? singular(gk.kickedobj, doname) : doname(gk.kickedobj));
@@ -1107,6 +1116,7 @@ kick_nondoor(coordxy x, coordxy y, int avrg_attrib)
             return ECMD_TIME;
         }
         You("kick %s.", (Blind ? something : "the fountain"));
+        potion_splatter(x, y, POT_WATER, NON_PM);
         if (!rn2(3)) {
             kick_ouch(x, y, "");
             return ECMD_TIME;
@@ -1155,7 +1165,16 @@ kick_nondoor(coordxy x, coordxy y, int avrg_attrib)
         return ECMD_TIME;
     }
     if (gm.maploc->typ == IRONBARS) {
-        kick_ouch(x, y, "");
+        if (uarmf && uarmf->oprop == OPROP_ACIDIC
+            && !rn2(6)) {
+            pline_The("iron bars melt!");
+            uarmf->pknown = 1;
+            gm.maploc->typ = ROOM;
+            newsym(x, y);
+            update_inventory();
+        } else {
+            kick_ouch(x, y, "");
+        }
         return ECMD_TIME;
     }
     if (IS_TREE(gm.maploc->typ)) {
@@ -1163,7 +1182,9 @@ kick_nondoor(coordxy x, coordxy y, int avrg_attrib)
 
         /* nothing, fruit or trouble? 75:23.5:1.5% */
         if (rn2(3)) {
-            if (!rn2(6) && !(svm.mvitals[PM_KILLER_BEE].mvflags & G_GONE))
+            if (!rn2(6)
+                && !(svm.mvitals[PM_KILLER_BEE].mvflags & G_GONE)
+                && !(gm.maploc->looted & TREE_SWARM))
                 You_hear("a low buzzing."); /* a warning */
             kick_ouch(x, y, "");
             return ECMD_TIME;
@@ -2178,9 +2199,10 @@ dograpple(void)
 {
     coordxy x, y;
     struct monst *target;
+    struct obj *cloak;
     boolean touched = FALSE;
     char kbuf[BUFSZ];
-    if (u.usticker) {
+    if (u.usticker && u.ustuck) {
         pline_mon(u.ustuck, "You stop grappling %s.", mon_nam(u.ustuck));
         set_ustuck((struct monst *) 0);
         return ECMD_CANCEL;
@@ -2218,12 +2240,16 @@ dograpple(void)
         You("shadowbox.");
         return ECMD_OK;
     }
-    /* Ok let's actually grapple! */
     if (target->mpeaceful && !target->mtame) {
         pline_mon(target, "%s does not want to roll with you!", Monnam(target));
         setmangry(target, TRUE);
     }
-    if (target->mtame && canseemon(target)) {
+    /* Ok let's actually grapple! */
+    cloak = which_armor(target, W_ARMC);
+    if (cloak && cloak->otyp == OILSKIN_CLOAK) {
+        You("try to grapple %s, but %s %s is too slippery.",
+            mon_nam(target), mhis(target), simpleonames(cloak));
+    } else if (target->mtame && canseemon(target)) {
         You("hug %s.", mon_nam(target));
         touched = TRUE;
     } else if (!unsolid(target->data) && rn2(3 + P_SKILL(P_GRAPPLING))) {
@@ -2239,7 +2265,7 @@ dograpple(void)
     if (touched) {
         use_skill(P_GRAPPLING, 1);
         if (touch_petrifies(target->data)) {
-            Sprintf(kbuf, "hugging %s", mon_nam(target));
+            Sprintf(kbuf, "hugging %s", noit_mon_nam(target));
             instapetrify(kbuf);
         }
     }

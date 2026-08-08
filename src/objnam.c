@@ -1,4 +1,4 @@
-/* NetHack 3.7	objnam.c	$NHDT-Date: 1745114235 2025/04/19 17:57:15 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.453 $ */
+/* NetHack 5.0	objnam.c	$NHDT-Date: 1781973060 2026/06/20 16:31:00 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.464 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2011. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -723,12 +723,15 @@ xname_flags(
             add_oprop_text(obj, pknown, buf);
         /* note: lenses or towel prefix would overwrite poisoned weapon
            prefix if both were simultaneously possible, but they aren't */
-        if (is_glasses(obj))
+        if (is_glasses(obj) && obj->otyp != GAS_MASK)
             Strcpy(buf, "pair of ");
         else if (is_wet_towel(obj))
             Strcpy(buf, (obj->spe < 3) ? "moist " : "wet ");
 
-        if (dknown && (obj->material != objects[typ].oc_material
+        if (dknown && (obj->material == GEMSTONE)) {
+            Strcat(buf, OBJ_NAME(objects[obj->gemtype]));
+            Strcat(buf, " ");
+        } else if (dknown && (obj->material != objects[typ].oc_material
                        || force_material_name(typ))) {
             Strcat(buf, MAT_NAME(obj->material));
             Strcat(buf, " ");
@@ -832,7 +835,7 @@ xname_flags(
                doname() so we've added an external flag to request it */
             Concat(buf, 0, "partly eaten ");
         }
-        if (obj->globby) { /* 3.7 added "medium" to replace no-prefix */
+        if (obj->globby) { /* 5.0 added "medium" to replace no-prefix */
             ConcatF2(buf, 0, "%s %s", (obj->owt <= 100) ? "small"
                                       : (obj->owt <= 300) ? "medium"
                                         : (obj->owt <= 500) ? "large"
@@ -847,11 +850,10 @@ xname_flags(
         break;
     case COIN_CLASS:
     case CHAIN_CLASS:
-    case BOTTLE_CLASS:
         Strcpy(buf, actualn);
         break;
     case ROCK_CLASS:
-        if (typ == STATUE && omndx != NON_PM) {
+        if ((typ == STATUE || typ == FOSSIL) && omndx != NON_PM) {
             char anbuf[10];
             const char *statue_pmname = obj_pmname(obj);
 
@@ -1330,6 +1332,7 @@ size_matters(struct obj *obj)
 #define DONAME_WITH_PRICE 1
 #define DONAME_VAGUE_QUAN 2
 #define DONAME_FOR_MENU   4 /* [not used anywhere yet] */
+#define DONAME_FORCE_GENDER 8 /* always add male or female */
 
 /* core of doname() */
 staticfn char *
@@ -1340,7 +1343,8 @@ doname_base(
     boolean ispoisoned = FALSE,
             with_price = (doname_flags & DONAME_WITH_PRICE) != 0,
             vague_quan = (doname_flags & DONAME_VAGUE_QUAN) != 0,
-            for_menu = (doname_flags & DONAME_FOR_MENU) != 0;
+            for_menu = (doname_flags & DONAME_FOR_MENU) != 0,
+            with_corpse_genders = (doname_flags & DONAME_FORCE_GENDER) != 0;
     boolean known, dknown, cknown, bknown, lknown, pknown,
             fake_arti, force_the;
     char prefix[PREFIX];
@@ -1422,7 +1426,8 @@ doname_base(
            isn't set when emptiness gets discovered because then
            charging magic would yield known number of new charges);
            horn of plenty isn't a container but is close enough */
-        && ((obj->otyp == BAG_OF_TRICKS || obj->otyp == HORN_OF_PLENTY)
+        && ((obj->otyp == BAG_OF_TRICKS || obj->otyp == HORN_OF_PLENTY
+            || obj->otyp == BAG_OF_WINDS)
              ? (obj->spe == 0 && !known)
              /* not a bag of tricks or horn of plenty: it's empty if
                 it is a container that has no contents */
@@ -1437,9 +1442,9 @@ doname_base(
          * always allow "uncursed potion of water"
          */
         if (obj->cursed)
-            Strcat(prefix, flags.shorten_buc ? "[C] " : "cursed ");
+            Strcat(prefix, flags.shorten_buc ? "-" : "cursed ");
         else if (obj->blessed)
-            Strcat(prefix, flags.shorten_buc ? "[U] " : "blessed ");
+            Strcat(prefix, flags.shorten_buc ? "+" : "blessed ");
         else if (!flags.implicit_uncursed
             /* For most items with charges or +/-, if you know how many
              * charges are left or what the +/- is, then you must have
@@ -1460,7 +1465,7 @@ doname_base(
                      && obj->otyp != FAKE_AMULET_OF_YENDOR
                      && obj->otyp != AMULET_OF_YENDOR
                      && !Role_if(PM_CLERIC)))
-            Strcat(prefix, flags.shorten_buc ? "[U] " : "uncursed ");
+            Strcat(prefix, flags.shorten_buc ? "" : "uncursed ");
     }
 
     /* "a large trapped box" would perhaps be more correct; [no!]
@@ -1628,7 +1633,15 @@ doname_base(
             unsigned cxarg = (((obj->quan != 1L) ? 0 : CXN_ARTICLE)
                               | CXN_NOCORPSE);
             char *cxstr, *save_xnamep;
+            int puzzidx = (obj->invlet >= 'A' && obj->invlet <= 'Z')
+                          ? obj->invlet - 'A'
+                      : (obj->invlet >= 'a' && obj->invlet <= 'z')
+                          ? obj->invlet - 'a' + 26
+                          : invlet_basic;  /* valid index, but always holds zero */
 
+            if (with_corpse_genders && puzzidx < invlet_basic
+                && gp.puzzling_criteria == 411 && gp.puzzling_ilets[puzzidx])
+                cxarg |= CXN_ADDGNDR;
             /* corpse_xname() sets xnamep; callers other than doname_base()
                itself shouldn't care about xnamep (pointer to start of
                current obuf[]) but keep it accurate anyway */
@@ -1664,7 +1677,7 @@ doname_base(
     }
 
     if ((obj->otyp == STATUE || obj->otyp == CORPSE || obj->otyp == FIGURINE 
-        || obj->otyp == SKELETON)
+        || obj->otyp == SKELETON || obj->otyp == FOSSIL)
         && wizard && iflags.wizmgender) {
         int cgend = (obj->spe & CORPSTAT_GENDER),
             mgend = ((cgend == CORPSTAT_MALE) ? MALE
@@ -1777,6 +1790,8 @@ doname_base(
         Sprintf(pricebuf, "%ld %s", quotedprice, currency(quotedprice));
         ConcatF2(bp, 0, " (%s, %s)",
                  obj->unpaid ? "unpaid" : "contents", pricebuf);
+
+        record_price_quote(obj->otyp, quotedprice / obj->quan, TRUE);
     } else if (with_price) { /* on floor or in container on floor */
         int nochrg = 0;
         long price = get_cost_of_shop_item(obj, &nochrg);
@@ -1789,7 +1804,14 @@ doname_base(
                      nochrg ? "contents" : "for sale", pricebuf);
         } else if (nochrg > 0) {
             Concat(bp, 0, " (no charge)");
+        } else if (iflags.pricequotes && !objects[obj->otyp].oc_name_known) {
+            append_price_quote(bp, &bp_eos, obj->otyp);
         }
+
+        if (price > 0L)
+            record_price_quote(obj->otyp, price / obj->quan, TRUE);
+    } else if (iflags.pricequotes && !objects[obj->otyp].oc_name_known) {
+        append_price_quote(bp, &bp_eos, obj->otyp);
     }
 
     if (!strncmp(prefix, "a ", 2)) {
@@ -1803,7 +1825,7 @@ doname_base(
 
     /* show weight for items (debug tourist info);
        "aum" is stolen from Crawl's "Arbitrary Unit of Measure" */
-    if (iflags.invweight && obj->owt) {
+    if (iflags.invweight && !gm.mrg_to_wielded && obj->owt) {
         /* wizard mode user has asked to see object weights */
         if (with_price && bp_eos[-1] == ')')
             ConcatF1(bp, 1, 
@@ -1874,6 +1896,20 @@ char *
 doname_with_price(struct obj *obj)
 {
     return doname_base(obj, DONAME_WITH_PRICE);
+}
+
+/* Name of object including corpse genders. */
+char *
+doname_with_cgender(struct obj *obj)
+{
+    return doname_base(obj, DONAME_FORCE_GENDER);
+}
+
+/* doname with both price and corpse gender */
+char *
+doname_with_price_and_cgender(struct obj *obj)
+{
+    return doname_base(obj, DONAME_WITH_PRICE | DONAME_FORCE_GENDER);
 }
 
 /* "some" instead of precise quantity if obj->dknown not set */
@@ -1952,9 +1988,10 @@ corpse_xname(
         any_prefix = (cxn_flags & CXN_ARTICLE) != 0,
             /* leave off suffix (do_name() appends "corpse" itself) */
         omit_corpse = (cxn_flags & CXN_NOCORPSE) != 0,
+        gndr_prefix = (cxn_flags & CXN_ADDGNDR) != 0,
         possessive = FALSE,
         glob = (otmp->otyp != CORPSE && otmp->globby);
-    const char *mnam;
+    const char *mnam, *gndr;
 
     /* some callers [aobjnam()] rely on prefix area that xname() sets aside */
     gx.xnamep = nextobuf();
@@ -1994,15 +2031,19 @@ corpse_xname(
        into the code, so the() has been modified to deal with capitalized
        monster names; we could switch to using it below like an() */
 
+    gndr = (gndr_prefix && otmp->spe & CORPSTAT_MALE) != 0     ? "male "
+           : (gndr_prefix && otmp->spe & CORPSTAT_FEMALE) != 0 ? "female "
+                                                               : "";
     if (!adjective || !*adjective) {
+        Strcat(nambuf, gndr);
         /* normal case:  newt corpse */
         Strcat(nambuf, mnam);
     } else {
         /* adjective positioning depends upon format of monster name */
         if (possessive) /* Medusa's cursed partly eaten corpse */
-            Sprintf(eos(nambuf), "%s %s", mnam, adjective);
+            Sprintf(eos(nambuf), "%s %s%s", mnam, gndr, adjective);
         else /* cursed partly eaten troll corpse */
-            Sprintf(eos(nambuf), "%s %s", adjective, mnam);
+            Sprintf(eos(nambuf), "%s %s%s", adjective, gndr, mnam);
         /* in case adjective has a trailing space, squeeze it out */
         mungspaces(nambuf);
         /* doname() might include a count in the adjective argument;
@@ -2016,6 +2057,8 @@ corpse_xname(
     } else if (!omit_corpse) {
         if (otmp->otyp == CORPSE)
             Strcat(nambuf, " corpse");
+        else if (otmp->otyp == FOSSIL)
+            Strcat(nambuf, " fossil");
         else
            Strcat(nambuf, " skeleton");
         /* makeplural(nambuf) => append "s" to "corpse" */
@@ -2314,7 +2357,8 @@ the(const char *str)
         insert_the = TRUE;
     } else {
         /* Probably a proper name, might not need an article */
-        char *tmp, *named, *called;
+        char *named, *called;
+        const char *tmp;
         int l;
 
         /* some objects have capitalized adjectives in their names */
@@ -3566,6 +3610,7 @@ static const struct alt_spellings {
     { "forcefield", SPE_FORCE_FIELD },
     { "transmutation", SCR_TRANSMUTE_MATERIAL },
     { "change material", SCR_TRANSMUTE_MATERIAL },
+    { "ring of implosion", RIN_PROTECTION_FROM_EXPLOSIONS },
     { (const char *) 0, 0 },
 };
 
@@ -4261,9 +4306,9 @@ readobjnam_preparse(struct _readobjnam_data *d)
             d->osize = MZ_SMALL;
             d->gsize = 1;
         } else if (!strncmpi(d->bp, "medium ", l = 7)) {
-            /* 3.7: in 3.6, "medium" was only used during wishing and the
+            /* 5.0: in 3.6, "medium" was only used during wishing and the
                mid-size glob had no adjective when formatted, but as of
-               3.7, "medium" has become an explicit part of the name for
+               5.0, "medium" has become an explicit part of the name for
                combined globs of at least 5 individual ones (owt >= 100)
                and less than 15 (owt < 300) */
             d->gsize = 2;
@@ -4317,6 +4362,7 @@ readobjnam_preparse(struct _readobjnam_data *d)
          */
         } else if ((!strncmpi(d->bp, "corpse ", l = 7)
                     || !strncmpi(d->bp, "skull ", l = 6)
+                    || !strncmpi(d->bp, "fossil ", l = 7)
                     || !strncmpi(d->bp, "statue ", l = 7)
                     || !strncmpi(d->bp, "figurine ", l = 9))
                    && !strncmpi(d->bp + l, "of ", more_l = 3)) {
@@ -4342,7 +4388,7 @@ readobjnam_preparse(struct _readobjnam_data *d)
                  * interpreted as gold */
                 break;
             }
-            mat = lookup_material_by_name(d->bp, &l);
+            mat = lookup_material_by_name(d->bp, &l, FALSE);
             if (mat) {
                 d->material = mat;
                 l += 1;
@@ -5402,6 +5448,7 @@ readobjnam(char *bp, struct obj *no_wish)
     case STATUE: /* otmp->cobj already done in mksobj() */
     case FIGURINE:
     case SKELETON:
+    case FOSSIL:
     case CORPSE: {
         struct permonst *P = (ismnum(d.mntmp)) ? &mons[d.mntmp] : 0;
 
@@ -5506,6 +5553,9 @@ readobjnam(char *bp, struct obj *no_wish)
             if (Has_contents(d.otmp) && verysmall(&mons[d.mntmp]))
                 delete_contents(d.otmp); /* no spellbook */
             break;
+        case FOSSIL:
+            d.otmp->corpsenm = d.mntmp;
+            break;
         case SCALE_MAIL:
             /* Dragon mail - depends on the order of objects & dragons. */
             if (d.mntmp >= PM_GRAY_DRAGON && d.mntmp <= PM_YELLOW_DRAGON)
@@ -5577,7 +5627,8 @@ readobjnam(char *bp, struct obj *no_wish)
     }
     /* empty for containers rather than for tins */
     if (d.contents == TIN_EMPTY) {
-        if (d.otmp->otyp == BAG_OF_TRICKS || d.otmp->otyp == HORN_OF_PLENTY) {
+        if (d.otmp->otyp == BAG_OF_TRICKS || d.otmp->otyp == HORN_OF_PLENTY
+            || d.otmp->otyp == BAG_OF_WINDS) {
             if (d.otmp->spe > 0)
                 d.otmp->spe = 0;
         } else if (Has_contents(d.otmp)) {
@@ -5668,7 +5719,7 @@ readobjnam(char *bp, struct obj *no_wish)
     if (d.oprop && (d.otmp->oclass == WEAPON_CLASS
                     || d.otmp->oclass == ARMOR_CLASS)) {
         if (wizard
-            || (!objects[d.otmp->otyp].oc_magic || d.otmp->oartifact)) {
+            || !(objects[d.otmp->otyp].oc_magic || d.otmp->oartifact)) {
             if (objects[d.otmp->otyp].oc_magic)
                 pline("Note: wishes for magical items with object properites are not normally valid.");
             if (d.oprop < 0)
@@ -5678,7 +5729,9 @@ readobjnam(char *bp, struct obj *no_wish)
         }
     }
     /* material handling */
-    if (d.material > 0 && !d.otmp->oartifact
+    if (d.material > 0
+        && (!d.otmp->oartifact || d.otmp->oartifact == ART_HORN_OF_THE_HORDE)
+        && !(d.material == DRAGON_HIDE && !wizard)
         && ((wizard && !iflags.debug_fuzzer)
             || valid_obj_material(d.otmp, d.material))) {
         if (!valid_obj_material(d.otmp, d.material)) {
@@ -6045,13 +6098,13 @@ lookup_oprop_by_name(char *buf, int *l)
 /* Look up a material via its name. Pulled out into a function so we can
    do this in special levels. */
 int
-lookup_material_by_name(char *buf, int *l)
+lookup_material_by_name(char *buf, int *l, boolean bypass)
 {
     /* doesn't currently catch "wood" for wooden */
     for (int i = 1; i < NUM_MATERIAL_TYPES; i++) {
-        if (!strncmpi(buf, MAT_NAME(i), *l = strlen(MAT_NAME(i)))
-            && !not_spec_material(buf, i)){
-            return i;
+        if (!strncmpi(buf, MAT_NAME(i), *l = strlen(MAT_NAME(i)))) {
+            if (bypass || !not_spec_material(buf, i))
+                return i;
         }
     }
     return 0;   

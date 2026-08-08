@@ -1,4 +1,4 @@
-/* NetHack 3.7	polyself.c	$NHDT-Date: 1740534595 2025/02/25 17:49:55 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.223 $ */
+/* NetHack 5.0	polyself.c	$NHDT-Date: 1781973061 2026/06/20 16:31:01 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.233 $ */
 /*      Copyright (C) 1987, 1988, 1989 by Ken Arromdee */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -201,7 +201,8 @@ polyman(const char *fmt, const char *arg)
 {
     boolean sticking = (sticks(gy.youmonst.data) && u.ustuck && !u.uswallow),
             was_mimicking = (U_AP_TYPE != M_AP_NOTHING);
-    boolean was_blind = !!Blind;
+    boolean was_blind = !!Blind,
+            had_see_invis = !!See_invisible;
 
     if (Upolyd) {
         u.acurr = u.macurr; /* restore old attribs */
@@ -244,6 +245,9 @@ polyman(const char *fmt, const char *arg)
         dealloc_killer(kptr);
         done(GENOCIDED);
     }
+
+    if (!!See_invisible ^ had_see_invis)
+        set_mimic_blocking(); /* See_invisible just toggled */
 
     if (u.twoweap && !could_twoweap(gy.youmonst.data))
         untwoweapon();
@@ -1045,6 +1049,8 @@ polymon(int mntmp)
             pline(use_thec, monsterc, "shriek");
         if (is_vampire(uptr) || is_vampshifter(&gy.youmonst))
             pline(use_thec, monsterc, "change shape");
+        if (is_cleaner(uptr))
+            pline(use_thec, monsterc, "clean up the floor");
 
         if (lays_eggs(uptr) && flags.female
             && !(uptr == &mons[PM_GIANT_EEL]
@@ -1144,7 +1150,7 @@ break_armor(struct permonst *old)
     struct obj *otmp;
     struct permonst *uptr = gy.youmonst.data;
 
-    boolean breakage = breakarm(uptr) || (old->msize < uptr->msize);
+    boolean breakage = (breakarm(uptr) && old->msize <= uptr->msize) || (old->msize < uptr->msize);
     boolean slippage = sliparm(uptr) || (old->msize > uptr->msize);
 
     if (breakage) {
@@ -1164,9 +1170,20 @@ break_armor(struct permonst *old)
         if ((otmp = uarmc) != 0
             /* mummy wrapping adapts to small and very big sizes */
             && (otmp->otyp != MUMMY_WRAPPING || !WrappingAllowed(uptr))) {
-            pline_The("clasp on your %s breaks open!", cloak_simple_name(otmp));
-            (void) Cloak_off();
-            dropp(otmp);
+            if (otmp->otyp == MUMMY_WRAPPING) {
+                /* doesn't have a clasp to break open */
+                Your("%s tears apart!", cloak_simple_name(otmp));
+                (void) Cloak_off();
+                useup(otmp);
+            } else if (otmp->otyp == ALCHEMY_SMOCK) {
+                pline_The("knot on your %s is pulled apart!", cloak_simple_name(otmp));
+                (void) Cloak_off();
+                dropp(otmp);
+            } else {
+                pline_The("clasp on your %s breaks open!", cloak_simple_name(otmp));
+                (void) Cloak_off();
+                dropp(otmp);
+            }
         }
         if (uarmu) {
             Your("shirt rips to shreds!");
@@ -1385,6 +1402,7 @@ rehumanize(void)
     disp.botl = TRUE;
     gv.vision_full_recalc = 1;
     encumber_msg();
+    update_inventory();
     if (was_flying && !Flying && u.usteed)
         You("and %s return gently to the %s.",
             mon_nam(u.usteed), surface(u.ux, u.uy));
@@ -1412,7 +1430,17 @@ dobreathe(void)
     if (!getdir((char *) 0))
         return ECMD_CANCEL;
 
-    mattk = attacktype_fordmg(gy.youmonst.data, AT_BREA, AD_ANY);
+    if (uarmh && uarmh->oprop == OPROP_BLAZING) {
+        mattk = attacktype_fordmg(&mons[PM_RED_DRAGON], AT_BREA, AD_ANY);
+    } else if (uarmh && uarmh->oprop == OPROP_ACIDIC) {
+        mattk = attacktype_fordmg(&mons[PM_YELLOW_DRAGON], AT_BREA, AD_ANY);
+    } else if (uarmh && uarmh->oprop == OPROP_CRACKLING) {
+        mattk = attacktype_fordmg(&mons[PM_BLUE_DRAGON], AT_BREA, AD_ANY);
+    } else if (uarmh && uarmh->oprop == OPROP_BOREAL) {
+        mattk = attacktype_fordmg(&mons[PM_WHITE_DRAGON], AT_BREA, AD_ANY);
+    } else {
+        mattk = attacktype_fordmg(gy.youmonst.data, AT_BREA, AD_ANY);
+    }
     if (!mattk)
         impossible("bad breath attack?"); /* mouthwash needed... */
     else if (!u.dx && !u.dy && !u.dz)
@@ -1699,6 +1727,7 @@ dogaze(void)
                         dmg += destroy_items(mtmp, AD_FIRE, orig_dmg);
                         ignite_items(mtmp->minvent);
                     }
+                    adjust_damage(mtmp, &dmg, AD_FIRE);
                     if (dmg)
                         mtmp->mhp -= dmg;
                     if (DEADMONSTER(mtmp))
@@ -1951,12 +1980,12 @@ mbodypart(struct monst *mon, int part)
         *humanoid_parts[] = { "arm",       "eye",  "face",         "finger",
                               "fingertip", "foot", "hand",         "handed",
                               "head",      "leg",  "light headed", "neck",
-                              "spine",     "toe",  "fur",         "blood",
+                              "spine",     "toe",  "hair",         "blood",
                               "lung",      "nose", "stomach" },
         *kobold_parts[] = { "arm",       "eye",  "face",         "finger",
                               "fingertip", "foot", "paw",         "pawed",
                               "head",      "leg",  "light headed", "neck",
-                              "spine",     "toe",  "hair",         "blood",
+                              "spine",     "toe",  "fur",         "blood",
                               "lung",      "nose", "stomach" },
         *jelly_parts[] = { "pseudopod", "dark spot", "front",
                            "pseudopod extension", "pseudopod extremity",

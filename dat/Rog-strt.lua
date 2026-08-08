@@ -1,4 +1,4 @@
--- NetHack Rogue Rog-strt.lua	$NHDT-Date: 1652196012 2022/05/10 15:20:12 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.4 $
+-- NetHack Rogue Rog-strt.lua	$NHDT-Date: 1781994872 2026/06/20 22:34:32 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.7 $
 --	Copyright (c) 1992 by Dean Luick
 -- NetHack may be freely redistributed.  See license for details.
 --
@@ -10,7 +10,7 @@
 --
 des.level_init({ style = "solidfill", fg = " " });
 
-des.level_flags("mazelevel", "noteleport", "hardfloor", "nommap", "outdoors")
+des.level_flags("mazelevel", "noteleport", "hardfloor", "nommap")
 
 --         1         2         3         4         5         6         7
 --123456789012345678901234567890123456789012345678901234567890123456789012345
@@ -157,10 +157,10 @@ des.monster({ id = "leprechaun", x=74, y=04, peaceful=0 })
 des.monster({ id = "leprechaun", x=25, y=19, peaceful=0 })
 des.monster({ id = "water nymph", x=25, y=18, peaceful=0 })
 -- Wandering the streets.
-for i=1,4 + math.random(1 - 1,1*3)  do
+for i = 1, math.random(4,7) do
    des.monster({ id = "water nymph", coord = streets:rndcoord(1), peaceful=0 })
    des.monster({ id = "leprechaun", coord = streets:rndcoord(1), peaceful=0 })
 end
-for i=1,7 + math.random(1 - 1,1*3)  do
+for i = 1, math.random(7,10) do
    des.monster({ id = "chameleon", coord = streets:rndcoord(1), peaceful=0 })
 end

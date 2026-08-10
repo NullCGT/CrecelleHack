@@ -34,6 +34,7 @@ struct mfndposdata {
     int cnt;
     coord poss[9];
     long info[9];
+    char score[9]; /* Crecelle-ism. Allows for preferences for bloody squares, for example. */
 };
 
 #endif /* MFNDPOS_H */

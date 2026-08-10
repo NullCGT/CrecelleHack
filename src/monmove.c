@@ -1942,6 +1942,7 @@ m_move(struct monst *mtmp, int after)
         preferredrange_min = 0, preferredrange_max = 0;
     struct mfndposdata mfp;
     long flag;
+    int maxscore = 0;
     coordxy omx = mtmp->mx, omy = mtmp->my;
 
     if (mtmp->mtrapped) {
@@ -2224,7 +2225,30 @@ m_move(struct monst *mtmp, int after)
                             goto nxti;
             }
 
+            
+            #if 0
             nearer = ((ndist = dist2(nx, ny, ggx, ggy)) < nidist);
+            #else
+            /* If player hp is low, prioritize close pursuit? */
+            if (u.uhp * 2 < u.uhpmax)
+                nearer = ((ndist = dist2(nx, ny, ggx, ggy)) <= nidist);
+            else
+                nearer = ((ndist = distmin(nx, ny, ggx, ggy)) <= nidist);
+            #endif
+            /* Trying calculating ndist using distmin instead. Result was
+               interesting and almost gets what we want but does lead to
+               more easily gameable monsters, unfortunately. What we need
+               is some combination of dist2 and distmin somehow, in order
+               to keep monsters moving on interesting tiles. Maybe add dist2
+               into the score? That only works in scenarios where nearer is
+               relevant in certain ways however. */
+            /* Could have some monsters use dist2 and others use distmin? */
+            /* Could have monsters switch to dist2 when player is low on
+               health? */
+            /* Could run a calculation here to further modify score depending
+               on whether a monster has a ranged weapon, and if so making them
+               prefer being on a line with the player (and otherwise preferring
+               not if they are smart)*/
 
             if ((MON_AT(nx, ny) && (mfp.info[i] & ALLOW_TM))
                 || (appr == 1 && nearer) || (appr == -1 && !nearer)
@@ -2233,11 +2257,15 @@ m_move(struct monst *mtmp, int after)
                     && ((ndist <= preferredrange_min && !nearer)
                         || (ndist >= preferredrange_max && nearer)))
                 || (mmoved == MMOVE_NOTHING)) {
-                nix = nx;
-                niy = ny;
-                nidist = ndist;
-                chi = i;
-                mmoved = MMOVE_MOVED;
+                if (mfp.score[i] >= maxscore) {
+                    if (!mmoved == MMOVE_NOTHING) //NOT QUITE....
+                        maxscore = mfp.score[i];
+                    nix = nx;
+                    niy = ny;
+                    nidist = ndist;
+                    chi = i;
+                    mmoved = MMOVE_MOVED;
+                }
             }
  nxti:
             ;

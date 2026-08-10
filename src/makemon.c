@@ -2011,7 +2011,7 @@ biome_shift(struct permonst *ptr)
     }
     /* Swamp boosting happens seperately for now :( */
     if (svl.level.flags.has_swamp 
-        && ((ptr->mflags4 & M4_BST_MUD) || (ptr->mflags4 & M4_BST_WATER)))
+        && ((ptr->mflags4 & M4_BST_MUD) || likes_water(ptr)))
         ret += 2;
     return ret;
 }

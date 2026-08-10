@@ -38,6 +38,7 @@ staticfn struct permonst *accept_newcham_form(struct monst *, int);
 staticfn void kill_eggs(struct obj *) NO_NNARGS;
 staticfn void pacify_guard(struct monst *);
 staticfn void erase_summons(struct monst *);
+staticfn void mfndpos_scoring(struct monst *, char *, int, int);
 
 extern const struct shclass shtypes[]; /* defined in shknam.c */
 
@@ -2459,6 +2460,7 @@ mfndpos(
                 }
 
                 data->info[cnt] = 0;
+                data->score[cnt] = 10;
                 if (onscary(dispx, dispy, mon)) {
                     if (!(flag & ALLOW_SSM))
                         continue;
@@ -2552,6 +2554,7 @@ mfndpos(
                         data->info[cnt] |= ALLOW_TRAPS;
                     }
                 }
+                mfndpos_scoring(mon, &(data->score[cnt]), nx, ny);
                 data->poss[cnt].x = nx;
                 data->poss[cnt].y = ny;
                 cnt++;
@@ -6569,6 +6572,44 @@ meatpaper(struct monst *mtmp)
     }
     return 0;
 }
+
+/* calculate how much a monster likes a certain square. used for making
+   more intelligent pathfinding decisions. Ideally we would be calculating
+   a dijkstra map for the level and using that instead, but the level in NetHack
+   changes so much that I worry it would get prohibitively expensive. Something for
+   the future I suppose? */
+staticfn void
+mfndpos_scoring(struct monst *mon, char *score, int nx, int ny)
+{
+    if ((is_vampire(mon->data) || is_vampshifter(mon))
+        && has_coating(nx, ny, COAT_BLOOD))
+        *score += 4;
+    if (is_elf(mon->data)
+        && has_coating(nx, ny, COAT_GRASS))
+        *score += 1;
+    if (ash_kicker(mon->data)
+        && has_coating(nx, ny, COAT_ASHES))
+        *score += 1;
+    if (likes_water(mon->data)
+        && (is_pool(nx, ny) || (has_coating(nx, ny, COAT_POTION)
+                                && levl[nx][ny].pindex == POT_WATER)))
+        *score += 1;
+    if (!is_flyer(mon->data) && !is_floater(mon->data)
+        && !mindless(mon->data)) {
+        if (!is_animal(mon->data)
+            && has_coating(nx, ny, COAT_SHARDS))
+            *score -= 2;
+        if (has_coating(nx, ny, COAT_MUD))
+            *score -= 1;
+    }
+    /* TO DO: Intelligent (non-stalking?) monsters cover stairways intentionally. */
+    /* Particularly sharp monsters try to avoid lines? */
+    /* Sessile monsters dive back into the water? */
+    /* Object-likers gravitate toward objects? */
+    //if (*score < 0)
+    //    *score = 0;
+}
+
 /* cleanup for 'onefile' processing */
 #undef LEVEL_SPECIFIC_NOCORPSE
 #undef KEEPTRAITS

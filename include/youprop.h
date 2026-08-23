@@ -1,4 +1,4 @@
-/* NetHack 5.0	youprop.h	$NHDT-Date: 1725653018 2024/09/06 20:03:38 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.45 $ */
+/* NetHack 5.0	youprop.h	$NHDT-Date: 1781973093 2026/06/20 16:31:33 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.50 $ */
 /* Copyright (c) 1989 Mike Threepoint                             */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -131,14 +131,15 @@
 #define EDeaf u.uprops[DEAF].extrinsic
 #define Deaf (HDeaf || EDeaf || u.uroleplay.deaf)
 
-#define HFumbling u.uprops[FUMBLING].intrinsic
-#define EFumbling u.uprops[FUMBLING].extrinsic
-#define Fumbling (HFumbling || EFumbling)
-
 /* Dripping */
 #define HDripping u.uprops[DRIPPING].intrinsic
 #define EDripping u.uprops[DRIPPING].extrinsic
 #define Dripping (HDripping || EDripping)
+
+#define HFumbling u.uprops[FUMBLING].intrinsic
+#define EFumbling u.uprops[FUMBLING].extrinsic
+#define Fumbling (HFumbling || EFumbling \
+                    || (Dripping && u.udriptype == POT_OIL))
 
 /* HWounded_legs indicates whether wounded leg(s) condition exists and
    holds the timeout for recovery; EWounded_legs uses the worn-ring bits
@@ -399,6 +400,13 @@
 #define Lifesaved u.uprops[LIFESAVED].extrinsic
 
 #define Prone u.uprops[PRONE].extrinsic
+
+#define HProtection_from_explosions \
+    u.uprops[PROT_FROM_EXPLOSIONS].intrinsic
+#define EProtection_from_explosions \
+    u.uprops[PROT_FROM_EXPLOSIONS].extrinsic
+#define Protection_from_explosions \
+    (HProtection_from_explosions || EProtection_from_explosions)
 
 /*
  * Some pseudo-properties.

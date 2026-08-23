@@ -1,4 +1,4 @@
-/* NetHack 5.0	end.c	$NHDT-Date: 1720397752 2024/07/08 00:15:52 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.315 $ */
+/* NetHack 5.0	end.c	$NHDT-Date: 1781973048 2026/06/20 16:30:48 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.349 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -1616,8 +1616,10 @@ really_done(int how)
         raw_print("");
         raw_print("");
     }
+#ifdef DUMPLOG
     if (!startscummed)
         livelog_dump_url(LL_DUMP_ALL | (how == ASCENDED ? LL_DUMP_ASC : 0));
+#endif
     nh_terminate(EXIT_SUCCESS);
 }
 
@@ -1641,7 +1643,8 @@ container_contents(
                     box->lknown = 1;
                 update_inventory();
             }
-            if (box->otyp == BAG_OF_TRICKS) {
+            if (box->otyp == BAG_OF_TRICKS
+                || box->otyp == BAG_OF_WINDS) {
                 continue; /* wrong type of container */
             } else if (box->cobj) {
                 winid tmpwin = create_nhwindow(NHW_MENU);

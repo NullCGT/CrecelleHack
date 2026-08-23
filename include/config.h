@@ -747,11 +747,6 @@ typedef unsigned char uchar;
 */
 #endif /* DUMPLOG_FILE */
 #endif /* DUMPLOG */
-#ifdef DUMPLOG_CORE
-#ifndef DUMPLOG_MSG_COUNT
-#define DUMPLOG_MSG_COUNT   50
-#endif /* DUMPLOG_MSG_COUNT */
-#endif
 
 #ifdef DUMPHTML
 #ifndef DUMPHTML_FILE
@@ -764,5 +759,12 @@ typedef unsigned char uchar;
 
 #endif /* DUMPHTML */
 #endif /* DUMPLOG || DUMPHTML */
+
+/* DUMPLOG_CORE is independent of DUMPLOG and DUMPHTML */
+#ifdef DUMPLOG_CORE
+#ifndef DUMPLOG_MSG_COUNT
+#define DUMPLOG_MSG_COUNT   50
+#endif /* DUMPLOG_MSG_COUNT */
+#endif
 
 #endif /* CONFIG_H */

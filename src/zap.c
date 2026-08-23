@@ -1,4 +1,4 @@
-/* NetHack 5.0	zap.c	$NHDT-Date: 1770949988 2026/02/12 18:33:08 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.584 $ */
+/* NetHack 5.0	zap.c	$NHDT-Date: 1781973075 2026/06/20 16:31:15 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.596 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2013. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -927,6 +927,10 @@ revive(struct obj *corpse, boolean by_hero)
     mmflags_nht mmflags = NO_MINVENT | MM_NOWAIT | MM_NOMSG | MM_AWARE;
     int montype, cgend, container_nesting = 0;
     boolean is_zomb;
+    /* normally use the name on the corpse object, but don't if drawing a
+     * player's ghost back into its body, in which case use the ghost's
+     * (player's) name */
+    boolean use_corpse_name = TRUE;
 
     if (corpse->otyp != CORPSE && corpse->otyp != SKELETON
         && corpse->otyp != FOSSIL) {
@@ -1121,6 +1125,16 @@ revive(struct obj *corpse, boolean by_hero)
                     mtmp->mtame = ghost->mtame;
                 }
             }
+            /* copy over ghost's name and struct ebones to newly revived "hero";
+             * has_mgivenname should always be true because there are guards
+             * against renaming a ghost, but check it just to be sure */
+            if (has_mgivenname(ghost)) {
+                mtmp = christen_monst(mtmp, MGIVENNAME(ghost));
+                /* don't let player-provided name of corpse override actual
+                 * name of ex-hero */
+                use_corpse_name = FALSE;
+            }
+            copy_mextra(mtmp, ghost); /* pass on struct ebones */
             /* was ghost, now alive, it's all very confusing */
             mtmp->mconf = 1;
             /* separate ghost monster no longer exists */
@@ -1130,7 +1144,7 @@ revive(struct obj *corpse, boolean by_hero)
     }
 
     /* monster retains its name */
-    if (has_oname(corpse) && !unique_corpstat(mtmp->data))
+    if (use_corpse_name && has_oname(corpse) && !unique_corpstat(mtmp->data))
         mtmp = christen_monst(mtmp, ONAME(corpse));
     /* partially eaten corpse yields wounded monster */
     if (corpse->oeaten)
@@ -1624,6 +1638,7 @@ create_polymon(struct obj *obj, int okind)
     case GEMSTONE:
     case MINERAL:
     case LODEN:
+    case COAL:
         pm_index = rn2(2) ? PM_STONE_GOLEM : PM_CLAY_GOLEM;
         material = "lithic ";
         break;
@@ -1777,7 +1792,8 @@ poly_obj(struct obj *obj, int id)
 
     if (obj->otyp == BOULDER)
         sokoban_guilt();
-    if (obj->otyp == POT_WATER) /* water is inert (balance bottles) */
+    if (obj->otyp == POT_WATER /* water is inert (balance bottles) */
+        || has_osum(obj)) /* could be exploitable */
         return obj;
     if (id == STRANGE_OBJECT) { /* preserve symbol */
         int try_limit = 3;
@@ -1959,6 +1975,12 @@ poly_obj(struct obj *obj, int id)
             otmp->otyp = ROCK; /* transmutation backfired */
             otmp->quan /= 2L;  /* some material has been lost */
         }
+        break;
+
+    case ARMOR_CLASS:
+    case WEAPON_CLASS:
+        /* preserve size of gear, in case of polymorph trap */
+        otmp->osize = obj->osize;
         break;
     }
 
@@ -2454,7 +2476,7 @@ bhito(struct obj *obj, struct obj *otmp)
                     if (cansee(ox, oy)) {
                         if (canspotmon(mtmp)) {
                             pline("%s is resurrected!",
-                                  upstart(noname_monnam(mtmp, ARTICLE_THE)));
+                                  mtmp->mtame ? YMonnam(mtmp) : Monnam(mtmp));
                             learn_it = by_u ? TRUE : gz.zap_oseen;
                         } else {
                             /* saw corpse but don't see monster: maybe
@@ -3413,6 +3435,10 @@ zap_updown(struct obj *obj) /* wand or spell, nonnull */
     ttmp = t_at(x, y); /* trap if there is one */
 
     switch (obj->otyp) {
+    case WAN_CANCELLATION:
+        if (cancel_force_field(u.ux, u.uy))
+            learnwand(obj);
+        break;
     case WAN_PROBING:
         ptmp = 0;
         if (u.dz < 0) {
@@ -3772,7 +3798,7 @@ miss(const char *str, struct monst *mtmp)
 {
     pline("%s %s %s.", The(str), vtense(str, "miss"),
           ((cansee(gb.bhitpos.x, gb.bhitpos.y) || canspotmon(mtmp))
-           && flags.verbose) ? mon_nam(mtmp) : "it");
+           && flags.verbose) ? ((mtmp->mtame) ? noit_mon_nam(mtmp) : mon_nam(mtmp)) : "it");
 }
 
 staticfn void
@@ -4049,11 +4075,15 @@ zap_map(
                 levl[x][y].pindex =rndmonnum();
             } while (!has_blood(&mons[levl[x][y].pindex]));   
         }
-    } else if (obj->otyp == WAN_CANCELLATION && has_coating(x, y, COAT_POTION)) {
-        if (levl[x][y].pindex == POT_SICKNESS || levl[x][y].pindex == POT_SEE_INVISIBLE)
-            add_coating(x, y, COAT_POTION, POT_FRUIT_JUICE);
-        else
-            add_coating(x, y, COAT_POTION, POT_WATER);
+    } else if (obj->otyp == WAN_CANCELLATION) {
+        if (cancel_force_field(x, y))
+            learnwand(obj);
+        if (has_coating(x, y, COAT_POTION)) {
+            if (levl[x][y].pindex == POT_SICKNESS || levl[x][y].pindex == POT_SEE_INVISIBLE)
+                add_coating(x, y, COAT_POTION, POT_FRUIT_JUICE);
+            else
+                add_coating(x, y, COAT_POTION, POT_WATER);
+        }
     } else if (obj->otyp == WAN_MAKE_INVISIBLE && has_coating(x, y, COAT_POTION)) {
         add_coating(x, y, COAT_POTION, POT_INVISIBILITY);
     } else if (obj->otyp == SPE_DRAIN_LIFE) {

@@ -1,4 +1,4 @@
-/* NetHack 5.0	insight.c	$NHDT-Date: 1777004419 2026/04/23 20:20:19 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.134 $ */
+/* NetHack 5.0	insight.c	$NHDT-Date: 1781973051 2026/06/20 16:30:51 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.139 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -784,25 +784,6 @@ background_enlightenment(int unused_mode UNUSED, int final)
                     (ulvl < 18) ? "to attain" : "for", (ulvl + 1));
         }
         you_have(buf, "");
-    }
-
-    /* terrain boosts */
-    Sprintf(buf, "%s changes depending on terrain:", u.ualign.type == A_CHAOTIC ? "speed"
-                                                : u.ualign.type == A_LAWFUL ? "AC"
-                                                    : "energy regeneration");
-    you_have(buf, "");
-    if (Race_if(PM_DWARF)) {
-        Snprintf(buf, sizeof(buf), "a preference for bare earth");
-        you_have(buf, "");
-    }
-    for (int i = 0; i < NUM_COATINGS; i++) {
-        if (all_coatings[i].val & gu.urace.lovecoat) {
-            Snprintf(buf, sizeof(buf), "a preference for %sterrain", all_coatings[i].adj);
-            you_have(buf, "");
-        } else if (all_coatings[i].val & gu.urace.hatecoat) {
-            Snprintf(buf, sizeof(buf), "a distaste for %sterrain", all_coatings[i].adj);
-            you_have(buf, "");
-        }
     }
 #ifdef SCORE_ON_BOTL
     if (flags.showscore) {
@@ -1955,6 +1936,9 @@ attributes_enlightenment(
     if (Protection_from_shape_changers)
         you_are("protected from shape changers",
                 from_what(PROT_FROM_SHAPE_CHANGERS));
+    if (Protection_from_explosions)
+        you_are("protected from explosions",
+                from_what(PROT_FROM_EXPLOSIONS));
     if (Unchanging) {
         const char *what = 0;
 
@@ -2170,7 +2154,7 @@ doattributes(void)
     if (wizard || discover)
         mode |= MAGICENLIGHTENMENT;
 
-    if (flags.dnh_enlightenment)
+    if (flags.attributes_menu)
         enlightenment_dnh(mode);
     else
         enlightenment(mode, ENL_GAMEINPROGRESS);

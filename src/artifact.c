@@ -1,4 +1,4 @@
-/* NetHack 5.0	artifact.c	$NHDT-Date: 1715889721 2024/05/16 20:02:01 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.236 $ */
+/* NetHack 5.0	artifact.c	$NHDT-Date: 1781973041 2026/06/20 16:30:41 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.264 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2013. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -1769,6 +1769,11 @@ artifact_hit(
                 if (gn.notonhead)
                     return FALSE;
 
+                if (mdef->mprone) {
+                    pline("%s is already doubled over, so you miss!", Monnam(mdef));
+                    *dmgptr = 0;
+                    return (boolean) (youattack || vis);
+                }
                 if (bigmonst(mdef->data)) {
                     if (youattack)
                         You("slice deeply into %s!", mon_nam(mdef));
@@ -1783,6 +1788,11 @@ artifact_hit(
                 observe_object(otmp);
                 return TRUE;
             } else {
+                if (Prone) {
+                    pline("You are already doubled over, so %s misses!", mon_nam(magr));
+                    *dmgptr = 0;
+                    return TRUE;
+                }
                 if (bigmonst(gy.youmonst.data)) {
                     pline("%s cuts deeply into you!",
                           magr ? Monnam(magr) : wepdesc);
@@ -1809,7 +1819,8 @@ artifact_hit(
                 return FALSE;
             wepdesc = artilist[ART_VORPAL_BLADE].name;
             if (!youdefend) {
-                if (!has_head(mdef->data) || gn.notonhead || u.uswallow) {
+                if (!has_head(mdef->data) || gn.notonhead || u.uswallow
+                    || mdef->mprone) {
                     if (youattack)
                         pline("Somehow, you miss %s wildly.", mon_nam(mdef));
                     else if (vis)
@@ -1841,6 +1852,11 @@ artifact_hit(
                     *dmgptr = 0;
                     return TRUE;
                 }
+                if (Prone) {
+                    pline("%s tries to cut your head off, but the blade goes high!", Monnam(magr));
+                    *dmgptr = 0;
+                    return TRUE;
+                }
                 if (noncorporeal(gy.youmonst.data)
                     || amorphous(gy.youmonst.data)) {
                     pline("%s slices through your %s.", wepdesc,
@@ -1855,7 +1871,9 @@ artifact_hit(
             }
         }
     }
-    if (spec_ability(otmp, SPFX_DRLI) || otmp->oprop == OPROP_HUNGRY) {
+    /* technically, there is no way to get here with Stormbringer without special damage, but check anyway */
+    if ((spec_ability(otmp, SPFX_DRLI) && gs.spec_dbon_applies) ||
+        (otmp->oprop == OPROP_HUNGRY && gs.spec_oprop_applies)) {
         /* some non-living creatures (golems, vortices) are vulnerable to
            life drain effects so can get "<Arti> draws the <life>" feedback */
         const char *life = nonliving(mdef->data) ? "animating force" : "life";
@@ -2121,6 +2139,7 @@ staticfn int
 invoke_create_portal(struct obj *obj)
 {
     int i, num_ok_dungeons, last_ok_dungeon = 0;
+    boolean entered_planes = FALSE;
     d_level newlev;
     winid tmpwin = create_nhwindow(NHW_MENU);
     anything any;
@@ -2170,8 +2189,13 @@ invoke_create_portal(struct obj *obj)
         newlev.dlevel = svd.dungeons[i].entry_lev;
     else
         newlev.dlevel = svd.dungeons[i].dunlev_ureached;
-
-    if (u.uhave.amulet || In_endgame(&u.uz) || In_endgame(&newlev)
+    /* check if player is in the endgame */
+    for (i = 0; u.uachieved[i]; ++i)
+        if (u.uachieved[i] == ACH_ENDG) {
+            entered_planes = TRUE;
+            break;
+        }
+    if (u.uhave.amulet || entered_planes
         || newlev.dnum == u.uz.dnum || !next_to_u()) {
         You_feel("very disoriented for a moment.");
     } else {

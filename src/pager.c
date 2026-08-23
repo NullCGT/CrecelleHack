@@ -1,4 +1,4 @@
-/* NetHack 5.0	pager.c	$NHDT-Date: 1774846177 2026/03/29 20:49:37 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.296 $ */
+/* NetHack 5.0	pager.c	$NHDT-Date: 1781973061 2026/06/20 16:31:01 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.302 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2018. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -819,7 +819,11 @@ lookat(coordxy x, coordxy y, char *buf, char *monbuf)
     } else if (glyph_is_monster(glyph)) {
         if ((mtmp = m_at(x, y)) != 0) {
             look_at_monster(buf, monbuf, mtmp, x, y);
-            pm = mtmp->data;
+            /* monster could be disguised */
+            if (M_AP_TYPE(mtmp) == M_AP_MONSTER)
+                pm = &mons[mtmp->mappearance];
+            else
+                pm = mtmp->data;
         } else if (Hallucination) {
             /* 'monster' must actually be a statue */
             Strcpy(buf, rndmonnam((char *) 0));

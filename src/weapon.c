@@ -1,4 +1,4 @@
-/* NetHack 5.0	weapon.c	$NHDT-Date: 1725227810 2024/09/01 21:56:50 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.128 $ */
+/* NetHack 5.0	weapon.c	$NHDT-Date: 1781973073 2026/06/20 16:31:13 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.147 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2011. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -73,8 +73,6 @@ static NEARDATA const char *const barehands_or_martial[] = {
          ? OBJ_NAME(objects[skill_names_indices[type]]) \
          : (type == P_BARE_HANDED_COMBAT)               \
                ? barehands_or_martial[martial_bonus()]  \
-               : (type >= P_FIRST_ATTR && type <= P_LAST_ATTR) \
-               ? attr_name(type - P_STRENGTH) \
                : odd_skill_names[-skill_names_indices[type]])
 
 /* targets that provide attacker with small to-hit bonus when using a spear */
@@ -85,16 +83,12 @@ static NEARDATA const char kebabable[] = {
 staticfn void
 give_may_advance_msg(int skill)
 {
-    if (skill >= P_FIRST_ATTR && skill <= P_LAST_ATTR) {
-        Norep("You feel more confident in your attributes.");
-    } else {
-        You_feel("more confident in your %s%sskills.",
-                (skill == P_NONE) ? ""
-                    : (skill <= P_LAST_WEAPON) ? "weapon"
-                        : (skill <= P_LAST_SPELL) ? "spell casting"
-                            : P_NAME(skill),
-                (skill == P_NONE) ? "" : " ");
-    }
+    You_feel("more confident in your %s%sskills.",
+            (skill == P_NONE) ? ""
+                : (skill <= P_LAST_WEAPON) ? "weapon"
+                    : (skill <= P_LAST_SPELL) ? "spell casting"
+                        : P_NAME(skill),
+            (skill == P_NONE) ? "" : " ");
     (void) handle_tip(TIP_ENHANCE);
 }
 
@@ -266,7 +260,8 @@ dmgval_dbonus(struct obj *otmp, struct monst *magr)
            amount of damage*/
         if (objects[otmp->otyp].oc_dir & WHACK)
             tmp += 5;
-    } else if (otmp->material == PLASTIC || otmp->material == PAPER) {
+    } else if (otmp->material == PLASTIC || otmp->material == PAPER
+                || otmp->material == COAL) {
         /* just terrible weapons all around */
         tmp -= 2;
     } else if (otmp->material == METAL) {
@@ -1377,17 +1372,12 @@ skill_advance(int skill)
        the Luck bias they used to have over other roles */
     if (skill >= P_FIRST_SPELL && skill <= P_LAST_SPELL)
         skill_based_spellbook_id();
-
-    /* If it is an attribute skill, then we increase that attribute. */
-    if (skill >= P_FIRST_ATTR && skill <= P_LAST_ATTR)
-        adjattrib(skill - P_FIRST_ATTR, 1, -1);
 }
 
 static const struct skill_range {
     short first, last;
     const char *name;
 } skill_ranges[] = {
-    { P_FIRST_ATTR, P_LAST_ATTR, "Attributes"},
     { P_FIRST_H_TO_H, P_LAST_H_TO_H, "Miscellaneous Skills" },
     { P_FIRST_WEAPON, P_LAST_WEAPON, "Weapon Skills" },
     { P_FIRST_SPELL, P_LAST_SPELL, "Spellcasting Skills" },
@@ -1616,7 +1606,7 @@ use_skill(int skill, int degree)
     if (skill != P_NONE && !P_RESTRICTED(skill)) {
         advance_before = can_advance(skill, FALSE);
         /* Prevent looping to max via abuse */
-        if (degree >= 0 || P_ADVANCE(skill) > abs(degree))
+        if (degree >= 0 || P_ADVANCE(skill) > degree)
             P_ADVANCE(skill) += degree;
         if (!advance_before && can_advance(skill, FALSE)) {
             give_may_advance_msg(skill);
@@ -1689,10 +1679,6 @@ drain_weapon_skill(int n) /* number of skills to drain */
             if (P_SKILL(skill) <= P_UNSKILLED)
                 panic("drain_weapon_skill (%d)", skill);
             P_SKILL(skill)--;   /* drop skill one level */
-            /* if it is an attribute skill then adjust it down. */
-            if (skill >= P_FIRST_ATTR && skill <= P_LAST_ATTR) {
-                adjattrib(skill - P_FIRST_ATTR, -1, -1);
-            }
             /* refund slots used for skill */
             u.weapon_slots += slots_required(skill);
             /* drain skill training to a value appropriate for new level */
@@ -1963,16 +1949,6 @@ skill_init(const struct def_skill *class_skill)
         skill = weapon_type(obj);
         if (skill != P_NONE && skill != P_IMPROV)
             P_SKILL(skill) = P_BASIC;
-    }
-
-    /* All characters can train to any level in attribute skills */
-    for (int i = P_FIRST_ATTR; i <= P_LAST_ATTR; i++) {
-        P_SKILL(i) = P_UNSKILLED;
-        if (Role_if(PM_HUMAN)) {
-            P_MAX_SKILL(i) = P_MASTER;
-        } else {
-            P_MAX_SKILL(i) = P_EXPERT;
-        }
     }
 
     /* set skills for magic */

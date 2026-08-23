@@ -1,4 +1,4 @@
-/* NetHack 5.0	monmove.c	$NHDT-Date: 1737392015 2025/01/20 08:53:35 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.266 $ */
+/* NetHack 5.0	monmove.c	$NHDT-Date: 1781973056 2026/06/20 16:30:56 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.284 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Michael Allison, 2006. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -631,6 +631,10 @@ mind_blast(struct monst *mtmp)
     if (mtmp->mpeaceful
         && (!Conflict || resist_conflict(mtmp))) {
         pline("It feels quite soothing.");
+    } else if (uarmh && uarmh->oprop == OPROP_ANTIMAGIC) {
+        pline("Your helmet nullifies it.");
+        uarmh->pknown = 1;
+        update_inventory();
     } else if (!u.uinvulnerable) {
         int dmg;
         boolean m_sen = sensemon(mtmp);
@@ -752,6 +756,10 @@ m_everyturn_effect(struct monst *mtmp)
                 break;
             case OPROP_BRINY:
                 floor_spillage(x, y, POT_WATER, 0);
+                uarmf->pknown = 1;
+                break;
+            case OPROP_ANTIMAGIC:
+                remove_coating(x, y, COAT_ALL);
                 uarmf->pknown = 1;
                 break;
             default:
@@ -1110,7 +1118,7 @@ dochug(struct monst *mtmp)
             /*FALLTHRU*/
         case MMOVE_NOTHING: /* no movement, but it can still attack you */
         case MMOVE_DONE: /* absolutely no movement */
-            /* vault guard might have vanished */
+            /* vault guard might have vanished; PARKEDMONSTER(mtmp) */
             if (mtmp->isgd && (DEADMONSTER(mtmp) || mtmp->mx == 0))
                 return 1; /* behave as if it died */
             /* During hallucination, monster appearance should
@@ -2105,18 +2113,20 @@ m_move(struct monst *mtmp, int after)
         boolean should_see = (couldsee(omx, omy)
                               && (levl[ggx][ggy].lit || !levl[omx][omy].lit)
                               && (dist2(omx, omy, ggx, ggy) <= 36));
-        #endif
+        #else
         boolean should_see = (distmin(omx, omy, ggx, ggy) <= 1)
                                 || (has_telepathy(mtmp)
                                     && mdistu(mtmp) <= u.unblind_telepat_range);
         if (mtmp->mcansee) {
             if (couldsee(omx, omy)) {
                 if (infravision(mtmp->data)
-                    || (gv.viz_array[ggy][ggx] & TEMP_LIT)) {
+                    || (gv.viz_array[ggy][ggx] & TEMP_LIT)
+                    || levl[ggx][ggy].lit) {
                     should_see = TRUE;
                 }
             }
         }
+        #endif
 
         if (!mtmp->mcansee
             || (should_see && Invis && !perceives(ptr) && rn2(11))
@@ -2613,7 +2623,7 @@ stuff_prevents_passage(struct monst *mtmp)
             && typ != STETHOSCOPE && typ != BLINDFOLD && typ != TOWEL
             && typ != PEA_WHISTLE && typ != MAGIC_WHISTLE
             && typ != MAGIC_MARKER && typ != TIN_OPENER && typ != SKELETON_KEY
-            && typ != LOCK_PICK)
+            && typ != LOCK_PICK && typ != BAG_OF_WINDS)
             return TRUE;
         if (Is_container(obj) && obj->cobj)
             return TRUE;

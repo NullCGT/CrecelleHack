@@ -1,4 +1,4 @@
-/* NetHack 5.0	hack.c	$NHDT-Date: 1763708572 2025/11/20 23:02:52 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.494 $ */
+/* NetHack 5.0	hack.c	$NHDT-Date: 1781973050 2026/06/20 16:30:50 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.508 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Derek S. Ray, 2015. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -42,7 +42,6 @@ staticfn boolean avoid_trap_andor_region(coordxy, coordxy);
 staticfn boolean move_out_of_bounds(coordxy, coordxy);
 staticfn boolean carrying_too_much(void);
 staticfn boolean escape_from_sticky_mon(coordxy, coordxy);
-staticfn boolean grappling_finisher(coordxy, coordxy, struct monst *) NONNULLARG3;
 staticfn void domove_core(void);
 staticfn void maybe_smudge_engr(coordxy, coordxy, coordxy, coordxy);
 staticfn struct monst *monstinroom(struct permonst *, int) NONNULLARG1;
@@ -53,6 +52,7 @@ staticfn void maybe_wail(void);
 staticfn boolean water_turbulence(coordxy *, coordxy *);
 staticfn int QSORTCALLBACK cmp_weights(const void *, const void *);
 staticfn boolean avoid_moving_on_coating(coordxy, coordxy, boolean);
+staticfn boolean grappling_finisher(coordxy, coordxy, struct monst *) NONNULLARG3;
 
 #define IS_SHOP(x) (svr.rooms[x].rtype >= SHOPBASE)
 
@@ -1731,7 +1731,7 @@ notice_mon(struct monst *mtmp)
             set_msg_xy(mtmp->mx, mtmp->my);
             You("%s %s.", canseemon(mtmp) ? "see" : "notice",
                 x_monnam(mtmp,
-                     mtmp->mtame ? ARTICLE_YOUR
+                     (mtmp->mtame && !Hallucination) ? ARTICLE_YOUR
                      : (!has_mgivenname(mtmp)
                         && !type_is_pname(mtmp->data)) ? ARTICLE_A
                      : ARTICLE_NONE,
@@ -2341,6 +2341,10 @@ domove_fight_empty(coordxy x, coordxy y)
             Strcpy(buf, "thin air");
         }
 
+        /* Crysknives destroy force fields */
+        if (uwep && uwep->otyp == CRYSKNIFE)
+            cancel_force_field(x, y);
+
         /* Ice harmonic weapons can fire icicles even when force attacking */
         if (uwep && uwep->oprop == OPROP_BOREAL
             && (has_coating(u.ux, u.uy, COAT_FROST) || levl[u.ux][u.uy].typ == ICE)) {
@@ -2749,71 +2753,6 @@ escape_from_sticky_mon(coordxy x, coordxy y)
     return FALSE;
 }
 
-/* Move executed by a grappler when moving while holding a monster. Returns
-   true if the grapple is maintained. */
-staticfn boolean
-grappling_finisher(coordxy x, coordxy y, struct monst *mtmp)
-{
-    coord cc;
-    char kbuf[BUFSZ];
-    int future_dist = dist2(x, y, mtmp->mx, mtmp->my);
-    boolean bare_hit = FALSE;
-    boolean break_grapple = TRUE;
-    
-    use_skill(P_GRAPPLING, 1);
-    
-    if (future_dist == 1 && (x == mtmp->mx || y == mtmp->my)) {
-        pline_mon(mtmp, "You hit %s with a lariat!", mon_nam(mtmp));
-        make_mon_prone(mtmp);
-    } else if (future_dist == 2) {
-        pline_mon(mtmp, "You elbow smash %s!", mon_nam(mtmp));
-        if (rn2(8 - P_SKILL(P_GRAPPLING))) {
-            mtmp->mconf = 1;
-            if (canseemon(mtmp))
-                pline_mon(mtmp, "%s looks confused!", Monnam(mtmp));
-        }
-        bare_hit = TRUE;
-    } else if (future_dist == 5) {
-        if (enexto(&cc, x, y, mtmp->data)) {
-            rloc_to(mtmp, cc.x, cc.y);
-            pline_mon(mtmp, "You %s drag %s!",  mbodypart(mtmp, LEG), mon_nam(mtmp));
-            bare_hit = TRUE;
-        } else {
-            pline("Your move fails!");
-        }
-        break_grapple = FALSE;
-    } else if (goodpos(x, y, mtmp, 0)) {
-        pline_mon(mtmp, "You suplex %s!", mon_nam(mtmp));
-        rloc_to(mtmp, x, y);
-        bare_hit = TRUE;
-        mtmp->mhp -= rnd(8);
-    } else {
-        pline_mon(mtmp, "You pummel %s!", mon_nam(mtmp));
-        bare_hit = TRUE;
-    }
-    /* Now do some damage */
-    if (bare_hit) {
-        mtmp->mhp -= rnd(!martial_bonus() ? 2 : 4);
-        if (DEADMONSTER(mtmp)) {
-            killed(mtmp);
-            return TRUE;
-        }
-        if (touch_petrifies(mtmp->data)) {
-            Sprintf(kbuf, "grappling %s", mon_nam(mtmp));
-            instapetrify(kbuf);
-        }
-    }
-    /* Decide whether the grapple is maintained */
-    if (break_grapple && P_SKILL(P_GRAPPLING) > P_BASIC) {
-        break_grapple = !rn2(P_SKILL(P_GRAPPLING));
-    }
-    if (break_grapple || mdistu(mtmp) > 1) {
-        set_ustuck((struct monst *) 0);
-        pline_mon(mtmp, "Your grip on %s is broken.", mon_nam(mtmp));
-    }
-    return break_grapple;
-}
-
 void
 domove(void)
 {
@@ -2916,22 +2855,6 @@ domove_core(void)
 
         if (domove_bump_mon(mtmp, glyph))
             return;
-
-        if (Role_if(PM_GRAPPLER) && u.usticker && mtmp == u.ustuck
-            && mtmp->mstun && u.uen == u.uenmax
-            && (y_n("Use your finishing move?") == 'y')) {
-            wrestling_finisher_name();
-            u.uen = 0;
-            disp.botl = 0;
-            unstuck(u.ustuck);
-            if (!u.uconduct.killer) {
-                pline_mon(mtmp, "%s is KO'd!", Monnam(mtmp));
-                mtmp->msleeping = 1;
-            } else {
-                xkilled(mtmp, XKILL_GIVEMSG);
-            }
-            return;
-        }
 
         /* attack monster */
         if (domove_attackmon_at(mtmp, x, y, &displaceu))
@@ -4776,34 +4699,6 @@ solid_stone(int x, int y)
     return "solid stone";
 }
 
-static const char *finisher_pre[] = {
-    "Here it comes!",
-    "It's finally here!",
-    "This is it!",
-
-};
-
-static const char *finisher_1[] = {
-    "Yendorian", "Dungeon", "Newt",
-    "YASD", "Woodchuck", "Rogue",
-    "Ludicrous"
-};
-
-static const char *finisher_2[] = {
-    " press", " moonsault", "'s elbow", " stunner",
-    " backbreaker", " thrust", " combo", " stomp",
-    " bomb", " cutter", " lariat", "breaker", " spear",
-    " boot"
-};
-
-void
-wrestling_finisher_name(void) {
-    int i1 = (long) ubirthday % SIZE(finisher_1);
-    int i2 = (long) ubirthday % SIZE(finisher_2);
-    pline("%s The %s%s!", ROLL_FROM(finisher_pre),
-            finisher_1[i1], finisher_2[i2]);
-}
-
 staticfn boolean
 avoid_moving_on_coating(coordxy x, coordxy y, boolean msg)
 {
@@ -4820,6 +4715,137 @@ avoid_moving_on_coating(coordxy x, coordxy y, boolean msg)
         return TRUE;
     }
     return FALSE;
+}
+
+/* Move executed by a grappler when moving while holding a monster. Returns
+   true if the grapple is maintained. */
+staticfn boolean
+grappling_finisher(coordxy x, coordxy y, struct monst *mtmp)
+{
+    coord cc;
+    char kbuf[BUFSZ];
+    int future_dist = dist2(x, y, mtmp->mx, mtmp->my);
+    int dmg = 4;
+    boolean break_grapple = FALSE;
+    
+    use_skill(P_GRAPPLING, 1);
+    
+    if (future_dist == 1 && (x == mtmp->mx || y == mtmp->my) && !Prone) {
+        /* Moving around the target */
+        if (mtmp->mprone && mtmp->mstun && mtmp->mfrozen) {
+            You("elbow drop %s!", mon_nam(mtmp));
+            dmg = 20;
+            mtmp->mstun = 0;
+            break_grapple = TRUE;
+        } else if (mtmp->mprone) {
+            You("stomp %s!", mon_nam(mtmp));
+            dmg = 8;
+            break_grapple = TRUE;
+        } else if (mtmp->mfrozen) {
+            You("hit %s with a lariat!", mon_nam(mtmp));
+            if (rn2(8 - P_SKILL(P_GRAPPLING))) {
+                mtmp->mconf = 1;
+                if (canseemon(mtmp))
+                    pline_mon(mtmp, "%s looks confused!", Monnam(mtmp));
+            }
+        } else {
+            You("hit %s with a %s-%s takedown!", 
+            mon_nam(mtmp), rn2(2) ? "single" : "double", mbodypart(mtmp, LEG));
+            make_mon_prone(mtmp);
+            make_prone();
+        }
+    } else if (future_dist == 2) {
+        /* Moving around in front of the target */
+        if (Prone && mtmp->mprone && mtmp->mfrozen) {
+            You("put %s in a sleeper lock!", mon_nam(mtmp));
+            mtmp->msleeping = 1;
+            break_grapple = TRUE;
+        } else if (mtmp->mconf) {
+           You("spin-kick %s!", mon_nam(mtmp));
+           dmg = 8;
+           break_grapple = TRUE; 
+        } else {
+            pline_mon(mtmp, "You elbow smash %s!", mon_nam(mtmp));
+            if (rn2(8 - P_SKILL(P_GRAPPLING))) {
+                mtmp->mstun = 1;
+                if (canseemon(mtmp))
+                    pline_mon(mtmp, "%s is stunned!", Monnam(mtmp));
+            }
+        }
+        
+    } else if (future_dist == 5) {
+        /* Moving away at an angle */
+        /* leg pull should reasonably be next to either where the monster was or where the
+           player is targetting the leg pull. */
+        if (enexto(&cc, x, y, mtmp->data)
+            && (dist2(x, y, cc.x, cc.y) <= 2 || dist2(mtmp->mx, mtmp->my, cc.x, cc.y) <= 2)
+            && !m_will_hit_forcefield(mtmp, x, y)) {
+            rloc_to(mtmp, cc.x, cc.y);
+            pline_mon(mtmp, "You %s drag %s!",  mbodypart(mtmp, LEG), mon_nam(mtmp));
+        } else {
+            pline("Your move fails!");
+            dmg = 0;
+        }
+        break_grapple = FALSE;
+    /* suplexes involve the grappler dragging the victim with them,
+       so the path should check the player's square. */
+    } else if (goodpos(x, y, mtmp, 0) && !m_will_hit_forcefield(mtmp, u.ux, u.uy)
+        && !m_will_hit_forcefield(mtmp, x, y)) {
+        /* moving directly away */
+        pline_mon(mtmp, "You suplex %s!", mon_nam(mtmp));
+        rloc_to(mtmp, x, y);
+        dmg = 8;
+        break_grapple = TRUE;
+    } else {
+        /* Other case, generally back to wall, monster, or force field */
+        if (mtmp->msleeping && mtmp->mfrozen && u.uconduct.killer) {
+            dmg = 20;
+            You("snap %s's %s!", mon_nam(mtmp), mbodypart(mtmp, NECK));
+            break_grapple = TRUE;
+        } else {
+            pline_mon(mtmp, "You %s %s!", breathless(mtmp->data)
+                                            ? "throttle" : "choke", mon_nam(mtmp));
+        }
+    }
+    /* Now do some damage */
+    if (dmg) {
+        dmg = (rnd(dmg) + weapon_dam_bonus(uwep));
+        setmangry(mtmp, TRUE);
+        if (!u.uconduct.killer &&  mtmp->mhp <= dmg) {
+            You("knock out %s!", mon_nam(mtmp));
+            mtmp->msleeping = 1;
+        } else {
+            mtmp->mhp -= dmg;
+        }
+        if (DEADMONSTER(mtmp)) {
+            killed(mtmp);
+            return TRUE;
+        }
+        if (touch_petrifies(mtmp->data)) {
+            Sprintf(kbuf, "grappling %s", mon_nam(mtmp));
+            instapetrify(kbuf);
+        }
+    }
+
+    /* Chance of maintaining grip */
+    if (!break_grapple)
+        break_grapple = !rn2(max(2, P_SKILL(P_GRAPPLING)));
+    if (break_grapple) {
+        /* break the grapple */
+        set_ustuck((struct monst *) 0);
+        if (is_lord(mtmp->data))
+            pline_mon(mtmp, "%s breaks free!", Monnam(mtmp));
+        else if (is_prince(mtmp->data))
+            pline_mon(mtmp, "%s blocks your follow-up grab!", Monnam(mtmp));
+        else
+            pline("Your grip is broken.");
+        mtmp->mcanmove = 1;
+        mtmp->mfrozen = 0;
+    } else {
+        /* grapple is maintained, monster is paralyzed */
+        paralyze_monst(mtmp, 2);
+    }
+    return break_grapple;
 }
 
 

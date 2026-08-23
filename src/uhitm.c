@@ -1,4 +1,4 @@
-/* NetHack 5.0	uhitm.c	$NHDT-Date: 1752823766 2025/07/17 23:29:26 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.477 $ */
+/* NetHack 5.0	uhitm.c	$NHDT-Date: 1781973071 2026/06/20 16:31:11 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.503 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -555,7 +555,8 @@ do_attack(struct monst *mtmp)
                 You("begin bashing monsters with %s.", yname(uwep));
             else if (!cantwield(gy.youmonst.data))
                 You("begin %s monsters with your %s %s.",
-                    ing_suffix(Role_if(PM_MONK) ? "strike" : "bash"),
+                    ing_suffix(Role_if(PM_MONK) ? "strike"
+                                : Role_if(PM_GRAPPLER) ? "grab" : "bash"),
                     uarmg ? "gloved" : "bare", /* Del Lamb */
                     makeplural(body_part(HAND)));
         }
@@ -637,6 +638,7 @@ known_hitum(
             pline_mon(mon, "You grab %s!", mon_nam(mon));
             u.usticker = 1;
             set_ustuck(mon);
+            setmangry(mon, TRUE);
             return malive;
         }
 
@@ -880,6 +882,7 @@ staticfn void
 hmon_hitmon_barehands(struct _hitmon_data *hmd, struct monst *mon)
 {
     long spcdmgflg, hatedhit = 0L; /* worn masks */
+    struct obj *hated_obj = NULL;
     int spec_dmg = 0;
 
     if (hmd->mdat == &mons[PM_SHADE]) {
@@ -901,7 +904,7 @@ hmon_hitmon_barehands(struct _hitmon_data *hmd, struct monst *mon)
     spcdmgflg = uarmg ? W_ARMG
               : (((hmd->twohits == 0 || hmd->twohits == 1) ? W_RINGR : 0L)
                  | ((hmd->twohits == 0 || hmd->twohits == 2) ? W_RINGL : 0L));
-    spec_dmg += special_dmgval(&gy.youmonst, mon, spcdmgflg, (struct obj **) 0);
+    spec_dmg += special_dmgval(&gy.youmonst, mon, spcdmgflg, &hated_obj);
     hmd->dmg += spec_dmg;
 
     /* copy hatedhit info back into struct _hitmon_data *hmd */
@@ -921,7 +924,7 @@ hmon_hitmon_barehands(struct _hitmon_data *hmd, struct monst *mon)
         hmd->barehand_hated_rings = 0;
         break;
     }
-    if (spec_dmg) {
+    if (hated_obj) {
         hmd->hatedmsg = TRUE;
         hmd->hatedobj = TRUE;
     }
@@ -1943,11 +1946,6 @@ hmon_hitmon(
         hmon_hitmon_stagger(&hmd, mon, obj);
     } else if (!hmd.unarmed && hmd.dmg > 1 && !thrown && !Upolyd
                && !u.twoweap && uwep) {
-        maybe_knockback = TRUE;
-    }
-
-    /* Grapplers always get knockback if not polyd */
-    if (Role_if(PM_GRAPPLER) && !thrown && !Upolyd) {
         maybe_knockback = TRUE;
     }
 
@@ -5539,7 +5537,6 @@ mhitm_knockback(
     int chance = 6; /* 1/6 chance of attack knocking back a monster */
     boolean u_agr = (magr == &gy.youmonst);
     boolean u_def = (mdef == &gy.youmonst);
-    boolean wrasslin = (u_agr && Role_if(PM_GRAPPLER) && u.usticker && u.ustuck == mdef);
     boolean was_u = FALSE, dismount = FALSE;
     struct obj *wep = weapon_used ? (u_agr ? uwep : MON_WEP(magr))
                                   : (struct obj *) 0;
@@ -5547,7 +5544,7 @@ mhitm_knockback(
     if (wep && is_art(wep, ART_OGRESMASHER))
         chance = 2;
 
-    if (rn2(chance) && !wrasslin)
+    if (rn2(chance))
         return FALSE;
 
     /* only certain attacks qualify for knockback */
@@ -5561,7 +5558,7 @@ mhitm_knockback(
     /* don't knockback if attacker also wants to grab or engulf */
     if ((attacktype(magr->data, AT_ENGL)
         || attacktype(magr->data, AT_HUGS)
-        || sticks(magr->data)) && !wrasslin)
+        || sticks(magr->data)))
         return FALSE;
 
     /* decide where the first step will place the target; not accurate
@@ -5603,10 +5600,10 @@ mhitm_knockback(
         return FALSE;
 
     /* attacker must be much larger than defender */
-    if ((!(magr->data->msize > (mdef->data->msize + 1)) && !wrasslin))
+    if (!(magr->data->msize > (mdef->data->msize + 1)))
         return FALSE;
     /* no knockback with a flimsy or non-blunt weapon */
-    if (wep && (is_flimsy(wep) || !is_blunt_weapon(wep)) && !wrasslin)
+    if (wep && (is_flimsy(wep) || !is_blunt_weapon(wep)))
         return FALSE;
 
     /* needs a solid physical hit */
@@ -5638,9 +5635,7 @@ mhitm_knockback(
                    : "back";
 
     /* give the message */
-    if (wrasslin && canseemon(mdef) && !uwep) {
-        pline_mon(mdef, "You dropkick %s!", mon_nam(mdef));
-    } else if (u_def || canseemon(mdef)) {
+    if (u_def || canseemon(mdef)) {
         Strcpy(magrbuf, u_agr ? "You" : Monnam(magr));
         Strcpy(mdefbuf, (u_def || was_u) ? "you" : y_monnam(mdef));
         if (was_u)
@@ -5686,8 +5681,6 @@ mhitm_knockback(
             if (!was_u)
                 *hitflags |= M_ATTK_DEF_DIED;
         } else if (!rn2(4)) {
-            if (Role_if(PM_GRAPPLER) && u.uen == u.uenmax)
-                pline_mon(mdef, "%s is stunned! Now's your chance!", Monnam(mdef));
             mdef->mstun = 1;
             /* if steed and hero were knocked back, update attacker's idea
                of where hero is */

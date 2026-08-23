@@ -18,6 +18,7 @@
 MONSPELL(PSI_BOLT,     "psi bolt",         0, MCF_HOSTILE|MCF_SIGHT),
 MONSPELL(OPEN_WOUNDS,  "open wounds",      0, MCF_HOSTILE|MCF_SIGHT),
 MONSPELL(DISGUISE,     "disguise self",    0, MCF_HOSTILE|MCF_INDIRECT),
+MONSPELL(CURE_ALLIES,  "mass cure",        1, MCF_HOSTILE|MCF_INDIRECT),
 MONSPELL(CURE_SELF,    "cure self",        1, MCF_INDIRECT),
 MONSPELL(DARKNESS,     "darkness",         1, MCF_HOSTILE|MCF_SIGHT),
 MONSPELL(GREASE,       "grease",           1, MCF_HOSTILE|MCF_SIGHT),

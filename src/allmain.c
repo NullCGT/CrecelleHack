@@ -1,4 +1,4 @@
-/* NetHack 5.0	allmain.c	$NHDT-Date: 1771213100 2026/02/15 19:38:20 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.286 $ */
+/* NetHack 5.0	allmain.c	$NHDT-Date: 1781973040 2026/06/20 16:30:40 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.304 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -158,13 +158,6 @@ u_calc_moveamt(int wtcap)
         break;
     default:
         break;
-    }
-
-    if (u.ualign.type == A_CHAOTIC) {
-        if (on_hated_terrain())
-            moveamt -= (moveamt / 4);
-        else if (on_loved_terrain())
-            moveamt += (moveamt / 4);
     }
 
     u.umovement += moveamt;
@@ -363,8 +356,7 @@ moveloop_core(void)
                     }
                 }
 
-                if (!(u.ualign.type == A_NEUTRAL && on_hated_terrain()))
-                    regen_pw(mvl_wtcap);
+                regen_pw(mvl_wtcap);
 
                 if (!u.uinvulnerable) {
                     if (Teleportation && !rn2(85)) {
@@ -672,9 +664,7 @@ regen_pw(int wtcap)
         && ((wtcap < MOD_ENCUMBER
              && (!(svm.moves % ((MAXULEV + 8 - u.ulevel)
                               * (Role_if(PM_WIZARD) ? 3 : 4)
-                              / 6)))) || Energy_regeneration
-                                      || (u.ualign.type == A_NEUTRAL
-                                            && on_loved_terrain() && !rn2(3)))) {
+                              / 6)))) || Energy_regeneration)) {
         int upper = (int) (ACURR(A_WIS) + ACURR(A_INT)) / 15 + 1;
 
         if (EMagical_breathing)
@@ -951,10 +941,10 @@ newgame(void)
 
     urealtime.realtime = 0L;
     urealtime.start_timing = getnow();
+    program_state.something_worth_saving++; /* useful data now exists */
 #ifdef INSURANCE
     save_currentstate();
 #endif
-    program_state.something_worth_saving++; /* useful data now exists */
 
     /* Success! */
     welcome(TRUE);

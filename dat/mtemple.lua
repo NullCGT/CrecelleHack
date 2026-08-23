@@ -50,6 +50,7 @@ for x = 52,54 do
     des.object({ x = x, y = y})
     end
 end
+des.object({ id = "potion of gain ability", coord = {53,04}, buc = "blessed" });
 -- five gargoyles on either side, in the niches of the temple
 des.monster({ id = "gargoyle", x=14, y=1,peaceful=0,asleep=1})
 des.monster({ id = "gargoyle", x=20, y=1,peaceful=0,asleep=1})

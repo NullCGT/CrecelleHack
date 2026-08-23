@@ -1,4 +1,4 @@
-/* NetHack 5.0	polyself.c	$NHDT-Date: 1772101811 2026/02/26 02:30:11 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.227 $ */
+/* NetHack 5.0	polyself.c	$NHDT-Date: 1781973061 2026/06/20 16:31:01 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.233 $ */
 /*      Copyright (C) 1987, 1988, 1989 by Ken Arromdee */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -1150,7 +1150,7 @@ break_armor(struct permonst *old)
     struct obj *otmp;
     struct permonst *uptr = gy.youmonst.data;
 
-    boolean breakage = breakarm(uptr) || (old->msize < uptr->msize);
+    boolean breakage = (breakarm(uptr) && old->msize <= uptr->msize) || (old->msize < uptr->msize);
     boolean slippage = sliparm(uptr) || (old->msize > uptr->msize);
 
     if (breakage) {
@@ -1430,7 +1430,17 @@ dobreathe(void)
     if (!getdir((char *) 0))
         return ECMD_CANCEL;
 
-    mattk = attacktype_fordmg(gy.youmonst.data, AT_BREA, AD_ANY);
+    if (uarmh && uarmh->oprop == OPROP_BLAZING) {
+        mattk = attacktype_fordmg(&mons[PM_RED_DRAGON], AT_BREA, AD_ANY);
+    } else if (uarmh && uarmh->oprop == OPROP_ACIDIC) {
+        mattk = attacktype_fordmg(&mons[PM_YELLOW_DRAGON], AT_BREA, AD_ANY);
+    } else if (uarmh && uarmh->oprop == OPROP_CRACKLING) {
+        mattk = attacktype_fordmg(&mons[PM_BLUE_DRAGON], AT_BREA, AD_ANY);
+    } else if (uarmh && uarmh->oprop == OPROP_BOREAL) {
+        mattk = attacktype_fordmg(&mons[PM_WHITE_DRAGON], AT_BREA, AD_ANY);
+    } else {
+        mattk = attacktype_fordmg(gy.youmonst.data, AT_BREA, AD_ANY);
+    }
     if (!mattk)
         impossible("bad breath attack?"); /* mouthwash needed... */
     else if (!u.dx && !u.dy && !u.dz)

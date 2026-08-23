@@ -1,4 +1,4 @@
-/* NetHack 5.0	apply.c	$NHDT-Date: 1769342601 2026/01/25 04:03:21 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.475 $ */
+/* NetHack 5.0	apply.c	$NHDT-Date: 1781973040 2026/06/20 16:30:40 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.482 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -406,7 +406,10 @@ use_stethoscope(struct obj *obj)
     }
     if ((mtmp = m_at(rx, ry)) != 0) {
         const char *mnm = x_monnam(mtmp, ARTICLE_A, (const char *) 0,
-                                   SUPPRESS_IT | SUPPRESS_INVISIBLE | SUPPRESS_MAPPEARANCE, FALSE);
+                                   (SUPPRESS_IT | SUPPRESS_INVISIBLE
+                                    /* stethoscope reveals true form; seemimic
+                                       below will clear mtmp->mappearance */
+                                    | SUPPRESS_MAPPEARANCE), FALSE);
 
         /* gb.bhitpos needed by mstatusline() iff mtmp is a long worm */
         gb.bhitpos.x = rx, gb.bhitpos.y = ry;
@@ -4269,7 +4272,6 @@ do_break_wand(struct obj *obj)
         /*FALLTHRU*/
     case WAN_WISHING:
     case WAN_NOTHING:
-    case WAN_LOCKING:
     case WAN_GROWTH:
     case WAN_PROBING:
     case WAN_ENLIGHTENMENT:
@@ -4291,6 +4293,14 @@ do_break_wand(struct obj *obj)
     case WAN_MAGIC_MISSILE:
         broken_wand_explode(obj, dmg, EXPL_MAGICAL);
         return ECMD_TIME;
+    case WAN_LOCKING:
+        if (obj->spe) {
+            create_force_field(u.ux, u.uy, 3, (long) obj->spe);
+        } else {
+            pline(nothing_else_happens);
+        }
+        discard_broken_wand();
+        return ECMD_TIME;
     case WAN_STRIKING:
         /* we want this before the explosion instead of at the very end */
         Soundeffect(se_wall_of_force, 65);
@@ -4300,6 +4310,12 @@ do_break_wand(struct obj *obj)
         FALLTHROUGH;
         /*FALLTHRU*/
     case WAN_CANCELLATION:
+        /* The fallthrough from wand of striking is intentional, because
+           walls of force crashing down and destroying the force field is 
+           a pretty funny pun. - K*/
+        cancel_force_field(u.ux, u.uy);
+        FALLTHROUGH;
+        /*FALLTHRU*/
     case WAN_POLYMORPH:
     case WAN_TELEPORTATION:
     case WAN_UNDEAD_TURNING:
@@ -4569,6 +4585,9 @@ doapply(void)
     case BAG_OF_HOLDING:
     case OILSKIN_SACK:
         res = use_container(&obj, TRUE, FALSE);
+        break;
+    case BAG_OF_WINDS:
+        bagowinds(obj, FALSE);
         break;
     case BAG_OF_TRICKS:
         (void) bagotricks(obj, FALSE, (int *) 0);
@@ -4852,6 +4871,57 @@ flip_coin(struct obj *obj)
         pline("It comes up %s.", rn2(2) ? "heads" : "tails");
     }
     return ECMD_TIME;
+}
+
+/* suck up nearby gases, or perhaps release all winds in the bag.
+   the more times gas is released, the less reliable the bag becomes. */
+boolean
+bagowinds(
+    struct obj *bag,
+    boolean tipping)
+{
+    NhRegion *reg;
+
+    if (!bag || bag->otyp != BAG_OF_WINDS) {
+        impossible("bad bag o' winds");
+    } else if (!bag->cursed && !tipping
+                && (bag->spe < (10 - bag->recharged) || !rn2(max(2, bag->spe)))) {
+        reg = visible_region_at(u.ux, u.uy);
+        if (reg && is_gasregion(reg)) {
+            pline("%s sucks up nearby gas!", The(xname(bag)));
+            bag->corpsenm = suck_up_gas(u.ux, u.uy);
+            bag->spe++;
+        } else {
+            pline("Howling winds rush into %s!", the(xname(bag)));
+        }
+        makeknown(BAG_OF_WINDS);
+        update_inventory();
+    } else if (bag->spe > 0) {
+        pline("Gas spews from %s!", the(xname(bag)));
+        if (objects[bag->corpsenm].oc_class == POTION_CLASS) {
+            struct obj pseudo = cg.zeroobj;
+            pseudo.otyp = bag->corpsenm;
+            pseudo.blessed = bag->blessed;
+            pseudo.cursed = bag->cursed;
+            create_gas_cloud(u.ux, u.uy, bag->spe * 2, &pseudo, bag->spe * 4);
+        } else if (bag->corpsenm == SCR_STINKING_CLOUD) {
+            create_gas_cloud(u.ux, u.uy, bag->spe * 2, NULL, 8);
+        } else {
+            create_gas_cloud(u.ux, u.uy, bag->spe * 2, NULL, 0);
+        }
+        bag->spe = 0;
+        bag->recharged++;
+        makeknown(BAG_OF_WINDS);
+        update_inventory();
+    } else {
+        pline1(nothing_happens);
+        if (bag->dknown && objects[bag->otyp].oc_name_known) {
+            bag->cknown = 1;
+            update_inventory();
+        }
+        return FALSE;
+    }
+    return TRUE;
 }
 
 /*apply.c*/

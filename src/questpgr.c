@@ -633,14 +633,6 @@ qt_pager(const char *msgid)
         (void) com_pager_core("common", msgid, TRUE, (char **) 0);
 }
 
-void
-qt_to_win(const char *msgid, winid win) {
-    char *bufp = 0;
-    (void) com_pager_core("char_creation", msgid, TRUE, &bufp);
-    add_menu_str(win, bufp);
-    free((genericptr_t) bufp);
-}
-
 struct permonst *
 qt_montype(void)
 {

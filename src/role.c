@@ -1,4 +1,4 @@
-/* NetHack 5.0	role.c	$NHDT-Date: 1737607158 2025/01/22 20:39:18 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.107 $ */
+/* NetHack 5.0	role.c	$NHDT-Date: 1781973065 2026/06/20 16:31:05 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.111 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985-1999. */
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -68,7 +68,7 @@ const struct Role roles[NUM_ROLES+1] = {
       10,
       A_INT,
       SPE_MAGIC_MAPPING,
-      -4 },
+      -4, 20 },
     { { "Barbarian", 0 },
       { { "Plunderer", "Plunderess" },
         { "Pillager", 0 },
@@ -109,7 +109,7 @@ const struct Role roles[NUM_ROLES+1] = {
       8,
       A_INT,
       SPE_HASTE_SELF,
-      -4 },
+      -4, 40 },
     { { "Caveman", "Cavewoman" },
       { { "Troglodyte", 0 },
         { "Aborigine", 0 },
@@ -150,7 +150,7 @@ const struct Role roles[NUM_ROLES+1] = {
       8,
       A_INT,
       SPE_DIG,
-      -4 },
+      -4, 25 },
     { { "Grappler", 0 },
       { { "Jobber", 0 },
         { "Tin Can", 0 },
@@ -191,7 +191,7 @@ const struct Role roles[NUM_ROLES+1] = {
       10,
       A_WIS,
       SPE_JUMPING,
-      -4 },
+      -4, 10 },
     { { "Healer", 0 },
       { { "Rhizotomist", 0 },
         { "Empiric", 0 },
@@ -232,7 +232,7 @@ const struct Role roles[NUM_ROLES+1] = {
       10,
       A_WIS,
       SPE_CURE_SICKNESS,
-      -4 },
+      -4, 10 },
     { { "Knight", 0 },
       { { "Gallant", 0 },
         { "Esquire", 0 },
@@ -273,7 +273,7 @@ const struct Role roles[NUM_ROLES+1] = {
       9,
       A_WIS,
       SPE_TURN_UNDEAD,
-      -4 },
+      -4, 10 },
     { { "Monk", 0 },
       { { "Candidate", 0 },
         { "Novice", 0 },
@@ -314,7 +314,7 @@ const struct Role roles[NUM_ROLES+1] = {
       20,
       A_WIS,
       SPE_RESTORE_ABILITY,
-      -4 },
+      -4, 20 },
     { { "Priest", "Priestess" },
       { { "Aspirant", 0 },
         { "Acolyte", 0 },
@@ -355,7 +355,7 @@ const struct Role roles[NUM_ROLES+1] = {
       10,
       A_WIS,
       SPE_REMOVE_CURSE,
-      -4 },
+      -4, 25 },
     /* Note:  Rogue precedes Ranger so that use of `-R' on the command line
        retains its traditional meaning. */
     { { "Rogue", 0 },
@@ -398,7 +398,7 @@ const struct Role roles[NUM_ROLES+1] = {
       9,
       A_INT,
       SPE_DETECT_TREASURE,
-      -4 },
+      -4, 5 },
     { { "Ranger", 0 },
       {
 #if 0 /* OBSOLETE */
@@ -453,7 +453,7 @@ const struct Role roles[NUM_ROLES+1] = {
       10,
       A_INT,
       SPE_INVISIBILITY,
-      -4 },
+      -4, 30 },
     { { "Samurai", 0 },
       { { "Hatamoto", 0 },       /* Banner Knight */
         { "Ronin", 0 },          /* no allegiance */
@@ -494,7 +494,7 @@ const struct Role roles[NUM_ROLES+1] = {
       8,
       A_INT,
       SPE_CLAIRVOYANCE,
-      -4 },
+      -4, 40 },
     { { "Tourist", 0 },
       { { "Rambler", 0 },
         { "Sightseer", 0 },
@@ -535,7 +535,7 @@ const struct Role roles[NUM_ROLES+1] = {
       10,
       A_INT,
       SPE_CHARM_MONSTER,
-      -4 },
+      -4, 15 },
     { { "Valkyrie", 0 },
       { { "Stripling", 0 },
         { "Skirmisher", 0 },
@@ -576,7 +576,7 @@ const struct Role roles[NUM_ROLES+1] = {
       9,
       A_WIS,
       SPE_CONE_OF_COLD,
-      -4 },
+      -4, 15 },
     { { "Wizard", 0 },
       { { "Evoker", 0 },
         { "Conjurer", 0 },
@@ -617,7 +617,7 @@ const struct Role roles[NUM_ROLES+1] = {
       10,
       A_INT,
       SPE_MAGIC_MISSILE,
-      -4 },
+      -4, 5 },
     /* Array terminator */
     UNDEFINED_ROLE,
 };
@@ -640,13 +640,13 @@ const struct Race races[NUM_RACES + 1] = {
         MH_HUMAN,
         0,
         MH_GNOME | MH_ORC | MH_KOBOLD,
-        COAT_FROST, COAT_MUD,
         /*    Str     Int Wis Dex Con Cha */
         { 3, 3, 3, 3, 3, 3 },
         { STR18(100), 18, 18, 18, 18, 18 },
         /* Init   Lower  Higher */
         { 2, 0, 0, 2, 1, 0 }, /* Hit points */
-        { 1, 0, 2, 0, 2, 0 }  /* Energy */
+        { 1, 0, 2, 0, 2, 0 }, /* Energy */
+        0.0
     },
     {
         "elf",
@@ -662,13 +662,13 @@ const struct Race races[NUM_RACES + 1] = {
         MH_ELF,
         MH_ELF,
         MH_ORC | MH_KOBOLD,
-        COAT_GRASS, COAT_ASHES,
         /*  Str    Int Wis Dex Con Cha */
         { 3, 3, 3, 3, 3, 3 },
         { 18, 20, 20, 18, 16, 18 },
         /* Init   Lower  Higher */
         { 1, 0, 0, 1, 1, 0 }, /* Hit points */
-        { 2, 0, 3, 0, 3, 0 }  /* Energy */
+        { 2, 0, 3, 0, 3, 0 }, /* Energy */
+        0.9,
     },
     {
         "dwarf",
@@ -684,13 +684,13 @@ const struct Race races[NUM_RACES + 1] = {
         MH_DWARF,
         MH_DWARF | MH_GNOME,
         MH_ORC | MH_KOBOLD,
-        0, COAT_GRASS,
         /*    Str     Int Wis Dex Con Cha */
         { 3, 3, 3, 3, 3, 3 },
         { STR18(100), 16, 16, 20, 20, 16 },
         /* Init   Lower  Higher */
         { 4, 0, 0, 3, 2, 0 }, /* Hit points */
-        { 0, 0, 0, 0, 0, 0 }  /* Energy */
+        { 0, 0, 0, 0, 0, 0 }, /* Energy */
+        0.8,
     },
     {
         "gnome",
@@ -706,13 +706,13 @@ const struct Race races[NUM_RACES + 1] = {
         MH_GNOME,
         MH_DWARF | MH_GNOME,
         MH_HUMAN | MH_KOBOLD,
-        COAT_POTION, COAT_FUNGUS,
         /*  Str    Int Wis Dex Con Cha */
         { 3, 3, 3, 3, 3, 3 },
         { STR18(50), 19, 18, 18, 18, 18 },
         /* Init   Lower  Higher */
         { 1, 0, 0, 1, 0, 0 }, /* Hit points */
-        { 2, 0, 2, 0, 2, 0 }  /* Energy */
+        { 2, 0, 2, 0, 2, 0 }, /* Energy */
+        0.7
     },
     {
         "orc",
@@ -728,13 +728,13 @@ const struct Race races[NUM_RACES + 1] = {
         MH_ORC,
         0,
         MH_HUMAN | MH_ELF | MH_DWARF | MH_KOBOLD,
-        COAT_BLOOD, COAT_MUD,
         /*  Str    Int Wis Dex Con Cha */
         { 3, 3, 3, 3, 3, 3 },
         { STR18(50), 16, 16, 18, 18, 16 },
         /* Init   Lower  Higher */
         { 1, 0, 0, 1, 0, 0 }, /* Hit points */
-        { 1, 0, 1, 0, 1, 0 }  /* Energy */
+        { 1, 0, 1, 0, 1, 0 }, /* Energy */
+        0.6,
     },
     {
         "kobold",
@@ -749,12 +749,12 @@ const struct Race races[NUM_RACES + 1] = {
         MH_KOBOLD,
         MH_KOBOLD,
         MH_HUMAN | MH_ELF | MH_DWARF | MH_ORC | MH_GNOME | MH_GIANT,
-        COAT_MUD, COAT_FROST,
         { 3, 3, 3, 3, 3, 3 },
         { 14, 20, 16, 18, 14, 20 },
         /* Init   Lower  Higher */
         { 0, 0, 0, 0, 0, 1 }, /* Hit points */
-        { 2, 1, 2, 1, 2, 1 }  /* Energy */
+        { 2, 1, 2, 1, 2, 1 }, /* Energy */
+        0.5,
     },
     /* Array terminator */
     UNDEFINED_RACE,
@@ -2955,35 +2955,6 @@ plsel_startmenu(int ttyrows, int aspect)
     add_menu_str(win, qbuf);
     if (maybe_skip_seps(ttyrows, aspect) != 2)
         add_menu_str(win, "");
-    if (flags.char_blurbs && WINDOWPORT(curses)) {
-        /* character verbs to ease in variant newcomers. */
-        if (ROLE >= 0) {
-            qt_to_win(roles[ROLE].name.m, win);
-            if (maybe_skip_seps(ttyrows, aspect) != 2) {
-                add_menu_str(win, "");
-                add_menu_str(win, "");
-            }
-        }
-        if (RACE >= 0) {
-            qt_to_win(races[RACE].noun, win);
-            if (maybe_skip_seps(ttyrows, aspect) != 2) {
-                add_menu_str(win, "");
-                add_menu_str(win, "");
-            }
-        }
-        if (GEND >= 0) {
-            add_menu_str(win, "Gender is immaterial. The dungeon shall consume you the same.");
-            if (maybe_skip_seps(ttyrows, aspect) != 2)
-                add_menu_str(win, "");
-        }
-        if (ALGN >= 0) {
-            qt_to_win(aligns[ALGN].adj, win);
-            if (maybe_skip_seps(ttyrows, aspect) != 2) {
-                add_menu_str(win, "");
-                add_menu_str(win, "");
-            }
-        }
-    }
     return win;
 }
 

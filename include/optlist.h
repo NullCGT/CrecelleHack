@@ -236,9 +236,6 @@ static int optfn_##a(int, int, boolean, char *, char *);
     NHOPTC(catname, Advanced, PL_PSIZ, opt_in, set_gameview,
                 No, Yes, No, No, NoAlias,
                 "name of your starting pet if it is a kitten")
-   NHOPTB(char_blurbs, Variant, 0, opt_in, set_in_game,
-           Off, Yes, No, No, NoAlias, &flags.char_blurbs, Term_False,
-           "display character creation info blurbs")
 #ifdef INSURANCE
     NHOPTB(checkpoint, Advanced, 0, opt_out, set_in_sysconf,
            On, Yes, No, No, NoAlias, &flags.ins_chkpt, Term_False,
@@ -312,8 +309,8 @@ static int optfn_##a(int, int, boolean, char *, char *);
                 opt_in, set_in_game,
                 Yes, Yes, No, Yes, NoAlias,
                 "the kinds of information to disclose at end of game")
-    NHOPTB(dnh_enlightenment, Variant, 0, opt_in, set_in_game,
-           Off, Yes, No, No, NoAlias, &flags.dnh_enlightenment, Term_False,
+    NHOPTB(attributes_menu, Variant, 0, opt_in, set_in_game,
+           Off, Yes, No, No, "dnh_enlightenment", &flags.attributes_menu, Term_False,
            "display a menu for enlightenment")
     NHOPTC(dogname, Advanced, PL_PSIZ, opt_in, set_gameview,
                 No, Yes, No, No, NoAlias,
@@ -390,11 +387,15 @@ static int optfn_##a(int, int, boolean, char *, char *);
     NHOPTB(herecmd_menu, Advanced, 0, opt_in, set_in_game,
            Off, Yes, No, No, NoAlias, &iflags.herecmd_menu, Term_False,
            "show commands available in this location")
+#if 0
+/* there is no optfn_hicolor() defined in options.c presently
+   and that is required for NHOPTC */
 #if defined(MAC68K)
     NHOPTC(hicolor, Advanced, 15, opt_in, set_in_config,
                 No, Yes, No, No, NoAlias,
                 "same as palette, only order is reversed")
 #endif
+#endif /* 0 */
     NHOPTB(hilite_pet, Map, 0, opt_in, set_in_game,
            Off, Yes, No, No, NoAlias, &iflags.wc_hilite_pet, Term_False,
            "use highlight for pets")
@@ -471,7 +472,7 @@ static int optfn_##a(int, int, boolean, char *, char *);
            On, Yes, No, No, NoAlias, &flags.biff, Term_False,
            "enable the mail daemon")
     NHOPTC(map_mode, Advanced, 20, opt_in, set_gameview,
-                Yes, Yes, No, No, NoAlias, "map display mode under Windows")
+                Yes, Yes, Yes, No, NoAlias, "map display mode under Windows")
     NHOPTB(mention_decor, Advanced, 0, opt_in, set_in_game,
            Off, Yes, No, No, NoAlias, &flags.mention_decor, Term_False,
            "give feedback when walking over interesting features")
@@ -886,7 +887,7 @@ static int optfn_##a(int, int, boolean, char *, char *);
            (char *)0)
     NHOPTC(versinfo, Advanced, 80, opt_out, set_in_game,
            No, Yes, No, Yes, NoAlias, "extra information for 'showvers'")
-#ifdef MSDOS
+#if defined(MSDOS) && defined(NO_TERMS)
     NHOPTC(video, Advanced, 20, opt_in, set_in_config,
                 No, Yes, No, No, NoAlias, "method of video updating")
 #endif

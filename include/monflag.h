@@ -1,4 +1,4 @@
-/* NetHack 5.0	monflag.h	$NHDT-Date: 1596498549 2020/08/03 23:49:09 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.21 $ */
+/* NetHack 5.0	monflag.h	$NHDT-Date: 1781973083 2026/06/20 16:31:23 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.33 $ */
 /* Copyright (c) 1989 Mike Threepoint                             */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -126,8 +126,8 @@ enum ms_sounds {
 #define M2_NOPOLY       0x00000001L /* players mayn't poly into one */
 #define M2_COLLAT       0x00000002L /* smashes items on floor when missing */
 #define M2_IGNOREPETS   0x00000004L /* ignores pets in favor of attacking player */
-// #define M2_HUMAN        0x00000008L /* is a human */
-// #define M2_ELF          0x00000010L /* is an elf */
+#define M2_SUPPORTER    0x00000008L /* attempts to support allies */
+#define M2_DEATHDROP    0x00000010L /* has death drops */
 // #define M2_DWARF        0x00000020L /* is a dwarf */
 // #define M2_GNOME        0x00000040L /* is a gnome */
 // #define M2_ORC          0x00000080L /* is an orc */

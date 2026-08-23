@@ -1,4 +1,4 @@
-/* NetHack 5.0	muse.c	$NHDT-Date: 1770949988 2026/02/12 18:33:08 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.241 $ */
+/* NetHack 5.0	muse.c	$NHDT-Date: 1781973057 2026/06/20 16:30:57 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.248 $ */
 /*      Copyright (C) 1990 by Ken Arromdee                         */
 /* NetHack may be freely redistributed.  See license for details.  */
 
@@ -1196,7 +1196,7 @@ use_defensive(struct monst *mtmp)
         pline_mon(mtmp, "%s kicks ashes into your %s!", 
                     Monnam(mtmp), body_part(FACE));
         remove_coating(mtmp->mx, mtmp->my, COAT_ASHES);
-        make_blinded(rn1(5, 5), TRUE);
+        make_blinded(rn1(5, 5), FALSE);
         break;
     }
     case MUSE_COAT_BLOOD: {
@@ -2470,7 +2470,9 @@ find_misc(struct monst *mtmp)
             gm.m.has_misc = MUSE_POT_POLYMORPH;
         }
         nomore(MUSE_BAG);
-        if (Is_container(obj) && obj->otyp != BAG_OF_TRICKS && !rn2(5)
+        if (Is_container(obj) && obj->otyp != BAG_OF_TRICKS
+            && obj->otyp != BAG_OF_WINDS
+            && !rn2(5)
             && !SchroedingersBox(obj)
             && !gm.m.has_misc && Has_contents(obj)
             && !obj->olocked && !obj->otrapped) {

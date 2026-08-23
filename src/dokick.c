@@ -1,4 +1,4 @@
-/* NetHack 5.0	dokick.c	$NHDT-Date: 1712453347 2024/04/07 01:29:07 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.223 $ */
+/* NetHack 5.0	dokick.c	$NHDT-Date: 1781973046 2026/06/20 16:30:46 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.237 $ */
 /* Copyright (c) Izchak Miller, Mike Stephenson, Steve Linhart, 1989. */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -1165,7 +1165,16 @@ kick_nondoor(coordxy x, coordxy y, int avrg_attrib)
         return ECMD_TIME;
     }
     if (gm.maploc->typ == IRONBARS) {
-        kick_ouch(x, y, "");
+        if (uarmf && uarmf->oprop == OPROP_ACIDIC
+            && !rn2(6)) {
+            pline_The("iron bars melt!");
+            uarmf->pknown = 1;
+            gm.maploc->typ = ROOM;
+            newsym(x, y);
+            update_inventory();
+        } else {
+            kick_ouch(x, y, "");
+        }
         return ECMD_TIME;
     }
     if (IS_TREE(gm.maploc->typ)) {
@@ -2193,7 +2202,7 @@ dograpple(void)
     struct obj *cloak;
     boolean touched = FALSE;
     char kbuf[BUFSZ];
-    if (u.usticker) {
+    if (u.usticker && u.ustuck) {
         pline_mon(u.ustuck, "You stop grappling %s.", mon_nam(u.ustuck));
         set_ustuck((struct monst *) 0);
         return ECMD_CANCEL;

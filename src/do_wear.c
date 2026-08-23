@@ -1,4 +1,4 @@
-/* NetHack 5.0	do_wear.c	$NHDT-Date: 1737343372 2025/01/19 19:22:52 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.201 $ */
+/* NetHack 5.0	do_wear.c	$NHDT-Date: 1781973047 2026/06/20 16:30:47 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.212 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -887,17 +887,26 @@ oprop_armor_handling(struct obj *otmp, boolean puton)
             break;
         case OPROP_BRINY:
             if (puton) {
-                ESwimming |= mask;
+                if (is_helmet(otmp))
+                    EMagical_breathing |= mask;
+                else
+                    ESwimming |= mask;
             } else {
-                ESwimming &= !mask;
+                if (is_helmet(otmp))
+                    ESwimming &= !mask;
+                else
+                    EMagical_breathing &= !mask;
             }
             break;
         case OPROP_HEXED:
-            if (Blind)
-                pline("%s for a moment.", Tobjnam(otmp, "vibrate"));
-            else
-                pline("%s %s for a moment.", Tobjnam(otmp, "glow"),
-                      hcolor(NH_BLACK));
+            if (!otmp->cursed) {
+                if (Blind)
+                    pline("%s for a moment.", Tobjnam(otmp, "vibrate"));
+                else
+                    pline("%s %s for a moment.", Tobjnam(otmp, "glow"),
+                          hcolor(NH_BLACK));
+                otmp->pknown = 1;
+            }
             curse(otmp);
             update_inventory();
             break;
@@ -1923,6 +1932,10 @@ armor_or_accessory_off(struct obj *obj)
     if (obj->owornmask & W_ARMOR) {
         (void) armoroff(obj);
     } else if (obj == uright || obj == uleft) {
+        if (objdescr_is(obj, "sticky") && rn2(3)) {
+            pline("Oops! The ring sticks to your %s.", body_part(FINGER));
+            return ECMD_TIME;
+        }
         /* Sometimes we want to give the off_msg before removing and
          * sometimes after; for instance, "you were wearing a moonstone
          * ring (on right hand)" is desired but "you were wearing a
@@ -2660,17 +2673,8 @@ find_ac(void)
     if (!Prone)
         uac -= AMOD(A_DEX);
 
-    /* Prone reduction */
     if (Prone)
         uac += 3;
-
-    /* Coating improvement or reduction */
-    if (u.ualign.type == A_LAWFUL) {
-        if (on_hated_terrain())
-            uac += 3;
-        else if (on_loved_terrain())
-            uac -= 3;
-    }
 
     /* armor class from other sources */
     if (HProtection & INTRINSIC)
@@ -3699,25 +3703,6 @@ wrong_size_armor(struct obj *obj, struct permonst *ptr)
     } else if (!is_cloak(obj) && obj->osize != size) {
         return (obj->osize > size) ? 1 : -1;
     }
-    return FALSE;
-}
-
-boolean
-on_loved_terrain(void) {
-    if (Race_if (PM_DWARF) && !levl[u.ux][u.uy].coat_info) {
-        return TRUE;
-    } else if (gu.urace.lovecoat
-                && has_coating(u.ux, u.uy, gu.urace.lovecoat)) {
-        return TRUE;
-    }
-    return FALSE;
-}
-
-boolean
-on_hated_terrain(void) {
-    if (gu.urace.hatecoat
-                && has_coating(u.ux, u.uy, gu.urace.hatecoat))
-        return TRUE;
     return FALSE;
 }
 

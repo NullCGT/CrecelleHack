@@ -1,4 +1,4 @@
-/* NetHack 5.0	sounds.c	$NHDT-Date: 1736530208 2025/01/10 09:30:08 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.165 $ */
+/* NetHack 5.0	sounds.c	$NHDT-Date: 1781973067 2026/06/20 16:31:07 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.172 $ */
 /*      Copyright (c) 1989 Janet Walz, Mike Threepoint */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -874,8 +874,10 @@ domonnoise(struct monst *mtmp)
                                                flags.female ? FEMALE : MALE))
                                    : an(racenoun));
                     verbl_msg = verbuf;
-                } else
-                    verbl_msg = vampmsg[vampindex];
+                } else if (vampindex > 1) {
+                    if (vampindex >= 0 && vampindex < SIZE(vampmsg))
+                        verbl_msg = vampmsg[vampindex];
+                }
             }
         }
         break;
@@ -2641,7 +2643,7 @@ doorder(void)
      * Note: when mounted, mtmp == u.usteed and shares player position,
      * so distu() will be 0 which passes the check.
      */
-    if (choice == 4 || choice == 5 || choice == 7 || choice == 8) {
+    if (choice == 4 || choice == 5 || choice == 6 || choice == 7) {
         if (distu(mtmp->mx, mtmp->my) > 2) {
             You("need to be next to %s to do that.", mon_nam(mtmp));
             return 0;

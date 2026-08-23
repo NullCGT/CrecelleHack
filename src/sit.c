@@ -1,4 +1,4 @@
-/* NetHack 5.0	sit.c	$NHDT-Date: 1718136168 2024/06/11 20:02:48 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.95 $ */
+/* NetHack 5.0	sit.c	$NHDT-Date: 1781973067 2026/06/20 16:31:07 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.112 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -473,6 +473,7 @@ dosit(void)
                          || obj->material == CLOTH))
                 pline("It's not very comfortable...");
         }
+        make_prone();
     } else if (trap != 0 || (u.utrap && (u.utraptype >= TT_LAVA))) {
         if (u.utrap) {
             exercise(A_WIS, FALSE); /* you're getting stuck longer */
@@ -608,6 +609,7 @@ dosit(void)
         make_dripping(rnd(5), fakeobj.otyp, NON_PM);
         remove_coating(u.ux, u.uy, COAT_POTION);
     }
+    make_prone();
     return ECMD_TIME;
 }
 

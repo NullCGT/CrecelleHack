@@ -1,4 +1,4 @@
-/* NetHack 5.0	makemon.c	$NHDT-Date: 1770949988 2026/02/12 18:33:08 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.271 $ */
+/* NetHack 5.0	makemon.c	$NHDT-Date: 1781973053 2026/06/20 16:30:53 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.277 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -132,14 +132,14 @@ m_initgrp(
 
     cnttmp = cnt;
     debugpline4("init group call <%d,%d>, n=%d, cnt=%d.", x, y, n, cnt);
-    cntdiv = ((u.ulevel < 3) ? 4 : (u.ulevel < 5) ? 2 : 1);
+    cntdiv = ((depth(&u.uz) < 3) ? 4 : (depth(&u.uz) < 5) ? 2 : 1);
 #endif
     /* Tuning: cut down on swarming at low character levels [mrs] */
-    cnt /= (u.ulevel < 3) ? 4 : (u.ulevel < 5) ? 2 : 1;
+    cnt /= (depth(&u.uz) < 3) ? 4 : (depth(&u.uz) < 5) ? 2 : 1;
 #if defined(__GNUC__) && (defined(HPUX) || defined(DGUX))
     if (cnt != (cnttmp / cntdiv)) {
         pline("cnt=%d using %d, cnttmp=%d, cntdiv=%d", cnt,
-              (u.ulevel < 3) ? 4 : (u.ulevel < 5) ? 2 : 1, cnttmp, cntdiv);
+              (depth(&u.uz) < 3) ? 4 : (depth(&u.uz) < 5) ? 2 : 1, cnttmp, cntdiv);
     }
 #endif
     if (!cnt)
@@ -496,6 +496,7 @@ m_initweap(struct monst *mtmp)
         if (mm == PM_ALEAX) {
             /* Aleaxes receive a perfect copy of all items in the inventory
                of the player. */
+            give_u_to_m_resistances(mtmp);
             for (struct obj *uobj = gi.invent; uobj; uobj = uobj->nobj) {
                 if (is_ascension_obj(uobj))
                     continue;
@@ -653,6 +654,8 @@ m_initweap(struct monst *mtmp)
     case S_OGRE:
         if (!rn2(mm == PM_OGRE_TYRANT ? 3 : mm == PM_OGRE_LEADER ? 6 : 12))
             (void) mongets(mtmp, BATTLE_AXE);
+        else if (mm == PM_OGRE_MAGE)
+            (void) mongets(mtmp, TWO_HANDED_SWORD);
         else
             (void) mongets(mtmp, CLUB);
         break;
@@ -738,32 +741,33 @@ m_initweap(struct monst *mtmp)
         switch (rnd(14 - (2 * bias))) {
         case 1:
             if (strongmonst(ptr))
-                (void) mongets(mtmp, BATTLE_AXE);
+                (void) mongets(mtmp, rn2(20) ? BATTLE_AXE : DUAL_AXE);
             else
                 m_initthrow(mtmp, DART, 12);
             break;
         case 2:
             if (strongmonst(ptr))
-                (void) mongets(mtmp, rn2(4) ? TWO_HANDED_SWORD : BROADSWORD);
+                (void) mongets(mtmp, rn2(4) ? TWO_HANDED_SWORD
+                                        : rn2(4) ? BROADSWORD : FLAMBERGE);
             else {
                 (void) mongets(mtmp, CROSSBOW);
                 m_initthrow(mtmp, CROSSBOW_BOLT, 12);
             }
             break;
         case 3:
-            (void) mongets(mtmp, BOW);
+            (void) mongets(mtmp, rnd_class(BOW, YUMI));
             m_initthrow(mtmp, ARROW, 12);
             break;
         case 4:
             if (strongmonst(ptr))
-                (void) mongets(mtmp, LONG_SWORD);
+                (void) mongets(mtmp, rnd_class(AXE, BULLWHIP));
             else
                 m_initthrow(mtmp, (svl.level.flags.temperature == -1)
                                     ? ICICLE : DAGGER, 3);
             break;
         case 5:
             if (strongmonst(ptr))
-                (void) mongets(mtmp, PARTISAN + rn1(BEC_DE_CORBIN - PARTISAN + 1, PARTISAN));
+                (void) mongets(mtmp, rnd_class(PARTISAN, BEC_DE_CORBIN));
             else
                 (void) mongets(mtmp, AKLYS);
             break;
@@ -2053,7 +2057,7 @@ rndmonst_adj(int minadj, int maxadj)
 
         if (montooweak(mndx, minmlev) || montoostrong(mndx, maxmlev))
             continue;
-        if (upper && !isupper(monsym(ptr)))
+        if (upper && !isupper((int) monsym(ptr)))
             continue;
         if (elemlevel && wrong_elem_type(ptr))
             continue;
@@ -2336,7 +2340,7 @@ mkclass_aligned(char class, int spc, /* special mons[].geno handling */
                    being picked nearly twice as often as succubus);
                    we need the '+1' in case the entire set is too high
                    level (really low svl.level hero) */
-                nums[MONSi(last)] = k + 1 - (adj_lev(&mons[MONSi(last)]) > (u.ulevel * 2));
+                nums[MONSi(last)] = k + 1 - (adj_lev(&mons[MONSi(last)]) > (depth(&u.uz) * 2));
                 num += nums[MONSi(last)];
             }
         }
@@ -2415,7 +2419,7 @@ adj_lev(struct permonst *ptr)
     else
         tmp += (tmp2 / 5); /* else increment 1 per five diff */
 
-    tmp2 = (u.ulevel - ptr->mlevel); /* adjust vs. the player */
+    tmp2 = (depth(&u.uz) - ptr->mlevel); /* adjust vs. the player */
     if (tmp2 > 0)
         tmp += (tmp2 / 4); /* level as well */
 

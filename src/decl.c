@@ -1,4 +1,4 @@
-/* NetHack 5.0	decl.c	$NHDT-Date: 1736530208 2025/01/10 09:30:08 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.341 $ */
+/* NetHack 5.0	decl.c	$NHDT-Date: 1781973044 2026/06/20 16:30:44 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.368 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Michael Allison, 2009. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -135,7 +135,7 @@ static const struct Role urole_init_data = {
      4,
     A_INT,
      0,
-    -3
+    -3,15
 };
 
 static const struct Race urace_init_data = {
@@ -151,14 +151,13 @@ static const struct Race urace_init_data = {
     0,
     0,
     0,
-    0,
-    0,
     /*    Str     Int Wis Dex Con Cha */
     { 3, 3, 3, 3, 3, 3 },
     { STR18(100), 18, 18, 18, 18, 18 },
     /* Init   Lower  Higher */
     { 2, 0, 0, 2, 1, 0 }, /* Hit points */
-    { 1, 0, 2, 0, 2, 0 }  /* Energy */
+    { 1, 0, 2, 0, 2, 0 }, /* Energy */
+    0 /* Geo */
 };
 
 struct display_hints disp = { 0 };
@@ -649,6 +648,13 @@ static const struct instance_globals_p g_init_p = {
     UNDEFINED_PTR, /* propellor */
     /* zap.c */
     UNDEFINED_VALUE, /* poly_zap */
+    0,               /*  puzzling_criteria */
+    {
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    },  /* puzzling_ilets[] */
+
     TRUE, /* havestate*/
 };
 

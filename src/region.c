@@ -1,4 +1,4 @@
-/* NetHack 5.0	region.c	$NHDT-Date: 1727251269 2024/09/25 08:01:09 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.104 $ */
+/* NetHack 5.0	region.c	$NHDT-Date: 1781973064 2026/06/20 16:31:04 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.112 $ */
 /* Copyright (c) 1996 by Jean-Christophe Collet  */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -543,15 +543,19 @@ spread_bonfire(NhRegion *reg) {
                 remove_coating(x, y, COAT_POTION);
                 newreg = create_bonfire(x, y, rn1(20, 10), d(4, 4));
             }
-            detonate_waste(x, y);
-            if (x == reg->bounding_box.lx && y == reg->bounding_box.ly) {
-                evaporate_potion_puddles(x, y);
-            }
             /* set faults */
             if (heros_fault(reg) && newreg)
                 set_heros_fault(newreg);
             else if (newreg)
                 clear_heros_fault(newreg);
+            /* HCollateral damage */
+            if (newreg
+                || (x >= reg->bounding_box.lx && x <= reg->bounding_box.hx
+                    && y >= reg->bounding_box.lx && y <= reg->bounding_box.hy)) {
+                fire_damage_chain(svl.level.objects[x][y], TRUE, TRUE, x, y);
+                detonate_waste(x, y);
+                evaporate_potion_puddles(x, y);
+            }
         }
     }
 }
@@ -657,6 +661,30 @@ m_in_out_region(struct monst *mon, coordxy x, coordxy y)
 
     return TRUE;
 }
+
+/*
+ * check whether a monster CAN enter/leave their position due to a forcefield.
+ * TODO: make a version of this function that does the callback silently. currently,
+ * this function only checks forcefields, which is not future-proof.
+ */
+boolean
+m_will_hit_forcefield(struct monst *mon, coordxy x, coordxy y)
+{
+    int i, f_indx = 0;
+    for (i = 0; i < svn.n_regions; i++) {
+        if (gr.regions[i]->attach_2_m == mon->m_id)
+            continue;
+        if (inside_region(gr.regions[i], x, y)
+            ? (!mon_in_region(gr.regions[i], mon)
+               && (f_indx = gr.regions[i]->can_enter_f) == ENTER_FF)
+            : (mon_in_region(gr.regions[i], mon)
+               && (f_indx = gr.regions[i]->can_leave_f) == ENTER_FF)) {
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+
 
 /*
  * Checks player's regions after a teleport for instance.
@@ -1790,6 +1818,35 @@ create_bonfire(coordxy x, coordxy y, int lifetime, int damage)
 boolean
 is_bonfire(NhRegion *reg) {
     return (reg->inside_f == INSIDE_BONFIRE);
+}
+
+boolean
+is_force_field(NhRegion *reg) {
+    return (reg->inside_f == INSIDE_FF);
+}
+
+/* cancel a force field at a given set of coordinates */
+boolean
+cancel_force_field(coordxy x, coordxy y) {
+    NhRegion *reg = visible_region_at(x, y);
+    if (!reg || !is_force_field(reg))
+        return FALSE;
+    pline("A force field is destroyed!");
+    remove_region(reg);
+    return TRUE;
+}
+
+int
+suck_up_gas(coordxy x, coordxy y) {
+    int ret;
+    NhRegion *reg = visible_region_at(x, y);
+    if (!reg || !is_gasregion(reg))
+        panic("Sucking up nonexistent gas?");
+    ret = REGION_OTYP(reg);
+    if (!ret)
+        ret = REGION_DAMAGE(reg) ? SCR_STINKING_CLOUD : SCR_LIGHT;
+    remove_region(reg);
+    return ret;
 }
 
 /*region.c*/

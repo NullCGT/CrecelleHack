@@ -1,33 +1,85 @@
 # 1.6
 
-## Monsters
-- New Monsters:
-  - (Head) Butler/Maid/Servant
-  - Giant Slug
-    - Suggested by Tokage.
-
-## Options
-- biome_overview
-
-## New Objects
-- Gas Mask
-  - Blocks poison gas and potion clouds.
-  - Blocks eating when worn.
-
-## Dungeon Generation
-- Give Vlad a nicer throne room.
-
-## Misc
-- YAFM for closed shops.
-- Prevent shopkeepers from locking players inside their shops at night.
-- Massively reduce resizing kit weight.
-- T-shirts and 50% of robes spawn pre-dyed.
+## Game Balance
+- Drinking a potion or using it for alchemy no longer results in an empty bottle.
+  - Empty bottles can still be obtained through other means.
+- Changed potion of gain ability to function as it does in xnethack, copying the code and
+  updating it for 5.0 compatability.
+  - Potions of gain ability do not appear randomly, but as rewards for optional branches
+    and in the valley.
+- Remove terrain boosts feature.
+- Remove ability score skill changes through #enhance and restore the exercise system.
+- Fix being able to wish oprops on artifacts.
 - Scrolls of transmute material cost more to write.
 - Dragonhide cannot be explicitly specified as a material. Wishing for a dragonhide
   item results in a normal item of that types, while transmuting dragonhide results
   in a random material.
 - Increasing the pet handling skill increases the max number of pets you can have
   (and increase it by 1 generally).
+
+## Monsters
+- New Monsters:
+  - (Head) Butler/Maid/Servant
+  - Giant Slug
+    - Suggested by Tokage.
+  - Ogre Mage
+    - Functions differently from other variants. Supporter monster that hangs
+      back and heals allies.
+- Some monsters are now supporters, and hang back to heal their allies.
+
+## Roles
+- Complete overhaul of how the grappler role functions.
+
+## Spellcasting
+- As in xnethack, spell success calculations are replaced by energy cost
+  calculations.
+- The energy required to cast a spell also varies based on the terrain the
+  player is standing on and the school of the spell.
+- The cost of a spell is modified by the terrain that the player is standing
+  on. A spell's "preferred terrain" is displayed in the spellcasting menu. The
+  amount by which it varies is determined by a combination of the player's role
+  and race.
+
+## Options
+- biome_overview
+- removed char_blurbs option
+- renamed dnh_enlightenment to attributes_menu (dnh_enlightenment maintained
+  as an alias)
+
+## Objects
+- New Object: Gas Mask
+  - Blocks poison gas and potion clouds.
+  - Blocks eating when worn.
+- Removed potion of normality
+  - Effect was unclear, not useful, and overall not fun.
+- New Object: Ring of Protection from Explosions
+  - Halves explosive damage.
+  - Randomized appearance is "sticky ring," which has a 2/3 chance of sticking to
+    player's finger when trying to take it off.
+- New Object: Bag of Winds
+  - Applying a bag of winds sucks up nearby gases.
+  - Tipping a bag of winds releases a cloud of the last consumed gas, size dependent
+    upon how many gases have been consumed.
+  - The bag grows less reliable the more gases are sucked up and the more often it
+    has been tipped.
+- New Object: Hunk of Charcoal
+  - Created occasionally when a fire burns a wooden item into nothing.
+- Added many new effects to object properties, dependent on the slot that the item
+  in question is worn in.
+
+## Dungeon Generation
+- Give Vlad a nicer throne room and modified the first level of Vlad's tower.
+- Move Vlad's tower to Gnomish Mines, similar to dNetHack.
+- Unlink monster difficulty from player level and link it instead to dungeon depth.
+- Items with higher enchantment values are more likely to generate as
+  the player descends deeper into the dungeon.
+- Limit death drops to specific powerful monsters.
+
+## Misc
+- YAFM for closed shops.
+- Prevent shopkeepers from locking players inside their shops at night.
+- Massively reduce resizing kit weight.
+- T-shirts and 50% of robes spawn pre-dyed.
 - Added the mintroduce patch from SpliceHack (code from xNetHack)
 - Salt does more damage to mummies than previously.
 - Venoms leave behind coatings on the floor.
@@ -36,6 +88,19 @@
 - Allow pushed boulders to trigger timed traps.
 - Monsters that zap wands of aqua bolt now spread water.
 - Cannot repeatedly sit on a rust trap to permanently drip water.
+- Cancellation destroys force fields.
+- Attacking a force field with a crysknife destroys it.
+- Breaking a wand of locking creates a force field.
+- Port FIQHack xp curve from xNetHack.
+- Tourists begin the game with iron or gold credit cards.
+- The material of an unlocking tool determines how fragile it is.
+- Ensure Aleaxes spawn with same resistances as player.
+- Increased variance of default monster weapon selection.
+- You are considered to be fumbling when you drip oil.
+- Bonfires now light items on fire and properly evaporate liquids.
+- Sitting makes you prone.
+- Prone monsters and players cannot be hit by beheading or bisecting attacks
+  (already doubled over).
 
 # 1.5.1
 ## Objects
@@ -291,8 +356,6 @@
 - Tonic of Honey
   - Instead of being handled as a distinct coating, honey is now a
     bespoke potion.
-- Tonic of normality
-  - Cancels all temporary effects currently impacting the drinker.
 ## New Monsters
 - Gray Fungus
   - Originally from SporkHack, but ported from EvilHack.

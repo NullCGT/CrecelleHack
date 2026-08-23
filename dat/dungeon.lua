@@ -1,4 +1,4 @@
--- NetHack 3.6	dungeon dungeon.lua	$NHDT-Date: 1652196135 2022/05/10 15:22:15 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.4 $
+-- NetHack 3.6	dungeon dungeon.lua	$NHDT-Date: 1781994881 2026/06/20 22:34:41 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.11 $
 -- Copyright (c) 1990-95 by M. Stephenson
 -- NetHack may be freely redistributed.  See license for details.
 --
@@ -99,14 +99,6 @@ dungeon = {
       flags = { "mazelike", "hellish" },
       lvlfill = "hellfill",
       alignment = "noalign",
-      branches = {
-         {
-            name = "Vlad's Tower",
-            base = 9,
-            range = 5,
-            direction = "up"
-         }
-      },
       levels = {
          {
             name = "valley",
@@ -196,7 +188,14 @@ dungeon = {
             base = -1,
             nlevels = 3
          },
-      }
+      },
+      branches = {
+         {
+            name = "Vlad's Tower",
+            base = -2,
+            direction = "up"
+         }
+      },
    },
    {
       name = "The Quest",

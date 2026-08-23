@@ -1,4 +1,4 @@
-/* NetHack 5.0	shk.c	$NHDT-Date: 1736516428 2025/01/10 05:40:28 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.306 $ */
+/* NetHack 5.0	shk.c	$NHDT-Date: 1781973066 2026/06/20 16:31:06 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.323 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -2057,6 +2057,12 @@ dopay(void)
     return paid ? ECMD_TIME : ECMD_OK;
 }
 
+const char *
+says(void)
+{
+    return Deaf ? "signs" : "says";
+}
+
 /* for menustyle=Traditional, choose between paying for everything (by
    declining to itemize), asking item-by-item (by accepting itemization),
    or switch to selecting via menu (special 'm' answer at "Itemize? [ynq m]"
@@ -3206,6 +3212,8 @@ set_cost(struct obj *obj, struct monst *shkp)
         if (obj->oclass == GEM_CLASS) {
             /* different shop keepers give different prices */
             if (obj->material == GEMSTONE
+                || obj->material == SALT
+                || obj->material == COAL
                 || is_worthless_glass(obj)) {
                 tmp = (obj->otyp % (6 - shkp->m_id % 3));
                 tmp = (tmp + 3) * obj->quan;
@@ -5709,7 +5717,8 @@ cost_per_charge(
          */
         tmp /= 2L;
     } else if (otmp->otyp == BAG_OF_TRICKS /* 1 - 20 */
-               || otmp->otyp == HORN_OF_PLENTY) {
+               || otmp->otyp == HORN_OF_PLENTY
+               || otmp->otyp == BAG_OF_WINDS) {
         /* altusage: emptying of all the contents at once */
         if (!altusage)
             tmp /= 5L;
@@ -5765,7 +5774,8 @@ check_unpaid_usage(struct obj *otmp, boolean altusage)
     } else if (otmp->otyp == POT_OIL) {
         fmt = "%s%sThat will cost you %ld %s (Yendorian Fuel Tax).";
     } else if (altusage && (otmp->otyp == BAG_OF_TRICKS
-                            || otmp->otyp == HORN_OF_PLENTY)) {
+                            || otmp->otyp == HORN_OF_PLENTY
+                            || otmp->otyp == BAG_OF_WINDS)) {
         fmt = "%s%sEmptying that will cost you %ld %s.";
         if (!rn2(3))
             arg1 = "Whoa!  ";

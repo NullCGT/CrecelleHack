@@ -1,4 +1,4 @@
-/* NetHack 5.0	dog.c	$NHDT-Date: 1753856387 2025/07/29 22:19:47 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.190 $ */
+/* NetHack 5.0	dog.c	$NHDT-Date: 1781973045 2026/06/20 16:30:45 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.197 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2011. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -593,9 +593,8 @@ mon_arrive(struct monst *mtmp, int when)
             /* debugfuzzer returns from or enters another branch */
             xlocale = stway->sx, ylocale = stway->sy;
             break;
-        } else if ((u.uevent.qexpelled
-                && (Is_qstart(&u.uz0) || Is_qstart(&u.uz)))
-                || (Is_magicmaze(&u.uz0) || Is_magicmaze(&u.uz))) {
+        } else if (u.uevent.qexpelled
+                && (Is_qstart(&u.uz0) || Is_qstart(&u.uz))) {
             impossible("mon_arrive: no corresponding portal?");
         }
         FALLTHROUGH;

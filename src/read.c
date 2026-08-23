@@ -1,4 +1,4 @@
-/* NetHack 5.0	read.c	$NHDT-Date: 1762577372 2025/11/07 20:49:32 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.323 $ */
+/* NetHack 5.0	read.c	$NHDT-Date: 1782083451 2026/06/21 18:10:51 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.334 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -183,6 +183,7 @@ tshirt_text(struct obj *tshirt, char *buf)
            from book series _A_Song_of_Ice_and_Fire_ by George R.R. Martin,
            TV show "Game of Thrones" (probably an actual T-shirt too...) */
         "/Valar morghulis/ -- /Valar dohaeris/",
+        "Asidonhopo once said: the namesake of my enemy is my enemy",
     };
 
     Strcpy(buf, shirt_msgs[tshirt->o_id % SIZE(shirt_msgs)]);
@@ -1880,7 +1881,7 @@ seffect_transmute_material(struct obj **sobjp)
     boolean already_known = (sobj->oclass == SPBOOK_CLASS /* spell */
                              || objects[sobj->otyp].oc_name_known);
     static const int bad_mats[] = {
-        SALT, PLASTIC, LODEN, PAPER, WAX
+        SALT, PLASTIC, LODEN, PAPER, WAX, COAL
     };
     useup(sobj);
     *sobjp = 0;
@@ -2106,6 +2107,9 @@ seffect_maze(struct obj **sobjp)
     useup(*sobjp);
     *sobjp = 0;
     gk.known = TRUE;
+
+    if (!objects[sobj->otyp].oc_name_known)
+        (void) learnscrolltyp(SCR_MAZE);
 
     if (Is_magicmaze(&u.uz)) {
         pline("Your %s spins!", body_part(HEAD));
@@ -3334,7 +3338,7 @@ create_particular_parse(
     d->genderconf = -1;  /* no confusion on which gender to assign */
     d->randmonst = FALSE;
     d->maketame = d->makepeaceful = d->makehostile = FALSE;
-    d->sleeping = d->saddled = d->invisible = d->hidden = FALSE;
+    d->sleeping = d->saddled = d->invisible = d->hidden = d->advanced = FALSE;
 
     /* quantity */
     if (digit(*bufp)) {
@@ -3367,6 +3371,10 @@ create_particular_parse(
     if ((tmpp = strstri(bufp, "hidden ")) != 0) {
         d->hidden = TRUE;
         (void) memset(tmpp, ' ', sizeof "hidden " - 1);
+    }
+    if ((tmpp = strstri(bufp, "advanced ")) != 0) {
+        d->advanced = TRUE;
+        (void) memset(tmpp, ' ', sizeof "advanced " - 1);
     }
     /* check "female" before "male" to avoid false hit mid-word */
     if ((tmpp = strstri(bufp, "female ")) != 0) {
@@ -3531,6 +3539,10 @@ create_particular_creation(
            or vision issues (line-of-sight, invisibility, blindness) */
         if ((d->hidden || d->invisible) && !canspotmon(mtmp))
             flash_mon(mtmp);
+        /* could be advanced anyway */
+        if (d->advanced && !mtmp->madvanced
+            && advanceable(mtmp->data))
+            advance_monster(mtmp);
 
         madeany = TRUE;
         /* in case we got a doppelganger instead of what was asked

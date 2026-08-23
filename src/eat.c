@@ -1,4 +1,4 @@
-/* NetHack 5.0	eat.c	$NHDT-Date: 1740534854 2025/02/25 17:54:14 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.344 $ */
+/* NetHack 5.0	eat.c	$NHDT-Date: 1781973048 2026/06/20 16:30:48 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.354 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -411,6 +411,11 @@ food_disappears(struct obj *obj)
 {
     if (obj == svc.context.victual.piece)
         svc.context.victual = zero_victual; /* victual.piece = 0, .o_id = 0 */
+
+    if (obj == svc.context.tin.tin) {
+        svc.context.tin.tin = (struct obj *) 0;
+        svc.context.tin.o_id = 0;
+    }
 
     if (obj->timed)
         obj_stop_timers(obj);
@@ -2416,6 +2421,10 @@ eataccessory(struct obj *otmp)
                 rehumanize();
             }
             break;
+        case RIN_PROTECTION_FROM_EXPLOSIONS:
+            pline("Your %s implodes.", body_part(STOMACH));
+            morehungry(300);
+            break;
         case AMULET_OF_STRANGULATION: /* bad idea! */
             /* no message--this gives no permanent effect */
             choke(otmp);
@@ -2506,7 +2515,12 @@ eatspecial(void)
                             : "You're back in the salt mines.");
         if (otmp->otyp == SALT_CRYSTAL)
             makeknown(otmp->otyp);
-        exercise(A_CON,FALSE);
+        exercise(A_CON, FALSE);
+    }
+    if (otmp->material == COAL) {
+        pline("Tastes like burnt marshmallows.");
+        makeknown(HUNK_OF_CHARCOAL);
+        exercise(A_CON, TRUE);
     }
 
     if (otmp == uwep && otmp->quan == 1L)
@@ -3387,7 +3401,8 @@ lesshungry(int num)
                     && (svc.context.victual.reqtime
                         - svc.context.victual.usedtime) > 1) {
                     /* food with one bite left will not survive a stop */
-                    if (!paranoid_query(ParanoidEating, "Continue eating?")) {
+                    if (!(uarmh && uarmh->oprop == OPROP_HUNGRY)
+                        && !paranoid_query(ParanoidEating, "Continue eating?")) {
                         reset_eat();
                         gn.nomovemsg = (char *) 0;
                     }

@@ -1,4 +1,4 @@
-/* NetHack 5.0	cmd.c	$NHDT-Date: 1762680996 2025/11/09 01:36:36 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.755 $ */
+/* NetHack 5.0	cmd.c	$NHDT-Date: 1781973043 2026/06/20 16:30:43 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.772 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2013. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -901,7 +901,12 @@ domonability(void)
         if (c == 'q' || c == '\033')
             return ECMD_OK;
     }
-    if (can_breathe(uptr))
+    if (can_breathe(uptr)
+        || (uarmh && uarmh->oprop && uarmh->pknown
+            && (uarmh->oprop == OPROP_ACIDIC
+                || uarmh->oprop == OPROP_BLAZING
+                || uarmh->oprop == OPROP_CRACKLING
+                || uarmh->oprop == OPROP_BOREAL)))
         return dobreathe();
     else if (attacktype(uptr, AT_SPIT))
         return dospit();
@@ -2324,7 +2329,9 @@ handler_rebind_keys_add(boolean keyfirst)
     char buf2[QBUFSZ];
     uchar key = '\0';
     int clr = NO_COLOR;
+    char cmdstr[BUFSZ];
 
+    cmdstr[0] = '\0';
     if (keyfirst) {
         pline("Bind which key? ");
         key = pgetchar();
@@ -2378,7 +2385,6 @@ handler_rebind_keys_add(boolean keyfirst)
     destroy_nhwindow(win);
     if (npick > 0) {
         struct Cmd_bind *prevcmd;
-        char cmdstr[BUFSZ];
 
         i = picks->item.a_int;
         free((genericptr_t) picks);
@@ -2518,7 +2524,8 @@ handler_change_autocompletions(void)
             if (strlen(ec->ef_txt) < 2)
                 continue;
 
-            Sprintf(buf, "%s", ec->ef_txt);
+            /* switched to Snprintf to eliminate -Wformat-overflow warning */
+            Snprintf(buf, sizeof buf, "%s", ec->ef_txt);
 
             for (j = 0; j < n; ++j) {
                 if (ec == &extcmdlist[(picks[j].item.a_int - 1)]) {
@@ -2981,7 +2988,7 @@ dokeylist(void)
     Sprintf(buf, "%-7s", key2txt(key, buf2));
 #else
     /* first of the keyless commands */
-    Sprintf(buf2, "[%s]", key2txt(key, buf));
+    Snprintf(buf2, sizeof buf2, "[%s]", key2txt(key, buf));
     Sprintf(buf, "%-21s", buf2);
 #endif
     Strcat(buf, " interrupt: break out of NetHack (SIGINT)");
@@ -4432,12 +4439,17 @@ enum menucmd {
     MCMD_REST,
     MCMD_LOOK_HERE,
     MCMD_LOOK_AT,
+    MCMD_PRAY,
+    MCMD_ENGRAVE,
+    MCMD_ATTRIBUTES,
+    MCMD_PREVIOUS_MESSAGES,
     MCMD_ATTACK_NEXT2U,
     MCMD_TRIP,
     MCMD_UNTRAP_HERE,
     MCMD_OFFER,
     MCMD_INVENTORY,
     MCMD_CAST_SPELL,
+    MCMD_JUMP,
 
     MCMD_THROW_OBJ,
     MCMD_TRAVEL,
@@ -4534,6 +4546,10 @@ there_cmd_menu_self(winid win, coordxy x, coordxy y, int *act UNUSED)
     mcmd_addmenu(win, MCMD_SEARCH, "Search around you"), ++K;
     mcmd_addmenu(win, MCMD_TAUNT, "Taunt nearby creatures"), ++K;
     mcmd_addmenu(win, MCMD_LOOK_HERE, "Look at what is here"), ++K;
+    mcmd_addmenu(win, MCMD_PRAY, "Pray here"), ++K;
+    mcmd_addmenu(win, MCMD_ENGRAVE, "Engrave here"), ++K;
+    mcmd_addmenu(win, MCMD_ATTRIBUTES, "View attributes"), ++K;
+    mcmd_addmenu(win, MCMD_PREVIOUS_MESSAGES, "Access memories"), ++K;
 
     if (num_spells() > 0)
         mcmd_addmenu(win, MCMD_CAST_SPELL, "Cast a spell"), ++K;
@@ -4542,6 +4558,9 @@ there_cmd_menu_self(winid win, coordxy x, coordxy y, int *act UNUSED)
         if (ttmp->ttyp != VIBRATING_SQUARE)
             mcmd_addmenu(win, MCMD_UNTRAP_HERE,
                          "Attempt to disarm trap"), ++K;
+    }
+    if (Jumping) {
+        mcmd_addmenu(win, MCMD_JUMP, "Jump"), ++K;
     }
     return K;
 }
@@ -4841,7 +4860,7 @@ act_on_act(
         cmdq_add_key(CQ_CANNED, 'y'); /* "There is foo here; eat it?" */
         break;
     case MCMD_DROP:
-        cmdq_add_ec(CQ_CANNED, dodrop);
+        cmdq_add_ec(CQ_CANNED, doddrop);
         break;
     case MCMD_INVENTORY:
         cmdq_add_ec(CQ_CANNED, ddoinv);
@@ -4857,6 +4876,18 @@ act_on_act(
         gc.clicklook_cc.y = u.uy + dy;
         cmdq_add_ec(CQ_CANNED, doclicklook);
         break;
+    case MCMD_PRAY:
+        cmdq_add_ec(CQ_CANNED, dopray);
+        break;
+    case MCMD_ENGRAVE:
+        cmdq_add_ec(CQ_CANNED, doengrave);
+        break;
+    case MCMD_ATTRIBUTES:
+        cmdq_add_ec(CQ_CANNED, doattributes);
+        break;
+    case MCMD_PREVIOUS_MESSAGES:
+        cmdq_add_key(CQ_CANNED, C('p'));
+        break;
     case MCMD_UNTRAP_HERE:
         cmdq_add_ec(CQ_CANNED, dountrap);
         cmdq_add_dir(CQ_CANNED, 0, 0, 1);
@@ -4867,6 +4898,9 @@ act_on_act(
         break;
     case MCMD_CAST_SPELL:
         cmdq_add_ec(CQ_CANNED, docast);
+        break;
+    case MCMD_JUMP:
+        cmdq_add_ec(CQ_CANNED, dojump);
         break;
     default:
         break;

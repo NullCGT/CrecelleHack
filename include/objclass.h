@@ -1,4 +1,4 @@
-/* NetHack 5.0	objclass.h	$NHDT-Date: 1596498553 2020/08/03 23:49:13 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.22 $ */
+/* NetHack 5.0	objclass.h	$NHDT-Date: 1781973084 2026/06/20 16:31:24 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.43 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Pasi Kallinen, 2018. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -67,6 +67,7 @@ struct material {
     OMAT(GEMSTONE,      "gemstone", 7,  55,   500, CLR_RED), \
     OMAT(MINERAL,       "stone",    6,  70,   10,  CLR_GRAY), \
     OMAT(SALT,          "salt",     2,  20,   1,   CLR_WHITE), \
+    OMAT(COAL,          "coal",     2,  40,   17,  CLR_BLACK), \
     OMAT(LODEN,         "lodenstone", \
                                     8,  3500, 1, CLR_GRAY)
 #define OMAT(id, nam, ac, dens, cost, clr) id

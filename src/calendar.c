@@ -1,4 +1,4 @@
-/* NetHack 5.0	calendar.c	$NHDT-Date: 1706213796 2024/01/25 20:16:36 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.116 $ */
+/* NetHack 5.0	calendar.c	$NHDT-Date: 1781973042 2026/06/20 16:30:42 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.3 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Michael Allison, 2007. */
 /* Copyright (c) Robert Patrick Rankin, 1991                      */
@@ -449,11 +449,14 @@ weather_messages(void)
         pline("The clouds are starting to %s.", acidrain_msg[rn2(3) + hallu]);
     }
     if (INC_PRECIP(WTH_RAIN) && !CURR_WEATHER(WTH_RAIN) && !rn2(200)) {
-        static const char *const incrain_msg[4] = {
-            "It smells like rain.", "The clouds are darkening.",
-            "A storm begins to roll in.", "Get ready for a shower!",
+        static const char *const incrain_msg[3] = {
+            "The clouds are darkening.", "A storm begins to roll in.",
+            "Get ready for a shower!",
         };
-        pline("%s", incrain_msg[rn2(3) + hallu]);
+        if (!hallu && !rn2(4))
+            pline("It %s like rain.", olfaction(gy.youmonst.data) ? "smells" : "feels");
+        else
+            pline("%s", incrain_msg[rn2(2) + hallu]);
     }
     if (INC_WIND(WTH_TORNADO) && !CURR_WEATHER(WTH_TORNADO) && !rn2(200)) {
         static const char *const tornado_msg[4] = {

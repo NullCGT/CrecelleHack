@@ -1,4 +1,4 @@
-/* NetHack 5.0	mon.c	$NHDT-Date: 1770949988 2026/02/12 18:33:08 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.621 $ */
+/* NetHack 5.0	mon.c	$NHDT-Date: 1781062909 2026/06/09 19:41:49 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.634 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Derek S. Ray, 2015. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -919,7 +919,7 @@ make_corpse(struct monst *mtmp, unsigned int corpseflags)
     case PM_RED_NAGA: case PM_BLACK_NAGA: case PM_GOLDEN_NAGA:
     case PM_GUARDIAN_NAGA:
 
-    case PM_OGRE: case PM_OGRE_LEADER: case PM_OGRE_TYRANT:
+    case PM_OGRE: case PM_OGRE_LEADER: case PM_OGRE_MAGE: case PM_OGRE_TYRANT:
 
     case PM_QUANTUM_MECHANIC: case PM_GENETIC_ENGINEER:
     case PM_RUST_MONSTER: case PM_DISENCHANTER:
@@ -1348,7 +1348,7 @@ movemon_singlemon(struct monst *mtmp)
        off the map too; gd_move() decides whether the temporary
        corridor can be removed and guard discarded (via clearing
        mon->isgd flag so that dmonsfree() will get rid of mon) */
-    if (mtmp->isgd && !mtmp->mx && !(mtmp->mstate & MON_MIGRATING)) {
+    if (PARKEDMONSTER(mtmp) && !(mtmp->mstate & MON_MIGRATING)) {
         /* parked at <0,0>; eventually isgd should get set to false */
         if (svm.moves > mtmp->mlstmv) {
             (void) gd_move(mtmp);
@@ -1878,11 +1878,15 @@ mon_give_prop(struct monst *mtmp, int prop)
     case POISON_RES:
         msg = "%s looks healthy.";
         break;
+    case TELEPAT:
+        msg = "%s twitches slightly.";
+        break;
     default:
         return; /* can't give it */
         break;
     }
-    intrinsic = res_to_mr(prop);
+    /* res_to_mr should include all MR2 resistances as well */
+    intrinsic = prop == TELEPAT ? MR2_TELEPATHY : res_to_mr(prop);
 
     /* Don't give message if it already had this property intrinsically, but
        still do grant the intrinsic if it only had it from mresists.
@@ -1984,6 +1988,12 @@ mpickstuff(struct monst *mtmp)
     /* non-tame monsters normally don't go shopping */
     if (!mtmp->mtame && *in_rooms(mtmp->mx, mtmp->my, SHOPBASE) && rn2(25))
         return FALSE;
+
+    /* pets should respect their owner's wishes */
+    if (mtmp->mtame && has_edog(mtmp)
+         && (EDOG(mtmp)->petstrat & PETSTRAT_NOAPPORT))
+         return FALSE;
+
 
     /* item in a pool, but monster can't swim */
     if (!could_reach_item(mtmp, mtmp->mx, mtmp->my))
@@ -2259,6 +2269,8 @@ mon_allowflags(struct monst *mtmp)
     if (!is_aware(mtmp)) {
         allowflags &= ~ALLOW_U;
     }
+    if (is_supporter(mtmp->data) && !mtmp->mpeaceful)
+        allowflags |= NOTONL;
     if (gy.youmonst.data == &mons[PM_STRAW_GOLEM]
         && is_bird(mtmp->data)) {
         /* birds don't want to get near scarecrows. */
@@ -3689,6 +3701,8 @@ set_ustuck(struct monst *mtmp)
 
     disp.botl = TRUE;
     u.ustuck = mtmp;
+    if (u.ustuck_mid)
+        u.ustuck_mid = 0;
     if (!u.ustuck) {
         u.uswallow = 0;
         u.uswldtim = 0;
@@ -3849,7 +3863,7 @@ xkilled(
         int otyp;
 
         /* illogical but traditional "treasure drop" */
-        if (!rn2(6) && !(svm.mvitals[mndx].mvflags & G_NOCORPSE)
+        if (is_deathdropper(mdat)
             /* no extra item from swallower or steed */
             && (x != u.ux || y != u.uy)
             /* no extra item from kops--too easy to abuse */
@@ -5160,7 +5174,7 @@ pick_animal(void)
     /* rogue level should use monsters represented by uppercase letters
        only, but since chameleons aren't generated there (not uppercase!)
        we don't perform a lot of retries */
-    if (Is_rogue_level(&u.uz) && !isupper(monsym(&mons[res])))
+    if (Is_rogue_level(&u.uz) && !isupper((int) monsym(&mons[res])))
         res = ga.animal_list[rn2(ga.animal_list_count)];
     return res;
 }
@@ -5518,7 +5532,7 @@ select_newcham_form(struct monst *mon)
         } while (--tryct > 0 && !validspecmon(mon, mndx)
                  /* try harder to select uppercase monster on rogue level */
                  && (tryct > 40 && Is_rogue_level(&u.uz)
-                     && !isupper(monsym(&mons[mndx]))));
+                     && !isupper((int) monsym(&mons[mndx]))));
     }
     return mndx;
 }
@@ -5628,7 +5642,7 @@ newcham(
             /* for the first several tries we require upper-case on
                the rogue level (after that, we take whatever we get) */
             if (tryct > 15 && Is_rogue_level(&u.uz)
-                && mdat && !isupper(monsym(mdat)))
+                && mdat && !isupper((int) monsym(mdat)))
                 mdat = 0;
             if (mdat)
                 break;
@@ -6322,8 +6336,9 @@ adj_erinys(unsigned abuse)
         pm->mattk[2].damd = 4;
     }
 
-    /* also adjust level and difficulty */
-    pm->mlevel = min(7 + u.ualign.abuse, 50);
+    /* also adjust level and difficulty;
+       mlevel >= 50 has a special meaning, so don't exceed 49 */
+    pm->mlevel = min(7 + u.ualign.abuse, 49);
     pm->difficulty = min(10 + (u.ualign.abuse / 3), 25);
 }
 

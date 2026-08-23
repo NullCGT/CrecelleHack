@@ -1,4 +1,4 @@
-/* NetHack 5.0	you.h	$NHDT-Date: 1702349061 2023/12/12 02:44:21 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.75 $ */
+/* NetHack 5.0	you.h	$NHDT-Date: 1781973093 2026/06/20 16:31:33 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.89 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2016. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -291,6 +291,7 @@ struct Role {
     int spelstat; /* which stat (A_) is used */
     int spelspec; /* spell (SPE_) the class excels at */
     int spelsbon; /* penalty (-bonus) for that spell */
+    int geobon;   /* boost to spell success rate from terrain */
 
     /*** Properties in variable-length arrays ***/
     /* intrinsics (see attrib.c) */
@@ -334,14 +335,13 @@ struct Race {
     short selfmask, /* your own race's bit mask */
         lovemask,   /* bit mask of always peaceful */
         hatemask;   /* bit mask of always hostile */
-    short lovecoat, /* bit mask of loved coatings */
-        hatecoat;   /* bit mask of hated coatings */
 
     /*** Attributes ***/
     xint16 attrmin[A_MAX];     /* minimum allowable attribute */
     xint16 attrmax[A_MAX];     /* maximum allowable attribute */
     struct RoleAdvance hpadv; /* hit point advancement */
     struct RoleAdvance enadv; /* energy advancement */
+    float geomult;            /* pw mult from terrain for spellcasting */
 #if 0 /* DEFERRED */
     int   nv_range;           /* night vision range */
     int   xray_range;         /* X-ray vision range */

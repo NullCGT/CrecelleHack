@@ -1,4 +1,4 @@
-/* NetHack 5.0	mondata.h	$NHDT-Date: 1703845738 2023/12/29 10:28:58 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.63 $ */
+/* NetHack 5.0	mondata.h	$NHDT-Date: 1781973083 2026/06/20 16:31:23 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.70 $ */
 /* Copyright (c) 1989 Mike Threepoint                             */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -91,6 +91,7 @@
     ((ptr) == &mons[PM_FLOATING_EYE] || (ptr) == &mons[PM_MIND_FLAYER] \
      || (ptr) == &mons[PM_MASTER_MIND_FLAYER])
 #define has_telepathy(mon) (((mon)->mextrinsics & MR2_TELEPATHY) != 0 \
+                            || ((mon)->mintrinsics & MR2_TELEPATHY) != 0 \
                             || telepathic(mon->data))
 #define is_armed(ptr) attacktype(ptr, AT_WEAP)
 #define acidic(ptr) (((ptr)->mflags1 & M1_ACID) != 0L)
@@ -308,11 +309,13 @@
 #define resists_whack(ptr) (((ptr)->mflags4 & M4_RWHACK) != 0L)
 #define resists_pierce(ptr) (((ptr)->mflags4 & M4_RPIERCE) != 0L)
 #define resists_slash(ptr) (((ptr)->mflags4 & M4_RSLASH) != 0L)
+#define is_deathdropper(ptr) (((ptr)->mflags2 & M2_DEATHDROP) != 0L)
 #define advanceable(ptr) (!unique_corpstat(ptr) \
             && (!humanoid(ptr) || mindless(ptr) || is_demon(ptr)))
 #define is_jouster(ptr) ((ptr)->mlet == S_CENTAUR \
                             || (ptr)->mlet == S_QUADRUPED || is_rider(ptr))
 #define is_cleaner(ptr) (ptr == &mons[PM_SERVANT] || ptr == &mons[PM_HEAD_SERVANT])
+#define is_supporter(ptr) (((ptr)->mflags2 & M2_SUPPORTER) != 0L)
 /* monkeys are tamable via bananas but not pacifiable via food,
    otherwise their theft attack could be nullified too easily;
    dogs and cats can be tamed by anything they like to eat and are

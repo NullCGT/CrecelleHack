@@ -1,4 +1,4 @@
-/* NetHack 5.0	objnam.c	$NHDT-Date: 1745114235 2025/04/19 17:57:15 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.453 $ */
+/* NetHack 5.0	objnam.c	$NHDT-Date: 1781973060 2026/06/20 16:31:00 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.464 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2011. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -1332,6 +1332,7 @@ size_matters(struct obj *obj)
 #define DONAME_WITH_PRICE 1
 #define DONAME_VAGUE_QUAN 2
 #define DONAME_FOR_MENU   4 /* [not used anywhere yet] */
+#define DONAME_FORCE_GENDER 8 /* always add male or female */
 
 /* core of doname() */
 staticfn char *
@@ -1342,7 +1343,8 @@ doname_base(
     boolean ispoisoned = FALSE,
             with_price = (doname_flags & DONAME_WITH_PRICE) != 0,
             vague_quan = (doname_flags & DONAME_VAGUE_QUAN) != 0,
-            for_menu = (doname_flags & DONAME_FOR_MENU) != 0;
+            for_menu = (doname_flags & DONAME_FOR_MENU) != 0,
+            with_corpse_genders = (doname_flags & DONAME_FORCE_GENDER) != 0;
     boolean known, dknown, cknown, bknown, lknown, pknown,
             fake_arti, force_the;
     char prefix[PREFIX];
@@ -1424,7 +1426,8 @@ doname_base(
            isn't set when emptiness gets discovered because then
            charging magic would yield known number of new charges);
            horn of plenty isn't a container but is close enough */
-        && ((obj->otyp == BAG_OF_TRICKS || obj->otyp == HORN_OF_PLENTY)
+        && ((obj->otyp == BAG_OF_TRICKS || obj->otyp == HORN_OF_PLENTY
+            || obj->otyp == BAG_OF_WINDS)
              ? (obj->spe == 0 && !known)
              /* not a bag of tricks or horn of plenty: it's empty if
                 it is a container that has no contents */
@@ -1630,7 +1633,15 @@ doname_base(
             unsigned cxarg = (((obj->quan != 1L) ? 0 : CXN_ARTICLE)
                               | CXN_NOCORPSE);
             char *cxstr, *save_xnamep;
+            int puzzidx = (obj->invlet >= 'A' && obj->invlet <= 'Z')
+                          ? obj->invlet - 'A'
+                      : (obj->invlet >= 'a' && obj->invlet <= 'z')
+                          ? obj->invlet - 'a' + 26
+                          : invlet_basic;  /* valid index, but always holds zero */
 
+            if (with_corpse_genders && puzzidx < invlet_basic
+                && gp.puzzling_criteria == 411 && gp.puzzling_ilets[puzzidx])
+                cxarg |= CXN_ADDGNDR;
             /* corpse_xname() sets xnamep; callers other than doname_base()
                itself shouldn't care about xnamep (pointer to start of
                current obuf[]) but keep it accurate anyway */
@@ -1887,6 +1898,20 @@ doname_with_price(struct obj *obj)
     return doname_base(obj, DONAME_WITH_PRICE);
 }
 
+/* Name of object including corpse genders. */
+char *
+doname_with_cgender(struct obj *obj)
+{
+    return doname_base(obj, DONAME_FORCE_GENDER);
+}
+
+/* doname with both price and corpse gender */
+char *
+doname_with_price_and_cgender(struct obj *obj)
+{
+    return doname_base(obj, DONAME_WITH_PRICE | DONAME_FORCE_GENDER);
+}
+
 /* "some" instead of precise quantity if obj->dknown not set */
 char *
 doname_vague_quan(struct obj *obj)
@@ -1963,9 +1988,10 @@ corpse_xname(
         any_prefix = (cxn_flags & CXN_ARTICLE) != 0,
             /* leave off suffix (do_name() appends "corpse" itself) */
         omit_corpse = (cxn_flags & CXN_NOCORPSE) != 0,
+        gndr_prefix = (cxn_flags & CXN_ADDGNDR) != 0,
         possessive = FALSE,
         glob = (otmp->otyp != CORPSE && otmp->globby);
-    const char *mnam;
+    const char *mnam, *gndr;
 
     /* some callers [aobjnam()] rely on prefix area that xname() sets aside */
     gx.xnamep = nextobuf();
@@ -2005,15 +2031,19 @@ corpse_xname(
        into the code, so the() has been modified to deal with capitalized
        monster names; we could switch to using it below like an() */
 
+    gndr = (gndr_prefix && otmp->spe & CORPSTAT_MALE) != 0     ? "male "
+           : (gndr_prefix && otmp->spe & CORPSTAT_FEMALE) != 0 ? "female "
+                                                               : "";
     if (!adjective || !*adjective) {
+        Strcat(nambuf, gndr);
         /* normal case:  newt corpse */
         Strcat(nambuf, mnam);
     } else {
         /* adjective positioning depends upon format of monster name */
         if (possessive) /* Medusa's cursed partly eaten corpse */
-            Sprintf(eos(nambuf), "%s %s", mnam, adjective);
+            Sprintf(eos(nambuf), "%s %s%s", mnam, gndr, adjective);
         else /* cursed partly eaten troll corpse */
-            Sprintf(eos(nambuf), "%s %s", adjective, mnam);
+            Sprintf(eos(nambuf), "%s %s%s", adjective, gndr, mnam);
         /* in case adjective has a trailing space, squeeze it out */
         mungspaces(nambuf);
         /* doname() might include a count in the adjective argument;
@@ -3580,6 +3610,7 @@ static const struct alt_spellings {
     { "forcefield", SPE_FORCE_FIELD },
     { "transmutation", SCR_TRANSMUTE_MATERIAL },
     { "change material", SCR_TRANSMUTE_MATERIAL },
+    { "ring of implosion", RIN_PROTECTION_FROM_EXPLOSIONS },
     { (const char *) 0, 0 },
 };
 
@@ -5594,7 +5625,8 @@ readobjnam(char *bp, struct obj *no_wish)
     }
     /* empty for containers rather than for tins */
     if (d.contents == TIN_EMPTY) {
-        if (d.otmp->otyp == BAG_OF_TRICKS || d.otmp->otyp == HORN_OF_PLENTY) {
+        if (d.otmp->otyp == BAG_OF_TRICKS || d.otmp->otyp == HORN_OF_PLENTY
+            || d.otmp->otyp == BAG_OF_WINDS) {
             if (d.otmp->spe > 0)
                 d.otmp->spe = 0;
         } else if (Has_contents(d.otmp)) {
@@ -5685,7 +5717,7 @@ readobjnam(char *bp, struct obj *no_wish)
     if (d.oprop && (d.otmp->oclass == WEAPON_CLASS
                     || d.otmp->oclass == ARMOR_CLASS)) {
         if (wizard
-            || (!objects[d.otmp->otyp].oc_magic || d.otmp->oartifact)) {
+            || !(objects[d.otmp->otyp].oc_magic || d.otmp->oartifact)) {
             if (objects[d.otmp->otyp].oc_magic)
                 pline("Note: wishes for magical items with object properites are not normally valid.");
             if (d.oprop < 0)

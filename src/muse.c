@@ -59,6 +59,7 @@ staticfn int
 precheck(struct monst *mon, struct obj *obj)
 {
     boolean vis;
+    struct obj *bottle;
 
     if (!obj)
         return 0;
@@ -91,6 +92,8 @@ precheck(struct monst *mon, struct obj *obj)
                               " and unable to move.",
                               Monnam(mon));
                     }
+                    bottle = mksobj(BOTTLE, FALSE, FALSE);
+                    (void) mpickobj(mon, bottle);
                     paralyze_monst(mon, 3);
                 }
                 return 2;
@@ -125,6 +128,8 @@ precheck(struct monst *mon, struct obj *obj)
                     mongone(mtmp);
                 }
             }
+            bottle = mksobj(BOTTLE, FALSE, FALSE);
+            (void) mpickobj(mon, bottle);
             return 2;
         }
     }
@@ -292,7 +297,6 @@ mreadmsg(struct monst *mtmp, struct obj *otmp)
 staticfn void
 mquaffmsg(struct monst *mtmp, struct obj *otmp)
 {
-    struct obj *bottle;
     if (canseemon(mtmp)) {
         observe_object(otmp);
         pline_mon(mtmp, "%s drinks %s!", Monnam(mtmp), singular(otmp, doname));
@@ -300,9 +304,6 @@ mquaffmsg(struct monst *mtmp, struct obj *otmp)
         Soundeffect(se_mon_chugging_potion, 25);
         You_hear("a chugging sound.");
     }
-    /* We shouldn't do this here, but it's neater. */
-    bottle = mksobj(BOTTLE, FALSE, FALSE);
-    (void) mpickobj(mtmp, bottle);
 }
 
 /* Defines for various types of stuff.  The order in which monsters prefer

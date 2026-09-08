@@ -239,6 +239,15 @@ ready_weapon(struct obj *wep)
                             : can_no_longer_twoweap));
         }
 
+        /* Being skilled with a weapon identifies it upon wielding. */
+        if ((wep->oclass == WEAPON_CLASS || is_weptool(wep))
+            && (P_SKILL(weapon_type(wep)) >= P_SKILLED)
+            && not_fully_identified(wep)) {
+            You("use your superior skills to identify your weapon.");
+            (void) identify(wep);
+            update_inventory();
+        }
+
         /* KMH -- Talking artifacts are finally implemented */
         if (wep->oartifact) {
             res |= arti_speak(wep); /* sets ECMD_TIME bit if artifact speaks */
@@ -297,14 +306,6 @@ ready_weapon(struct obj *wep)
         /* Basic with a weapon lets you wield it instantly. */
         if (P_SKILL(weapon_type(wep)) >= P_BASIC)
             res = ECMD_OK;
-        /* Being skilled with a weapon identifies it upon wielding. */
-        if ((wep->oclass == WEAPON_CLASS || is_weptool(wep))
-            && (P_SKILL(weapon_type(wep)) >= P_SKILLED)
-            && not_fully_identified(wep)) {
-            You("use your superior skills to identify your weapon.");
-            (void) identify(wep);
-            update_inventory();
-        }
     }
     if ((had_wep != (uwep != 0)) && condtests[bl_bareh].enabled)
         disp.botl = TRUE;

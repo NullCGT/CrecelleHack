@@ -2867,9 +2867,7 @@ doeat_nonfood(struct obj *otmp)
     if (otmp->oclass == WEAPON_CLASS && otmp->opoisoned) {
         pline("Ecch - that must have been poisonous!");
         if (how_resistant(POISON_RES) < 100) {
-            poison_strdmg(resist_reduce(rnd(4), POISON_RES),
-                            resist_reduce(rnd(15), POISON_RES),
-                            xname(otmp), KILLED_BY_AN);
+            poison_strdmg(rnd(4), rnd(15), xname(otmp), KILLED_BY_AN);
         } else
             You("seem unaffected by the poison.");
     } else if (!nodelicious) {

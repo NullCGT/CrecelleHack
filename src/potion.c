@@ -1203,7 +1203,7 @@ peffect_gain_ability(struct obj *otmp)
                             ATR_NONE, NO_COLOR, attrname, MENU_ITEMFLAGS_NONE);
             }
             any.a_char = '*';
-            add_menu(win, &nul_glyphinfo, &any, 0, '*', ATR_NONE,
+            add_menu(win, &nul_glyphinfo, &any, any.a_char, '*', ATR_NONE,
                         NO_COLOR,
                         "pick one randomly", MENU_ITEMFLAGS_NONE);
             end_menu(win, "What attribute do you want to increase?");

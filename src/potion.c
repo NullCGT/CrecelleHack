@@ -1166,8 +1166,8 @@ peffect_gain_ability(struct obj *otmp)
             gp.potion_unkn++;
             return;
         }
-        adjattrib(highest, -1, 0);
-        adjattrib(lowest, 1, 0);
+        adjattrib(highest, -2, 0);
+        adjattrib(lowest, 2, 0);
     } else if (Fixed_abil) {
         gp.potion_nothing++;
     } else {

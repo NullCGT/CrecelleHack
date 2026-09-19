@@ -1,3 +1,8 @@
+# 1.6.1
+
+## Game Balance
+- Potions of gain ability grant 2 ability points.
+
 # 1.6
 
 ## Game Balance

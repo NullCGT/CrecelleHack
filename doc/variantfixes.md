@@ -2,6 +2,7 @@
 
 ## Game Balance
 - Potions of gain ability grant 2 ability points.
+- Hungry weapons only have a 25% chance to drain levels.
 
 # 1.6
 

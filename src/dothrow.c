@@ -2228,6 +2228,8 @@ thitmonst(
         if (DEADMONSTER(mon))
             return 0;
     }
+    
+    check_caitiff(mon);
 
     if (obj->oclass == WEAPON_CLASS || is_weptool(obj)
         || obj->oclass == GEM_CLASS) {

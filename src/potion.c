@@ -1057,6 +1057,11 @@ peffect_object_detection(struct obj *otmp)
 staticfn void
 peffect_sickness(struct obj *otmp)
 {
+    /* If over 200% poison resistant, potions of sickness heal you instead. */
+    if (how_resistant(POISON_RES) >= 200) {
+        peffect_full_healing(otmp);
+        return;
+    }
     pline("Yecch!  This stuff tastes like poison.");
     if (otmp->blessed) {
         pline("(But in fact it was mildly stale %s.)", fruitname(TRUE));
@@ -2672,6 +2677,7 @@ potionbreathe(struct obj *obj)
         }
         break;
     case POT_FULL_HEALING:
+full_heal_breathe:
         if (Upolyd && u.mh < u.mhmax)
             u.mh++, disp.botl = TRUE;
         if (u.uhp < u.uhpmax)
@@ -2703,6 +2709,8 @@ potionbreathe(struct obj *obj)
         exercise(A_CON, TRUE);
         break;
     case POT_SICKNESS:
+        if (how_resistant(POISON_RES))
+            goto full_heal_breathe;
         if (!Role_if(PM_HEALER)) {
             if (Upolyd) {
                 if (u.mh <= 5)

@@ -17,6 +17,8 @@
 - Allow viewing of partial resistances in regular play.
 - Remove effect of enchantment on magic cancellation, preventing leakage
   of BUC status.
+- If over 200% poison resistant, potions of sickness function as potions of
+  full healing.
 
 # 1.6
 

@@ -1005,7 +1005,7 @@ mcast_weird_rain(int spellnum)
             floor_spillage(i, j, otyp, PM_HUMAN);
         }
     }
-    return d(1, 6);
+    return 0;
 }
 
 /*

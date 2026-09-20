@@ -659,8 +659,10 @@ hitmm(
 
     pre_mm_attack(magr, mdef);
 
-    if (oprop_effects_pre(magr, mdef))
-        return M_ATTK_HIT; /* mdef died */
+    if (MON_WEP(magr) && MON_WEP(magr)->oprop) {
+        if (oprop_effects_pre(magr, mdef, MON_WEP(magr)))
+            return M_ATTK_HIT; /* mdef died */
+    }
 
     compat = !magr->mcan ? could_seduce(magr, mdef, mattk) : 0;
     if (!compat && shade_miss(magr, mdef, mwep, FALSE, gv.vis))

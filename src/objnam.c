@@ -5985,6 +5985,8 @@ weapon_simple_name(struct obj *obj)
         return "spear";
     if (is_flail(obj))
         return "flail";
+    if (is_missile(obj) || is_ammo(obj))
+        return "missile";
     if (is_art(obj, ART_MJOLLNIR))
         return "massive hammer";
     return "weapon";

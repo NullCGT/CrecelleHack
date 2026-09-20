@@ -2215,6 +2215,7 @@ invoke_create_ammo(struct obj *obj)
         if (otmp->spe < 0)
             otmp->spe = 0;
         otmp->quan += rnd(10);
+        add_oprop_to_object(otmp, 0);
     } else if (obj->cursed) {
         if (otmp->spe > 0)
             otmp->spe = 0;

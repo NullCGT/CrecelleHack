@@ -620,7 +620,7 @@ known_hitum(
 
     /* Icicles fired from weapon could kill something before the attack finishes. */
     if (weapon && weapon->oprop) {
-        if (oprop_effects_pre(&gy.youmonst, mon))
+        if (oprop_effects_pre(&gy.youmonst, mon, weapon))
             return FALSE;
     }
 
@@ -6785,29 +6785,25 @@ light_hits_gremlin(struct monst *mon, int dmg)
    weapon routine, potentially killing a monster before 
    the attack is completed. */
 boolean
-oprop_effects_pre(struct monst *magr, struct monst *mdef)
+oprop_effects_pre(struct monst *magr, struct monst *mdef, struct obj *weapon)
 {
     boolean is_u = (magr == &gy.youmonst);
     boolean icy, pkn = 0;
     struct obj *otmp;
-    struct obj *weapon;
     int x, y, dx, dy;
 
     if (is_u) {
         x = u.ux, y = u.uy;
         dx = mdef->mx, dy = mdef->my;
-        weapon = uwep;
     } else if (mdef == &gy.youmonst) {
         x = magr->mx, y = magr->my;
         dx = u.ux, dy = u.uy;
-        weapon = MON_WEP(magr);
     } else {
         x = magr->mx, y = magr->my;
         dx = mdef->mx, dy = mdef->my;
-        weapon = MON_WEP(magr);
     }
 
-    if (!weapon)
+    if (!weapon || !weapon->oprop)
         return DEADMONSTER(mdef);
 
     icy = (has_coating(x, y, COAT_FROST) || levl[x][y].typ == ICE);

@@ -1264,7 +1264,7 @@ hitmu(struct monst *mtmp, struct attack *mattk)
     }
 
     if (MON_WEP(mtmp) && MON_WEP(mtmp)->oprop) {
-        oprop_effects_pre(mtmp, &gy.youmonst);
+        oprop_effects_pre(mtmp, &gy.youmonst, MON_WEP(mtmp));
     }
 
     /*  First determine the base damage done */

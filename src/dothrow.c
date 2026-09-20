@@ -2047,6 +2047,10 @@ should_mulch_missile(struct obj *obj)
         || objects[obj->otyp].oc_magic)
         return FALSE;
 
+    /* oprop ammo will always mulch */
+    if (should_vanish_oprop_ammunition(obj))
+        return TRUE;
+
     /* we had been breaking 2/3 of everything unconditionally.  we still don't
        want anything to survive unconditionally, but we need ammo to stay
        around longer on average. */
@@ -2213,6 +2217,17 @@ thitmonst(
     }
 
     dieroll = rnd(20);
+
+    /* Handle oprops */
+    if (ammo_and_launcher(obj, uwep) && uwep->oprop
+        && !obj->oprop) {
+        obj->oprop = uwep->oprop;
+    }
+    if (obj->oprop) {
+        oprop_effects_pre(&gy.youmonst, mon, obj);
+        if (DEADMONSTER(mon))
+            return 0;
+    }
 
     if (obj->oclass == WEAPON_CLASS || is_weptool(obj)
         || obj->oclass == GEM_CLASS) {
@@ -2687,6 +2702,8 @@ breaktest(struct obj *obj)
     if ((obj->material == GLASS || obj->material == ICECRYSTAL)
          && !obj->oartifact && obj->oclass != GEM_CLASS)
         return TRUE;
+    if (should_vanish_oprop_ammunition(obj))
+        return TRUE;
     switch (obj->oclass == POTION_CLASS ? POT_WATER : obj->otyp) {
     case EXPENSIVE_CAMERA:
     case POT_WATER: /* really, all potions */
@@ -2713,6 +2730,9 @@ breakmsg(struct obj *obj, boolean in_view)
     const char *to_pieces;
 
     if (is_crackable(obj)) /* breakobj() will call erode_obj() for message */
+        return;
+
+    if (should_vanish_oprop_ammunition(obj)) /* no associated msg; just pulp it */
         return;
 
     to_pieces = "";
@@ -2867,6 +2887,19 @@ handle_thrown_coatings(struct obj *obj, coordxy x, coordxy y)
         add_coating(x, y, COAT_POTION, POT_ACID);
     if (obj->otyp == BLINDING_VENOM)
         add_coating(x, y, COAT_POTION, POT_BLINDNESS);
+}
+
+boolean
+should_vanish_oprop_ammunition(struct obj *obj) {
+    /* similar to the mulch check in should_mulch_missile() */
+    if (!obj || !(is_ammo(obj) || is_missile(obj))
+        || obj->otyp == BOOMERANG
+        || obj->oartifact
+        || objects[obj->otyp].oc_magic)
+        return FALSE;
+    if (obj->oprop)
+        return TRUE;
+    return FALSE;
 }
 
 #undef AutoReturn

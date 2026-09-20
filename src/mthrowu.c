@@ -115,6 +115,12 @@ thitu(
             You("are almost hit by %s.", onm);
         return 0;
     } else {
+        /* Hack for oprop hits */
+        if (obj && (obj->oprop || obj->oartifact)) {
+            (void) artifact_hit((struct monst *) 0, &gy.youmonst, obj, &dam, rn1(18, 2));
+            return 1;
+        }
+
         if (Blind || !flags.verbose)
             You("are hit%s", exclam(dam));
         else
@@ -174,6 +180,8 @@ drop_throw(
         || (ohit && (obj->otyp == EGG || obj->otyp == BOTTLE))) {
         broken = TRUE;
     } else if (obj->otyp == BOTTLE) {
+        broken = TRUE;
+    } else if (should_vanish_oprop_ammunition(obj)) {
         broken = TRUE;
     } else if (breaks(obj, x, y)) {
         gt.thrownobj = 0;
@@ -310,6 +318,12 @@ monshoot(struct monst *mtmp, struct obj *otmp, struct obj *mwep)
         gm.m_shot.o = STRANGE_OBJECT; /* don't give multishot feedback */
     }
     gm.m_shot.n = multishot;
+    /* handle oprops */
+    if (ammo_and_launcher(otmp, mwep) && mwep->oprop
+        && !otmp->oprop) {
+        otmp->oprop = mwep->oprop;
+    }
+
     for (gm.m_shot.i = 1; gm.m_shot.i <= gm.m_shot.n; gm.m_shot.i++) {
         m_throw(mtmp, mtmp->mx, mtmp->my, sgn(gt.tbx), sgn(gt.tby), dm, otmp);
         /* conceptually all N missiles are in flight at once, but
@@ -749,6 +763,8 @@ m_throw(
                         dam = 1;
                     if (singleobj->otyp != ACID_VENOM)
                         dam = Maybe_Half_Phys(dam);
+                    if (singleobj->oprop)
+                        oprop_effects_pre(mon, &gy.youmonst, singleobj);
                     hitu = thitu(hitv, dam, &singleobj, (char *) 0);
                 }
             }
@@ -1254,6 +1270,8 @@ thrwmu(struct monst *mtmp)
         if (dam < 1)
             dam = 1;
 
+        if (otmp->oprop)
+            oprop_effects_pre(mtmp, &gy.youmonst, otmp);
         (void) thitu(hitv, Maybe_Half_Phys(dam), &otmp, (char *) 0);
         stop_occupation();
         return;

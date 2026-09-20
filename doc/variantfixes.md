@@ -1,8 +1,17 @@
 # 1.6.1
 
+## Objects
+- Harmonic weapon effects now occur when the player or
+  monsters use ranged weapons or polearms.
+- Harmonic launchers bestow their oprops upon the ammo that they
+  fire (if it does not already have an oprop). Harmonic missiles
+  cannot be recovered.
+
 ## Game Balance
 - Potions of gain ability grant 2 ability points.
 - Hungry weapons only have a 25% chance to drain levels.
+- Blessed longbow of diana creates harmonic arrows.
+- Monsters in Gehennom or the endgame spawn with harmonic ammunition.
 
 # 1.6
 

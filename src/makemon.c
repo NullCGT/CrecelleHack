@@ -199,6 +199,8 @@ m_initthrow(struct monst *mtmp, int otyp, int oquan)
     set_obj_size(otmp, mtmp->data->msize, FALSE);
     if (otyp == ORCISH_ARROW || is_roguish(mtmp->data))
         otmp->opoisoned = TRUE;
+    if (In_hell(&u.uz) || In_endgame(&u.uz))
+        add_oprop_to_object(otmp, 0);
     (void) mpickobj(mtmp, otmp);
 }
 

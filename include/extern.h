@@ -2704,6 +2704,7 @@ extern void speed_up(long);
 extern void dye_obj(struct obj *, int, boolean) NONNULLARG1;
 extern const char *dye_to_name(struct obj *) NONNULLARG1;
 extern int how_resistant(int);
+extern int how_resistant_core(int, boolean);
 extern int resist_reduce(int, int);
 extern int partial_armor_resistance(int, struct obj *, boolean);
 

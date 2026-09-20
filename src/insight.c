@@ -38,6 +38,7 @@ staticfn int QSORTCALLBACK vanqsort_cmp(const genericptr, const genericptr);
 staticfn int num_extinct(void);
 staticfn int num_gone(int, int *);
 staticfn void item_resistance_message(int, const char *, int);
+staticfn void partial_resistance_enlightenment(int, int);
 
 extern const char *const hu_stat[];  /* hunger status from eat.c */
 extern const char *const enc_stat[]; /* encumbrance status from botl.c */
@@ -417,6 +418,9 @@ enlightenment_dnh(int mode)
         any.a_char = 'c';
         add_menu(ge.en_win, &nul_glyphinfo, &any, any.a_char, 0, ATR_NONE,
                     NO_COLOR, "Characteristics", MENU_ITEMFLAGS_NONE);
+        any.a_char = 'p';
+        add_menu(ge.en_win, &nul_glyphinfo, &any, any.a_char, 0, ATR_NONE,
+                    NO_COLOR, "Partial Resistances", MENU_ITEMFLAGS_NONE);
     }
     any.a_char = 's';
     add_menu(ge.en_win, &nul_glyphinfo, &any, any.a_char, 0, ATR_NONE,
@@ -453,6 +457,9 @@ enlightenment_dnh(int mode)
                     break;
                 case 'a':
                     attributes_enlightenment(mode, FALSE);
+                    break;
+                case 'p':
+                    partial_resistance_enlightenment(mode, FALSE);
                     break;
                 case 'm':
                     misc_enlightenment(mode, FALSE);
@@ -502,6 +509,8 @@ enlightenment(
        included there due to space considerations;
        shown for both basic and magic enlightenment */
     status_enlightenment(mode, final);
+    /* partial resistances, shown in their own section */
+    partial_resistance_enlightenment(mode, final);
     /* remaining attributes; shown for potion,&c or wizard mode and
        explore mode ^X or end of game disclosure */
     if (mode & MAGICENLIGHTENMENT) {
@@ -1590,7 +1599,7 @@ attributes_enlightenment(
 {
     static NEARDATA const char
         if_surroundings_permitted[] = " if surroundings permitted";
-    int ltmp, armpro, warnspecies;
+    int ltmp, warnspecies;
     char buf[BUFSZ];
 
     /*\
@@ -1622,27 +1631,7 @@ attributes_enlightenment(
         you_are("invulnerable", from_what(INVULNERABLE));
     if (Antimagic)
         you_are("magic-protected", from_what(ANTIMAGIC));
-
-
-    /* Partial intrinsic resistances */
-    if ((armpro = magic_negation(&gy.youmonst)) > 0) {
-        Sprintf(buf, "%d%% warded from special attacks", armpro);
-        you_are(buf, "");
-    }
-    Sprintf(buf, "%d%% fire resistant", how_resistant(FIRE_RES));
-    you_are(buf, "");
-    Sprintf(buf, "%d%% cold resistant", how_resistant(COLD_RES));
-    you_are(buf, "");
-    Sprintf(buf, "%d%% sleep resistant", how_resistant(SLEEP_RES));
-    you_are(buf, "");
-    Sprintf(buf, "%d%% disintegration-resistant", how_resistant(DISINT_RES));
-    you_are(buf, "");
-    Sprintf(buf, "%d%% shock resistant", how_resistant(SHOCK_RES));
-    you_are(buf, "");
-    Sprintf(buf, "%d%% poison resistant", how_resistant(POISON_RES));
-    you_are(buf, "");
-    /* End of partial intrinsic resistances */
-
+    
     if (Fire_resistance)
         you_are("fire resistant", from_what(FIRE_RES));
     item_resistance_message(AD_FIRE, " protected from fire", final);
@@ -3717,6 +3706,41 @@ snowkoban(void)
     if (svd.dungeons[svd.dungeon_topology.d_sokoban_dnum].biome_ids[0] == BIOME_SNOWY)
         return "Snowkoban";
     return "Sokoban";
+}
+
+staticfn void
+partial_resistance_enlightenment(int mode, int final)
+{
+    char buf[BUFSZ];
+    int armpro;
+    boolean id = ((mode & MAGICENLIGHTENMENT) || final);
+    const char *known_to_be = "known to be ";
+    
+    enlght_out("");
+    enlght_out_attr(ATR_SUBHEAD, final ? "Final Partial Resistances:" : "Partial Resistances:");
+    if ((armpro = magic_negation(&gy.youmonst)) > 0) {
+        Sprintf(buf, "%s%d%% warded from special attacks",
+                id ? "" : known_to_be, armpro);
+        you_are(buf, "");
+    }
+    Sprintf(buf, "%s%d%% fire resistant", id ? "" : known_to_be,
+            how_resistant_core(FIRE_RES, id));
+    you_are(buf, "");
+    Sprintf(buf, "%s%d%% cold resistant", id ? "" : known_to_be,
+            how_resistant_core(COLD_RES, id));
+    you_are(buf, "");
+    Sprintf(buf, "%s%d%% sleep resistant", id ? "" : known_to_be,
+            how_resistant_core(SLEEP_RES, id));
+    you_are(buf, "");
+    Sprintf(buf, "%s%d%% disintegration-resistant", id ? "" : known_to_be,
+            how_resistant_core(DISINT_RES, id));
+    you_are(buf, "");
+    Sprintf(buf, "%s%d%% shock resistant", id ? "" : known_to_be,
+            how_resistant_core(SHOCK_RES, id));
+    you_are(buf, "");
+    Sprintf(buf, "%s%d%% poison resistant", id ? "" : known_to_be,
+            how_resistant_core(POISON_RES, id));
+    you_are(buf, "");
 }
 
 /* for 'onefile' processing where end of this file isn't necessarily the

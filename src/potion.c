@@ -4051,29 +4051,35 @@ mix_gem(struct obj *o1)
 int
 how_resistant(int which)
 {
+    return how_resistant_core(which, TRUE);
+}
+
+int
+how_resistant_core(int which, boolean id)
+{
     int ret = 0;
     int race_adjust = 0;
     /* Now calculate the bonuses from the player's gear */
     if (uarm) {
-        ret += partial_armor_resistance(which, uarm, TRUE);
+        ret += partial_armor_resistance(which, uarm, id);
     }
     if (uarmc) {
-        ret += partial_armor_resistance(which, uarmc, TRUE);
+        ret += partial_armor_resistance(which, uarmc, id);
     }
     if (uarmh) {
-        ret += partial_armor_resistance(which, uarmh, TRUE);
+        ret += partial_armor_resistance(which, uarmh, id);
     }
     if (uarmf) {
-        ret += partial_armor_resistance(which, uarmf, TRUE);
+        ret += partial_armor_resistance(which, uarmf, id);
     }
     if (uarms) {
-        ret += partial_armor_resistance(which, uarms, TRUE);
+        ret += partial_armor_resistance(which, uarms, id);
     }
     if (uarmg) {
-        ret += partial_armor_resistance(which, uarmg, TRUE);
+        ret += partial_armor_resistance(which, uarmg, id);
     }
     if (uarmu) {
-        ret += partial_armor_resistance(which, uarmu, TRUE);
+        ret += partial_armor_resistance(which, uarmu, id);
     }
 
     /* Race bonuses */ 
@@ -4110,12 +4116,14 @@ how_resistant(int which)
 
     /* externals and level/race based intrinsics always provide 100%
 	 * as do monster resistances */
-	if (u.uprops[which].extrinsic ||
-		u.uprops[which].intrinsic ||
-			(gy.youmonst.mintrinsics & (1 << (which-1)))) { /* depends on FIRE_RES/MR_FIRE order matching! */
-		ret += 100;
-        ret = max(100, ret);
-	}
+    if (id) {
+        if (u.uprops[which].extrinsic ||
+            u.uprops[which].intrinsic ||
+                (gy.youmonst.mintrinsics & (1 << (which-1)))) { /* depends on FIRE_RES/MR_FIRE order matching! */
+            ret += 100;
+            ret = max(100, ret);
+        }
+    }
 
 	return ret;
 }

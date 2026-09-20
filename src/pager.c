@@ -2483,7 +2483,7 @@ do_supplemental_item_info(struct obj *otmp)
     if (otmp->oclass == ARMOR_CLASS) {
         Sprintf(buf, "Armor Class: %d", (ARM_BONUS(otmp) - (otmp->known ? 0 : otmp->spe)));
         add_menu_str(datawin, buf);
-        Sprintf(buf, "Magic Cancellation: %d%%", max(0, (objects[otmp->otyp].a_can) - (otmp->known ? otmp->spe : 0)));
+        Sprintf(buf, "Magic Cancellation: %d%%", objects[otmp->otyp].a_can);
         add_menu_str(datawin, buf);
         Sprintf(buf, "Fire Resistance: %d%%", partial_armor_resistance(FIRE_RES, otmp, FALSE));
         add_menu_str(datawin, buf);

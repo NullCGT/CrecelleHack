@@ -12,6 +12,9 @@
 - Hungry weapons only have a 25% chance to drain levels.
 - Blessed longbow of diana creates harmonic arrows.
 - Monsters in Gehennom or the endgame spawn with harmonic ammunition.
+- Allow viewing of partial resistances in regular play.
+- Remove effect of enchantment on magic cancellation, preventing leakage
+  of BUC status.
 
 # 1.6
 

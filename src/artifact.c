@@ -2847,7 +2847,7 @@ retouch_object(
                 tmp = rnd(sear_damage(obj->material) / 2), dmg += Maybe_Half_Phys(tmp);
             if (bane)
                 dmg += rnd(10);
-            Sprintf(buf, "handling %s (made of %s)", what, MAT_NAME(obj->material));
+            Sprintf(buf, "handling %s", what);
             losehp(dmg, buf, KILLED_BY);
             exercise(A_CON, FALSE);
         }

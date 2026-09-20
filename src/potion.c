@@ -4181,7 +4181,7 @@ partial_armor_resistance(int res, struct obj *obj, boolean id)
         } else if (obj->oprop == OPROP_CRACKLING && res == SHOCK_RES)
             ret += 30;
         else if (obj->oprop == OPROP_SUBTLE && res == POISON_RES)
-            ret += 20;
+            ret += 30;
         else if (obj->oprop == OPROP_ANTIMAGIC)
             ret -= 5;
     }

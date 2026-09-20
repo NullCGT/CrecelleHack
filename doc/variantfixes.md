@@ -19,6 +19,7 @@
   of BUC status.
 - If over 200% poison resistant, potions of sickness function as potions of
   full healing.
+- Buff resistance provided by dragon scales.
 
 # 1.6
 

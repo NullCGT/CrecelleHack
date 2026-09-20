@@ -6839,13 +6839,26 @@ oprop_effects_pre(struct monst *magr, struct monst *mdef, struct obj *weapon)
             gb.buzzer = 0;
         }
     }
+    /* Universal stuff */
     if (weapon->oprop == OPROP_BLAZING && !rn2(5)) {
         if (cansee(dx, dy)) {
             pline_The("%s ignites!", simpleonames(weapon));
             pkn = 1;
         }
         create_bonfire(dx, dy, rnd(7), d(2, 4));
+    } else if (weapon->oprop == OPROP_ACIDIC) {
+        /* message? */
+        if (rn2(20))
+            floor_spillage(dx, dy, POT_ACID, NON_PM);
+        else
+            potion_splatter(dx, dy, POT_ACID, NON_PM);
+    } else if (weapon->oprop == OPROP_BRINY) {
+        if (rn2(20))
+            floor_spillage(dx, dy, POT_WATER, NON_PM);
+        else
+            potion_splatter(dx, dy, POT_ACID, NON_PM);
     }
+    /* Make it known */
     if (pkn && !weapon->pknown) {
         weapon->pknown = 1;
         update_inventory();

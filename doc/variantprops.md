@@ -33,14 +33,15 @@
   was a vampire.
 
 ## Blazing
-- Blazing weapons can create a bonfire underneath the target.
+- Blazing weapons deal 1d4 and have a chance to create a bonfire
+  underneath the target.
 - Blazing armor provides fire resistance.
 - Blazing boots turn any grass walked on to ash.
 - Blazing helmets allow breathing fire.
 
 ## Crackling
-- Crackling weapons have a 50% chance of creating a 1d6 damage
-  ray of lightning.
+- Crackling weapons deal 1d4 shock and have a 50% chance of creating
+  a 1d6 damage ray of lightning.
 - Crackling armor provides shock resistance when worn.
 - Crackling helmets allow breathing electricity.
 

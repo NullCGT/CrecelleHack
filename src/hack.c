@@ -2352,6 +2352,23 @@ domove_fight_empty(coordxy x, coordxy y)
             otmp->spe = 1;
             throwit(otmp, 0L, FALSE, (struct obj *) 0);
         }
+        /* Other harmonic weapons can spread coatings */
+        if (uwep && uwep->oprop) {
+            switch (uwep->oprop) {
+            case OPROP_ACIDIC:
+                floor_spillage(x, y, POT_ACID, NON_PM);
+                break;
+            case OPROP_BRINY:
+                floor_spillage(x, y, POT_WATER, NON_PM);
+                break;
+            case OPROP_BLAZING:
+                if (!rn2(5)) {
+                    pline("Fwoosh!");
+                    create_bonfire(x, y, rnd(7), d(2, 4));
+                }
+                break;
+            }
+        }
 
  futile:
         You("%s%s %s.",

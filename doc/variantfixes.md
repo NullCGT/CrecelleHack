@@ -21,6 +21,8 @@
   full healing.
 - Buff resistance provided by dragon scales.
 - Protection from explosions now provides complete explosion immunity.
+- Buff crackling and blazing oprops, and allow briny and mordant to spread liquid.
+- Force-attacking with an oprop weapon can do things now.
 
 # 1.6
 

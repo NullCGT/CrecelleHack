@@ -6,6 +6,8 @@
 - Harmonic launchers bestow their oprops upon the ammo that they
   fire (if it does not already have an oprop). Harmonic missiles
   cannot be recovered.
+- Partial resistances vary based on object appearance. A number of
+  objects have had their resistances altered to compensate for this.
 
 ## Game Balance
 - Potions of gain ability grant 2 ability points.

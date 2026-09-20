@@ -4177,7 +4177,7 @@ partial_armor_resistance(int res, struct obj *obj, boolean id)
         else if (obj->oprop == OPROP_ANTIMAGIC)
             ret -= 5;
     }
-    ret += objects[obj->otyp].oc_resists[res - 1];
+    ret += OBJ_RESIST(objects[obj->otyp], res);
     return ret;
 }
 

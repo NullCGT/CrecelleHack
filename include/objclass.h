@@ -256,6 +256,7 @@ extern NEARDATA struct material materials[NUM_MATERIAL_TYPES];
 
 #define OBJ_NAME(obj) (obj_descr[(obj).oc_name_idx].oc_name)
 #define OBJ_DESCR(obj) (obj_descr[(obj).oc_descr_idx].oc_descr)
+#define OBJ_RESIST(obj, which) (objects[(obj).oc_descr_idx].oc_resists[which - 1])
 
 #define is_organic(otmp) (otmp->material <= WOOD)
 #define is_dragonhide(otmp) (otmp->material == DRAGON_HIDE)

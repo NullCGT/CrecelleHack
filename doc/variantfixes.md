@@ -1,3 +1,12 @@
+# 1.7
+## Dungeon
+- Shopkeeper Services
+  - From Slash'Em, but modified slightly.
+    - First, the code has been massively cleaned up. This will not result in any
+      visible changes for the player aside from some grammatical changes and
+      basic vs. premier services being selected via menu.
+    - Appraisal is not available, as it would be useless.
+
 # 1.6.1
 
 ## Objects

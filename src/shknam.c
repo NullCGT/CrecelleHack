@@ -15,6 +15,7 @@ staticfn void mkshobj_at(const struct shclass *, int, int, boolean);
 staticfn void nameshk(struct monst *, const char *const *);
 staticfn int good_shopdoor(struct mkroom *, coordxy *, coordxy *);
 staticfn int shkinit(const struct shclass *, struct mkroom *);
+staticfn void init_shk_services(struct monst *);
 
 #define VEGETARIAN_CLASS (MAXOCLASSES + 1)
 
@@ -679,6 +680,7 @@ shkinit(const struct shclass *shp, struct mkroom *sroom)
     eshkp->billct = eshkp->visitct = 0;
     eshkp->bill_p = (struct bill_x *) 0;
     eshkp->customer[0] = '\0';
+    init_shk_services(shk);
     mkmonmoney(shk, 1000L + 30L * (long) rnd(100)); /* initial capital */
     if (shp->shknms == shkrings)
         (void) mongets(shk, TOUCHSTONE);
@@ -717,6 +719,7 @@ static const char *doormats[] = {
     "Welcome!",         "U zap it U Bought it!",
     "Come on in!",      "The customer is always right.",
     "Buy Buy Buy!",     "SALE",
+    "Try our new services!",
 };
 
 /* stock a newly-created room with objects */
@@ -926,6 +929,43 @@ is_izchak(struct monst *shkp, boolean override_hallucination)
     if (!letter(*shknm))
         ++shknm;
     return (boolean) !strcmp(shknm, "Izchak");
+}
+
+staticfn
+void init_shk_services(struct monst *shk) {
+	ESHK(shk)->services = 0L;
+
+	/* KMH, balance patch 2 -- Increase probability of shopkeeper services.
+	 * Requested by Dave <mitch45678@aol.com>
+	 */
+	/* Guarantee some form of identification
+	 * 1/3 		both Basic and Premium ID
+	 * 2/15 	Premium ID only
+	 * 8/15 	Basic ID only
+	 */
+	if (!rn2(2))
+		ESHK(shk)->services |= (SHK_ID_BASIC | SHK_ID_PREMIUM);
+	else if (!rn2(4))
+		ESHK(shk)->services |= SHK_ID_PREMIUM;
+	else
+		ESHK(shk)->services |= SHK_ID_BASIC;
+
+	if (!rn2(3)) ESHK(shk)->services |= SHK_UNCURSE;
+	if (!rn2(3) && shk_class_match(WEAPON_CLASS, shk))
+		ESHK(shk)->services |= SHK_APPRAISE;
+	if (shk_class_match(WEAPON_CLASS, shk)
+	    || shk_class_match(ARMOR_CLASS, shk)
+	    || shk_class_match(WAND_CLASS, shk)
+	    || shk_class_match(TOOL_CLASS, shk)
+	    || shk_class_match(SPBOOK_CLASS, shk)
+	    || shk_class_match(RING_CLASS, shk)) {
+		if (!rn2(4)) ESHK(shk)->services |= SHK_SPECIAL_A;
+		if (!rn2(4)) ESHK(shk)->services |= SHK_SPECIAL_B;
+	}
+	if (!rn2(4) && shk_class_match(WEAPON_CLASS, shk))
+		ESHK(shk)->services |= SHK_SPECIAL_C;
+
+	return;
 }
 
 #undef VEGETARIAN_CLASS

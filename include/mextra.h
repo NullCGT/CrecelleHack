@@ -143,6 +143,14 @@ struct eshk {
     int visitct;            /* nr of visits by most recent customer */
     char customer[PL_NSIZ]; /* most recent customer */
     char shknam[PL_NSIZ];
+    long services;          /* Services offered */
+#define SHK_ID_BASIC   0x1
+#define SHK_ID_PREMIUM 0x2
+#define SHK_UNCURSE    0x4
+#define SHK_APPRAISE   0x8
+#define SHK_SPECIAL_A  0x10
+#define SHK_SPECIAL_B  0x20
+#define SHK_SPECIAL_C  0x40
 };
 
 /***

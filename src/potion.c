@@ -1969,7 +1969,8 @@ coateffects(coordxy x, coordxy y, struct monst *mon) {
     boolean banana_peel = svl.level.objects[x][y] && svl.level.objects[x][y]->otyp == BANANA_PEEL;
     char buf[BUFSZ];
     boolean stepper = !((is_flyer(mon->data) || is_floater(mon->data)
-                            || amorphous(mon->data) || noncorporeal(mon->data))
+                            || amorphous(mon->data) || noncorporeal(mon->data)
+                            || mon->data == &mons[PM_IRON_GOLEM])
                         || (isyou && (Levitation || Flying)));
     /* Now the actual coat effects */
     if (stepper && has_coating(x, y, COAT_SHARDS)) {

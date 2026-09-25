@@ -129,7 +129,7 @@ enum ms_sounds {
 #define M2_IGNOREPETS   0x00000004L /* ignores pets in favor of attacking player */
 #define M2_SUPPORTER    0x00000008L /* attempts to support allies */
 #define M2_DEATHDROP    0x00000010L /* has death drops */
-// #define M2_DWARF        0x00000020L /* is a dwarf */
+#define M2_ACID_TRAIL   0x00000020L /* is a dwarf */
 // #define M2_GNOME        0x00000040L /* is a gnome */
 // #define M2_ORC          0x00000080L /* is an orc */
 // #define M2_DEMON        0x00000100L /* is a demon */

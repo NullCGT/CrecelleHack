@@ -27,6 +27,7 @@ staticfn int m_balks_at_approaching(int, struct monst *, int *, int *);
 staticfn boolean stuff_prevents_passage(struct monst *);
 staticfn int vamp_shift(struct monst *, struct permonst *, boolean);
 staticfn void maybe_spin_web(struct monst *);
+staticfn boolean oprop_everyturn_effects(struct monst *, coordxy, coordxy);
 
 /* a11y: give a message when monster moved */
 staticfn void
@@ -713,12 +714,7 @@ m_everyturn_effect(struct monst *mtmp)
     /* Some monsters have coating interactions every turn. Coating
        interactions can lead to explosions, so they generally need
        to go here where it's safe to kill a monster. */
-    if (mtmp->data == &mons[PM_YELLOW_DRAGON] ||
-        mtmp->data == &mons[PM_BABY_YELLOW_DRAGON] ||
-        mtmp->data == &mons[PM_GIANT_SLUG] ||
-        mtmp->data == &mons[PM_ACID_BLOB] ||
-        mtmp->data == &mons[PM_GELATINOUS_CUBE] ||
-        mtmp->data == &mons[PM_OCHRE_JELLY] ||
+    if (acid_dripper(mtmp->data) ||
         (is_u && uarm && 
             (uarm->otyp == YELLOW_DRAGON_SCALES || 
                 uarm->otyp == YELLOW_DRAGON_SCALE_MAIL))) {
@@ -728,51 +724,10 @@ m_everyturn_effect(struct monst *mtmp)
         floor_spillage(x, y, POT_WATER, NON_PM);
     } else if (mtmp->data == &mons[PM_SALT_GOLEM]) {
         floor_alchemy(x, y, SALT_CRYSTAL);
+    } else if (mtmp->data == &mons[PM_IRON_GOLEM] && !(svm.moves % 7)) {
+        floor_spillage(x, y, POT_OIL, NON_PM);
     }
-    if (DEADMONSTER(mtmp))
-        return;
-    /* oprop boots do odd things */
-    if (is_u && uarmf && uarmf->oprop) {
-        switch(uarmf->oprop) {
-            case OPROP_BOREAL:
-                add_coating(x, y, COAT_FROST, 0);
-                uarmf->pknown = 1;
-                break;
-            case OPROP_BLAZING:
-                if (has_coating(x, y, COAT_GRASS)) {
-                    remove_coating(x,y, COAT_GRASS);
-                    add_coating(x, y, COAT_ASHES, 0);
-                    uarmf->pknown = 1;
-                }
-                break;
-            case OPROP_SANGUINE:
-                floor_spillage(x, y, POT_BLOOD, PM_HUMAN);
-                uarmf->pknown = 1;
-                break;
-            case OPROP_ACIDIC:
-                floor_spillage(x, y, POT_ACID, 0);
-                uarmf->pknown = 1;
-                break;
-            case OPROP_HUNGRY:
-                if (has_coating(x, y, COAT_BLOOD)) {
-                    remove_coating(x, y, COAT_BLOOD);
-                    pline("%s some blood.", Yobjnam2(uarmf, "slurp"));
-                    uarmf->pknown = 1;
-                }
-                break;
-            case OPROP_BRINY:
-                floor_spillage(x, y, POT_WATER, 0);
-                uarmf->pknown = 1;
-                break;
-            case OPROP_ANTIMAGIC:
-                remove_coating(x, y, COAT_ALL);
-                uarmf->pknown = 1;
-                break;
-            default:
-                break;
-        }
-    }
-    if (DEADMONSTER(mtmp))
+    if (DEADMONSTER(mtmp) || oprop_everyturn_effects(mtmp, x, y))
         return;
     /* Drip liquids */
     if (is_u && Dripping && !rn2(3)) {
@@ -2664,6 +2619,65 @@ vamp_shift(
         display_nhwindow(WIN_MESSAGE, FALSE);
     }
     return reslt;
+}
+
+/* Return true if user died due to this */
+staticfn boolean
+oprop_everyturn_effects(struct monst *mon, coordxy x, coordxy y)
+{
+    boolean is_u = (mon == &gy.youmonst) ? TRUE : FALSE;
+    struct obj *boots = (is_u) ? uarmf : which_armor(mon, W_ARMF);
+    boolean id_boots = FALSE;
+    
+    if (!boots || !boots->oprop)
+        return FALSE;
+    switch(boots->oprop) {
+        case OPROP_BOREAL:
+            add_coating(x, y, COAT_FROST, 0);
+            id_boots = 1;
+            break;
+        case OPROP_BLAZING:
+            if (has_coating(x, y, COAT_GRASS)) {
+                remove_coating(x,y, COAT_GRASS);
+                add_coating(x, y, COAT_ASHES, 0);
+                id_boots = 1;
+            }
+            break;
+        case OPROP_SANGUINE:
+            floor_spillage(x, y, POT_BLOOD, PM_HUMAN);
+            id_boots = 1;
+            break;
+        case OPROP_ACIDIC:
+            floor_spillage(x, y, POT_ACID, 0);
+            id_boots = 1;
+            break;
+        case OPROP_HUNGRY:
+            if (has_coating(x, y, COAT_BLOOD)) {
+                remove_coating(x, y, COAT_BLOOD);
+                if (is_u && flags.verbose)
+                    pline("%s some blood.", Yobjnam2(uarmf, "slurp"));
+                id_boots = 1;
+            }
+            break;
+        case OPROP_BRINY:
+            floor_spillage(x, y, POT_WATER, 0);
+            id_boots = 1;
+            break;
+        case OPROP_ANTIMAGIC:
+            remove_coating(x, y, COAT_ALL);
+            id_boots = 1;
+            break;
+        default:
+            break;
+    }
+    if (id_boots && (is_u || canseemon(mon))) {
+        boots->pknown = 1;
+        if (is_u)
+            update_inventory();
+    }
+    if (DEADMONSTER(mon))
+        return TRUE;
+    return FALSE;
 }
 
 /*monmove.c*/

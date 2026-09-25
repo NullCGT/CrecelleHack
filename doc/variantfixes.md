@@ -1,4 +1,11 @@
 # 1.7
+
+## Objects
+- Harmonic boots worn by monsters now function as they would for players.
+
+## Monsters
+- Iron golems drip oil occasionally.
+
 ## Dungeon
 - Shopkeeper Services
   - From Slash'Em, but modified slightly.

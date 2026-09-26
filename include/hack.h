@@ -1228,6 +1228,7 @@ typedef uint32_t mmflags_nht;     /* makemon MM_ flags */
 #define CORPSTAT_INIT     0x08 /* pass init flag to mkcorpstat */
 #define CORPSTAT_BURIED   0x10 /* bury the corpse or statue */
 #define CORPSTAT_SKELETONIZE 0x20 /* skeletonize the corpse */
+#define CORPSTAT_INSTAGIB 0x40 /* blow it up */
 /* note: gender flags have different values from those used for monsters
    so that 0 can be unspecified/random instead of male */
 #define CORPSTAT_RANDOM 0
@@ -1415,6 +1416,7 @@ typedef uint32_t mmflags_nht;     /* makemon MM_ flags */
 #define XKILL_NOCORPSE  2
 #define XKILL_NOCONDUCT 4
 #define XKILL_SKELETONIZE 8
+#define XKILL_INSTAGIB  16
 
 /* pline_flags; mask values for custompline()'s first argument */
 /* #define PLINE_ORDINARY 0 */

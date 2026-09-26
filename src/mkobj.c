@@ -2342,6 +2342,12 @@ mkcorpstat(
     } else {
         otmp = mksobj_at(objtype, x, y, init, FALSE);
     }
+    /* If gibbing the corpse, turn it into tiny chunks */
+    if (objtype == CORPSE && (corpstatflags & CORPSTAT_INSTAGIB) != 0) {
+        otmp->quan = rn1(max(2, ((ptr->cwt) / 100)), 1);
+        otmp->owt = 1;
+        otmp->hunk_o_food = 1;
+    }
     /* record gender and 'historic statue' in overloaded enchantment field */
     otmp->spe = (corpstatflags & CORPSTAT_SPE_VAL);
     otmp->norevive = gm.mkcorpstat_norevive; /* via envrmt rather than flags */

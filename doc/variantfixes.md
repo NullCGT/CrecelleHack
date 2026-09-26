@@ -20,6 +20,8 @@
 - Iron golems drip oil occasionally.
 - Monsters are able to release a wider variety of substances when dying.
 - Some monsters are able to inflict bleeding wounds.
+- Monsters killed by explosions now explode into many pieces.
+  - Known issue: does not occur with monsters exploded outside the player's turn.
 
 ## Dungeon
 - Shopkeeper Services

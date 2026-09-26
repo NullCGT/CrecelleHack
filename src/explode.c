@@ -559,7 +559,7 @@ explode(
                                  ? XKILL_NOCORPSE : 0);
 
                     if (!svc.context.mon_moving) {
-                        xkilled(mtmp, XKILL_GIVEMSG | xkflg);
+                        xkilled(mtmp, XKILL_GIVEMSG | XKILL_INSTAGIB | xkflg);
                     } else if (mdef && mtmp == mdef) {
                         /* 'mdef' killed self trying to cure being turned
                          * into slime due to some action by the player.
@@ -574,7 +574,7 @@ explode(
                                   xkflg ? "burned completely"
                                         : nonliving(mtmp->data) ? "destroyed"
                                                                 : "killed");
-                        xkilled(mtmp, XKILL_NOMSG | XKILL_NOCONDUCT | xkflg);
+                        xkilled(mtmp, XKILL_NOMSG | XKILL_INSTAGIB | XKILL_NOCONDUCT | xkflg);
                     } else {
                         if (xkflg)
                             adtyp = AD_RBRE; /* no corpse */

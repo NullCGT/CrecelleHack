@@ -3759,6 +3759,7 @@ xkilled(
             nomsg = (xkill_flags & XKILL_NOMSG) != 0,
             skeletonize = ((xkill_flags & XKILL_SKELETONIZE) != 0
                             && has_bones(mtmp->data)),
+            instagib = (xkill_flags & XKILL_INSTAGIB) != 0,
             nocorpse = (xkill_flags & XKILL_NOCORPSE) != 0,
             noconduct = (xkill_flags & XKILL_NOCONDUCT) != 0;
 
@@ -3893,7 +3894,8 @@ xkilled(
                          && zombie_form(mtmp->data) != NON_PM);
             cadaver = make_corpse(mtmp,
                                     (burycorpse ? CORPSTAT_BURIED : CORPSTAT_NONE)
-                                        | (skeletonize ? CORPSTAT_SKELETONIZE : 0));
+                                        | (skeletonize ? CORPSTAT_SKELETONIZE : 0)
+                                        | (instagib ? CORPSTAT_INSTAGIB : 0));
             gz.zombify = FALSE; /* reset */
             if (burycorpse && cadaver && cansee(x, y) && !mtmp->minvis
                 && cadaver->where == OBJ_BURIED && !nomsg) {
@@ -3914,6 +3916,10 @@ xkilled(
         museum.mextra = 0;
         spoteffects(TRUE); /* poor man's expels() */
         mtmp = &museum; /* use the reference copy now */
+    }
+    if (instagib && !burycorpse && !wasinside) {
+        scatter(x, y, 5, MAY_DESTROY | MAY_HIT | MAY_FRACTURE
+                            | VIS_EFFECTS, (struct obj *) 0);
     }
     /* monster is gone, corpse or other object might now be visible */
     newsym(x, y);

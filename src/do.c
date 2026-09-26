@@ -2260,7 +2260,7 @@ boolean
 revive_corpse(struct obj *corpse)
 {
     struct monst *mtmp, *mcarry;
-    boolean is_uwep, chewed;
+    boolean is_uwep, chewed, hunk;
     xint16 where;
     char cname[BUFSZ];
     struct obj *container = (struct obj *) 0;
@@ -2277,8 +2277,9 @@ revive_corpse(struct obj *corpse)
                || (where == OBJ_BURIED && is_reviver(&mons[montype])));
     is_uwep = (corpse == uwep);
     chewed = (corpse->oeaten != 0);
+    hunk = (corpse->hunk_o_food != 0);
     Strcpy(cname, corpse_xname(corpse,
-                               chewed ? "bite-covered" : (const char *) 0,
+                               hunk ? "piece" : chewed ? "bite-covered" : (const char *) 0,
                                CXN_SINGULAR));
     mcarry = (where == OBJ_MINVENT) ? corpse->ocarry : 0;
     /* mcarry is NULL for (where == OBJ_BURIED and OBJ_CONTAINED) now */
@@ -2320,7 +2321,8 @@ revive_corpse(struct obj *corpse)
 
                 if (canseemon(mtmp)) {
                     pline("%s rises from the dead%s!",
-                          chewed ? Adjmonnam(mtmp, "bite-covered")
+                          hunk ? Adjmonnam(mtmp, "gibbed")
+                          : chewed ? Adjmonnam(mtmp, "bite-covered")
                                  : Monnam(mtmp),
                           effect);
                 } else {
@@ -2338,7 +2340,8 @@ revive_corpse(struct obj *corpse)
                           canspotmon(mtmp) ? "revives" : "disappears");
                 else if (canspotmon(mtmp))
                     pline("%s suddenly appears!",
-                          chewed ? Adjmonnam(mtmp, "bite-covered")
+                          hunk ? Adjmonnam(mtmp, "gibbed")
+                          : chewed ? Adjmonnam(mtmp, "bite-covered")
                                  : Monnam(mtmp));
             }
             break;

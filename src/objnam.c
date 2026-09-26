@@ -1624,7 +1624,9 @@ doname_base(
         }
         break;
     case FOOD_CLASS:
-        if (obj->oeaten)
+        if (obj->hunk_o_food == 1)
+            Strcat(prefix, obj->quan > 1 ? "hunks of " : "hunk of ");
+        else if (obj->oeaten)
             Strcat(prefix, "partly eaten ");
         if (obj->otyp == CORPSE || obj->otyp == SKELETON) {
             /* (quan == 1) => want corpse_xname() to supply article,

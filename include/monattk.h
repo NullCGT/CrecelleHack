@@ -90,6 +90,7 @@ static const char *const mattk_names[] = { MATK_LIST };
     MAD(AD_WORM, "spam mail"), \
     MAD(AD_HONY, "spread honey"), \
     MAD(AD_SOAK, "soak"), \
+    MAD(AD_BLED, "bleeding wound"), \
     MAD(AD_TLAW, "teleport away"), \
     MAD(AD_CLRC, "clerical"), \
     MAD(AD_SPEL, "arcane"), \

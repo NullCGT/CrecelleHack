@@ -727,26 +727,32 @@ m_everyturn_effect(struct monst *mtmp)
     } else if (mtmp->data == &mons[PM_IRON_GOLEM] && !(svm.moves % 7)) {
         floor_spillage(x, y, POT_OIL, NON_PM);
     }
-    if (DEADMONSTER(mtmp) || oprop_everyturn_effects(mtmp, x, y))
+    if (!is_u && (DEADMONSTER(mtmp) || oprop_everyturn_effects(mtmp, x, y)))
         return;
     /* Drip liquids */
-    if (is_u && Dripping && !rn2(3)) {
-        if (flags.drip_messages) {
-            char dripbuf[BUFSZ];
-            potion_coating_text(dripbuf, (u.udriptype <= 0) ? POT_BLOOD : u.udriptype);
-            You("drip %s onto the %s.", dripbuf, surface(u.ux, u.uy));
+    if (is_u) {
+        if (Dripping) {
+            if (flags.drip_messages) {
+                char dripbuf[BUFSZ];
+                potion_coating_text(dripbuf, (u.udriptype <= 0) ? POT_BLOOD : u.udriptype);
+                You("drip %s onto the %s.", dripbuf, surface(u.ux, u.uy));
+            }
+            if (u.udriptype > 0)
+                floor_spillage(x, y, u.udriptype, NON_PM);
+            else
+                add_coating(x, y, COAT_BLOOD, -1 * u.udriptype);
+        } else if (is_u && uwep && is_art(uwep, ART_WRATH_OF_SANKIS) && !rn2(3)) {
+            floor_spillage(x, y, COAT_BLOOD, PM_DWARF);
         }
-        if (u.udriptype > 0)
-            floor_spillage(x, y, u.udriptype, NON_PM);
-        else add_coating(x, y, COAT_BLOOD, -1 * u.udriptype);
-    } else if (is_u && uwep && is_art(uwep, ART_WRATH_OF_SANKIS) && !rn2(3)) {
+    } else if (!is_u) {
+        if (MON_WEP(mtmp) && is_art(MON_WEP(mtmp), ART_WRATH_OF_SANKIS)  && !rn2(3)) {
         floor_spillage(x, y, COAT_BLOOD, PM_DWARF);
-    } else if (!is_u && MON_WEP(mtmp)
-                && is_art(MON_WEP(mtmp), ART_WRATH_OF_SANKIS)  && !rn2(3)) {
-        floor_spillage(x, y, COAT_BLOOD, PM_DWARF);
-    } else if (!is_u && mtmp->mdripping) {
-        if (mtmp->mdriptype > 0) floor_spillage(x, y, mtmp->mdriptype, NON_PM);
-        else add_coating(x, y, COAT_BLOOD, -1 * mtmp->mdriptype);
+        } else if (mtmp->mbleeding) {
+            shed_blood(mtmp->data, x, y, FALSE);
+        } else if (mtmp->mdripping) {
+            if (mtmp->mdriptype > 0) floor_spillage(x, y, mtmp->mdriptype, NON_PM);
+            else add_coating(x, y, COAT_BLOOD, -1 * mtmp->mdriptype);
+        }
     }
 }
 
@@ -891,8 +897,11 @@ dochug(struct monst *mtmp)
         mtmp->mstun = 0;
 
     /* dripping monsters stop dripping with a very large probability */
-    if (mtmp->mdripping && !rn2(6))
+    if ((mtmp->mdripping || mtmp->mbleeding)
+        && (!rn2(6) || (mtmp->mbleeding && regenerates(mtmp->data)))) {
+        mtmp->mbleeding = 0;
         mtmp->mdripping = 0;
+    }
 
     /* Some monsters teleport. Teleportation costs a turn. */
     if (mtmp->mflee && !rn2(40) && can_teleport(mdat) && !mtmp->iswiz
@@ -901,6 +910,10 @@ dochug(struct monst *mtmp)
             leppie_stash(mtmp);
         return 0;
     }
+
+    /* If a monster is bleeding, it loses hit points over time. */
+    if (mtmp->mbleeding && mtmp->mhp > 1)
+        mtmp->mhp--;
 
     /* some monsters have special abilities */
     m_respond(mtmp);
@@ -2675,6 +2688,8 @@ oprop_everyturn_effects(struct monst *mon, coordxy x, coordxy y)
         if (is_u)
             update_inventory();
     }
+    if (is_u)
+        return FALSE;
     if (DEADMONSTER(mon))
         return TRUE;
     return FALSE;

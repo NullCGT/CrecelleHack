@@ -1964,6 +1964,11 @@ extern int meatpaper(struct monst *) NONNULLARG1;
 extern boolean maybe_set_terrain_effects(struct monst *,
                                          struct permonst *) NONNULLARG1;
 extern void terrain_effects(void);
+extern short blood_coat(struct permonst *) NONNULLARG1;
+extern int blood_index(struct permonst *) NONNULLARG1;
+extern void shed_blood(struct permonst *, coordxy, coordxy, boolean);
+extern void make_bleeding(long, boolean);
+extern void make_mbleeding(struct monst *) NONNULLARG1;
 
 /* ### mondata.c ### */
 
@@ -3590,6 +3595,8 @@ extern void mhitm_ad_sgld(struct monst *, struct attack *, struct monst *,
 extern void mhitm_ad_tlpt(struct monst *, struct attack *, struct monst *,
                           struct mhitm_data *) NONNULLPTRS;
 extern void mhitm_ad_tlaw(struct monst *, struct attack *, struct monst *,
+                          struct mhitm_data *) NONNULLPTRS;
+extern void mhitm_ad_bled(struct monst *, struct attack *, struct monst *,
                           struct mhitm_data *) NONNULLPTRS;
 /* gazemm() calls mhitm_ad_blnd with a NULL 4th arg */
 extern void mhitm_ad_blnd(struct monst *, struct attack *, struct monst *,

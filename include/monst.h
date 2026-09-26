@@ -181,7 +181,8 @@ struct monst {
     
     Bitfield(mgenmklev, 1); /* made by the level generation */
     Bitfield(mwounded_legs, 1); /* wounded legs */
-    /* 6 spare bits */
+    Bitfield(mbleeding, 1); /* mon is bleeding */
+    /* 5 spare bits */
 
     unsigned long mstrategy; /* for monsters with mflag3: current strategy */
 #ifdef NHSTDC

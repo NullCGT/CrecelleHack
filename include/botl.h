@@ -98,7 +98,7 @@ enum blconditions {
     bl_woundedl,
     bl_holding,
     bl_prone,
-    bl_wet,
+    bl_bleed,
 
     CONDITION_COUNT
 };
@@ -137,7 +137,7 @@ enum blconditions {
 #define BL_MASK_WOUNDEDL     0x10000000L
 #define BL_MASK_HOLDING      0x20000000L
 #define BL_MASK_PRONE        0x40000000L
-#define BL_MASK_WET          0x80000000L
+#define BL_MASK_BLEEDING     0x80000000L
 #define BL_MASK_BITS            30 /* number of mask bits that can be set */
 /* clang-format on */
 

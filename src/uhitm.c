@@ -3080,6 +3080,35 @@ mhitm_ad_tlpt(
 }
 
 void
+mhitm_ad_bled(
+    struct monst *magr, struct attack *mattk,
+    struct monst *mdef, struct mhitm_data *mhm)
+{
+    if (magr == &gy.youmonst) {
+        hitmsg(magr, mattk);
+        if (!rnd(4))
+            make_mbleeding(mdef);
+    } else if (mdef == &gy.youmonst) {
+        hitmsg(magr, mattk);
+        if (!magr->mcan && !rn2(4)) {
+            if (Bleeding)
+                pline("Your bleeding worsens.");
+            else if (magr->data == &mons[PM_PAPER_GOLEM])
+                pline("You get a paper cut.");
+            else if (Hallucination)
+                pline("Blood blood blood!");
+            else
+                You("have been given a bleeding wound.");
+            make_bleeding(rnd(mhm->damage), FALSE);
+        }
+    } else {
+        hitmsg(magr, mattk);
+        if (!rnd(4))
+            make_mbleeding(mdef);
+    }
+}
+
+void
 mhitm_ad_tlaw(
     struct monst *magr, struct attack *mattk,
     struct monst *mdef, struct mhitm_data *mhm)
@@ -5093,6 +5122,7 @@ mhitm_adtyping(
     case AD_POLY: mhitm_ad_poly(magr, mattk, mdef, mhm); break;
     case AD_WORM: mhitm_ad_worm(magr, mattk, mdef, mhm); break;
     case AD_SOAK: mhitm_ad_soak(magr, mattk, mdef, mhm); break;
+    case AD_BLED: mhitm_ad_bled(magr, mattk, mdef, mhm); break;
     case AD_TLAW: mhitm_ad_tlaw(magr, mattk, mdef, mhm); break;
     case AD_DISE: mhitm_ad_dise(magr, mattk, mdef, mhm); break;
     case AD_SAMU: mhitm_ad_samu(magr, mattk, mdef, mhm); break;

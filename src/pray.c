@@ -1757,7 +1757,7 @@ sacrifice_your_race(
             pline(
             "The blood floods the altar, which vanishes in %s cloud!",
                     an(hcolor(NH_BLACK)));
-            potion_splatter(u.ux, u.uy, POT_BLOOD, gu.urace.mnum);
+            potion_splatter(u.ux, u.uy, POT_BLOOD, blood_index(&mons[otmp->corpsenm]));
             levl[u.ux][u.uy].typ = ROOM;
             levl[u.ux][u.uy].altarmask = 0;
             newsym(u.ux, u.uy);

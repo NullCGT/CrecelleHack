@@ -346,6 +346,13 @@ moveloop_core(void)
                 if (u.uinvulnerable) {
                     /* for the moment at least, you're in tiptop shape */
                     mvl_wtcap = UNENCUMBERED;
+                } else if (Bleeding) {
+                    if (Regeneration)
+                        make_bleeding(0L, TRUE);
+                    else if (u.uhp > 1 || Luck < 0) {
+                        losehp(1, "bled out", NO_KILLER_PREFIX);
+                        shed_blood(gy.youmonst.data, u.ux, u.uy, FALSE);
+                    }
                 } else if (!Upolyd ? (u.uhp < u.uhpmax)
                            : (u.mh < u.mhmax
                               || gy.youmonst.data->mlet == S_EEL)) {

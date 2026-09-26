@@ -1888,7 +1888,7 @@ has_coating(coordxy x, coordxy y, short coatflags) {
 /* add a coating to the floor */
 boolean
 add_coating(coordxy x, coordxy y, short coatflags, int pindex) {
-    if (!IS_COATABLE(levl[x][y].typ))
+    if (!coatflags || !IS_COATABLE(levl[x][y].typ))
         return FALSE;
 
     /* If in mklev we need to clear the coat info first. */
@@ -1936,7 +1936,8 @@ add_coating(coordxy x, coordxy y, short coatflags, int pindex) {
         if (pindex == PM_NIGHTCRUST)
             levl[x][y].lit = 1;
     } else if (pindex) {
-        impossible("abnormal coating-pindex combo at <%d,%d>?", x, y);
+        /* Removed for blood reasons */
+        //impossible("abnormal coating-pindex combo at <%d,%d>?", x, y);
     }
     /* Don't expose squares during mapgen*/
     if (!gi.in_mklev)
@@ -1983,7 +1984,8 @@ coateffects(coordxy x, coordxy y, struct monst *mon) {
             } else {
                 Your("%s are cut by shards of glass!", makeplural(body_part(FOOT)));
                 losehp(1, "stepping on broken glass", KILLED_BY);
-                make_dripping(rnd(20), POT_BLOOD, gy.youmonst.mnum);
+                shed_blood(gy.youmonst.data, x, y, FALSE);
+                make_bleeding(rn1(2, 3), TRUE);
                 disp.botl = TRUE;
             }
         } else {
@@ -1995,7 +1997,8 @@ coateffects(coordxy x, coordxy y, struct monst *mon) {
                 else
                     growl(mon);
                 if (mon->mhp > 1) mon->mhp--;
-                make_mdripping(mon, -1 * mon->mnum);
+                shed_blood(mon->data, x, y, FALSE);
+                make_mbleeding(mon);
             } else if (!Deaf) {
                 You_hear("a soft tinkling.");
             }
@@ -2482,7 +2485,8 @@ potionhit(struct monst *mon, struct obj *obj, int how)
                (how == POTHIT_OTHER_THROW) ? "propelled tonic" /* scatter */
                                            : "thrown tonic",
                KILLED_BY_AN);
-        make_dripping(rnd(12), obj->otyp, obj->corpsenm);
+        /* Disabled due to the propensity for lategame mass explosions. - K */
+        // make_dripping(rnd(12), obj->otyp, obj->corpsenm);
     } else {
         tx = mon->mx, ty = mon->my;
         /* sometimes it hits the saddle */

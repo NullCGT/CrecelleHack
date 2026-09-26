@@ -202,6 +202,19 @@ use_towel(struct obj *obj)
             }
         }
         return ECMD_TIME;
+    } else if (Bleeding) {
+        You("pack your wounds with your towel.");
+        if (obj->spe >= 3) {
+            pline("Unfortunately, your towel is not dry enough to help.");
+        } else {
+            incr_itimeout(&HBleeding, (-3 * (rnd(5))));
+            make_bleeding(-3 * (rnd(5)), TRUE);
+            wet_a_towel(obj, -3, TRUE);
+            if (!Bleeding) {
+                You("manage to stop the bleeding.");
+            }
+        }
+        return ECMD_TIME;
     }
 
     You("are already clean.");

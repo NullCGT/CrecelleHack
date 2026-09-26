@@ -575,7 +575,7 @@ dosit(void)
     if (has_coating(u.ux, u.uy, COAT_SHARDS)) {
         pline("Ouch! You sat on something sharp!");
         losehp(rnd(3), "sitting on glass", KILLED_BY);
-        make_dripping(rnd(5), POT_BLOOD, gy.youmonst.mnum);
+        make_bleeding(rn1(2, 3), TRUE);
     } else if (has_coating(u.ux, u.uy, COAT_BLOOD)) {
         blood_data = &mons[levl[u.ux][u.uy].pindex];
         You("sit in blood. How %s.",
@@ -586,7 +586,7 @@ dosit(void)
             Sprintf(buf, "bathing in %s blood", pmname(blood_data, MALE));
             instapetrify(buf);
         }
-        make_dripping(rnd(5), POT_BLOOD, gy.youmonst.mnum);
+        make_dripping(rnd(5), POT_BLOOD, blood_data->pmidx);
         remove_coating(u.ux, u.uy, COAT_BLOOD);
     } else if (has_coating(u.ux, u.uy, COAT_POTION)) {
         char liqbuf[BUFSZ];

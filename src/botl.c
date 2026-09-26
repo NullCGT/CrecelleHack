@@ -760,13 +760,13 @@ static const struct condmap condition_aliases[] = {
                         | BL_MASK_TERMILL | BL_MASK_TETHERED
                         | BL_MASK_TRAPPED | BL_MASK_UNCONSC
                         | BL_MASK_WOUNDEDL | BL_MASK_HOLDING | BL_MASK_PRONE
-                        | BL_MASK_WET },
+                        | BL_MASK_BLEEDING },
     { "major_troubles", BL_MASK_FOODPOIS | BL_MASK_GRAB | BL_MASK_INLAVA
                         | BL_MASK_SLIME | BL_MASK_STONE | BL_MASK_STRNGL
                         | BL_MASK_TERMILL },
     { "minor_troubles", BL_MASK_BLIND | BL_MASK_CONF | BL_MASK_DEAF
                         | BL_MASK_HALLU | BL_MASK_PARLYZ | BL_MASK_SUBMERGED
-                        | BL_MASK_STUN | BL_MASK_PRONE | BL_MASK_WET },
+                        | BL_MASK_STUN | BL_MASK_PRONE | BL_MASK_BLEEDING },
     { "movement",       BL_MASK_LEV | BL_MASK_FLY | BL_MASK_RIDE | BL_MASK_HOLDING },
     { "opt_in",         BL_MASK_BAREH | BL_MASK_BUSY | BL_MASK_GLOWHANDS
                         | BL_MASK_HELD | BL_MASK_ICY | BL_MASK_PARLYZ
@@ -812,7 +812,7 @@ const struct conditions_t conditions[] = {
     { 20, BL_MASK_WOUNDEDL,  bl_woundedl,  { "WLegs",    "Leg",   "Lg"  } },
     { 20, BL_MASK_HOLDING,   bl_holding,   { "UHold",    "UHld",  "UHd" } },
     { 10, BL_MASK_PRONE,     bl_prone,     { "Prone",    "Prone", "Trp" } },
-    { 12, BL_MASK_WET,       bl_wet,       { "Wet",      "Wet",   "Wt"  } },
+    { 10, BL_MASK_BLEEDING,  bl_bleed,     { "Bleeding", "Bleed", "Bld" } },
 };
 
 /* [perhaps these should all be opt_out with default of 'in';
@@ -851,7 +851,7 @@ struct condtests_t condtests[CONDITION_COUNT] = {
     { bl_woundedl,  "woundedlegs", opt_in,  FALSE, FALSE, FALSE },
     { bl_holding,   "holding",     opt_out, TRUE, FALSE, FALSE },
     { bl_prone,     "prone",       opt_out, TRUE,  FALSE, FALSE },
-    { bl_wet,       "wet",         opt_out, TRUE,  FALSE, FALSE },
+    { bl_bleed,     "bleeding",    opt_out, TRUE, FALSE, FALSE },
 };
 /* condition indexing */
 int cond_idx[CONDITION_COUNT] = { 0 };
@@ -1217,7 +1217,7 @@ bot_via_windowport(void)
     condtests[bl_stun].test      = (Stunned) ? TRUE : FALSE;
     condtests[bl_submerged].test = (Underwater) ? TRUE : FALSE;
     condtests[bl_prone].test     = (Prone) ? TRUE : FALSE;
-    condtests[bl_wet].test       = (Dripping) ? TRUE : FALSE;
+    condtests[bl_bleed].test     = (Bleeding) ? TRUE : FALSE;
     test_if_enabled(bl_elf_iron) = (FALSE);
     test_if_enabled(bl_bareh)    = (!uarmg && !uwep);
     test_if_enabled(bl_icy)      = (levl[u.ux][u.uy].typ == ICE);

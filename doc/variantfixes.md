@@ -1,10 +1,25 @@
 # 1.7
 
+## Status Effects
+- Bleeding
+  - Lose 1 hp per turn and shed blood on the ground. You cannot bleed out
+    and die unless you are unlucky.
+- Dripping
+  - Replaced the wet status indicator with a bleeding status indicator.
+  - Liquids now drip on every turn.
+  - Being hit by a potion no longer makes you drip with that potion. This was causing
+    too many massive explosions in the late game and disincentivizing movement,
+    reducing fun.
+
 ## Objects
 - Harmonic boots worn by monsters now function as they would for players.
+- Hammers have a chance of "splattering" monsters, covering the environment
+  in monster blood.
 
 ## Monsters
 - Iron golems drip oil occasionally.
+- Monsters are able to release a wider variety of substances when dying.
+- Some monsters are able to inflict bleeding wounds.
 
 ## Dungeon
 - Shopkeeper Services

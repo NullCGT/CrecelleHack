@@ -38,6 +38,7 @@ staticfn struct permonst *accept_newcham_form(struct monst *, int);
 staticfn void kill_eggs(struct obj *) NO_NNARGS;
 staticfn void pacify_guard(struct monst *);
 staticfn void erase_summons(struct monst *);
+staticfn boolean splatter_chance(struct monst *);
 
 extern const struct shclass shtypes[]; /* defined in shknam.c */
 
@@ -736,7 +737,8 @@ make_corpse(struct monst *mtmp, unsigned int corpseflags)
         num = rndmonnum();
         if (touch_petrifies(&mons[num]))
             num = PM_ELF;
-        potion_splatter(x, y, POT_BLOOD, has_blood(&mons[num]) ? num : PM_HUMAN);
+        potion_splatter(x, y, POT_BLOOD,
+                        has_blood(&mons[num]) ? blood_index(&mons[num]) : PM_HUMAN);
         break;
     case PM_STONE_GOLEM:
         corpstatflags &= ~CORPSTAT_INIT;
@@ -3442,26 +3444,6 @@ corpse_chance(
         }
         return FALSE;
     }
-    /* Handle nymphs returning to grass */
-    if (mdat == &mons[PM_WOOD_NYMPH]) {
-        if (cansee(mon->mx, mon->my) && !was_swallowed) {
-            pline_mon(mon, "%s body returns to the earth.",
-                      s_suffix(Monnam(mon)));
-            add_coating(mon->mx, mon->my, COAT_GRASS, 0);
-        }
-        return FALSE;
-    }
-
-    /* maybe leave behind some blood */
-    if (has_blood(mon->data) && !touch_petrifies(mon->data)
-        && !was_swallowed && rn2(4)) {
-        add_coating(mon->mx, mon->my, COAT_BLOOD, undead_to_corpse(mon->mnum));
-    }
-
-    /* Fungus spreads upon death. */
-    if (mdat->mlet == S_FUNGUS) {
-        spread_mold(mon->mx, mon->my, mdat);
-    }
 
     /* Gas spores always explode upon death */
     for (i = 0; i < NATTK; i++) {
@@ -3522,6 +3504,11 @@ mondied(struct monst *mdef)
     mondead(mdef);
     if (!DEADMONSTER(mdef))
         return; /* lifesaved */
+
+    /* maybe leave behind some blood */
+    if (!touch_petrifies(mdef->data)) {
+        shed_blood(mdef->data, mdef->mx, mdef->my, splatter_chance((struct monst *) 0));
+    }
 
     /* this assumes that the dead monster's map coordinates remain accurate */
     if (corpse_chance(mdef, (struct monst *) 0, FALSE)
@@ -3912,6 +3899,10 @@ xkilled(
                 && cadaver->where == OBJ_BURIED && !nomsg) {
                 pline("%s corpse ends up buried.", s_suffix(Monnam(mtmp)));
             }
+        }
+        /* maybe leave behind some blood */
+        if (!wasinside && !touch_petrifies(mtmp->data)) {
+            shed_blood(mtmp->data, mtmp->mx, mtmp->my, splatter_chance(&gy.youmonst));
         }
     }
 
@@ -6643,6 +6634,128 @@ meatpaper(struct monst *mtmp)
         }
     }
     return 0;
+}
+
+/* return the type of coating a monster sheds as blood */
+short
+blood_coat(struct permonst *pm)
+{
+    if (is_vampire(pm))
+        return COAT_BLOOD;
+    if (acidic(pm)
+        || pm == &mons[PM_WATER_ELEMENTAL]
+        || pm == &mons[PM_WATER_NYMPH]
+        || pm == &mons[PM_IRON_GOLEM])
+        return COAT_POTION;
+    if (pm->mlet == S_NYMPH)
+        return COAT_GRASS;
+    if (pm->mlet == S_FUNGUS)
+        return COAT_FUNGUS;
+    if (pm->mlet == S_MUMMY)
+        return COAT_ASHES;
+    if (nonliving(pm) || mindless(pm) || unsolid(pm) || amorphous(pm))
+        return 0;
+    return COAT_BLOOD;
+}
+
+/* return the index of the blood or potion shed by a monster */
+int
+blood_index(struct permonst *pm)
+{
+    if (acidic(pm))
+        return POT_ACID;
+    if (pm == &mons[PM_WATER_ELEMENTAL]
+        || pm == &mons[PM_WATER_NYMPH])
+        return POT_WATER;
+    if (pm == &mons[PM_IRON_GOLEM])
+        return POT_OIL;
+    return genus(pm->pmidx, 0);
+}
+
+/* cause bloodshed of a particular monster type at a location */
+void
+shed_blood(struct permonst *pm, coordxy x, coordxy y, boolean splatter)
+{
+    short coat = blood_coat(pm);
+    int coat_index = blood_index(pm);
+
+    /* If cannot shed blood then do not bleed */
+    if (!coat)
+        return;
+
+    /* Blobs always splatter */
+    if (pm->mlet == S_BLOB)
+        splatter = TRUE;
+
+    if (coat == COAT_POTION) {
+        splatter ? potion_splatter(x, y, coat_index, 0)
+                    : floor_spillage(x, y, coat_index, 0);
+    } else if (coat == COAT_BLOOD) {
+        splatter ? potion_splatter(x, y, POT_BLOOD, 0)
+                    : floor_spillage(x, y, POT_BLOOD, coat_index);
+    } else {
+        add_coating(x, y, coat, coat_index);
+    }
+}
+
+/* chance of monster splattering everywhere */
+staticfn boolean
+splatter_chance(struct monst *magr)
+{
+    boolean is_u = (magr == &gy.youmonst);
+    struct obj *weapon;
+    int ret = 0;
+
+    if (!magr)
+        return FALSE;
+
+    weapon = (is_u) ? uwep : MON_WEP(magr);
+    if (weapon && (objects[weapon->otyp].oc_skill == P_HAMMER)) {
+        ret += 20;
+        if (is_u)
+            ret += (P_SKILL(P_HAMMER) * 5);
+    }
+    if (is_u) {
+        if ((Upolyd && strongmonst(gy.youmonst.data))
+            || ACURR(A_STR) >= STR19(25))
+            ret += 5;
+        if (Role_if(PM_CAVE_DWELLER))
+            ret += 10;
+    } else {
+        if (strongmonst(magr->data))
+            ret += 20;
+    }
+    return rn2(100) < ret;
+}
+
+/* Increments bleeding time unless xtime is zero. */
+void
+make_bleeding(long xtime, boolean talk)
+{
+    long old = HDeaf;
+
+    if (Unaware)
+        talk = FALSE;
+
+    if (xtime == 0L)
+        set_itimeout(&HBleeding, xtime);
+    else
+        incr_itimeout(&HBleeding, xtime);
+    if ((xtime != 0L) ^ (old != 0L)) {
+        disp.botl = TRUE;
+        if (talk)
+            You(old && !Bleeding ? "stop bleeding."
+                             : "start bleeding.");
+    }
+}
+
+/* Make a monster start bleeding if possible. */
+void
+make_mbleeding(struct monst *mon)
+{
+    if (!blood_coat(mon->data))
+        return;
+    mon->mbleeding = 1;
 }
 /* cleanup for 'onefile' processing */
 #undef LEVEL_SPECIFIC_NOCORPSE

@@ -272,8 +272,7 @@
      || ptr == &mons[PM_PIRANHA])
 
 #define has_blood(ptr) \
-    (!(nonliving(ptr) || unsolid(ptr) || mindless(ptr) \
-        || amorphous(ptr)))
+    (blood_coat(ptr) == COAT_BLOOD)
 #define has_bones(ptr) \
     (!vegan(ptr) && !unsolid(ptr) && !amorphous(ptr))
 #define has_skull(ptr) \

@@ -129,6 +129,11 @@
 #define EDripping u.uprops[DRIPPING].extrinsic
 #define Dripping (HDripping || EDripping)
 
+/* Bleeding */
+#define HBleeding u.uprops[BLEEDING].intrinsic
+#define EBleeding u.uprops[BLEEDING].extrinsic
+#define Bleeding (HBleeding || EBleeding)
+
 #define HFumbling u.uprops[FUMBLING].intrinsic
 #define EFumbling u.uprops[FUMBLING].extrinsic
 #define Fumbling (HFumbling || EFumbling \

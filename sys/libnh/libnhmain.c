@@ -1069,7 +1069,6 @@ void js_constants_init() {
     SET_CONSTANT("CONDITION", BL_MASK_WOUNDEDL);
     SET_CONSTANT("CONDITION", BL_MASK_HOLDING);
     SET_CONSTANT("CONDITION", BL_MASK_PRONE);
-    SET_CONSTANT("CONDITION", BL_MASK_WET);
 
     // menu
     SET_CONSTANT("MENU_SELECT", PICK_NONE);
@@ -1217,7 +1216,7 @@ void js_constants_init() {
     SET_CONSTANT("blconditions", bl_unconsc);
     SET_CONSTANT("blconditions", bl_woundedl);
     SET_CONSTANT("blconditions", bl_holding);
-    SET_CONSTANT("blconditions", bl_wet);
+    SET_CONSTANT("blconditions", bl_bleed);
     SET_CONSTANT("blconditions", CONDITION_COUNT);
 
     SET_CONSTANT("HL", HL_UNDEF);

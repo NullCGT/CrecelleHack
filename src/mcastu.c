@@ -78,7 +78,6 @@ staticfn void mcast_disappear(struct monst *);
 staticfn void mcast_stun_you(int);
 staticfn void mcast_sleep_you(void);
 staticfn int mcast_blood_spear(struct monst *);
-staticfn void mcast_blood_bind(struct monst *);
 staticfn int mcast_geyser(int);
 staticfn int mcast_fire_pillar(struct monst *, int);
 staticfn int mcast_lightning(struct monst *, int);
@@ -676,23 +675,6 @@ mcast_blood_spear(struct monst *mtmp)
     return d(10, 10);
 }
 
-staticfn void
-mcast_blood_bind(struct monst *mtmp)
-{
-    if (canseemon(mtmp))
-            urgent_pline("%s claps %s hands together:", Monnam(mtmp), mhis(mtmp));
-    verbalize("Blood bind!");
-    /* Goodbye. */
-    for (int x = 0; x < COLNO; x++) {
-        for (int y = 0; y < ROWNO; y++) {
-            if (has_coating(x, y, COAT_BLOOD)) {
-                remove_coating(x, y, COAT_BLOOD);
-                explode(x, y, PHYS_EXPL_TYPE, d(4, 4), 0, EXPL_MAGICAL);
-            }
-        }
-    }
-}
-
 staticfn int
 mcast_geyser(int dmg)
 {
@@ -1084,7 +1066,10 @@ mcast_spell(struct monst *mtmp, int dmg, int spellnum)
         dmg = mcast_blood_spear(mtmp);
         break;
     case MCAST_BLOOD_BIND:
-        mcast_blood_bind(mtmp);
+        if (canseemon(mtmp))
+            urgent_pline("%s claps %s hands together:", Monnam(mtmp), mhis(mtmp));
+        verbalize("Blood bind!");
+        explode_all_blood();
         dmg = 0;
         break;
     case MCAST_BLOODRUSH:

@@ -3286,6 +3286,7 @@ extern int spell_idx(short);
 extern char force_learn_spell(short);
 extern int num_spells(void);
 extern void skill_based_spellbook_id(void);
+extern void explode_all_blood(void);
 
 /* ### stairs.c ### */
 

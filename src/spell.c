@@ -1633,6 +1633,10 @@ spelleffects(int spell_otyp, boolean atme, boolean force)
     case SPE_CHAIN_LIGHTNING:
         cast_chain_lightning();
         break;
+    case SPE_BLOOD_BIND:
+        urgent_pline("You invoke an ancient, chilling power...");
+        explode_all_blood();
+        break;
     default:
         impossible("Unknown spell %d attempted.", spell);
         obfree(pseudo, (struct obj *) 0);
@@ -2559,6 +2563,8 @@ int boost_type(int spell_id) {
         return COAT_FROST;
     else if (spell_id == SPE_AQUA_BOLT)
         return COAT_POTION;
+    else if (spell_id == SPE_BLOOD_BIND)
+        return COAT_BLOOD;
     else
         return boost_areas[objects[spell_id].oc_descr_idx % SIZE(boost_areas)];
 }
@@ -2582,6 +2588,20 @@ boolean geomantic_boost(int spell_id) {
         return (has_coating(u.ux, u.uy, COAT_POTION)
                 && levl[u.ux][u.uy].pindex == POT_WATER);
     return (has_coating(u.ux, u.uy, boost_index));
+}
+
+void
+explode_all_blood(void)
+{
+    /* Goodbye. */
+    for (int x = 0; x < COLNO; x++) {
+        for (int y = 0; y < ROWNO; y++) {
+            if (has_coating(x, y, COAT_BLOOD)) {
+                remove_coating(x, y, COAT_BLOOD);
+                explode(x, y, PHYS_EXPL_TYPE, d(4, 4), 0, EXPL_MAGICAL);
+            }
+        }
+    }
 }
 
 /*spell.c*/

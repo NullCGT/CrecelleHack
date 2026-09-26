@@ -1594,6 +1594,9 @@ SPELL("chain lightning", "checkered",
 SPELL("force field",     "moldering",
       P_ESCAPE_SPELL,      20,  6, 4, 1, NODIR, CLR_GRAY,
                                                         SPE_FORCE_FIELD),
+SPELL("blood bind",      "ancient",
+      P_MATTER_SPELL,       0,  8, 7, 1, NODIR, CLR_YELLOW,
+                                                        SPE_BLOOD_BIND),
 
 #if 0 /* DEFERRED */
 /* from slash'em, create a tame critter which explodes when attacking,

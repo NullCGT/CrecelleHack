@@ -30,6 +30,9 @@
       visible changes for the player aside from some grammatical changes and
       basic vs. premier services being selected via menu.
     - Appraisal is not available, as it would be useless.
+- Vlad's Lair now contains a spellbook with his special spell Blood Bind, which
+  causes all blood coatings on a level to explode. It is a level 7 matter spell
+  which has a reduced cost if standing in blood.
 
 # 1.6.1
 

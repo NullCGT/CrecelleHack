@@ -72,5 +72,6 @@ des.object({ id = "chest", coord=niches[5],
                 des.object({ id = "tallow candle", quantity=math.random(4,8) })
              end
 });
+des.object("spellbook of blood bind", niches[math.random(1, 6)])
 -- We have to protect the tower against outside attacks
 des.non_diggable(selection.area(00,00,31,10))

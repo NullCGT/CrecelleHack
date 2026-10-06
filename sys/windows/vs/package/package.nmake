@@ -4,7 +4,7 @@
 #  The version of the game this Makefile was designed for
 
 !IFNDEF NETHACK_VERSION
-NETHACK_VERSION="5.0.0"
+NETHACK_VERSION="5.0.1"
 !MESSAGE NETHACK_VERSION set to $(NETHACK_VERSION).
 !ELSE
 !MESSAGE NETHACK_VERSION set to $(NETHACK_VERSION) by caller.
@@ -131,7 +131,6 @@ vsbindir:
 clean:
 #	@if exist $(LIBDIR)\$(PDCDIST) rmdir /Q $(LIBDIR)\$(PDCDIST) /s
 #	@if exist $(LIBDIR)\lua-$(LUA_VERSION) rmdir /Q $(LIBDIR)\lua-$(LUA_VERSION) /s
-#	@if exist ..\..\..\..\include\nhlua.h del /Q ..\..\..\..\include\nhlua.h
 
 rebuild:
 #	@if exist $(LIBDIR)\$(PDCDIST) echo nothing to do for lib\$(PDCDIST)

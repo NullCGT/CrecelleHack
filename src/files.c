@@ -84,7 +84,7 @@ const
 #endif
 
 #if defined(MSDOS) || defined(OS2) || defined(TOS) || defined(WIN32)
-#ifndef __DJGPP__
+#if !defined(__DJGPP__) && !defined(__MINT__)
 #include <sys\stat.h>
 #else
 #include <sys/stat.h>
@@ -1188,7 +1188,11 @@ set_savefile_name(boolean regularize_it)
     if (strlen(gs.SAVEF) < (SAVESIZE - 1))
         (void) strncat(gs.SAVEF, svp.plname, (SAVESIZE - strlen(gs.SAVEF)));
 #endif
-#if defined(MICRO) && !defined(WIN32) && !defined(MSDOS)
+#if defined(MAC68K)
+    /* Mac: "<plname>.sav" (extension added below); macfile.c puts it
+       in the Saves folder */
+    Sprintf(gs.SAVEF, "%.*s", MAC_FNAME_PLMAX, svp.plname);
+#elif defined(MICRO) && !defined(WIN32) && !defined(MSDOS)
     if (strlen(gs.SAVEP) < (SAVESIZE - 1))
         Strcpy(gs.SAVEF, gs.SAVEP);
     {
@@ -1267,7 +1271,14 @@ set_error_savefile(void)
     Strcat(gs.SAVEF, ".e;1");
 #else
 #ifdef MAC68K
-    Strcat(gs.SAVEF, "-e");
+    {
+        /* swap ".sav" for ".err": same length, still in the Saves folder */
+        size_t n = strlen(gs.SAVEF), e = strlen(SAVE_EXTENSION);
+
+        if (n >= e && !strcmp(gs.SAVEF + n - e, SAVE_EXTENSION))
+            gs.SAVEF[n - e] = '\0';
+        Strcat(gs.SAVEF, MAC_ERRSAVE_EXT);
+    }
 #else
     Strcat(gs.SAVEF, ".e");
 #endif

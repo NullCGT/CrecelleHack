@@ -118,7 +118,6 @@ staticfn int get_table_montype(lua_State *, int *);
 staticfn lua_Integer get_table_int_or_random(lua_State *, const char *, int);
 staticfn int get_table_buc(lua_State *);
 staticfn int find_objtype(lua_State *, const char *, char);
-staticfn const char *get_mkroom_name(int) NONNULL;
 staticfn int get_table_roomtype_opt(lua_State *, const char *, int);
 staticfn int get_table_traptype_opt(lua_State *, const char *, int);
 staticfn int get_traptype_byname(const char *);

@@ -41,36 +41,36 @@ struct material {
 
 #define OBJ_MATERIAL_LIST OMAT(NO_MATERIAL, "mysterious", 0, 0, 0, 0,0,0,0,0,0, CLR_BLACK), \
     OMAT(LIQUID,        "liquid",   0,  10,   1,   0,0,0,0,0,0, HI_ORGANIC), \
-    OMAT(WAX,           "wax",      1,  15,   1,   -20,0,0,0,0,0, CLR_WHITE), \
+    OMAT(WAX,           "wax",      1,  15,   1,   -20,10,-5,-5,-5,-5, CLR_WHITE), \
     OMAT(VEGGY,         "organic",  1,  10,   1,   0,0,0,0,0,0, HI_ORGANIC), \
     OMAT(FLESH,         "flesh",    3,  10,   3,   0,10,0,0,0,0, CLR_RED), \
     OMAT(PAPER,         "paper",    1,  5,    2,   -25,0,0,0,0,0, CLR_WHITE), \
     OMAT(CLOTH,         "cloth",    2,  10,   3,   -5,10,0,0,20,10, HI_CLOTH), \
-    OMAT(LEATHER,       "leather",  3,  15,   5,   -5,5,0,0,10,5, HI_LEATHER), \
+    OMAT(LEATHER,       "leather",  3,  15,   5,   -10,5,0,0,10,5, HI_LEATHER), \
     OMAT(WOOD,          "wood",     4,  30,   8,   -5,0,0,0,0,0, HI_WOOD), \
     OMAT(BLEAKWOOD,     "bleakwood", \
-                                    5,  15,   15,  -5,5,0,0,0,0, HI_WOOD), \
-    OMAT(BONE,          "bone",     5,  25,   20,  0,0,0,0,0,0, CLR_WHITE), \
+                                    5,  15,   15,  -5,5,0,20,-20,20, HI_WOOD), \
+    OMAT(BONE,          "bone",     5,  25,   20,  0,-20,0,20,0,20, CLR_WHITE), \
     OMAT(DRAGON_HIDE,   "dragonhide", \
-                                    10, 20,   200, 0,0,0,0,0,0, CLR_BLACK), \
+                                    10, 20,   200, -5,-5,-5,-5,-5,-5, CLR_BLACK), \
     OMAT(IRON,          "iron",     5,  80,   10,  -5,-5,0,5,-5,5, HI_METAL), \
     OMAT(METAL,         "steel",    5,  75,   15,  -5,-5,0,10,-5,10, HI_METAL), \
     OMAT(COPPER,        "copper",   4,  85,   18,  -5,0,0,10,-10,20, HI_COPPER), \
-    OMAT(SILVER,        "silver",   5,  90,   30,  -5,0,5,5,5,0, HI_SILVER), \
-    OMAT(GOLD,          "gold",     3,  120,  60,  10,0,5,5,5,0, HI_GOLD), \
+    OMAT(SILVER,        "silver",   5,  90,   30,  -5,0,5,5,5,10, HI_SILVER), \
+    OMAT(GOLD,          "gold",     3,  120,  60,  20,0,5,5,5,0, HI_GOLD), \
     OMAT(PLATINUM,      "platinum", 4,  120,  80,  -5,-5,0,5,-5,5, CLR_WHITE), \
     OMAT(NIGHTIRON,     "nightiron", \
-                                    5,  75,   95,  0,5,0,0,0,0, CLR_BLACK), \
+                                    5,  75,   95,  0,20,0,0,0,0, CLR_BLACK), \
     OMAT(MITHRIL,       "mithril",  6,  30,   50,  5,0,0,0,0,0, HI_SILVER), \
-    OMAT(PLASTIC,       "plastic",  3,  20,   10,  -5,-5,-5,-5,-5,-5, CLR_WHITE), \
+    OMAT(PLASTIC,       "plastic",  3,  20,   10,  -10,-10,-10,-10,-10,-10, CLR_WHITE), \
     OMAT(GLASS,         "glass",    5,  60,   20,  -5,0,0,0,20,0, HI_GLASS), \
-    OMAT(ICECRYSTAL,    "ice",      5,  60,   3,   0,20,0,0,0,0, HI_GLASS), \
-    OMAT(GEMSTONE,      "gemstone", 7,  55,   500, 0,0,5,0,0,0, CLR_RED), \
-    OMAT(MINERAL,       "stone",    6,  70,   10,  10,10,0,0,0,0, CLR_GRAY), \
-    OMAT(SALT,          "salt",     2,  20,   1,   0,0,5,0,0,0, CLR_WHITE), \
-    OMAT(COAL,          "coal",     2,  40,   17,  -20,0,0,0,0,0, CLR_BLACK), \
+    OMAT(ICECRYSTAL,    "ice",      5,  60,   3,   -20,20,0,0,0,0, HI_GLASS), \
+    OMAT(GEMSTONE,      "gemstone", 7,  55,   500, 5,5,5,5,5,5, CLR_RED), \
+    OMAT(MINERAL,       "stone",    6,  70,   10,  20,20,-10,-10,-10,-10, CLR_GRAY), \
+    OMAT(SALT,          "salt",     2,  20,   1,   0,0,20,0,0,0, CLR_WHITE), \
+    OMAT(COAL,          "coal",     2,  40,   17,  -20,20,0,0,0,0, CLR_BLACK), \
     OMAT(LODEN,         "lodenstone", \
-                                    8,  3500, 1, 0,0,0,0,0,0, CLR_GRAY)
+                                    8,  3500, 1, 20,20,20,20,20,20, CLR_GRAY)
 #define OMAT(id, nam, ac, dens, cost, r1, r2, r3, r4, r5, r6, clr) id
 enum obj_material_types {
     OBJ_MATERIAL_LIST,

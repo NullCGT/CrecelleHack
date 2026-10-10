@@ -34,6 +34,9 @@
   causes all blood coatings on a level to explode. It is a level 7 matter spell
   which has a reduced cost if standing in blood.
 
+## Balance
+- Object materials give more drastic adjustments to partial resistances.
+
 # 1.6.1
 
 ## Objects

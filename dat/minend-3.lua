@@ -33,6 +33,10 @@ des.map({ halign = "center", valign = "bottom", map = [[
 local place = { {1,15},{68,6},{1,13} }
 shuffle(place)
 
+-- Shortcut to Medusa's Island
+des.object({ id = "statue", x=14, y=08, contents=0 })
+des.ladder({x=14, y=08, dir="down", dnum = nh.dname_to_dnum("The Dungeons of Doom"), dlevel = nh.find_level("medusa")})
+
 des.non_diggable(selection.area(67,3,73,7))
 des.non_diggable(selection.area(0,12,2,16))
 des.feature("fountain", {12,08})

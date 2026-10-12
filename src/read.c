@@ -558,6 +558,14 @@ doread(void)
                            "became literate by reading a candy bar wrapper");
 
         return ECMD_TIME;
+    } else if (otyp == YENDORIAN_LOCKSTONE) {
+        if (Blind)
+            You("feel the graven runes:");
+        pline("\"Traveller, be not impeded.\"");
+        if (!u.uconduct.literate++)
+            livelog_printf(LL_CONDUCT,
+                           "became literate by reading the runes on a mysterious stone");
+        return ECMD_OK;
     } else if (scroll->oclass != SCROLL_CLASS
                && scroll->oclass != SPBOOK_CLASS) {
         pline(silly_thing_to, "read");

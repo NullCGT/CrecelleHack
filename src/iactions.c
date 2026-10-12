@@ -333,7 +333,8 @@ itemactions(struct obj *otmp)
         ia_addmenu(win, IA_APPLY_OBJ, 'a', "Use the can to grease an item");
     else if (otmp->otyp == LOCK_PICK
              || otmp->otyp == CREDIT_CARD
-             || otmp->otyp == SKELETON_KEY)
+             || otmp->otyp == SKELETON_KEY
+             || otmp->otyp == MASTER_KEY)
         ia_addmenu(win, IA_APPLY_OBJ, 'a', "Use this tool to pick a lock");
     else if (otmp->otyp == TINNING_KIT)
         ia_addmenu(win, IA_APPLY_OBJ, 'a', "Use this kit to tin a corpse");

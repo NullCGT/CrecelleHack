@@ -100,7 +100,8 @@ monhaskey(
 {
     if (for_unlocking && m_carrying(mon, CREDIT_CARD))
         return TRUE;
-    return m_carrying(mon, SKELETON_KEY) || m_carrying(mon, LOCK_PICK);
+    return m_carrying(mon, SKELETON_KEY) || m_carrying(mon, LOCK_PICK)
+            || m_carrying(mon, MASTER_KEY);
 }
 
 void
@@ -2585,7 +2586,7 @@ stuff_prevents_passage(struct monst *mtmp)
             && typ != STETHOSCOPE && typ != BLINDFOLD && typ != TOWEL
             && typ != PEA_WHISTLE && typ != MAGIC_WHISTLE
             && typ != MAGIC_MARKER && typ != TIN_OPENER && typ != SKELETON_KEY
-            && typ != LOCK_PICK && typ != BAG_OF_WINDS)
+            && typ != LOCK_PICK && typ != BAG_OF_WINDS && typ != MASTER_KEY)
             return TRUE;
         if (Is_container(obj) && obj->cobj)
             return TRUE;

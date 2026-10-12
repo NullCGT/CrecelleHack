@@ -272,6 +272,12 @@ priestini(
             else
                 curse(otmp);
         }
+        /* temple priests start hostile, but let's also start them asleep
+           to give the player a fighting chance */
+        if (In_mtemple(&u.uz)) {
+            priest->mpeaceful = 0;
+            priest->msleeping = 1;
+        }
     }
 }
 

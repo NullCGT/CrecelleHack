@@ -4609,6 +4609,7 @@ doapply(void)
     case LOCK_PICK:
     case CREDIT_CARD:
     case SKELETON_KEY:
+    case MASTER_KEY:
         res = (pick_lock(obj, 0, 0, NULL) != 0) ? ECMD_TIME : ECMD_OK;
         break;
     case PICK_AXE:
@@ -4724,6 +4725,7 @@ doapply(void)
     case LUCKSTONE:
     case LOADSTONE:
     case TOUCHSTONE:
+    case YENDORIAN_LOCKSTONE:
         res = use_stone(obj);
         break;
     case BANANA:

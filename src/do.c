@@ -23,6 +23,8 @@ staticfn void temperature_change_msg(schar);
 staticfn void exposure_change_msg(schar);
 staticfn void biome_change_msg(schar);
 staticfn boolean better_not_try_to_drop_that(struct obj *);
+staticfn void open_shortcut(void);
+staticfn int shortcut_ok(struct obj *);
 
     /* static boolean badspot(coordxy,coordxy); */
 
@@ -1347,6 +1349,23 @@ dodown(void)
         You("%s %s the %s.", actn, down_or_thru,
             trap->ttyp == HOLE ? "hole" : "trap door");
     }
+    /* shortcut ladder */
+    if (ladder_down && on_level(&mineend_level, &u.uz)) {
+        d_level newlevel;
+        if (!u.uevent.uopened_mines_shortcut) {
+            pline("This ladder is blocked by a Yendorian mechanism.");
+            open_shortcut();
+        }
+        if (u.uevent.uopened_mines_shortcut) {
+            ga.at_ladder = TRUE;
+            assign_level(&newlevel, &medusa_level);
+            goto_level(&newlevel, TRUE, FALSE, FALSE);
+            ga.at_ladder = FALSE;
+            return ECMD_TIME;
+        } else {
+            return ECMD_OK;
+        }
+    }
     if (trap && Is_stronghold(&u.uz)) {
         goto_hell(FALSE, TRUE);
     } else if (trap && trap->dst.dlevel != -1) {
@@ -1417,6 +1436,26 @@ doup(void)
         return ECMD_OK;
     }
     ga.at_ladder = (boolean) (levl[u.ux][u.uy].typ == LADDER);
+
+    /* shortcut ladder */
+    if (ga.at_ladder && on_level(&medusa_level, &u.uz)) {
+        d_level newlevel;
+        if (!u.uevent.uopened_mines_shortcut) {
+            pline("This ladder is blocked by a Yendorian mechanism.");
+            open_shortcut();
+        }
+        if (u.uevent.uopened_mines_shortcut) {
+            if (Hallucination)
+                pline("What a thrill!");
+            assign_level(&newlevel, &mineend_level);
+            goto_level(&newlevel, TRUE, FALSE, FALSE);
+            ga.at_ladder = FALSE;
+            return ECMD_TIME;
+        } else {
+            return ECMD_OK;
+        }
+    }
+
     prev_level(TRUE);
     ga.at_ladder = FALSE;
     return ECMD_TIME;
@@ -2636,6 +2675,35 @@ heal_legs(
         if (how == 0)
             encumber_msg();
     }
+}
+
+/* open a shortcut between distant levels */
+void
+open_shortcut()
+{
+    struct obj *pick;
+    pick = getobj("operate the mechanism with", shortcut_ok, GETOBJ_NOFLAGS);
+    if (!pick)
+        return;
+    You("use %s to defeat the mechanism.", yobjnam(pick, (char *) 0));
+    u.uevent.uopened_mines_shortcut = TRUE;
+    if (pick->otyp == YENDORIAN_LOCKSTONE) {
+        useup(pick);
+        makeknown(YENDORIAN_LOCKSTONE);
+    }
+}
+
+/* items that can be used to unlock shortcut paths */
+staticfn int
+shortcut_ok(struct obj *obj)
+{
+    if (!obj)
+        return GETOBJ_EXCLUDE;
+
+    if (obj->otyp == MASTER_KEY
+        || obj->otyp == YENDORIAN_LOCKSTONE)
+        return GETOBJ_SUGGEST;
+    return GETOBJ_EXCLUDE;
 }
 
 /*do.c*/

@@ -1050,6 +1050,8 @@ CONTAINER("bag of tricks",  "embroidered bag", 0, 1, 1, 20,  15, 100, CLOTH, HI_
 #undef CONTAINER
 
 /* lock opening tools */
+TOOL("master key",  "simple key", 0, 1, 0, 0,  0,  3, 10, IRON, HI_COPPER,
+                                                                MASTER_KEY),
 TOOL("skeleton key",       "key", 0, 1, 0, 0, 80,  3, 10, BONE, CLR_WHITE,
                                                                 SKELETON_KEY),
 TOOL("lock pick",           NoDes, 1, 1, 0, 0, 60,  4, 20, METAL, HI_METAL,
@@ -1805,6 +1807,9 @@ ROCK("loadstone", "gray",  0,  10, 500,  1, 3, 3, 1, 10, 6, LODEN,   CLR_GRAY,
                                                                     LOADSTONE),
 ROCK("touchstone", "gray", 0,   8,  10, 45, 3, 3, 1, 10, 6, MINERAL, CLR_GRAY,
                                                                   TOUCHSTONE),
+ROCK("Yendorian lockstone", "engraved gray",
+                           0,   0,  10, 45, 3, 3, 1, 10, 6, MINERAL, CLR_GRAY,
+                                                                  YENDORIAN_LOCKSTONE),
 ROCK("flint", "gray",      0,  10,  10,  1, 6, 6, 0, 10, 7, MINERAL, CLR_GRAY,
                                                                     FLINT),
 ROCK("rock", NoDes,         1, 100,  10,  0, 3, 3, 0, 10, 7, MINERAL, CLR_GRAY,

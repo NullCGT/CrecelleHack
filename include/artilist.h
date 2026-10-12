@@ -323,7 +323,7 @@ static NEARDATA struct artifact artilist[] = {
     /* MKoT has an additional carry property if the Key is not cursed (for
        rogues) or blessed (for non-rogues):  #untrap of doors and chests
        will always find any traps and disarming those will always succeed */
-    A("The Master Key of Thievery", SKELETON_KEY,
+    A("The Master Key of Thievery", MASTER_KEY,
       (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL | SPFX_SPEAK),
       (SPFX_WARN | SPFX_TCTRL | SPFX_HPHDAM), 0, NO_ATTK, NO_DFNS, NO_CARY,
       UNTRAP, A_CHAOTIC, PM_ROGUE, NON_PM,

@@ -4438,6 +4438,7 @@ material_list(struct obj *obj)
         case FROST_HORN:
         case HORN_OF_PLENTY:
         case SKELETON_KEY:
+        case MASTER_KEY:
             return horn_materials;
         case FIGURINE:
             return figurine_materials;

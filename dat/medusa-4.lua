@@ -33,6 +33,8 @@ des.map([[
 }}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 ]]);
 
+-- Shortcut to Mine's End
+des.ladder({x=50, y=11, dir="up", dnum = nh.dname_to_dnum("The Gnomish Mines"), dlevel = nh.find_level("minend")})
 --
 -- place handling is similar to medusa-3.lua except that there are 4
 -- downstairs-eligible rooms rather than 3, and only 2 of them are used

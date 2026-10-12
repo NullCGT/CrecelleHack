@@ -31,6 +31,10 @@ des.map([[
 ---------------------------------------------------------------------------
 ]]);
 
+-- Shortcut to Medusa's Island
+des.object({ id = "statue", x=10, y=09, contents=0 })
+des.ladder({x=10, y=09, dir="down", dnum = nh.dname_to_dnum("The Dungeons of Doom"), dlevel = nh.find_level("medusa")})
+
 -- Some spilled booze
 des.replace_terrain({ region={00,00, 79,20}, fromterrain=".", toterrain=".", coat="potion", objtype="booze", chance=2 })
 

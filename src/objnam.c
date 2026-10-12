@@ -3619,6 +3619,7 @@ static const struct alt_spellings {
     { "transmutation", SCR_TRANSMUTE_MATERIAL },
     { "change material", SCR_TRANSMUTE_MATERIAL },
     { "ring of implosion", RIN_PROTECTION_FROM_EXPLOSIONS },
+    { "shortcut key", MASTER_KEY },
     { (const char *) 0, 0 },
 };
 
@@ -5450,6 +5451,7 @@ readobjnam(char *bp, struct obj *no_wish)
     case LARGE_BOX:
     case HEAVY_IRON_BALL:
     case IRON_CHAIN:
+    case MASTER_KEY:
         break;
     case STATUE: /* otmp->cobj already done in mksobj() */
     case FIGURINE:

@@ -1,5 +1,9 @@
 # 1.7
 
+## Roles
+- Rogues now begin the game with a master key instead of lockpicks, allowing them
+  to access shortcuts more easily than any other role.
+
 ## Status Effects
 - Bleeding
   - Lose 1 hp per turn and shed blood on the ground. You cannot bleed out
@@ -15,6 +19,12 @@
 - Harmonic boots worn by monsters now function as they would for players.
 - Hammers have a chance of "splattering" monsters, covering the environment
   in monster blood.
+- Master key
+  - Never breaks, opens any lock.
+  - Can be used to unlock shortcuts.
+- Yendorian lockstone
+  - Can be used to unlock shortcuts.
+  - One is found in the temple to moloch.
 
 ## Monsters
 - Iron golems drip oil occasionally.
@@ -33,6 +43,9 @@
 - Vlad's Lair now contains a spellbook with his special spell Blood Bind, which
   causes all blood coatings on a level to explode. It is a level 7 matter spell
   which has a reduced cost if standing in blood.
+- There is a ladder that connects mine's end with medusa's island. It can only be
+  unlocked with a yendorian lockstone or a master key.
+- Priests in the temple to moloch now spawn hostile and asleep.
 
 ## Balance
 - Object materials give more drastic adjustments to partial resistances.

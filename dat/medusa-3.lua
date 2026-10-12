@@ -31,6 +31,8 @@ des.map([[
 }}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 ]]);
 
+-- Shortcut to Mine's End
+des.ladder({x=47, y=01, dir="up", dnum = nh.dname_to_dnum("The Gnomish Mines"), dlevel = nh.find_level("minend")})
 local place = selection.new();
 -- each of these spots are inside a distinct room
 place:set(08,06);

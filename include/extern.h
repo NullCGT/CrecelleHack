@@ -918,6 +918,7 @@ extern int def_char_is_furniture(char);
 /* ### dungeon.c ### */
 
 extern void save_dungeon(NHFILE *, boolean, boolean) NONNULLARG1;
+extern xint16 dname_to_dnum(const char *);
 extern void restore_dungeon(NHFILE *) NONNULLARG1;
 extern void insert_branch(branch *, boolean) NONNULLARG1;
 extern void init_dungeons(void);

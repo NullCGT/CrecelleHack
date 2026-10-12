@@ -54,6 +54,7 @@ struct u_event {
     Bitfield(ascended, 1);          /* has offered the Amulet */
 
     Bitfield(amulet_wish, 1);       /* has gained a wish from the Amulet */
+    Bitfield(uopened_mines_shortcut, 1); /* opened the shortcut from the mines to medusa */
     /* 7 free bits */
 };
 

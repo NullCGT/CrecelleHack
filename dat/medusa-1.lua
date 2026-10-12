@@ -33,6 +33,9 @@ des.map([[
 }}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 }}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 ]]);
+
+-- Shortcut to Mine's End
+des.ladder({x=57, y=17, dir="up", dnum = nh.dname_to_dnum("The Gnomish Mines"), dlevel = nh.find_level("minend")})
 -- Dungeon Description
 des.region(selection.area(00,00,74,19),"lit")
 des.region(selection.area(31,07,45,07),"unlit")

@@ -134,7 +134,7 @@ static const struct trobj Rogue[] = {
     { DAGGER, 0, WEAPON_CLASS, 6, 15, 0 },
     { ARMOR, 1, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
     { POT_SICKNESS, 0, POTION_CLASS, 1, 1, 0 },
-    { LOCK_PICK, 0, TOOL_CLASS, 10, 12, 0 },
+    { MASTER_KEY, 0, TOOL_CLASS, 1, 1, 0 },
     { SACK, 0, TOOL_CLASS, 1, 1, 0 },
     { 0, 0, 0, 0, 0, 0 }
 };
@@ -1074,6 +1074,7 @@ u_init_misc(void)
     u.uevent.uopened_dbridge = 0;
     u.uevent.udemigod = 0;              /* not a demi-god yet... */
     u.uevent.amulet_wish = 0;
+    u.uevent.uopened_mines_shortcut = 0;
     u.udg_cnt = 0;
     u.mh = u.mhmax = u.mtimedone = 0;
     u.uz.dnum = u.uz0.dnum = 0;

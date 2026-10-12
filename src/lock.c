@@ -318,6 +318,7 @@ autokey(boolean opening) /* True: key, pick, or card; False: key or pick */
         if (any_quest_artifact(o) && !is_quest_artifact(o)) {
             switch (o->otyp) {
             case SKELETON_KEY:
+            case MASTER_KEY:
                 if (!akey)
                     akey = o;
                 break;
@@ -335,6 +336,7 @@ autokey(boolean opening) /* True: key, pick, or card; False: key or pick */
         } else {
             switch (o->otyp) {
             case SKELETON_KEY:
+            case MASTER_KEY:
                 if (!key || is_magic_key(&gy.youmonst, o))
                     key = o;
                 break;
@@ -416,7 +418,7 @@ pick_lock(
             const char *action = lock_action();
 
             You("resume your attempt at %s.", action);
-            gx.xlock.magic_key = is_magic_key(&gy.youmonst, pick);
+            gx.xlock.magic_key = (is_magic_key(&gy.youmonst, pick) || pick->otyp == MASTER_KEY);
             set_occupation(picklock, action, 0);
             return PICKLOCK_DID_SOMETHING;
         }
@@ -432,7 +434,8 @@ pick_lock(
     }
 
     if (pick != &dummypick && picktyp != SKELETON_KEY
-        && picktyp != LOCK_PICK && picktyp != CREDIT_CARD) {
+        && picktyp != LOCK_PICK && picktyp != CREDIT_CARD
+        && picktyp != MASTER_KEY) {
         impossible("picking lock with object %d?", picktyp);
         return PICKLOCK_DID_NOTHING;
     }
@@ -545,6 +548,7 @@ pick_lock(
                     ch = 4 * ACURR(A_DEX) + 25 * Role_if(PM_ROGUE);
                     break;
                 case SKELETON_KEY:
+                case MASTER_KEY:
                     ch = 75 + ACURR(A_DEX);
                     break;
                 default:
@@ -658,6 +662,7 @@ pick_lock(
                 ch = 3 * ACURR(A_DEX) + 30 * Role_if(PM_ROGUE);
                 break;
             case SKELETON_KEY:
+            case MASTER_KEY:
                 ch = 70 + ACURR(A_DEX);
                 break;
             default:
@@ -671,7 +676,7 @@ pick_lock(
     svc.context.move = 0;
     gx.xlock.chance = ch;
     gx.xlock.picktyp = picktyp;
-    gx.xlock.magic_key = is_magic_key(&gy.youmonst, pick);
+    gx.xlock.magic_key = (is_magic_key(&gy.youmonst, pick) || pick->otyp == MASTER_KEY);
     gx.xlock.usedtime = 0;
     set_occupation(picklock, lock_action(), 0);
     return PICKLOCK_DID_SOMETHING;

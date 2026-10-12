@@ -2061,7 +2061,7 @@ should_mulch_missile(struct obj *obj)
 
     /* Flint and hard gems don't break easily */
     if (((obj->oclass == GEM_CLASS && objects[obj->otyp].oc_tough)
-         || obj->otyp == FLINT)
+         || obj->otyp == FLINT || obj->otyp == YENDORIAN_LOCKSTONE)
         && !rn2(2))
         broken = FALSE;
 

@@ -30,7 +30,7 @@
 /*
  * Development status of this NetHack version.
  */
-#define NH_DEVEL_STATUS NH_STATUS_WIP
+#define NH_DEVEL_STATUS NH_STATUS_RELEASED
 
 #ifndef DEBUG  /* allow tool chains to define without causing warnings */
 #define DEBUG
@@ -70,7 +70,7 @@
  * to individual level files matter; changes to general game state don't)
  * but the extra complexity to support that is not worth the effort.]
  */
-#define VERSION_COMPATIBILITY 0x05000000L
+/* #define VERSION_COMPATIBILITY 0x05000000L */
 
 /****************************************************************************/
 /* Version 5.0.x */

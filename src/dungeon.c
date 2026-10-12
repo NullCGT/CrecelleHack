@@ -42,7 +42,6 @@ static mapseen *load_mapseen(NHFILE *);
 #if 0
 staticfn void Fread(genericptr_t, int, int, dlb *);
 #endif
-staticfn xint16 dname_to_dnum(const char *);
 staticfn int find_branch(const char *, struct proto_dungeon *);
 staticfn xint16 parent_dnum(const char *, struct proto_dungeon *);
 staticfn int level_range(xint16, int, int, int, struct proto_dungeon *,
@@ -284,7 +283,7 @@ Fread(genericptr_t ptr, int size, int nitems, dlb *stream)
 
 DISABLE_WARNING_UNREACHABLE_CODE
 
-staticfn xint16
+xint16
 dname_to_dnum(const char *s)
 {
     xint16 i;

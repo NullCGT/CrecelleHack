@@ -4221,6 +4221,8 @@ l_create_stairway(lua_State *L, boolean using_ladder)
     long scoord;
     int up = 0; /* default is down */
     int ltype = lua_type(L, 1);
+    int dnum = -1;
+    int dlevel = -1;
 
     create_des_coder();
 
@@ -4229,6 +4231,8 @@ l_create_stairway(lua_State *L, boolean using_ladder)
         lcheck_param_table(L);
         get_table_xy_or_coord(L, &ax, &ay);
         up = stairdirs2i[get_table_option(L, "dir", "down", stairdirs)];
+        dnum = get_table_int_opt(L, "dnum", -1);
+        dlevel = get_table_int_opt(L, "dlevel", -1);
         x = (coordxy) ax;
         y = (coordxy) ay;
     } else {
@@ -4259,15 +4263,15 @@ l_create_stairway(lua_State *L, boolean using_ladder)
         if (up) {
             d_level dest;
 
-            dest.dnum = u.uz.dnum;
-            dest.dlevel = u.uz.dlevel - 1;
+            dest.dnum = (dnum >= 0) ? dnum : u.uz.dnum;
+            dest.dlevel = (dlevel >= 0) ? dlevel : u.uz.dlevel - 1;
             stairway_add(x, y, TRUE, TRUE, &dest);
             levl[x][y].ladder = LA_UP;
         } else {
             d_level dest;
 
-            dest.dnum = u.uz.dnum;
-            dest.dlevel = u.uz.dlevel + 1;
+            dest.dnum = (dnum >= 0) ? dnum : u.uz.dnum;
+            dest.dlevel = (dlevel >= 0) ? dlevel : u.uz.dlevel + 1;
             stairway_add(x, y, FALSE, TRUE, &dest);
             levl[x][y].ladder = LA_DOWN;
         }

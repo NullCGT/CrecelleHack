@@ -89,6 +89,8 @@ staticfn void nhl_clearfromtable(lua_State *, int, int, struct e *);
 staticfn int nhl_panic(lua_State *);
 staticfn void nhl_hookfn(lua_State *, lua_Debug *);
 #endif /* !SFCTOOL */
+staticfn int nhl_dname_to_dnum(lua_State *);
+staticfn int nhl_find_level(lua_State *);
 
 #ifndef SFCTOOL
 static const char *const nhcore_call_names[NUM_NHCORE_CALLS] = {
@@ -1893,6 +1895,8 @@ static const struct luaL_Reg nhl_functions[] = {
     { "doturn", nhl_doturn },
     { "debug_flags", nhl_debug_flags },
     { "flip_level", nhl_flip_level },
+    { "dname_to_dnum", nhl_dname_to_dnum },
+    { "find_level", nhl_find_level },
     { NULL, NULL }
 };
 
@@ -3056,6 +3060,28 @@ nhlL_newstate(nhl_sandbox_info *sbi, const char *name)
 }
 
 #endif /* !SFCTOOL */
+
+staticfn int
+nhl_dname_to_dnum(lua_State *L)
+{
+    int argc = lua_gettop(L);
+    if (argc == 1)
+        lua_pushinteger(L, dname_to_dnum(luaL_checkstring(L, 1)));
+    else
+        nhl_error(L, "Expected a string parameter");
+    return 1;
+}
+
+staticfn int
+nhl_find_level(lua_State *L)
+{
+    int argc = lua_gettop(L);
+    if (argc == 1)
+        lua_pushinteger(L, find_level(luaL_checkstring(L, 1))->dlevel.dlevel);
+    else
+        nhl_error(L, "Expected a string parameter");
+    return 1;
+}
 
 /*
 (See end of comment for conclusion.)

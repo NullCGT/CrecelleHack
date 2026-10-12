@@ -442,7 +442,8 @@ struct obj {
 /* special stones */
 #define is_graystone(obj)                                 \
     ((obj)->otyp == LUCKSTONE || (obj)->otyp == LOADSTONE \
-     || (obj)->otyp == FLINT || (obj)->otyp == TOUCHSTONE)
+     || (obj)->otyp == FLINT || (obj)->otyp == TOUCHSTONE \
+     || (obj)->otyp == YENDORIAN_LOCKSTONE)
 
 /* worthless glass -- assumes all GLASS * are worthless glass */
 #define is_worthless_glass(obj) \

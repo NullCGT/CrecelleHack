@@ -2691,7 +2691,12 @@ mhitm_ad_fire(
                 /* KMH -- this is okay with unchanging */
                 rehumanize();
                 return;
-            } else if (how_resistant(FIRE_RES) < 100) {
+            } else if (how_resistant(FIRE_RES) >= 200) {
+                shieldeff(u.ux, u.uy);
+                You_feel("pleasantly warm.");
+                mhm->damage = resist_reduce(mhm->damage, FIRE_RES);
+                monstseesu(M_SEEN_FIRE);
+            } else if (how_resistant(FIRE_RES) >= 100) {
                 pline_The("fire doesn't feel hot!");
                 monstseesu(M_SEEN_FIRE);
                 mhm->damage = 0;
@@ -2773,7 +2778,12 @@ mhitm_ad_cold(
         hitmsg(magr, mattk);
         if (!mhitm_mgc_atk_negated(magr, mdef, TRUE)) {
             pline("You're covered in frost!");
-            if (how_resistant(COLD_RES) < 100) {
+            if (how_resistant(COLD_RES) >= 200) {
+                shieldeff(u.ux, u.uy);
+                You_feel("a pleasant chill.");
+                monstseesu(M_SEEN_COLD);
+                mhm->damage = resist_reduce(mhm->damage, COLD_RES);
+            } else if (how_resistant(COLD_RES) >= 100) {
                 pline_The("frost doesn't seem cold!");
                 monstseesu(M_SEEN_COLD);
                 mhm->damage = 0;
@@ -2832,7 +2842,12 @@ mhitm_ad_elec(
         hitmsg(magr, mattk);
         if (!mhitm_mgc_atk_negated(magr, mdef, TRUE)) {
             You("get zapped!");
-            if (how_resistant(SHOCK_RES) < 100) {
+            if (how_resistant(SHOCK_RES) >= 200) {
+                shieldeff(u.ux, u.uy);
+                You_feel("a pleasant tingle.");
+                mhm->damage = resist_reduce(mhm->damage, SHOCK_RES);
+                monstseesu(M_SEEN_ELEC);
+            } else if (how_resistant(SHOCK_RES) >= 100) {
                 pline_The("zap doesn't shock you!");
                 monstseesu(M_SEEN_ELEC);
                 mhm->damage = 0;

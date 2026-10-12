@@ -1963,7 +1963,12 @@ gazemu(struct monst *mtmp, struct attack *mattk)
                 pline_mon(mtmp, "%s attacks you with a fiery gaze!",
                           Monnam(mtmp));
                 stop_occupation();
-                if (how_resistant(FIRE_RES) < 100) {
+                if (how_resistant(FIRE_RES) >= 200) {
+                    shieldeff(u.ux, u.uy);
+                    You_feel("pleasantly warm");
+                    monstseesu(M_SEEN_FIRE);
+                    dmg = resist_reduce(dmg, FIRE_RES);
+                } else if (how_resistant(FIRE_RES) >= 100) {
                     shieldeff(u.ux, u.uy);
                     pline_The("fire doesn't feel hot!");
                     monstseesu(M_SEEN_FIRE);

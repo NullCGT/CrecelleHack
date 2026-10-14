@@ -269,6 +269,7 @@
     (ptr == &mons[PM_PURPLE_WORM]            \
      || ptr == &mons[PM_BABY_PURPLE_WORM]    \
      || ptr == &mons[PM_GHOUL]               \
+     || ptr == &mons[PM_GHAST]               \
      || ptr == &mons[PM_PIRANHA])
 
 #define has_blood(ptr) \

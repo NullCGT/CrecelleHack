@@ -32,6 +32,14 @@
 - Some monsters are able to inflict bleeding wounds.
 - Monsters killed by explosions now explode into many pieces.
   - Known issue: does not occur with monsters exploded outside the player's turn.
+- Recolored dwarf zombies to account for ghasts.
+- New monsters:
+  - Added a number of zombies to allow for greater variation in temple of moloch
+    depending on biome:
+    - Ghast (Z): as it appears in many other variants, but can inflict bleeding wounds.
+                 Only spawns in grassy biomes.
+    - Frost (Z): Icy zombie that has a cold-based gaze attack. Only spawns in cold biomes.
+    - Scorch (Z): Hot zombie that has a fire-based gaze attack. Only spawns in sandy biomes.
 
 ## Dungeon
 - Shopkeeper Services

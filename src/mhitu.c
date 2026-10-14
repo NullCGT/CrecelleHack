@@ -1990,6 +1990,30 @@ gazemu(struct monst *mtmp, struct attack *mattk)
             }
         }
         break;
+    case AD_COLD:
+        if (mcanseeu && !mtmp->mspec_used && !cancelled && rn2(5)) {
+            int dmg = d(2, 6);
+            pline_mon(mtmp, "%s attacks you with a soul-chilling glare!", Monnam(mtmp));
+            stop_occupation();
+            if (how_resistant(COLD_RES) >= 200) {
+                shieldeff(u.ux, u.uy);
+                You_feel("pleasantly cool");
+                monstseesu(M_SEEN_COLD);
+                dmg = resist_reduce(dmg, COLD_RES);
+            } else if (how_resistant(COLD_RES) >= 100) {
+                shieldeff(u.ux, u.uy);
+                You_feel("a chill.");
+                monstseesu(M_SEEN_COLD);
+                ugolemeffects(AD_FIRE, d(12, 6));
+                dmg = 0;
+            } else {
+                dmg = resist_reduce(dmg, COLD_RES);
+                monstunseesu(M_SEEN_COLD);
+            }
+            if (dmg)
+                mdamageu(mtmp, dmg);
+        }
+        break;
 #ifdef PM_BEHOLDER /* work in progress */
     case AD_SLEE:
         if (mcanseeu && gm.multi >= 0 && !rn2(5) && (how_resistant(SLEEP_RES) < 100)) {

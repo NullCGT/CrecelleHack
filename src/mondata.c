@@ -217,7 +217,8 @@ boolean
 resists_sick(struct monst *mon)
 {
     if (mon->data->mlet == S_FUNGUS
-            || mon->data == &mons[PM_GHOUL])
+            || mon->data == &mons[PM_GHOUL]
+            || mon->data == &mons[PM_GHAST])
         return TRUE;
     return defended(mon, AD_DISE);
 }
@@ -1368,6 +1369,7 @@ static const short grownups[][2] = {
     { PM_KOP_LIEUTENANT, PM_KOP_KAPTAIN },
     { PM_PAPER_GOLEM, PM_SCROLEM },
     { PM_SERVANT, PM_HEAD_SERVANT },
+    { PM_GHOUL, PM_GHAST },
     { NON_PM, NON_PM }
 };
 

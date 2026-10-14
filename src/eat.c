@@ -112,7 +112,7 @@ is_edible(struct obj *obj)
         return TRUE;
 
     /* Ghouls only eat non-veggy corpses or eggs (see dogfood()) */
-    if (u.umonnum == PM_GHOUL)
+    if (u.umonnum == PM_GHOUL || u.umonnum == PM_GHAST)
         return (boolean)((obj->otyp == CORPSE
                           && !vegan(&mons[obj->corpsenm]))
                          || (obj->otyp == EGG));

@@ -4923,6 +4923,7 @@ mhitm_ad_dise(
            hero gaining sick resistance combined with any hero wielding a
            weapon or wearing dragon scales/mail that guards against disease */
         if (pd->mlet == S_FUNGUS || pd == &mons[PM_GHOUL]
+            || pd == &mons[PM_GHAST]
             || defended(mdef, AD_DISE))
             mhm->damage = 0;
         /* else does ordinary damage */

@@ -403,6 +403,7 @@ zombie_maker(struct monst *mon)
     case S_ZOMBIE:
         /* Z-class monsters that aren't actually zombies go here */
         if (pm == &mons[PM_GHOUL] || pm == &mons[PM_SKELETON]
+            || pm == &mons[PM_GHAST]
             || pm == &mons[PM_MOLDERING_HUSK])
             return FALSE;
         return TRUE;
@@ -939,7 +940,7 @@ make_corpse(struct monst *mtmp, unsigned int corpseflags)
     case PM_XORN: case PM_MONKEY: case PM_APE: case PM_SKUNK_APE: case PM_OWLBEAR:
     case PM_YETI: case PM_CARNIVOROUS_APE: case PM_SASQUATCH:
 
-    case PM_MOLDERING_HUSK: case PM_GHOUL: case PM_SKELETON:
+    case PM_FROST: case PM_WASTE_WALKER: case PM_MOLDERING_HUSK: case PM_GHOUL: case PM_SKELETON:
 
     case PM_STRAW_GOLEM: case PM_FLESH_GOLEM:
     case PM_SAND_GOLEM:

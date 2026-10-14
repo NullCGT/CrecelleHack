@@ -149,6 +149,7 @@ staticfn int shk_poison_ok(struct obj *);
 staticfn int shk_armor_ok(struct obj *);
 staticfn int shk_identify_ok(struct obj *);
 staticfn int shk_specialty_ok(struct obj *);
+staticfn void shk_rumors(struct monst *);
 
 /*
         invariants: obj->unpaid iff onbill(obj) [unless bp->useup]
@@ -6304,15 +6305,17 @@ shk_other_services(void) {
 	tmpwin = create_nhwindow(NHW_MENU);
 	start_menu(tmpwin, MENU_BEHAVE_STANDARD);
 
-	any.a_int = 1;
-	if (ESHK(shkp)->services & (SHK_ID_BASIC | SHK_ID_PREMIUM))
+	if (ESHK(shkp)->services & (SHK_ID_BASIC | SHK_ID_PREMIUM)) {
+        any.a_int = 1;
 		add_menu(tmpwin, &nul_glyphinfo, &any, flags.lootabc ? 0 : 'i', 0, ATR_NONE,
 			 NO_COLOR, "Identify", MENU_ITEMFLAGS_NONE);
+    }
 
-	any.a_int = 2;
-	if (ESHK(shkp)->services & (SHK_UNCURSE))
+	if (ESHK(shkp)->services & (SHK_UNCURSE)) {
+        any.a_int = 2;
 		add_menu(tmpwin, &nul_glyphinfo, &any, flags.lootabc ? 0 : 'u', 0, ATR_NONE,
 			 NO_COLOR, "Uncurse", MENU_ITEMFLAGS_NONE);
+    }
 
 	if ((ESHK(shkp)->services & (SHK_SPECIAL_A | SHK_SPECIAL_B | SHK_SPECIAL_C))
         && shk_class_match(WEAPON_CLASS, shkp)) {
@@ -6342,6 +6345,11 @@ shk_other_services(void) {
 			 NO_COLOR, "Charge", MENU_ITEMFLAGS_NONE);
 	}
 
+    /* All shopkeepers can tell you rumors */
+    any.a_int = 6;
+    add_menu(tmpwin, &nul_glyphinfo, &any, flags.lootabc ? 0 : 'r', 0, ATR_NONE,
+            NO_COLOR, "Rumors", MENU_ITEMFLAGS_NONE);
+
 	end_menu(tmpwin, "Which service?");
 	n = select_menu(tmpwin, PICK_ONE, &selected);
 	destroy_nhwindow(tmpwin);
@@ -6362,6 +6370,9 @@ shk_other_services(void) {
             break;
         case 5:
             shk_charge(shkp);
+            break;
+        case 6:
+            shk_rumors(shkp);
             break;
         default:
             panic("unknown shopkeeper service %d", n);
@@ -7069,6 +7080,17 @@ int shk_specialty_ok(struct obj *obj) {
     if (!shk_class_match(obj->oclass, shkp))
         return GETOBJ_DOWNPLAY;
     return GETOBJ_SUGGEST;
+}
+
+staticfn
+void shk_rumors(struct monst *shkp) {
+    char buf[BUFSZ];
+
+    if (!shk_offer_price(50, shkp))
+        return;
+    getrumor(0, buf, TRUE);
+    pline_mon(shkp, "%s says offhandedly:", Monnam(shkp));
+    verbalize("%s", buf);
 }
 
 #undef PAY_BUY

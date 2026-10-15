@@ -54,6 +54,7 @@
 - There is a ladder that connects mine's end with medusa's island. It can only be
   unlocked with a yendorian lockstone or a master key.
 - Priests in the temple to moloch now spawn hostile and asleep.
+- The oracle can now be asked for enlightenment or to locate specific dungeon levels.
 
 ## Balance
 - Object materials give more drastic adjustments to partial resistances.

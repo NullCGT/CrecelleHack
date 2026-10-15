@@ -2162,6 +2162,11 @@ lev_by_name(const char *nam)
         } else if (!strcmpi(nam, "delphi")) {
             /* Oracle says "welcome to Delphi" so recognize that name too */
             nam = "oracle";
+        } else if (!strcmpi(nam, "temple to moloch") || !strcmpi(nam, "moloch's temple")) {
+            /* this level has a few possible names */
+            nam = "Temple of Moloch";
+        } else if (!strcmpi(nam, "big room")) {
+            nam = "bigrm";
         }
 
         if ((slev = find_level(nam)) != 0)

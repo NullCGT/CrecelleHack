@@ -50,6 +50,7 @@ staticfn void init_oracles(dlb *);
 staticfn void others_check(const char *ftype, const char *, winid *);
 staticfn void couldnt_open_file(const char *);
 staticfn void init_CapMons(void);
+staticfn boolean oracle_payment(struct monst *, int);
 
 /* used by CapitalMon(); set up by init_CapMons(), released by free_CapMons();
    there's no need for these to be put into 'struct instance_globals g' */
@@ -672,7 +673,7 @@ outoracle(boolean special, boolean delphi)
         if (delphi)
             putstr(tmpwin, 0,
                    special
-                     ? "The Oracle scornfully takes all your gold and says:"
+                     ? "The Oracle scornfully takes your gold and says:"
                      : "The Oracle meditates for a moment and then intones:");
         else
             putstr(tmpwin, 0, "The message reads:");
@@ -697,9 +698,14 @@ int
 doconsult(struct monst *oracl)
 {
     long umoney;
-    int u_pay, minor_cost = 50, major_cost = 500 + 50 * u.ulevel;
-    int add_xpts;
-    char qbuf[QBUFSZ];
+    int minor_cost = 50, major_cost = 500 + 50 * u.ulevel;
+    int enlighten_cost = 200 + 20 * u.ulevel;
+    int locate_cost = 50 + 80 * u.ulevel;
+    int u_pay, add_xpts = 0;
+    winid tmpwin;
+	anything any;
+	menu_item *selected;
+	int n;
 
     gm.multi = 0;
     umoney = money_cnt(gi.invent);
@@ -715,50 +721,88 @@ doconsult(struct monst *oracl)
         return ECMD_OK;
     }
 
-    Sprintf(qbuf, "\"Wilt thou settle for a minor consultation?\" (%d %s)",
-            minor_cost, currency((long) minor_cost));
-    switch (ynq(qbuf)) {
-    default:
-    case 'q':
-        return ECMD_OK;
-    case 'y':
-        if (umoney < (long) minor_cost) {
-            You("don't even have enough gold for that!");
-            return ECMD_OK;
-        }
-        u_pay = minor_cost;
-        break;
-    case 'n':
-        if (umoney <= (long) minor_cost /* don't even ask */
-            || (svo.oracle_cnt == 1 || go.oracle_flg < 0))
-            return ECMD_OK;
-        Sprintf(qbuf, "\"Then dost thou desire a major one?\" (%d %s)",
-                major_cost, currency((long) major_cost));
-        if (y_n(qbuf) != 'y')
-            return ECMD_OK;
-        u_pay = (umoney < (long) major_cost) ? (int) umoney : major_cost;
-        break;
-    }
-    money2mon(oracl, (long) u_pay);
-    disp.botl = TRUE;
-    if (!u.uevent.major_oracle && !u.uevent.minor_oracle)
-        record_achievement(ACH_ORCL);
-    add_xpts = 0; /* first oracle of each type gives experience points */
-    if (u_pay == minor_cost) {
-        outrumor(1, BY_ORACLE);
-        if (!u.uevent.minor_oracle)
-            add_xpts = u_pay / (u.uevent.major_oracle ? 25 : 10);
-        /* 5 pts if very 1st, or 2 pts if major already done */
-        u.uevent.minor_oracle = TRUE;
-    } else {
-        boolean cheapskate = u_pay < major_cost;
+    tmpwin = create_nhwindow(NHW_MENU);
+	start_menu(tmpwin, MENU_BEHAVE_STANDARD);
+    any.a_char = 'i';
+    add_menu(tmpwin, &nul_glyphinfo, &any, flags.lootabc ? 0 : any.a_char, 0, ATR_NONE,
+			 NO_COLOR, "Minor Consultation", MENU_ITEMFLAGS_NONE);
+    any.a_char = 'a';
+    add_menu(tmpwin, &nul_glyphinfo, &any, flags.lootabc ? 0 : any.a_char, 0, ATR_NONE,
+			 NO_COLOR, "Major Consultation", MENU_ITEMFLAGS_NONE);
+    any.a_char = 'e';
+    add_menu(tmpwin, &nul_glyphinfo, &any, flags.lootabc ? 0 : any.a_char, 0, ATR_NONE,
+			 NO_COLOR, "Enlightenment", MENU_ITEMFLAGS_NONE);
+    any.a_char = 'l';
+    add_menu(tmpwin, &nul_glyphinfo, &any, flags.lootabc ? 0 : any.a_char, 0, ATR_NONE,
+			 NO_COLOR, "Location", MENU_ITEMFLAGS_NONE);
 
-        outoracle(cheapskate, TRUE);
-        if (!cheapskate && !u.uevent.major_oracle)
-            add_xpts = u_pay / (u.uevent.minor_oracle ? 25 : 10);
-        /* ~100 pts if very 1st, ~40 pts if minor already done */
-        u.uevent.major_oracle = TRUE;
-        exercise(A_WIS, !cheapskate);
+    end_menu(tmpwin, "What dost thou desire?");
+	n = select_menu(tmpwin, PICK_ONE, &selected);
+	destroy_nhwindow(tmpwin);
+    if (n <= 0)
+        return TRUE;
+    switch(selected[0].item.a_char) {
+    case 'i':
+        if (oracle_payment(oracl, minor_cost)) {
+            u_pay = minor_cost;
+            outrumor(1, BY_ORACLE);
+            if (!u.uevent.minor_oracle)
+                add_xpts = minor_cost / (u.uevent.major_oracle ? 25 : 10);
+            /* 5 pts if very 1st, or 2 pts if major already done */
+            if (!u.uevent.major_oracle && !u.uevent.minor_oracle)
+                record_achievement(ACH_ORCL);
+            u.uevent.minor_oracle = TRUE;
+        } else {
+            verbalize("I do not work for free, %s.", svp.plname);
+        }
+        break;
+    case 'a':
+        if (oracle_payment(oracl, major_cost)) {
+            u_pay = major_cost;
+            outoracle(FALSE, TRUE);
+            exercise(A_WIS, TRUE);
+            if (!u.uevent.major_oracle)
+                add_xpts = major_cost / (u.uevent.minor_oracle ? 25 : 10);
+        } else {
+            outoracle(TRUE, TRUE);
+            exercise(A_WIS, FALSE);
+        }
+        if (!u.uevent.major_oracle && !u.uevent.minor_oracle)
+                record_achievement(ACH_ORCL);
+            u.uevent.major_oracle = TRUE;
+        break;
+    case 'e':
+        if (oracle_payment(oracl, enlighten_cost)) {
+            u_pay = enlighten_cost;
+            verbalize("Behold thyself!");
+            do_enlightenment_effect();
+            if (!u.uevent.major_oracle && !u.uevent.minor_oracle)
+                record_achievement(ACH_ORCL);
+            u.uevent.major_oracle = TRUE;
+            break;
+        }
+        verbalize("Thy request for enlightenment is denied.");
+        break;
+    case 'l':{
+            char buf[BUFSZ];
+            int outlev = 0;
+            getlin("What place shall I locate?", buf);
+            outlev = lev_by_name(buf);
+            if (outlev) {
+                if (oracle_payment(oracl, locate_cost)) {
+                    u_pay = locate_cost;
+                    verbalize("Try level %d, but I make no promises.", outlev);
+                    if (!u.uevent.major_oracle && !u.uevent.minor_oracle)
+                        record_achievement(ACH_ORCL);
+                    u.uevent.major_oracle = TRUE;
+                } else {
+                    verbalize("My labor is not free, %s.", svp.plname);
+                }
+            } else {
+                verbalize("I do apologize, but I know of no such place.");
+            }
+            break;
+        }
     }
     if (add_xpts) {
         more_experienced(add_xpts, u_pay / 50);
@@ -951,6 +995,19 @@ free_CapMons(void)
         free((genericptr_t) CapMons), CapMons = (const char **) 0;
     }
     CapMonSiz = 0;
+}
+
+/* pay the oracle some amount of money. return true if it is enough. */
+boolean
+oracle_payment(struct monst *oracl, int cost)
+{
+    int upayment;
+    pline("%s requests %d %s for %s insight.",
+            Monnam(oracl), cost, currency(cost), mhis(oracl));
+    upayment = bribe(oracl, "How much will you offer?");
+    if (upayment < cost)
+        return FALSE;
+    return TRUE;
 }
 #endif /* !SFCTOOL */
 

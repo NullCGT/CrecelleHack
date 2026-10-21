@@ -99,6 +99,7 @@ static const char *const godvoices[] = {
 #define TROUBLE_STUNNED (-9)
 #define TROUBLE_CONFUSED (-10)
 #define TROUBLE_HALLUCINATION (-11)
+#define TROUBLE_BLEEDING (-12)
 
 
 #define ugod_is_angry() (u.ualign.record < 0)
@@ -280,6 +281,8 @@ in_trouble(void)
         return TROUBLE_CONFUSED;
     if (HHallucination & TIMEOUT)
         return TROUBLE_HALLUCINATION;
+    if (HBleeding & TIMEOUT)
+        return TROUBLE_BLEEDING;
     return 0;
 }
 
@@ -595,6 +598,9 @@ fix_worst_trouble(int trouble)
             set_bknown(otmp, 1);
         }
         uncurse(otmp);
+        break;
+    case TROUBLE_BLEEDING:
+        make_bleeding(0L, TRUE);
         break;
     }
 }

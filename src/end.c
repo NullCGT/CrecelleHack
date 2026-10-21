@@ -765,6 +765,7 @@ savelife(int how)
             pline("%s releases you.", Monnam(u.ustuck));
         unstuck(u.ustuck);
     }
+    make_bleeding(0L, FALSE);
 }
 
 /*

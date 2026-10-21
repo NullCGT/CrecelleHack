@@ -3114,7 +3114,7 @@ mhitm_ad_bled(
                 pline("Blood blood blood!");
             else
                 You("have been given a bleeding wound.");
-            make_bleeding(rnd(mhm->damage), FALSE);
+            make_bleeding(max(mhm->damage, rn1(2, 3)), FALSE);
         }
     } else {
         hitmsg(magr, mattk);

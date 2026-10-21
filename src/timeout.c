@@ -972,6 +972,12 @@ nh_timeout(void)
                     if (!Protection_from_shape_changers)
                         restartcham();
                     break;
+                case BLEEDING:
+                    if (!Bleeding) {
+                        You("are no longer bleeding.");
+                        stop_occupation();
+                    }
+                    break;
                 }
             }
         }

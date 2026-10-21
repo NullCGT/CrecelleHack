@@ -31,22 +31,22 @@ des.level_flags("mazelevel", "noflip",
                 "nomongen", "nodeathdrops", "noautosearch");
 des.map([[
 ---------------------------------------------------------------------------
-|...|.......|.............................................................|
-|...|.......|.............................................................|
-|.---.......|.............----------......................................|
-|.|.|.......|.---------...|........|......................................|
-|S-.---|+|+--.|.|.|.|.|...|........|...|+|................................|
-|.....||.|.|---.-.-.-.-----........|----.---..............................|
-|.....||.|..+..........+...................|..............................|
-|.....|-+------.-.-.-.-----........|----.---..............................|
-|.....|...|...|.|.|.|.|...|........|...|+|................................|
-|.....|...|...-S-------...|........|...|.|................................|
-|--.---...---...|-------------------...|.|................................|
-|.|.|.......|...|..................|...|.|................................|
-|.|.|.......|...|..................|...|.|................................|
-|.|.|.......|...|..................|...|.|................................|
-|.|.|--...---...|..................|...|.|................................|
-|.|...+...|.....|..................+...+.|................................|
+|...|.......|.............|............+.|.....|..........................|
+|...|.......|.............|............|.|.....|..........................|
+|.---.......|.............--------------.|.....|..........................|
+|.|.|.......|.---------...|........|...|.|.....|..........................|
+|S-.---|+|+--.|.|.|.|.|...|........|...|+|.....|..........................|
+|.....||.|.|---.-.-.-.-----........|----.---.---..........................|
+|.....||.|..+..........+...................|.|............................|
+|.....|-+------.-.-.-.-----........|----.---.---..........................|
+|.....|...|...|.|.|.|.|...|........|...|+|.....|..........................|
+|.....|...|...-S-------...|........|...|.|.....|..........................|
+|--.---...---...|----------------------|.|.....|..........................|
+|.|.|.......|...|......................|.|.....|..........................|
+|.|.|.......|...|......................|.|.....|..........................|
+|.|.|.......|...|......................|.|------..........................|
+|.|.|--...---...|......................|.|................................|
+|.|...+...|.....|......................+.|................................|
 ---------------------------------------------------------------------------
 ]]);
 
@@ -61,6 +61,8 @@ des.object({ coord = { 1, 10 }, id = "statue", montype = "illusion", historic = 
 des.object({ coord = { 5, 10 }, id = "statue", montype = "squonk", historic = true });
 des.engraving({ coord = { 3, 5 }, type = "engrave", text = "You can leave the tutorial via the magic portal", degrade = false });
 des.trap({ type = "magic portal", coord = { 3, 4 }, seen = true });
+-- des.engraving({ coord = { 3, 5 }, type = "engrave", text = "Use this teleporter if you wish to skip to role and race explanations.", degrade = false });
+-- des.trap({ type = "teleport", coord = {3, 4}, teledest = {44, 7} });
 ---------- Secret area #1 ---------
 des.door({ coord = { 1, 5 }, state = "locked"});
 des.engraving({ coord = { 1, 4 }, type = "engrave", text = "You have found secret area #1/2", degrade = false });
@@ -71,11 +73,15 @@ des.engraving({ coord = { 15, 11 }, type = "engrave", text = "You have found sec
 des.engraving({ coord = { 15, 13 }, type = "engrave", text = "Use the #taunt command to taunt", degrade = false });
 des.engraving({ coord = { 11, 16 }, type = "engrave", text = "A custom taunt can be defined in your config file", degrade = false });
 ---------- Introductions ----------
-des.engraving({ coord = { 3, 11 }, type = "engrave", text = "Welcome to the CrecelleHack Tutorial. This tutorial is modeled off the 5.0 tutorial", degrade = false });
+des.engraving({ coord = { 3, 11 }, type = "engrave", text = "Welcome to the CrecelleHack Tutorial. This tutorial is modeled off the NetHack 5.0 tutorial", degrade = false });
 des.engraving({ coord = { 3, 13 }, type = "engrave", text = "This tutorial will walk you through a few key differences between this variant and vanilla", degrade = false });
 des.engraving({ coord = { 3, 15 }, type = "engrave", text = "If you have not played NetHack before, please familiarize yourself with NetHack 5.0 first", degrade = false });
 if (u.race == "kobold") then
-    des.engraving({ coord = { 5, 16 }, type = "engrave", text = "As a kobold, your face a special challenge: your ability scores are mediocre and all status effects time out twice as fast", degrade = false });
+   des.engraving({ coord = { 5, 16 }, type = "engrave", text = "As a kobold your ability scores are mediocre and all status effects time out twice as fast", degrade = false });
+elseif (u.race == "anacrusis") then
+   des.engraving({ coord = { 5, 16 }, type = "engrave", text = "As an anacrusis you begin with massive resistance to all elements, but this resistance turns to weakness over time", degrade = false});
+elseif (u.race == "elf") then
+   des.engraving({ coord = { 5, 16 }, type = "engrave", text = "As an elf you are harmed by iron and eating meat causes you to vomit.", degrade = false });
 else
    des.engraving({ coord = { 5, 16 }, type = "engrave", text = "Let's start with the floor coating system", degrade = false });
 end
@@ -97,7 +103,7 @@ des.engraving({ coord = { 10, 7 }, type = "engrave", text = "There are many coat
 des.door({ coord = { 12, 7 }, state = "closed" });
 -------- The Hall of Rules Changes -----------
 des.engraving({ coord = { 13, 7 }, type = "engrave", text = "Welcome to the hall of rule changes!", degrade = false });
-des.engraving({ coord = { 14, 7 }, type = "engrave", text = "This hall covers the most critical rule changes to be aware of", degrade = false });
+des.engraving({ coord = { 14, 7 }, type = "engrave", text = "This hall covers some small but critical rule changes to be aware of", degrade = false });
 -- Niche
 des.engraving({ coord = { 15, 6 }, type = "engrave", text = "Magic Cancellation is displayed on the status line", degrade = false });
 des.object({ id = "cloak of protection", spe = 0, buc = "not-cursed", coord = { 15, 5 }})
@@ -121,8 +127,8 @@ des.object({ coord = { 15, 9 }, id = "lock pick", quantity = 5, buc = "not-curse
 des.object({ coord = { 15, 9 }, id = "chest", trapped = 0, locked = 1, buc = "not-cursed" });
 des.door({ coord = { 15, 10 }, state = "locked"});
 -- Niche
-des.engraving({ coord = { 21, 8 }, type = "engrave", text = "Intrinsic and extrinsic resistances halve damage.", degrade = false });
-des.engraving({ coord = { 21, 9 }, type = "engrave", text = "You need both in order to become immune.", degrade = false });
+des.engraving({ coord = { 21, 8 }, type = "engrave", text = "Corpses provide temporary intrinsic resistances.", degrade = false });
+des.engraving({ coord = { 21, 9 }, type = "engrave", text = "You will learn more about the new resistance system later.", degrade = false });
 des.object({ coord = { 21, 9 }, id = "red dragon scales" });
 des.object({ coord = { 21, 9 }, id = "corpse", montype = "red dragon" });
 
@@ -153,61 +159,50 @@ des.engraving({ coord = { 40, 10 }, type = "engrave", text = "In CrecelleHack, y
 des.object({ coord = { 40, 12 }, id = "athame", buc = "not-cursed" });
 des.engraving({ coord = { 40, 12 }, type = "engrave", text = "Try examining this athame.", degrade = false });
 des.engraving({ coord = { 40, 14 }, type = "engrave", text = "Note how the weapon's stats scale with your ability scores.", degrade = false });
-des.engraving({ coord = { 40, 16 }, type = "engrave", text = "For every two points of a relevant ability score, you receive a +1 damage or accuracy bonus.", degrade = false });
 des.door({ coord = { 39, 16 }, state = "closed" });
-des.engraving({ coord = { 37, 09 }, type = "engrave", text = "Basic weapon skill allows you to wield weapons of that type without using an action.", degrade = false });
-des.object({ coord = { 38, 09 }, id = "statue", montype = "gnome", historic = true });
-des.engraving({ coord = { 37, 10 }, type = "engrave", text = "Skilled weapon skill allows you to identify weapons of that type by wielding them.", degrade = false });
-des.object({ coord = { 38, 10 }, id = "statue", montype = "gnome lord", historic = true });
-des.engraving({ coord = { 37, 11 }, type = "engrave", text = "Expert weapon skill increases the sides of damage dice rolled with that weapon type by one", degrade = false });
-des.object({ coord = { 38, 11 }, id = "statue", montype = "gnome king", historic = true });
-des.engraving({ coord = { 37, 13 }, type = "engrave", text = "To increase your ability scores you must #enhance them.", degrade = false });
-des.object({ coord = { 38, 13 }, id = "statue", montype = "elf", historic = true });
-des.engraving({ coord = { 37, 14 }, type = "engrave", text = "Weapon skills do not improve your to-hit or damage. Instead you must improve your ability scores.", degrade = false });
-des.object({ coord = { 38, 14 }, id = "statue", montype = "elf-lord", historic = true });
-des.engraving({ coord = { 37, 15 }, type = "engrave", text = "Many weapon skills have been combined.", degrade = false });
-des.object({ coord = { 38, 15 }, id = "statue", montype = "elvenking", historic = true });
-des.door({ coord = { 35, 16 }, state = "closed" });
-des.engraving({ coord = { 34, 16 }, type = "engrave", text = "You may use this area to experiment with the combat system.", degrade = false });
+des.engraving({ coord = { 19, 15 }, type = "engrave", text = "Basic weapon skill allows you to wield weapons of that type without using an action.", degrade = false });
+des.object({ coord = { 19, 16 }, id = "statue", montype = "gnome", historic = true });
+des.engraving({ coord = { 18, 15 }, type = "engrave", text = "Skilled weapon skill allows you to identify weapons of that type by wielding them.", degrade = false });
+des.object({ coord = { 18, 16 }, id = "statue", montype = "gnome lord", historic = true });
+des.engraving({ coord = { 17, 15 }, type = "engrave", text = "Expert weapon skill increases the sides of damage dice rolled with that weapon type by one", degrade = false });
+des.object({ coord = { 17, 16 }, id = "statue", montype = "gnome king", historic = true });
+-- Skill types
 des.object({ coord = { 17, 12 }, id = "dagger", buc = "not-cursed" });
-des.object({ coord = { 18, 12 }, id = "short sword", buc = "not-cursed" });
-des.object({ coord = { 19, 12 }, id = "long sword", buc = "not-cursed" });
-des.object({ coord = { 20, 12 }, id = "two-handed sword", buc = "not-cursed" });
-des.object({ coord = { 21, 12 }, id = "quarterstaff", buc = "not-cursed" });
-des.object({ coord = { 22, 12 }, id = "mace", buc = "not-cursed" });
-------------- Combat area ---------------
-if (u.race == "kobold") then
-   des.engraving({ coord = { 31, 15 }, type = "engrave", text = "As a kobold, you prefer muddy terrain.", degrade = false });
-   des.engraving({ coord = { 21, 15 }, type = "engrave", text = "As a kobold, you loathe snowy terrain.", degrade = false });
-   des.replace_terrain({ region={30,14, 32,16}, fromterrain=".", toterrain=".", coat="mud" })
-   des.replace_terrain({ region={20,14, 22,16}, fromterrain=".", toterrain=".", coat="snow" })
-elseif (u.race == "human") then
-   des.engraving({ coord = { 31, 15 }, type = "engrave", text = "As a human, you prefer snowy terrain.", degrade = false });
-   des.engraving({ coord = { 21, 15 }, type = "engrave", text = "As a human, you loathe muddy terrain.", degrade = false });
-elseif (u.race == "elf") then
-   des.engraving({ coord = { 31, 15 }, type = "engrave", text = "As an elf, you prefer grassy terrain.", degrade = false });
-   des.engraving({ coord = { 21, 15 }, type = "engrave", text = "As an elf, you loathe ashen terrain.", degrade = false });
-elseif (u.race == "dwarf") then
-   des.engraving({ coord = { 31, 15 }, type = "engrave", text = "As a dwarf, you prefer bare stone terrain.", degrade = false });
-   des.engraving({ coord = { 21, 15 }, type = "engrave", text = "As a dwarf, you loathe grassy terrain.", degrade = false });
-elseif (u.race == "gnome") then
-   des.engraving({ coord = { 31, 15 }, type = "engrave", text = "As a gnome, you prefer potion-spattered terrain.", degrade = false });
-   des.engraving({ coord = { 21, 15 }, type = "engrave", text = "As a gnome, you loathe fungal terrain.", degrade = false });
-elseif (u.race == "orc") then
-   des.engraving({ coord = { 31, 15 }, type = "engrave", text = "As an orc, you prefer bloody terrain.", degrade = false });
-   des.engraving({ coord = { 21, 15 }, type = "engrave", text = "As an orc, you loathe muddy terrain.", degrade = false });
-end
---
-des.altar({ x = 24, y = 14, align="law", type="shrine" });
-des.altar({ x = 25, y = 14, align="neutral", type="shrine" });
-des.altar({ x = 26, y = 14, align="chaos", type="shrine" });
-des.engraving({ coord = { 24, 15 }, type = "engrave", text = "Lawful characters receive a terrain-dependent bonus or penalty to armor class.", degrade = false });
-des.engraving({ coord = { 25, 15 }, type = "engrave", text = "Neutral characters receive a terrain-dependent bonus or penalty to energy regeneration.", degrade = false });
-des.engraving({ coord = { 26, 15 }, type = "engrave", text = "Chaotic characters receive a terrain-dependent bonus or penalty to speed.", degrade = false });
-
------------- Unfinished ------------------
-des.engraving({ coord = { 40, 6 }, type = "engrave", text = "Unfinished Area", degrade = false });
-des.door({ coord = { 40, 5 }, state = "locked" });
+des.object({ coord = { 18, 12 }, id = "knife", buc = "not-cursed" });
+des.object({ coord = { 19, 12 }, id = "axe", buc = "not-cursed" });
+des.object({ coord = { 20, 12 }, id = "pick-axe", buc = "not-cursed"});
+des.object({ coord = { 21, 12 }, id = "short sword", buc = "not-cursed" });
+des.object({ coord = { 22, 12 }, id = "broadsword", buc = "not-cursed" });
+des.object({ coord = { 23, 12 }, id = "long sword", buc = "not-cursed" });
+des.object({ coord = { 24, 12 }, id = "two-handed sword", buc = "not-cursed" });
+des.object({ coord = { 25, 12 }, id = "saber", buc = "not-cursed" });
+des.object({ coord = { 26, 12 }, id = "club", buc = "not-cursed" });
+des.object({ coord = { 27, 12 }, id = "mace", buc = "not-cursed" });
+des.object({ coord = { 28, 12 }, id = "flail", buc = "not-cursed" });
+des.object({ coord = { 29, 12 }, id = "war hammer", buc = "not-cursed" });
+des.object({ coord = { 30, 12 }, id = "quarterstaff", buc = "not-cursed" });
+des.object({ coord = { 31, 12 }, id = "voulge", buc = "not-cursed" });
+des.object({ coord = { 32, 12 }, id = "spear", buc = "not-cursed" });
+des.object({ coord = { 33, 12 }, id = "lance", buc = "not-cursed" });
+des.object({ coord = { 34, 12 }, id = "bullwhip", buc = "not-cursed" });
+des.object({ coord = { 35, 12 }, id = "unicorn horn", buc = "not-cursed" });
+------------ Resistances ------------------
+des.engraving({ coord = { 40, 6 }, type = "engrave", text = "Resistance System", degrade = false });
+des.door({ coord = { 40, 5 }, state = "closed"});
+des.engraving({ coord = { 40, 3 }, type = "engrave", text = "View your stats with (".. tut_key("attributes") ..").", degrade = false });
+des.engraving({ coord = { 40, 1 }, type = "engrave", text = "Note that you can see percentile resistances to elements.", degrade = false });
+des.door({ coord = { 39, 1 }, state = "closed"});
+des.engraving({ coord = { 37, 2 }, type = "engrave", text = "Increase your resistances by wearing equipment (View stats by selecting an item in your inventory and pressing '/').", degrade = false });
+des.object({ coord = { 37, 2 }, id = "dwarvish boots", buc = "not-cursed" });
+des.engraving({ coord = { 35, 2 }, type = "engrave", text = "Intrinsic or extrinsic resistance sets minimum resistance to 100%.", degrade = false });
+des.object({ coord = { 35, 2 }, id = "red dragon scale mail", buc = "not-cursed" });
+des.object({ coord = { 33, 2 }, id = "scroll of fire", buc = "cursed" });
+des.engraving({ coord = { 33, 2 }, type = "engrave", text = "100% resistance results in immunity.", degrade = false });
+des.object({ coord = { 31, 2 }, id = "scroll of fire", buc = "cursed" });
+des.engraving({ coord = { 31, 2 }, type = "engrave", text = "200% resistance results in healing instead of taking damage", degrade = false });
+-- Unfinished
+des.engraving({ coord = { 44, 6 }, type = "engrave", text = "Role Explanation", degrade = false });
+des.engraving({ coord = { 44, 8 }, type = "engrave", text = "Race Explanation", degrade = false });
 
 -- entering and leaving tutorial _branch_ now handled by core
 -- // nh.callback("cmd_before", "tutorial_cmd_before");

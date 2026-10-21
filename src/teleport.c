@@ -1194,6 +1194,7 @@ level_tele(void)
     if ((Teleport_control && !Stunned) || wizard) {
         char qbuf[BUFSZ];
         int trycnt = 0;
+        s_level *protolev;
 
         Strcpy(qbuf, "To what level do you want to teleport?");
         do {
@@ -1222,7 +1223,12 @@ level_tele(void)
             } else if (!strcmp(buf, "\033")) { /* cancelled */
                 return;
             }
-            if (wizard && !strcmp(buf, "?")) {
+            if (wizard && (protolev = find_level(buf)) != 0) {
+                newlevel.dnum = protolev->dlevel.dnum;
+                newlevel.dlevel = protolev->dlevel.dlevel;
+                newlev = depth(&u.uz);
+                force_dest = TRUE;
+            } else if (wizard && !strcmp(buf, "?")) {
                 schar destlev;
                 xint16 destdnum;
 

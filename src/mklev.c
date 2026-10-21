@@ -1321,6 +1321,7 @@ makelevel(void)
     }
     level_status_init();
     level_status.making = 1;
+    gw.whitelist_shk |= 0x02;
 
     oinit(); /* assign level dependent obj probabilities */
     clear_level_structures();
@@ -1491,6 +1492,7 @@ makelevel(void)
     }
     /* apply the biome again, since it's clobbered by the level coder */
     apply_biome_to_level();
+    gw.whitelist_shk &= ~0x02;
     level_status.making = 0, level_status.ready = 1;
 }
 

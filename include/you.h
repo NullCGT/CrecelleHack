@@ -159,7 +159,8 @@ enum achivements {
     ACH_PYRO = 35, /* indirectly slay a monster with a bonfire */
     ACH_LOST_BOOT = 36, /* get your boots removed by honey */
     ACH_BPEEL = 37, /* slip on a banana peel */
-    N_ACH = 38     /* allocate room for 63 plus a slot for 0 terminator */
+    ACH_SHORTCUT = 38, /* opened a shortcut */
+    N_ACH = 39     /* allocate room for 63 plus a slot for 0 terminator */
 };
     /*
      * Other potential achievements to track (this comment briefly resided

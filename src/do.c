@@ -2698,6 +2698,7 @@ open_shortcut()
         return;
     You("use %s to defeat the mechanism.", yobjnam(pick, (char *) 0));
     u.uevent.uopened_mines_shortcut = TRUE;
+    record_achievement(ACH_SHORTCUT);
     if (pick->otyp == YENDORIAN_LOCKSTONE) {
         useup(pick);
         makeknown(YENDORIAN_LOCKSTONE);

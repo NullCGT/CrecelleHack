@@ -597,6 +597,9 @@ encode_extended_achievements(char *buf)
         case ACH_BPEEL:
             achievement = "banana_peel";
             break;
+        case ACH_SHORTCUT:
+            achievement = "shortcut";
+            break;
         default:
             continue;
         }

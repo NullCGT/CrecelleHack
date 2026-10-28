@@ -106,6 +106,7 @@ static struct ll_achieve_msg achieve_msg [] = {
     { 0, "indirectly killed a monster with a bonfire" },
     { 0, "lost a pair of boots to honey" },
     { LL_MINORAC, "slipped on a banana peel" }, /* funny to livelog */
+    { LL_ACHIEVE, "unlocked a shortcut" },
     { 0, "" } /* keep this one at the end */
 };
 
@@ -2596,6 +2597,9 @@ show_achievements(
             break;
         case ACH_BPEEL:
             you_have_X("slipped on a banana peel");
+            break;
+        case ACH_SHORTCUT:
+            you_have_X("opened a shortcut");
             break;
         default:
             Sprintf(buf, " [Unexpected achievement #%d.]", achidx);

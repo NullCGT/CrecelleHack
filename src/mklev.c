@@ -1,4 +1,4 @@
-/* NetHack 5.0	mklev.c	$NHDT-Date: 1781973055 2026/06/20 16:30:55 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.207 $ */
+/* $NHDT-Header: NetHack 5.0 mklev.c 2026/10/18_15:05:36 NetHack-5.0:1.212 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Alex Smith, 2017. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -1321,7 +1321,7 @@ makelevel(void)
     }
     level_status_init();
     level_status.making = 1;
-    gw.whitelist_shk |= 0x02;
+    /* gw.whitelist_shk |= 0x02; */
 
     oinit(); /* assign level dependent obj probabilities */
     clear_level_structures();
@@ -1492,7 +1492,7 @@ makelevel(void)
     }
     /* apply the biome again, since it's clobbered by the level coder */
     apply_biome_to_level();
-    gw.whitelist_shk &= ~0x02;
+    /* gw.whitelist_shk &= ~0x02; */
     level_status.making = 0, level_status.ready = 1;
 }
 

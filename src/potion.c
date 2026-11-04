@@ -110,6 +110,10 @@ make_confused(long xtime, boolean talk)
         if (talk)
             You_feel("less %s now.", Hallucination ? "trippy" : "confused");
     }
+    if (xtime && !old && Race_if(PM_DWARF)) {
+        (void) handle_tip(TIP_DWARF_CONFUSION);
+        You("go berserk!");
+    }
     if ((xtime && !old) || (!xtime && old))
         disp.botl = TRUE;
 

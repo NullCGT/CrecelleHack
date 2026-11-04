@@ -4,6 +4,14 @@
 - Rogues now begin the game with a master key instead of lockpicks, allowing them
   to access shortcuts more easily than any other role.
 
+## Races
+- Dwarves
+  - Gold items and items made of precious metals (including coins) weigh less for
+    dwarves, but wood items weigh far more. This reduction is particularly intense
+    for gold.
+  - Recognize detect treasure, gold detection, and booze.
+  - Deal double damage while confused.
+
 ## Status Effects
 - Bleeding
   - Lose 1 hp per turn and shed blood on the ground. You cannot bleed out

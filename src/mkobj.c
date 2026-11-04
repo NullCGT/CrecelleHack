@@ -2174,7 +2174,7 @@ weight(struct obj *obj)
         return eaten_stat((int) obj->quan * wt, obj);
     } else if (obj->oclass == COIN_CLASS) {
         /* 5.0: always weigh at least 1 unit; used to yield 0 for 1..49 */
-        wt = (int) ((obj->quan + 50L) / 100L);
+        wt = (int) ((obj->quan + 50L) / (Race_if(PM_DWARF) ? 300L : 100L));
         return max(wt, 1);
     } else if (obj->otyp == HEAVY_IRON_BALL && obj->owt != 0) {
         return (int) obj->owt; /* kludge for "very" heavy iron ball */

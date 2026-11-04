@@ -18,6 +18,7 @@ enum nh_tips {
     TIP_GETPOS,      /* getpos/farlook */
     TIP_ORDER,       /* order pets */
     TIP_INEFFECTIVE, /* ineffective weapon */
+    TIP_DWARF_CONFUSION, /* dwarf damage bonus */
 
     NUM_TIPS
 };

@@ -1999,6 +1999,10 @@ hmon_hitmon(
         maybe_knockback = TRUE;
     }
 
+    /* Dwarves do double damage while confused */
+    if (Race_if(PM_DWARF) && Confusion)
+        hmd.dmg *= 2;
+
     /* Damage boosts for weapon skills */
     if (hmd.flaying) {
         hmd.dmg *= 2;

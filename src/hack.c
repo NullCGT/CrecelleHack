@@ -1891,6 +1891,9 @@ handle_tip(int tip)
         case TIP_INEFFECTIVE:
             pline("(Tip: some types of damage are ineffective against certain monsters.)");
             break;
+        case TIP_DWARF_CONFUSION:
+            pline("(Tip: dwarves deal double damage when confused.)");
+            break;
         default:
             impossible("Unknown tip in handle_tip(%i)", tip);
             break;
@@ -4467,7 +4470,7 @@ inv_weight(void)
 
     while (otmp) {
         if (otmp->oclass == COIN_CLASS)
-            wt += (int) (((long) otmp->quan + 50L) / 100L);
+            wt += (int) (((long) otmp->quan + 50L) / (Race_if(PM_DWARF) ? 300L : 100L));
         else if (otmp->otyp != BOULDER || !throws_rocks(gy.youmonst.data))
             wt += otmp->owt;
         otmp = otmp->nobj;

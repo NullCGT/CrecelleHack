@@ -2189,6 +2189,17 @@ role_init(void)
         gu.urole.questarti = roles[flags.rogvictim].questarti;
     }
 
+    /* If a dwarf, precious metals weigh less but wood weighs
+       significantly more. */
+    if (Race_if(PM_DWARF)) {
+        for (int i = IRON; i < PLASTIC; i++) {
+            materials[i].density -= 10;
+        }
+        materials[GOLD].density = 40;
+        materials[WOOD].density = 50;
+        materials[BLEAKWOOD].density = 80;
+    }
+
     /* Fix up the quest guardians */
     if (gu.urole.guardnum != NON_PM) {
         pm = &mons[gu.urole.guardnum];

@@ -926,6 +926,11 @@ u_init_race(void)
         knows_object(DWARVISH_CHAIN_MAIL, FALSE);
         knows_object(DWARVISH_CLOAK, FALSE);
         knows_object(DWARVISH_ROUNDSHIELD, FALSE);
+        /* Recognize things that help with finding gold */
+        knows_object(SCR_GOLD_DETECTION, FALSE);
+        knows_object(SPE_DETECT_TREASURE, FALSE);
+        /* Dwarves love booze */
+        knows_object(POT_BOOZE, FALSE);
         break;
 
     case PM_KOBOLD:

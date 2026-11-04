@@ -668,11 +668,14 @@ mcast_sleep_you(void)
 staticfn int
 mcast_blood_spear(struct monst *mtmp)
 {
+    int dmg = d(8, 8);
     pline("The blood on the %s springs to life and %s you!",
                 surface(u.ux, u.uy),
                 (mtmp->data == &mons[PM_VLAD_THE_IMPALER]) ? "impales" : "stabs");
     remove_coating(u.ux, u.uy, COAT_BLOOD);
-    return d(10, 10);
+    if (Half_physical_damage)
+        dmg = (dmg + 1) / 2;
+    return dmg;
 }
 
 staticfn int
@@ -1276,8 +1279,13 @@ spell_would_be_useless(struct monst *mtmp, int spellnum)
             && ff->glyph == S_force_field))
             return TRUE;
         break;
-    case MCAST_BLOOD_SPEAR:
+    
     case MCAST_BLOOD_BIND:
+        if (mtmp->data != &mons[PM_VLAD_THE_IMPALER])
+            return TRUE;
+        FALLTHROUGH;
+        /*FALLTHRU*/
+    case MCAST_BLOOD_SPEAR:
         if (!has_coating(u.ux, u.uy, COAT_BLOOD))
             return TRUE;
         break;

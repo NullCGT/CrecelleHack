@@ -1075,6 +1075,14 @@
         M1_CONCEAL | M1_ANIMAL | M1_NOHANDS | M1_OVIPAROUS | M1_CARNIVORE,
         M2_HOSTILE | M2_CLIMBER, 0, M4_BST_GRASS,
         0, 4, CLR_YELLOW, CENTIPEDE),
+    MON(NAM("sand spider"), S_SPIDER,
+        LVL(4, 14, 4, 0, 0), (G_GENO | 1),
+        A(ATTK(AT_BITE, AD_DRDX, 2, 3),
+          NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(200, 100, MS_SILENT, MZ_LARGE), MR_POISON, MR_POISON,
+        M1_ANIMAL | M1_NOHANDS | M1_OVIPAROUS | M1_POIS | M1_CARNIVORE | M1_CONCEAL,
+        M2_HOSTILE | M2_STRONG | M2_CLIMBER, 0, M4_BST_SAND,
+        0, 7, CLR_ORANGE, SAND_SPIDER),
     MON(NAM("giant spider"), S_SPIDER,
         LVL(5, 15, 4, 0, 0), (G_GENO | 1),
         A(ATTK(AT_BITE, AD_DRST, 2, 4),
@@ -1090,7 +1098,7 @@
         SIZ(50, 100, MS_SILENT, MZ_SMALL), MR_POISON, MR_POISON,
         M1_CONCEAL | M1_ANIMAL | M1_NOHANDS | M1_OVIPAROUS | M1_POIS
             | M1_CARNIVORE,
-        M2_HOSTILE, 0, M4_BST_MUD,
+        M2_HOSTILE, 0, M4_BST_SAND,
         0, 8, CLR_RED, SCORPION),
     /*
      * trappers, lurkers, &c

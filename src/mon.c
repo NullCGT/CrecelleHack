@@ -869,7 +869,7 @@ make_corpse(struct monst *mtmp, unsigned int corpseflags)
 
     case PM_ROCK_MOLE: case PM_WOODCHUCK:
     case PM_MUSTELID: case PM_GIANT_MUSTELID: case PM_RAT_RULER:
-    case PM_CAVE_SPIDER: case PM_CENTIPEDE: case PM_GIANT_SPIDER:
+    case PM_CAVE_SPIDER: case PM_CENTIPEDE: case PM_SAND_SPIDER: case PM_GIANT_SPIDER:
     case PM_SCORPION:
     case PM_LURKER_ABOVE: case PM_TRAPPER: case PM_SPANNER:
     case PM_PONY: case PM_HORSE: case PM_WARHORSE:
@@ -940,7 +940,8 @@ make_corpse(struct monst *mtmp, unsigned int corpseflags)
     case PM_XORN: case PM_MONKEY: case PM_APE: case PM_SKUNK_APE: case PM_OWLBEAR:
     case PM_YETI: case PM_CARNIVOROUS_APE: case PM_SASQUATCH:
 
-    case PM_FROST: case PM_WASTE_WALKER: case PM_MOLDERING_HUSK: case PM_GHOUL: case PM_SKELETON:
+    case PM_FROST: case PM_WASTE_WALKER: case PM_MOLDERING_HUSK: case PM_GHOUL:
+    case PM_GHAST: case PM_SKELETON:
 
     case PM_STRAW_GOLEM: case PM_FLESH_GOLEM:
     case PM_SAND_GOLEM:

@@ -42,12 +42,12 @@
   - Known issue: does not occur with monsters exploded outside the player's turn.
 - Recolored dwarf zombies to account for ghasts.
 - New monsters:
-  - Added a number of zombies to allow for greater variation in temple of moloch
-    depending on biome:
+  - Added a number of monsters to allow for greater biome variations.
     - Ghast (Z): as it appears in many other variants, but can inflict bleeding wounds.
                  Only spawns in grassy biomes.
     - Frost (Z): Icy zombie that has a cold-based gaze attack. Only spawns in cold biomes.
     - Scorch (Z): Hot zombie that has a fire-based gaze attack. Only spawns in sandy biomes.
+    - Sand Spider (s).
 
 ## Dungeon
 - Shopkeeper Services

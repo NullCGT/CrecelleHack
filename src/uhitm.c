@@ -5804,7 +5804,7 @@ mhitm_knockback(
         return FALSE;
 
     /* attacker must be much larger than defender */
-    if (!is_knockback_weapon(wep) && !(magr->data->msize > (mdef->data->msize + 1)))
+    if (!(wep && is_knockback_weapon(wep)) && !(magr->data->msize > (mdef->data->msize + 1)))
         return FALSE;
     /* no knockback with a flimsy or non-blunt weapon */
     if (wep && (is_flimsy(wep) || !(is_blunt_weapon(wep) || is_knockback_weapon(wep))))

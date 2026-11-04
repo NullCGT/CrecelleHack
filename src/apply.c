@@ -4947,6 +4947,10 @@ bagowinds(
 staticfn int
 swap_stance(struct obj *obj)
 {
+    if (obj != uwep && obj != uswapwep) {
+        You("must wield this weapon to change stances.");
+        return ECMD_CANCEL;
+    }
     obj->altmode++;
     if (obj->altmode >= STANCE_MAX)
         obj->altmode = 0;

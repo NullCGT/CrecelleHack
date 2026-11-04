@@ -1098,6 +1098,10 @@ mon_wield_item(struct monst *mon)
                 force_material(obj, mon->mnum);
             }
         }
+        /* Stance weapons randomize to a random stance */
+        if (is_stance_weapon(obj))
+            obj->altmode = rn2(STANCE_MAX);
+
         obj->owornmask = W_WEP;
         return 1;
     }

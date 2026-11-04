@@ -1311,7 +1311,7 @@ dotrip(void)
 {
     coordxy x, y;
     boolean no_trip = FALSE;
-    struct obj *trip_wep = (uwep && is_tripweapon(uwep)) ? uwep : NULL;
+    struct obj *trip_wep = (uwep && weapon_trips(uwep)) ? uwep : NULL;
     struct monst *target;
 
     if (Hallucination) {

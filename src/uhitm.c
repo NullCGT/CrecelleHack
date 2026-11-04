@@ -69,6 +69,8 @@ staticfn boolean mhurtle_to_doom(struct monst *, int,
                              struct permonst **) NONNULLARG13;
 staticfn void first_weapon_hit(struct obj *) NONNULLARG1;
 staticfn boolean shade_aware(struct obj *) NO_NNARGS;
+staticfn void loosen_armor(struct monst *);
+staticfn boolean hitum_skewer(struct monst *, struct attack *) NO_NNARGS;
 
 #define PROJECTILE(obj) ((obj) && is_ammo(obj))
 
@@ -458,6 +460,7 @@ boolean
 do_attack(struct monst *mtmp)
 {
     struct permonst *mdat = mtmp->data;
+    struct obj *mwep = MON_WEP(mtmp);
 
     /* This section of code provides protection against accidentally
      * hitting peaceful (like '@') and tame (like 'd') monsters.
@@ -572,6 +575,17 @@ do_attack(struct monst *mtmp)
             || mtmp->my != u.uy + u.dy)) { /* it moved */
         You("miss wildly and stumble forwards.");
         return FALSE;
+    }
+
+    /* parrying weapons can parry an attack and end it early */
+    if (mwep && is_parrying_weapon(mwep)
+        && mtmp->mcansee && !mtmp->mconf && !mtmp->mfrozen
+        && !helpless(mtmp) && uwep && is_sword(uwep)
+        && !mtmp->mtrapped && !mtmp->mprone
+        && weapon_skill_activation(mtmp, mwep)) {
+        pline("%s parries your blade with %s %s!",
+              Monnam(mtmp), mhis(mtmp), xname(mwep));
+        goto atk_done;
     }
 
     if (Upolyd)
@@ -723,7 +737,7 @@ hitum_cleave(
         if (!isok(tx, ty))
             continue;
         mtmp = m_at(tx, ty);
-        if (!mtmp) {
+        if (!mtmp || (u_wield_art(ART_CLEAVER) && mtmp->mpeaceful)) {
             if (glyph_is_invisible(levl[tx][ty].glyph))
                 (void) unmap_invisible(tx, ty);
             continue;
@@ -795,12 +809,20 @@ hitum(struct monst *mon, struct attack *uattk)
        cleave return value reflects status of primary target ('mon') */
     /* Had to modify this code to account for if cleaver fuzzes into a
        dual axe. */
-    if (u_wield_art(ART_CLEAVER) && !u.twoweap
-        && !u.uswallow && !u.ustuck && !NODIAG(u.umonnum)) {
+    if ((u_wield_art(ART_CLEAVER)
+            || (is_cleaving_weapon(uwep) && weapon_skill_activation(&gy.youmonst, uwep)))
+        && !u.twoweap && !u.uswallow && !u.ustuck && !NODIAG(u.umonnum)) {
         ret = hitum_cleave(mon, uattk);
         if (ret && u.dualweap)
             ret = hitum_cleave(mon, uattk);
         return ret;
+    }
+
+    /* Spears can skewer opponents */
+    if (is_skewering_weapon(uwep) && !u.twoweap
+        && !u.uswallow
+        && weapon_skill_activation(&gy.youmonst, uwep)) {
+        return hitum_skewer(mon, uattk);
     }
 
     /* 0: single hit, 1: first of two hits; affects strength bonus and
@@ -971,7 +993,8 @@ backstabbable(struct monst *mon)
         && mon->data->mlet != S_EYE
         && mon->data->mlet != S_FUNGUS
         && canseemon(mon)
-        && (mon->mflee || helpless(mon));
+        && (mon->mflee || helpless(mon) || mon->mtrapped
+            || mon->mstun || mon->mconf || !(mon->mcansee));
 }
 
 staticfn void
@@ -999,7 +1022,8 @@ hmon_hitmon_weapon_melee(
     if (!hmd->train_weapon_skill || mon == u.ustuck || u.twoweap
         /* Cleaver can hit up to three targets at once so don't
            let it also hit from behind or shatter foes' weapons */
-        || (hmd->hand_to_hand && is_art(obj, ART_CLEAVER))) {
+        || (hmd->hand_to_hand && is_art(obj, ART_CLEAVER))
+        || (hmd->hand_to_hand && is_cleaving_weapon(obj))) {
         ; /* no special bonuses */
     } else if (Role_if(PM_ROGUE) && backstabbable(mon) && !Upolyd
                /* multi-shot throwing is too powerful here */
@@ -1109,6 +1133,31 @@ hmon_hitmon_weapon_melee(
     /* permapoisoned is non-ammo/missile, limit the poison */
     if (permapoisoned(obj) && hmd->dieroll <= 5)
         hmd->ispoisoned = TRUE;
+    /* weapon skills */
+    if (is_bleeding_weapon(obj)
+        && weapon_skill_activation(&gy.youmonst, obj))
+        hmd->bleeder = TRUE;
+    if (is_flaying_weapon(obj) && mon->mbleeding
+        && weapon_skill_activation(&gy.youmonst, obj))
+        hmd->flaying = TRUE;
+    if (is_backstab_weapon(obj) && backstabbable(mon)
+        && weapon_skill_activation(&gy.youmonst, obj))
+        hmd->dmg *= 2;
+    if (is_otg_weapon(obj)
+        && weapon_skill_activation(&gy.youmonst, obj))
+        hmd->otg = TRUE;
+    if (is_knockdown_weapon(obj)
+        && weapon_skill_activation(&gy.youmonst, obj))
+        hmd->knockdown = TRUE;
+    if (is_loosening_weapon(obj)
+        && weapon_skill_activation(&gy.youmonst, obj))
+        loosen_armor(mon);
+    if (is_stunning_weapon(obj)
+        && weapon_skill_activation(&gy.youmonst, obj) && !rn2(3))
+        hmd->stunning = TRUE;
+    if (is_lowhp_weapon(obj) && ((u.uhp * 2) <= u.uhpmax)
+        && weapon_skill_activation(&gy.youmonst, obj))
+        hmd->lowhp = TRUE;
 }
 
 staticfn void
@@ -1892,6 +1941,12 @@ hmon_hitmon(
     hmd.hand_to_hand = (thrown == HMON_MELEE
                         /* not grapnels; applied implies uwep */
                         || (thrown == HMON_APPLIED && is_pole(uwep)));
+    hmd.bleeder = FALSE;
+    hmd.flaying = FALSE;
+    hmd.otg = FALSE;
+    hmd.knockdown = FALSE;
+    hmd.stunning = FALSE;
+    hmd.lowhp = FALSE;
     hmd.ispoisoned = FALSE;
     hmd.unpoisonmsg = FALSE;
     hmd.needpoismsg = FALSE;
@@ -1944,6 +1999,15 @@ hmon_hitmon(
         maybe_knockback = TRUE;
     }
 
+    /* Damage boosts for weapon skills */
+    if (hmd.flaying) {
+        hmd.dmg *= 2;
+        mon->mbleeding = FALSE;
+    }
+    if (hmd.otg || hmd.lowhp) {
+        hmd.dmg *= 2;
+    }
+
     if (!hmd.already_killed) {
         if (obj && (obj == uwep || (obj == uswapwep && u.twoweap))
             /* known_hitum 'what counts as a weapon' criteria */
@@ -1986,6 +2050,34 @@ hmon_hitmon(
         assert(obj != NULL);
         dry_a_towel(obj, -1, TRUE);
     }
+
+    /* Messages and non-hp effects for weapon skills */
+    if (hmd.flaying) {
+        /* damage already factored in, just need message. */
+        You("flay %s!", mon_nam(mon));
+    }
+    if (hmd.otg) {
+        if (Hallucination)
+            pline("OTG!");
+        else 
+            You("squash %s!", mon_nam(mon));
+    }
+    if (hmd.bleeder && !hmd.destroyed) {
+        if (!mon->mbleeding && canseemon(mon))
+            pline_mon(mon, "%s starts bleeding.", Monnam(mon));
+        make_mbleeding(mon);
+    }
+    if (hmd.knockdown && !hmd.destroyed) {
+        make_mon_prone(mon, FALSE);
+    }
+    if (hmd.stunning && !hmd.destroyed) {
+        mon->mstun = 1;
+        pline("%s is stunned!", Monnam(mon));
+    }
+    if (hmd.lowhp) {
+        pline("%s!", Yobjnam2(obj, "flare"));
+    }
+    /* End of weapon skills */
 
     if (hmd.hatedmsg)
         hmon_hitmon_msg_hated(&hmd, mon, obj);
@@ -3101,7 +3193,7 @@ mhitm_ad_bled(
 {
     if (magr == &gy.youmonst) {
         hitmsg(magr, mattk);
-        if (!rnd(4))
+        if (!rn2(4))
             make_mbleeding(mdef);
     } else if (mdef == &gy.youmonst) {
         hitmsg(magr, mattk);
@@ -3114,11 +3206,11 @@ mhitm_ad_bled(
                 pline("Blood blood blood!");
             else
                 You("have been given a bleeding wound.");
-            make_bleeding(max(mhm->damage, rn1(2, 3)), FALSE);
+            make_bleeding(rn1(mhm->damage, 3), FALSE);
         }
     } else {
         hitmsg(magr, mattk);
-        if (!rnd(4))
+        if (!rn2(3))
             make_mbleeding(mdef);
     }
 }
@@ -4428,6 +4520,38 @@ mhitm_ad_phys(
                     poisoned(buf, A_STR, pmname(magr->data, Mgender(magr)),
                              10, FALSE);
                 }
+                if (is_flaying_weapon(otmp) && Bleeding
+                    && weapon_skill_activation(magr, otmp)) {
+                    pline("%s flays you!", Monnam(magr));
+                    mhm->damage *= 2;
+                    make_bleeding(0L, FALSE);
+                }
+                if (is_bleeding_weapon(otmp) && weapon_skill_activation(magr, otmp)) {
+                    make_bleeding(rn1(mhm->damage, 3), TRUE);
+                }
+                if (is_otg_weapon(otmp) && Prone
+                    && weapon_skill_activation(magr, otmp)) {
+                    pline("%s squashes you!", Monnam(magr));
+                    mhm->damage *= 2;
+                }
+                if (is_knockdown_weapon(otmp)
+                    && weapon_skill_activation(magr, otmp)) {
+                    make_prone(FALSE);
+                }
+                if (is_loosening_weapon(otmp)
+                    && weapon_skill_activation(magr, otmp)) {
+                    loosen_armor(&gy.youmonst);
+                }
+                if (is_stunning_weapon(otmp)
+                    && weapon_skill_activation(magr, otmp)
+                    && !rn2(3)) {
+                    make_stunned((HStun & TIMEOUT) + 6L, FALSE);
+                }
+                if (is_lowhp_weapon(otmp) && ((magr->mhp * 2) < magr->mhpmax)
+                    && weapon_skill_activation(magr, otmp)) {
+                    pline("%s's %s flares!", Monnam(magr), xname(otmp));
+                    mhm->damage *= 2;
+                }
             } else if (mattk->aatyp != AT_TUCH || mhm->damage != 0
                        || magr != u.ustuck) {
                 hitmsg(magr, mattk);
@@ -4496,6 +4620,35 @@ mhitm_ad_phys(
                  * any special functions or go through tangled hmon_hitmon
                  * code, we can just jump straight to the poisoning. */
                 mhitm_really_poison(magr, mattk, mdef, mhm);
+            }
+            if (is_flaying_weapon(mwep) && mdef->mbleeding
+                && weapon_skill_activation(magr, mwep)) {
+                mhm->damage *= 2;
+                mdef->mbleeding= 0;
+            }
+            if (is_otg_weapon(mwep) && mdef->mprone
+                && weapon_skill_activation(magr, mwep)) {
+                mhm->damage *= 2;
+            }
+            if (is_bleeding_weapon(mwep)
+                && weapon_skill_activation(magr, mwep)) {
+                make_mbleeding(mdef);
+            }
+            if (is_knockdown_weapon(mwep)
+                && weapon_skill_activation(magr, mwep)) {
+                make_mon_prone(mdef, FALSE);
+            }
+            if (is_loosening_weapon(mwep)
+                && weapon_skill_activation(magr, mwep)){
+                loosen_armor(mdef);
+            }
+            if (is_stunning_weapon(mwep)
+                && weapon_skill_activation(magr, mwep) && !rn2(3)) {
+                mdef->mstun = 1;
+            }
+            if (is_lowhp_weapon(mwep) && ((magr->mhp * 2) < magr->mhpmax)
+                    && weapon_skill_activation(magr, mwep)) {
+                mhm->damage *= 2;
             }
         } else if (pa == &mons[PM_PURPLE_WORM] && pd == &mons[PM_SHRIEKER]) {
             /* hack to enhance mm_aggression(); we don't want purple
@@ -5587,6 +5740,10 @@ mhitm_knockback(
     if (wep && is_art(wep, ART_OGRESMASHER))
         chance = 2;
 
+    if (wep && is_knockback_weapon(wep)
+        && weapon_skill_activation(magr, wep))
+        chance = 3;
+
     if (rn2(chance))
         return FALSE;
 
@@ -5643,10 +5800,10 @@ mhitm_knockback(
         return FALSE;
 
     /* attacker must be much larger than defender */
-    if (!(magr->data->msize > (mdef->data->msize + 1)))
+    if (!is_knockback_weapon(wep) && !(magr->data->msize > (mdef->data->msize + 1)))
         return FALSE;
     /* no knockback with a flimsy or non-blunt weapon */
-    if (wep && (is_flimsy(wep) || !is_blunt_weapon(wep)))
+    if (wep && (is_flimsy(wep) || !(is_blunt_weapon(wep) || is_knockback_weapon(wep))))
         return FALSE;
 
     /* needs a solid physical hit */
@@ -6927,6 +7084,116 @@ spread_mold(coordxy x, coordxy y, struct permonst *mold)
         enexto(&cc, x, y, &mons[PM_EARTH_ELEMENTAL]);
         add_coating(cc.x, cc.y, COAT_FUNGUS, mold->pmidx);
     }
+}
+
+/* unwear some armor due to a powerful blow by a pick */
+void
+loosen_armor(struct monst *mdef)
+{
+    struct obj *otmp = some_armor(mdef);
+    if (!otmp)
+        return;
+    if (mdef == &gy.youmonst) {
+        remove_worn_item(otmp, TRUE);
+        pline("The blow loosens your %s.", xname(otmp));
+    } else {
+        if (DEADMONSTER(mdef))
+            return;
+        setmnotwielded(mdef, otmp);
+        if (canseemon(mdef))
+            pline("The blow loosens %s's %s.", mon_nam(mdef), xname(otmp));
+    }
+}
+
+/* False if the primary target is killed, True otherwise. This is a heavily edited
+   version of hitum_cleave. */
+staticfn boolean
+hitum_skewer(
+    struct monst *target,
+    struct attack *uattk) 
+{
+    int i = xytodir(u.dx, u.dy);
+    int count, x = u.ux, y = u.uy;
+    int maxcount = ((uwep->otyp == LONGSPEAR) ? 4 : 3);
+    int umort = u.umortality; 
+    coord save_bhitpos = gb.bhitpos;
+    boolean save_notonhead = gn.notonhead;
+
+    for (count = 0; count < maxcount; ++count) {
+        struct monst *mtmp;
+        int tx, ty, tmp, dieroll, mhit, attknum = 0, armorpenalty;
+
+        tx = x + (count * xdir[i]), ty = y + (count * ydir[i]);
+        if (!isok(tx, ty) || IS_OBSTRUCTED(levl[tx][ty].typ))
+            break;
+        mtmp = m_at(tx, ty);
+        if (!mtmp || mtmp->mpeaceful) {
+            if (glyph_is_invisible(levl[tx][ty].glyph))
+                (void) unmap_invisible(tx, ty);
+            continue;
+        }
+
+        tmp = find_roll_to_hit(mtmp, uattk->aatyp, uwep,
+                               &attknum, &armorpenalty);
+        mon_maybe_unparalyze(mtmp);
+        dieroll = rnd(20);
+        mhit = (tmp > dieroll);
+        gb.bhitpos.x = tx, gb.bhitpos.y = ty;
+        gn.notonhead = (mtmp->mx != tx || mtmp->my != ty);
+        (void) known_hitum(mtmp, uwep, &mhit, tmp, armorpenalty,
+                           uattk, dieroll);
+        (void) passive(mtmp, uwep, mhit, !DEADMONSTER(mtmp), AT_WEAP, !uwep);
+        if (!uwep || gm.multi < 0 || u.umortality > umort)
+            break;
+    }
+    gb.bhitpos = save_bhitpos;
+    gn.notonhead = save_notonhead;
+    return (target && DEADMONSTER(target)) ? FALSE : TRUE;
+}
+
+/* return the approximate skill a mon has with a given weapon */
+int
+mon_weapon_skill(struct monst *mon, struct obj *obj)
+{
+    int skill_rating = P_UNSKILLED;
+    if (is_minion(mon->data) || is_prince(mon->data))
+        skill_rating = P_EXPERT;
+    else if (is_ndemon(mon->data) || is_lord(mon->data))
+        skill_rating = P_SKILLED;
+    else
+        skill_rating = P_UNSKILLED;
+    if ((is_mercenary(mon->data)
+            || (is_dwarf(mon->data) && is_dwarvish_obj(obj))
+            || (is_orc(mon->data) && is_orcish_obj(obj))
+            || (is_elf(mon->data) && is_elven_weapon(obj)))
+         && skill_rating < P_EXPERT)
+        skill_rating += 1;
+    return skill_rating;
+}
+
+/* decide whether or not a weapon skill activates. based on the joust() code */
+boolean
+weapon_skill_activation(struct monst *mon, struct obj *obj)
+{
+    int skill_rating;
+    int weptype = weapon_type(obj);
+    if (mon == &gy.youmonst) {
+        skill_rating = P_SKILL(weptype);
+        if (u.twoweap && P_SKILL(P_TWO_WEAPON_COMBAT) < skill_rating)
+            skill_rating = P_SKILL(P_TWO_WEAPON_COMBAT);
+        if (skill_rating == P_ISRESTRICTED)
+            skill_rating = P_UNSKILLED;
+    } else {
+        skill_rating = mon_weapon_skill(mon, obj);
+    }
+
+    /* stance weapons have a reduced chance of activating */
+    if (is_stance_weapon(obj) && !rn2(2))
+        return 0;
+
+    if (rn2(5) < skill_rating)
+        return 1;
+    return 0;
 }
 
 /*uhitm.c*/

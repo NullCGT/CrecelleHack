@@ -412,6 +412,13 @@ mattackm(
                     mswingsm(magr, mdef, mwep);
                 tmp += hitval(mwep, mdef);
             }
+            if (mwep && is_parrying_weapon(mwep) && mdef->mcansee
+                && !mdef->mconf && !mdef->mfrozen
+                && !helpless(mdef) && MON_WEP(magr) && is_sword(MON_WEP(magr))
+                && !mdef->mtrapped && !mdef->mprone
+                && weapon_skill_activation(mdef, mwep)) {
+                return M_ATTK_MISS;
+            }
             FALLTHROUGH;
             /*FALLTHRU*/
         case AT_CLAW:

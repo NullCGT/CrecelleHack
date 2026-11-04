@@ -2165,6 +2165,15 @@ thitmonst(
         }
     }
 
+    /* monsters can potentially deflect items if they have a broadsword. */
+    if (MON_WEP(mon) && is_deflecting_weapon(MON_WEP(mon))
+        && !helpless(mon) && !mon->mconf && !mon->mstun && mon->mcansee
+        && weapon_skill_activation(mon, MON_WEP(mon))) {
+        if (flags.verbose && canseemon(mon))
+            pline("%s deflects %s.", Monnam(mon), the(xname(obj)));
+        return 0;
+    }
+
     /* don't make game unwinnable if naive player throws artifact
        at leader... (kicked artifact is ok too; HMON_APPLIED could
        occur if quest artifact polearm or grapnel ever gets added) */

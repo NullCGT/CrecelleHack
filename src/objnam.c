@@ -896,13 +896,11 @@ xname_flags(
                 if (typ == POT_WATER && bknown
                     && (obj->blessed || obj->cursed)) {
                     Strcat(buf, obj->blessed ? "holy " : "unholy ");
-                }
-                if (typ == POT_BLOOD && (obj->cknown || iflags.override_ID)
+                } else if (typ == POT_BLOOD && (obj->cknown || iflags.override_ID)
                     && ismnum(obj->corpsenm)) {
                     Strcat(buf, mons[omndx].pmnames[NEUTRAL]);
                     Strcat(buf, " ");
-                }
-                if (typ == POT_DYE && (obj->dknown || iflags.override_ID)
+                } else if (typ == POT_DYE && (obj->dknown || iflags.override_ID)
                     && has_odye(obj)) {
                     Strcat(buf, dye_to_name(obj));
                     Strcat(buf, " ");

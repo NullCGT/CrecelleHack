@@ -58,6 +58,7 @@ staticfn boolean is_valid_jump_pos(coordxy, coordxy, int, boolean);
 staticfn boolean get_valid_jump_position(coordxy, coordxy);
 staticfn boolean get_valid_polearm_position(coordxy, coordxy);
 staticfn boolean find_poleable_mon(coord *);
+staticfn int swap_stance(struct obj *);
 
 static const char
     no_elbow_room[] = "don't have enough elbow-room to maneuver.";
@@ -4518,6 +4519,9 @@ apply_ok(struct obj *obj)
         return GETOBJ_SUGGEST;
     }
 
+    if (is_stance_weapon(obj))
+        return GETOBJ_SUGGEST;
+
     /* item can't be applied; if picked anyway,
        _EXCLUDE would yield "That is a silly thing to apply.",
        _EXCLUDE_SELECTABLE yields "Sorry, I don't know how to use that." */
@@ -4554,6 +4558,9 @@ doapply(void)
 
     if (obj->oclass == COIN_CLASS)
         return flip_coin(obj);
+
+    if (is_stance_weapon(obj))
+        return swap_stance(obj);
 
     switch (obj->otyp) {
     case BLINDFOLD:
@@ -4935,6 +4942,28 @@ bagowinds(
         return FALSE;
     }
     return TRUE;
+}
+
+staticfn int
+swap_stance(struct obj *obj)
+{
+    obj->altmode++;
+    if (obj->altmode >= STANCE_MAX)
+        obj->altmode = 0;
+    switch (obj->altmode) {
+    case STANCE_DEFLECT:
+        You("switch to a deflecting stance with your %s.", xname(obj));
+        break;
+    case STANCE_PARRY:
+        You("switch to a parrying stance with your %s.", xname(obj));
+        break;
+    case STANCE_BLEED:
+        You("switch to an offensive stance with your %s.", xname(obj));
+        break;
+    default:
+        panic("Illegal stance %d?", obj->altmode);
+    }
+    return ECMD_TIME;
 }
 
 /*apply.c*/

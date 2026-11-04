@@ -16,15 +16,23 @@
     reducing fun.
 
 ## Objects
+- All weapons now have some sort of special functionality (documented in the tutorial
+  and in weapon descriptions). The chance of this ability activating is dependent
+  upon skill level with the weapon.
+- Cleaver no longer hits peaceful monsters.
 - Harmonic boots worn by monsters now function as they would for players.
 - Hammers have a chance of "splattering" monsters, covering the environment
   in monster blood.
-- Master key
+- New Object: Master key
   - Never breaks, opens any lock.
   - Can be used to unlock shortcuts.
 - Yendorian lockstone
   - Can be used to unlock shortcuts.
   - One is found in the temple to moloch.
+- New Object: Longspear
+  - Unlike a regular spear, it may hit three foes in a row.
+- New Object: Greatclub
+  - Two-handed club that deals greater damage.
 
 ## Monsters
 - Iron golems drip oil occasionally.
@@ -58,6 +66,8 @@
 
 ## Balance
 - Object materials give more drastic adjustments to partial resistances.
+- Expand backstababble monsters to match xnethack: fleeing, trapped, immobilized,
+  sleeping, stunned, confused, or blinded
 
 # 1.6.1
 

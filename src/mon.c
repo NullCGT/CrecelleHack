@@ -3502,18 +3502,21 @@ corpse_chance(
 void
 mondied(struct monst *mdef)
 {
+    boolean do_splatter = FALSE;
     mondead(mdef);
     if (!DEADMONSTER(mdef))
         return; /* lifesaved */
 
     /* maybe leave behind some blood */
     if (!touch_petrifies(mdef->data)) {
-        shed_blood(mdef->data, mdef->mx, mdef->my, splatter_chance((struct monst *) 0));
+        do_splatter = splatter_chance((struct monst *) 0);
+        shed_blood(mdef->data, mdef->mx, mdef->my, do_splatter);
     }
 
     /* this assumes that the dead monster's map coordinates remain accurate */
     if (corpse_chance(mdef, (struct monst *) 0, FALSE)
-        && (accessible(mdef->mx, mdef->my) || is_pool(mdef->mx, mdef->my)))
+        && (accessible(mdef->mx, mdef->my) || is_pool(mdef->mx, mdef->my))
+        && !do_splatter)
         (void) make_corpse(mdef, CORPSTAT_NONE);
 }
 
@@ -3760,8 +3763,9 @@ xkilled(
             nomsg = (xkill_flags & XKILL_NOMSG) != 0,
             skeletonize = ((xkill_flags & XKILL_SKELETONIZE) != 0
                             && has_bones(mtmp->data)),
+            do_splatter= splatter_chance(&gy.youmonst),
             instagib = (xkill_flags & XKILL_INSTAGIB) != 0,
-            nocorpse = (xkill_flags & XKILL_NOCORPSE) != 0,
+            nocorpse = (do_splatter || (xkill_flags & XKILL_NOCORPSE) != 0),
             noconduct = (xkill_flags & XKILL_NOCONDUCT) != 0;
 
     /* potential pet message; always clear global flag */
@@ -3839,6 +3843,10 @@ xkilled(
     mdat = mtmp->data; /* note: mondead can change mtmp->data */
     mndx = monsndx(mdat);
 
+    /* maybe leave behind some blood */
+    if (!gs.stoned && !wasinside)
+        shed_blood(mdat, mtmp->mx, mtmp->my, do_splatter);
+
     if (gs.stoned) {
         gs.stoned = FALSE;
         goto cleanup;
@@ -3902,10 +3910,6 @@ xkilled(
                 && cadaver->where == OBJ_BURIED && !nomsg) {
                 pline("%s corpse ends up buried.", s_suffix(Monnam(mtmp)));
             }
-        }
-        /* maybe leave behind some blood */
-        if (!wasinside && !touch_petrifies(mtmp->data)) {
-            shed_blood(mtmp->data, mtmp->mx, mtmp->my, splatter_chance(&gy.youmonst));
         }
     }
 
@@ -6717,7 +6721,7 @@ splatter_chance(struct monst *magr)
         return FALSE;
 
     weapon = (is_u) ? uwep : MON_WEP(magr);
-    if (weapon && (objects[weapon->otyp].oc_skill == P_HAMMER)) {
+    if (weapon && is_pulping_weapon(weapon)) {
         ret += 20;
         if (is_u)
             ret += (P_SKILL(P_HAMMER) * 5);
@@ -6739,20 +6743,24 @@ splatter_chance(struct monst *magr)
 void
 make_bleeding(long xtime, boolean talk)
 {
-    long old = HDeaf;
+    long old = HBleeding;
 
     if (Unaware)
         talk = FALSE;
 
-    if (xtime == 0L)
+    if (xtime == 0L) {
         set_itimeout(&HBleeding, xtime);
-    else
+    } else {
         incr_itimeout(&HBleeding, xtime);
+        if (xtime > 0 && old && Bleeding)
+            pline("Your bleeding worsens.");
+    }
     if ((xtime != 0L) ^ (old != 0L)) {
         disp.botl = TRUE;
-        if (talk)
+        if (talk) {
             You(old && !Bleeding ? "stop bleeding."
                              : "start bleeding.");
+        }
     }
 }
 

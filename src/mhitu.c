@@ -769,12 +769,12 @@ mattacku(struct monst *mtmp)
 
     /* monster might attempt a trip to gain an advantage */
     if (!ranged && (is_tripper(mtmp->data) 
-          || (MON_WEP(mtmp) && is_tripweapon(MON_WEP(mtmp))))
+          || (MON_WEP(mtmp) && weapon_trips(MON_WEP(mtmp))))
         && !Prone && !Flying && !Levitation && !u.usteed
         && is_trippable(&gy.youmonst) && (u.uhp > mtmp->m_lev)
         && !rn2((10 - u.uac > mtmp->m_lev) ? 20 : 100)) {
         trip_monster(mtmp, &gy.youmonst,
-                    (MON_WEP(mtmp) && is_tripweapon(MON_WEP(mtmp)))
+                    (MON_WEP(mtmp) && weapon_trips(MON_WEP(mtmp)))
                         ? MON_WEP(mtmp) : (struct obj *) 0);
         return 0;
     }
@@ -971,6 +971,7 @@ mattacku(struct monst *mtmp)
                     thrwmu(mtmp);
             } else {
                 int hittmp = 0;
+                mon_currwep = MON_WEP(mtmp);
 
                 /* Rare but not impossible.  Normally the monster
                  * wields when 2 spaces away, but it can be
@@ -981,6 +982,13 @@ mattacku(struct monst *mtmp)
                     /* mon_wield_item resets weapon_check as appropriate */
                     if (mon_wield_item(mtmp) != 0)
                         break;
+                }
+                if (uwep && is_parrying_weapon(uwep) && canseemon(mtmp)
+                    && mon_currwep && is_sword(mon_currwep) && !Confusion
+                    && !Prone
+                    && weapon_skill_activation(&gy.youmonst, uwep)) {
+                    You("parry %s's blade with your %s.", mon_nam(mtmp), xname(uwep));
+                    break;
                 }
                 if (foundyou) {
                     mon_currwep = MON_WEP(mtmp);

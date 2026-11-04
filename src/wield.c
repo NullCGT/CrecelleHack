@@ -800,6 +800,8 @@ wield_tool(struct obj *obj,
         undualweapon();
     if (obj->oclass != WEAPON_CLASS)
         gu.unweapon = TRUE;
+    if (uwep && is_defensive_weapon(uwep))
+        find_ac();
     return TRUE;
 }
 
@@ -941,6 +943,8 @@ uwepgone(void)
             if (!Blind)
                 pline("%s shining.", Tobjnam(uwep, "stop"));
         }
+        if (is_defensive_weapon(uwep))
+            find_ac();
         u.dualweap = FALSE;
         setworn((struct obj *) 0, W_WEP);
         gu.unweapon = TRUE;

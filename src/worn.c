@@ -772,6 +772,8 @@ find_mac(struct monst *mon)
                 base -= (min(MZ_HUGE + 1, obj->osize) - mon->data->msize);
             /* since ARM_BONUS is positive, subtracting it increases AC */
         }
+        if ((MON_WEP(mon) == obj) && is_defensive_weapon(obj))
+            (base -= (2 + mon_weapon_skill(mon, obj)));
     }
     if (mon->mprone)
         base += 3;

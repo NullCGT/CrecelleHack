@@ -177,6 +177,7 @@ struct obj {
 #define spestudied usecount /* # of times a spellbook has been studied */
 #define wishedfor usecount  /* flag for hold_another_object() if from wish */
 #define gemtype usecount    /* index of the type of gemstone for gemstone items */
+#define altmode usecount    /* weapon in an alternate mode of some kind (stance, etc.) */
     unsigned oeaten;        /* nutrition left in food, if partly eaten */
     int oprop;              /* The oprop of the item */
     long age;               /* creation date */
@@ -293,7 +294,7 @@ struct obj {
                  || objects[(o)->otyp].oc_material == LODEN))   \
          && (o)->oclass != RING_CLASS)
 /* can be used for trip attempts */
-#define is_tripweapon(otmp) \
+#define weapon_trips(otmp) \
     ((otmp->oclass == WEAPON_CLASS || otmp->oclass == TOOL_CLASS) \
      && (objects[otmp->otyp].oc_skill == P_POLEARMS \
         || objects[otmp->otyp].oc_skill == P_WHIP \
@@ -485,6 +486,61 @@ struct obj {
     (humanoid(mptr) && (mptr)->msize >= MZ_SMALL && (mptr)->msize <= MZ_HUGE \
      && !noncorporeal(mptr) && (mptr)->mlet != S_CENTAUR                     \
      && (mptr) != &mons[PM_WINGED_GARGOYLE] && (mptr) != &mons[PM_MARILITH])
+
+/* weapon skills */
+/* Longsword stances */
+#define STANCE_DEFLECT 0
+#define STANCE_PARRY 1
+#define STANCE_BLEED 2
+#define STANCE_MAX 3
+
+#define is_bleeding_weapon(otmp)                 \
+    (otmp->oclass == WEAPON_CLASS                \
+     && (objects[otmp->otyp].oc_skill == P_KNIFE || otmp->altmode == STANCE_BLEED))
+#define is_pulping_weapon(otmp)                  \
+    (otmp->oclass == WEAPON_CLASS                \
+     && objects[otmp->otyp].oc_skill == P_HAMMER)
+#define is_flaying_weapon(otmp)                  \
+    (otmp->oclass == WEAPON_CLASS                \
+     && objects[otmp->otyp].oc_skill == P_SHORT_SWORD)
+#define is_backstab_weapon(otmp)                 \
+    (otmp->oclass == WEAPON_CLASS                \
+     && objects[otmp->otyp].oc_skill == P_DAGGER)
+#define is_otg_weapon(otmp)                      \
+    (otmp->oclass == WEAPON_CLASS                \
+     && objects[otmp->otyp].oc_skill == P_MACE)
+#define is_knockdown_weapon(otmp)                 \
+    ((otmp->oclass == WEAPON_CLASS                \
+      && objects[otmp->otyp].oc_skill == P_FLAIL) \
+      || otmp->otyp == SHEPHERD_S_CROOK)
+#define is_knockback_weapon(otmp)                 \
+    ((otmp->oclass == WEAPON_CLASS                \
+      && objects[otmp->otyp].oc_skill == P_TWO_HANDED_SWORD))
+#define is_defensive_weapon(otmp)                 \
+    (otmp->oclass == WEAPON_CLASS                 \
+     && objects[otmp->otyp].oc_skill == P_QUARTERSTAFF)
+#define is_skewering_weapon(otmp)                 \
+    (otmp->oclass == WEAPON_CLASS                 \
+     && objects[otmp->otyp].oc_skill == P_SPEAR)
+#define is_cleaving_weapon(otmp)                  \
+    (otmp->oclass == WEAPON_CLASS                 \
+     && objects[otmp->otyp].oc_skill == P_AXE)
+#define is_loosening_weapon(otmp)                 \
+    (is_weptool(otmp) && objects[otmp->otyp].oc_skill == P_PICK_AXE)
+#define is_parrying_weapon(otmp)                  \
+    (otmp->oclass == WEAPON_CLASS                 \
+     && (objects[otmp->otyp].oc_skill == P_SABER || otmp->altmode == STANCE_PARRY))
+#define is_stunning_weapon(otmp)                  \
+    (otmp->oclass == WEAPON_CLASS                 \
+     && objects[otmp->otyp].oc_skill == P_CLUB)
+#define is_lowhp_weapon(otmp)                     \
+    (is_weptool(otmp) && objects[otmp->otyp].oc_skill == P_UNICORN_HORN)
+#define is_deflecting_weapon(otmp)                \
+    (otmp->oclass == WEAPON_CLASS                 \
+     && (objects[otmp->otyp].oc_skill == P_BROAD_SWORD || otmp->altmode == STANCE_DEFLECT))
+#define is_stance_weapon(otmp)                    \
+    (otmp->oclass == WEAPON_CLASS                 \
+     && objects[otmp->otyp].oc_skill == P_LONG_SWORD)
 
 /* Flags for get_obj_location(). */
 #define CONTAINED_TOO 0x1

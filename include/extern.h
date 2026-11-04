@@ -3696,6 +3696,8 @@ extern int flash_hits_mon(struct monst *, struct obj *) NONNULLARG12;
 extern void light_hits_gremlin(struct monst *, int) NONNULLARG1;
 extern boolean oprop_effects_pre(struct monst *, struct monst *, struct obj *) NONNULLARG12;
 extern void spread_mold(coordxy x, coordxy y, struct permonst *);
+extern boolean weapon_skill_activation(struct monst *, struct obj *) NO_NNARGS;
+extern int mon_weapon_skill(struct monst *, struct obj *) NO_NNARGS;
 
 
 /* ### unixmain.c ### */

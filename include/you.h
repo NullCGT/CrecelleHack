@@ -631,6 +631,14 @@ struct _hitmon_data {
     boolean dryit;
     boolean doreturn;
     boolean retval;
+    /* weapon skills */
+    boolean bleeder;
+    boolean flaying;
+    boolean otg;
+    boolean knockdown;
+    boolean stunning;
+    boolean lowhp;
+    /* end of weapon skills */
     char saved_oname[BUFSZ];
 };
 

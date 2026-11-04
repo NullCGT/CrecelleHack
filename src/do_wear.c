@@ -2647,6 +2647,8 @@ find_ac(void)
         uac -= uright->spe;
     if (uamul && uamul->otyp == AMULET_OF_GUARDING)
         uac -= 2; /* fixed amount; main benefit is to MC */
+    if (uwep && is_defensive_weapon(uwep))
+        uac -= (2 + P_SKILL(objects[uwep->otyp].oc_skill));
 
     /* armor class from dexterity */
     if (!Prone)

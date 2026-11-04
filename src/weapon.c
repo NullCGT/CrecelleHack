@@ -849,11 +849,11 @@ monmightthrowwep(struct obj *obj)
 static const NEARDATA short hwep[] = {
     CORPSE, /* cockatrice corpse */
     TSURUGI, RUNESWORD, DWARVISH_MATTOCK, FALCHION, FLAMBERGE,
-    TWO_HANDED_SWORD, DUAL_AXE, BATTLE_AXE,
+    TWO_HANDED_SWORD, GREATCLUB, DUAL_AXE, BATTLE_AXE,
     KATANA, UNICORN_HORN, CRYSKNIFE, TRIDENT, LONG_SWORD, ELVEN_BROADSWORD,
     BROADSWORD, SCIMITAR, SABER, MORNING_STAR, ELVEN_SHORT_SWORD,
     DWARVISH_SHORT_SWORD, SHORT_SWORD, ORCISH_SHORT_SWORD, MACE, AXE,
-    DWARVISH_SPEAR, ELVEN_SPEAR, SPEAR, ORCISH_SPEAR, FLAIL,
+    DWARVISH_SPEAR, ELVEN_SPEAR, LONGSPEAR, SPEAR, ORCISH_SPEAR, FLAIL,
     BULLWHIP, SHEPHERD_S_CROOK, QUARTERSTAFF, JAVELIN, AKLYS, CLUB, PICK_AXE, RUBBER_HOSE,
     WAR_HAMMER, ELVEN_DAGGER, DAGGER, ORCISH_DAGGER, ATHAME,
     SCALPEL, KNIFE, WORM_TOOTH, ICICLE,
@@ -1372,6 +1372,8 @@ skill_advance(int skill)
        the Luck bias they used to have over other roles */
     if (skill >= P_FIRST_SPELL && skill <= P_LAST_SPELL)
         skill_based_spellbook_id();
+    /* could be using an AC-affecting weapon */
+    find_ac();
 }
 
 static const struct skill_range {
@@ -2029,7 +2031,8 @@ setmnotwielded(struct monst *mon, struct obj *obj)
     }
     if (MON_WEP(mon) == obj)
         MON_NOWEP(mon);
-    obj->owornmask &= ~W_WEP;
+    /* Just get rid of all of this - K */
+    obj->owornmask = 0L;
 }
 
 boolean

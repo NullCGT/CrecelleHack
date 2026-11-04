@@ -705,7 +705,7 @@ m_initweap(struct monst *mtmp)
     case S_LIZARD:
         if (mm == PM_SALAMANDER)
             (void) mongets(mtmp,
-                           (rn2(7) ? SPEAR : rn2(3) ? TRIDENT : STILETTO));
+                           (rn2(7) ? LONGSPEAR : rn2(3) ? TRIDENT : STILETTO));
         break;
     case S_DEMON:
         switch (mm) {
@@ -762,7 +762,7 @@ m_initweap(struct monst *mtmp)
             break;
         case 4:
             if (strongmonst(ptr))
-                (void) mongets(mtmp, rnd_class(AXE, BULLWHIP));
+                (void) mongets(mtmp, rnd_class(SPEAR, BULLWHIP));
             else
                 m_initthrow(mtmp, (svl.level.flags.temperature == -1)
                                     ? ICICLE : DAGGER, 3);

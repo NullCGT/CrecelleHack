@@ -9,6 +9,7 @@ staticfn int monmulti(struct monst *, struct obj *, struct obj *);
 staticfn void monshoot(struct monst *, struct obj *, struct obj *);
 staticfn boolean ucatchgem(struct obj *, struct monst *);
 staticfn boolean u_catch_thrown_obj(struct obj *);
+staticfn boolean u_deflect_thrown_obj(struct obj *);
 staticfn const char *breathwep_name(int);
 staticfn boolean drop_throw(struct obj *, boolean, coordxy, coordxy);
 staticfn boolean blocking_terrain(coordxy, coordxy);
@@ -571,6 +572,21 @@ u_catch_thrown_obj(struct obj *otmp)
     return FALSE;
 }
 
+staticfn boolean
+u_deflect_thrown_obj(struct obj *otmp)
+{
+    if (Blind || Confusion || Stunned || Fumbling || Unaware
+        || otmp->oclass == VENOM_CLASS)
+        return FALSE;
+    if (uwep && is_deflecting_weapon(uwep)
+        && weapon_skill_activation(&gy.youmonst, uwep)) {
+        You("deflect the %s!", simpleonames(otmp));
+        place_object(otmp, u.ux, u.uy);
+        return TRUE;
+    }
+    return FALSE;
+}
+
 #define MT_FLIGHTCHECK(pre,forcehit) \
     (/* missile hits edge of screen */                                 \
      !isok(gb.bhitpos.x + dx, gb.bhitpos.y + dy)                       \
@@ -716,6 +732,8 @@ m_throw(
                 break;
 
             if (!tethered_weapon && u_catch_thrown_obj(singleobj))
+                break;
+            if (!tethered_weapon && u_deflect_thrown_obj(singleobj))
                 break;
 
             if (singleobj->oclass == POTION_CLASS) {

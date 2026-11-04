@@ -2418,7 +2418,7 @@ do_supplemental_item_info(struct obj *otmp)
     if (otmp->oclass == WEAPON_CLASS || is_weptool(otmp)) {
         if (is_dualweapon(otmp))
             add_menu_str(datawin, "It can be dual-wielded.");
-        if (is_tripweapon(otmp))
+        if (weapon_trips(otmp))
             add_menu_str(datawin, "It can be used to trip monsters.");
         if (is_poisonable(otmp) && !otmp->opoisoned)
             add_menu_str(datawin, "It can be poisoned.");
@@ -2438,6 +2438,37 @@ do_supplemental_item_info(struct obj *otmp)
         } else {
             add_menu_str(datawin, "Its accuracy does not scale.");
         }
+        /* weapaon skills */
+        if (is_bleeding_weapon(otmp))
+            add_menu_str(datawin, "It may inflict bleeding wounds.");
+        if (is_pulping_weapon(otmp))
+            add_menu_str(datawin, "It may splatter corpses.");
+        if (is_flaying_weapon(otmp))
+            add_menu_str(datawin, "It may deal double damage to bleeding foes.");
+        if (is_otg_weapon(otmp))
+            add_menu_str(datawin, "It may deal double damage to prone foes.");
+        if (is_backstab_weapon(otmp))
+            add_menu_str(datawin, "It may deal double damage to unaware foes.");
+        if (is_knockdown_weapon(otmp))
+            add_menu_str(datawin, "It may knock foes prone.");
+        if (is_knockback_weapon(otmp))
+            add_menu_str(datawin, "It may knock foes back.");
+        if (is_defensive_weapon(otmp))
+            add_menu_str(datawin, "It grants bonus AC when wielded.");
+        if (is_skewering_weapon(otmp))
+            add_menu_str(datawin, "It may strike foes behind a foe.");
+        if (is_cleaving_weapon(otmp))
+            add_menu_str(datawin, "It may cleave those adjacent to a foe.");
+        if (is_parrying_weapon(otmp))
+            add_menu_str(datawin, "It may parry other swords.");
+        if (is_stunning_weapon(otmp))
+            add_menu_str(datawin, "It may stun foes.");
+        if (is_lowhp_weapon(otmp))
+            add_menu_str(datawin, "It may deal double damage when below half health.");
+        if (is_deflecting_weapon(otmp))
+            add_menu_str(datawin, "It may deflect projectiles.");
+        if (is_stance_weapon(otmp))
+            add_menu_str(datawin, "It can be applied to switch stances.");
     }
     add_menu_str(datawin, "");
     /* Basic info */

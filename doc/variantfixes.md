@@ -77,6 +77,7 @@
   unlocked with a yendorian lockstone or a master key.
 - Priests in the temple to moloch now spawn hostile and asleep.
 - The oracle can now be asked for enlightenment or to locate specific dungeon levels.
+- Science labs contain potions.
 
 ## Balance
 - Object materials give more drastic adjustments to partial resistances.

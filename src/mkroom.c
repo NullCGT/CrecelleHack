@@ -441,6 +441,10 @@ fill_zoo(struct mkroom *sroom)
                 if (!rn2(3))
                     (void) mkobj_at(FOOD_CLASS, sx, sy, FALSE);
                 break;
+            case SCILAB:
+                if (!rn2(4))
+                    (void) mkobj_at(POTION_CLASS, sx, sy, FALSE);
+                break;
             }
         }
     switch (type) {

@@ -1657,7 +1657,13 @@ makemon(
         if (Inhell)
             mon_learns_traps(mtmp, ALL_TRAPS);
         break;
+    case S_GNOME:
+        if (In_mines(&u.uz))
+            mon_learns_traps(mtmp, ALL_TRAPS);
+        break;
     }
+    if (is_devious(ptr))
+        mon_learns_traps(mtmp, ALL_TRAPS);
     if (u.udriptype == POT_HONEY
         && (mndx == PM_OWLBEAR || mndx == PM_BUGBEAR))
         mtmp->mpeaceful = TRUE;

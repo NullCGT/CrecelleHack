@@ -60,6 +60,8 @@
   more distinct.
 - Monster reflagging has led to minor changes to which monsters kick ashes or prefer
   certain oprops.
+- Gnomes know all traps in the gnomish mines, and monsters flagged as devious known all traps
+  generally.
 
 ## Dungeon
 - Shopkeeper Services

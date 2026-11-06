@@ -129,8 +129,8 @@ enum ms_sounds {
 #define M2_IGNOREPETS   0x00000004L /* ignores pets in favor of attacking player */
 #define M2_SUPPORTER    0x00000008L /* attempts to support allies */
 #define M2_DEATHDROP    0x00000010L /* has death drops */
-#define M2_ACID_TRAIL   0x00000020L /* is a dwarf */
-// #define M2_GNOME        0x00000040L /* is a gnome */
+#define M2_ACID_TRAIL   0x00000020L /* drips acid everywhere */
+#define M2_DEVIOUS      0x00000040L /* kicks ashes at opponents */
 // #define M2_ORC          0x00000080L /* is an orc */
 // #define M2_DEMON        0x00000100L /* is a demon */
 #define M2_MERC         0x00000200L /* is a guard or soldier */
@@ -182,21 +182,10 @@ enum ms_sounds {
 #define M3_TRIPPER      0x2000 /* monster can trip the player */
 #define M3_CALLOUT      0x4000 /* monster coordinates with others by calling out player position */
 
-#define M4_BST_GRASS 0x0001
-#define M4_BST_MUD  0x0002
-#define M4_BST_ROCK  0x0004
-#define M4_BST_WATER 0x0008
-#define M4_BST_ICE   0x0010
-#define M4_KICK_ASHES 0x0020
-#define M4_BST_FUNGI 0x0040
-#define M4_BST_BLOOD 0x0080
-#define M4_BST_SAND 0x0100
-#define M4_BST_POTION 0x0200
-#define M4_BST_HONEY  0x0400
 
-#define M4_RWHACK 0x0800
-#define M4_RPIERCE 0x1000
-#define M4_RSLASH 0x2000
+#define M4_RWHACK       0x0001 /* Resists bludgeoning */
+#define M4_RPIERCE      0x0002 /* Resists piercing */
+#define M4_RSLASH       0x0004 /* Resists slashing */
 
 #define MZ_RANDOM      -1 /* used in set_obj_size */
 #define MZ_TINY         0 /* < 2' */
@@ -221,6 +210,12 @@ enum ms_sounds {
 #define MH_ANACRUSIS    0x00000400L
 
 /* for mons[].geno (constant during game) */
+/* Biome boost flags */
+#define G_FUNGAL        0x00100000 /* generation boosted in fungal fields */
+#define G_DESERT        0x00080000 /* generation boosted in sandy areas */
+#define G_SNOW          0x00040000 /* generation boosted in snowfields */
+#define G_FOREST        0x00020000 /* generation boosted in forest */
+/* Normal generation flags */
 #define G_DAY           0x00010000 /* generated only in day */
 #define G_NIGHT         0x00008000 /* generated only in night */
 #define G_SQUAD         0x00004000 /* rather than generating identical mons, generate similar squad */

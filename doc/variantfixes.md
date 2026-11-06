@@ -56,6 +56,10 @@
     - Frost (Z): Icy zombie that has a cold-based gaze attack. Only spawns in cold biomes.
     - Scorch (Z): Hot zombie that has a fire-based gaze attack. Only spawns in sandy biomes.
     - Sand Spider (s).
+- Changed many biome generation frequencies for monsters in order to make biomes
+  more distinct.
+- Monster reflagging has led to minor changes to which monsters kick ashes or prefer
+  certain oprops.
 
 ## Dungeon
 - Shopkeeper Services

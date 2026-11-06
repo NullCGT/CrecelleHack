@@ -1986,20 +1986,19 @@ biome_shift(struct permonst *ptr)
     int ret = 0;
     switch (biome) {
     case BIOME_WOODLAND:
-        if (ptr->mflags4 & M4_BST_GRASS)
+        if (ptr->geno & G_FOREST)
             ret += 3;
         break;
     case BIOME_FUNGAL:
-        if (ptr->mlet == S_FUNGUS
-            || (ptr->mflags4 & M4_BST_FUNGI))
+        if (ptr->geno & G_FUNGAL)
             ret += 3;
         break;
     case BIOME_TROPICAL:
-        if (ptr->mflags4 & M4_BST_SAND)
+        if (ptr->geno & G_DESERT)
             ret += 2;
         break;
     case BIOME_SNOWY:
-        if (ptr->mflags4 & M4_BST_ICE)
+        if (ptr->geno & G_SNOW)
             ret += 2;
         break;
     case BIOME_SEWER:
@@ -2011,10 +2010,6 @@ biome_shift(struct permonst *ptr)
     default:
         ret = 0;
     }
-    /* Swamp boosting happens seperately for now :( */
-    if (svl.level.flags.has_swamp 
-        && ((ptr->mflags4 & M4_BST_MUD) || (ptr->mflags4 & M4_BST_WATER)))
-        ret += 2;
     return ret;
 }
 

@@ -4671,9 +4671,9 @@ oprop_from_permonst(struct permonst *pm)
 {
     if (is_vampire(pm))
         return OPROP_SANGUINE;
-    if (pm->mflags4 & M4_BST_ICE)
+    if (pm->geno & G_SNOW)
         return OPROP_BOREAL;
-    if (pm->mflags4 & M4_KICK_ASHES)
+    if (pm->geno & G_DESERT)
         return OPROP_BLAZING;
     if (is_roguish(pm))
         return OPROP_SUBTLE;

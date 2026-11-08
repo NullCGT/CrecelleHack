@@ -3723,41 +3723,6 @@ optfn_role(
 }
 
 staticfn int
-optfn_anacrusis_fade(
-    int optidx, int req, boolean negated,
-    char *opts, char *op)
-{
-    if (req == do_init) {
-        u.uroleplay.anacrusis_fade = DEFAULT_ANACRUSIS_FADE;
-        return optn_ok;
-    }
-    if (req == do_set) {
-        /* pile limit: when walking over objects, number which triggers
-           "there are several/many objects here" instead of listing them
-         */
-
-        op = string_for_opt(opts, negated);
-        if ((negated && op == empty_optstr)
-            || (!negated && op != empty_optstr))
-            u.uroleplay.anacrusis_fade = negated ? DEFAULT_ANACRUSIS_FADE : atol(op);
-        else if (negated) {
-            bad_negation(allopt[optidx].name, TRUE);
-            return optn_err;
-        } else /* op == empty_optstr */
-            u.uroleplay.anacrusis_fade = DEFAULT_ANACRUSIS_FADE;
-        /* sanity check */
-        if (u.uroleplay.anacrusis_fade < 0)
-            u.uroleplay.anacrusis_fade = DEFAULT_ANACRUSIS_FADE;
-        return optn_ok;
-    }
-    if (req == get_val || req == get_cnf_val) {
-        Sprintf(opts, "%ld", u.uroleplay.anacrusis_fade);
-        return optn_ok;
-    }
-    return optn_ok;
-}
-
-staticfn int
 optfn_runmode(
     int optidx, int req, boolean negated,
     char *opts, char *op)

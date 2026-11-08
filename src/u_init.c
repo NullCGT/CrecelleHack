@@ -872,6 +872,11 @@ u_init_race(void)
         break;
     
     case PM_ANACRUSIS:
+        knows_object(DRUM_OF_EARTHQUAKE, FALSE);
+        const struct trobj Harp[] =
+                { { HARP, 0, TOOL_CLASS, 1, 1, 0 },
+                  { 0, 0, 0, 0, 0, 0 } };
+        ini_inv(Harp);
         knows_object(FLUTE, FALSE);
         knows_object(MAGIC_FLUTE, FALSE);
         knows_object(TOOLED_HORN, FALSE);
@@ -883,7 +888,6 @@ u_init_race(void)
         knows_object(ACOUSTIC_GUITAR, FALSE);
         knows_object(ELECTRIC_GUITAR, FALSE);
         knows_object(LEATHER_DRUM, FALSE);
-        knows_object(DRUM_OF_EARTHQUAKE, FALSE);
         break;
 
     case PM_ELF:

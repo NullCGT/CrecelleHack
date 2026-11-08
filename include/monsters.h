@@ -1431,15 +1431,14 @@
         M3_INFRAVISIBLE | M3_INFRAVISION, 0,
         0, 12, CLR_YELLOW, ALEAX),
     MON(NAM("Anacrusis"), S_ANGEL,
-        LVL(10, 10, -4, 100, 12), (G_NOHELL | G_NOCORPSE | G_NOGEN),
+        LVL(10, 10, -4, 100, 12), (G_NOHELL | G_NOCORPSE | G_EXTINCT | G_NOGEN),
         A(ATTK(AT_WEAP, AD_PHYS, 1, 6),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(WT_HUMAN, 400, MS_SONG, MZ_HUMAN),
         MR_FIRE | MR_COLD | MR_ELEC | MR_SLEEP | MR_POISON | MR_DISINT,
-        0, M1_HUMANOID,
+        0, M1_HUMANOID | M1_FLY,
         M2_STALK | M2_NOPOLY | M2_STRONG | M2_COLLECT,
-        M3_INFRAVISIBLE | M3_INFRAVISION, 0,
-        0, 10, CLR_BLUE, ANACRUSIS),
+        M3_INFRAVISIBLE, 0, 0, 10, CLR_BLUE, ANACRUSIS),
     /* Angels start with the emin extension attached, and usually have
        the isminion flag set; however, non-minion Angels can be tamed
        and will switch to edog (guardian Angel is handled specially and

@@ -239,7 +239,6 @@ struct u_roleplay {
     boolean anacrusis_rt; /* anacrusis voice fades in real time */
     boolean reserved2;
     boolean reserved3;
-    long anacrusis_fade; /* anacrusis fade speed in turns/seconds */
     long numbones;   /* # of bones files loaded */
     long numrerolls; /* # of rerolls used */
 };
@@ -664,6 +663,8 @@ struct _hitmon_data {
 #define TOD_EARLYNIGHT 2
 #define TOD_LATENIGHT 3
 
-#define DEFAULT_ANACRUSIS_FADE 50
+#define ANC_VOICE_INCREMENT 100
+#define ANC_VOICE_HALF (ANC_VOICE_INCREMENT * 100)
+#define ANC_VOICE_GONE (ANC_VOICE_INCREMENT * 200)
 
 #endif /* YOU_H */

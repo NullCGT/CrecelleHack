@@ -311,6 +311,17 @@ moveloop_core(void)
                    a value that is distinct every time the hero moves */
                 gh.hero_seq = svm.moves << 3;
 
+                /* Anacrusis fade messages */
+                if (Race_if(PM_ANACRUSIS)) {
+                    if (svm.moves == ANC_VOICE_HALF) {
+                        pline("Your voice is half gone...");
+                        stop_occupation();
+                    } else if (svm.moves == ANC_VOICE_GONE) {
+                        pline("Your voice fails completely.");
+                        stop_occupation();
+                    }
+                }
+
                 if (flags.time && !svc.context.run)
                     disp.time_botl = TRUE; /* 'moves' just changed */
 
@@ -947,6 +958,8 @@ newgame(void)
     if (flags.legacy) {
         if (Race_if(PM_GNOME) && u.uroleplay.altstarts)
             com_pager("legacy");
+        else if (Race_if(PM_ANACRUSIS))
+            com_pager("anacrusis_legacy");
         else
             com_pager("crecelle_legacy");
     }
@@ -1066,7 +1079,7 @@ welcome(boolean new_game) /* false => restoring an old game */
         livelog_printf(LL_ACHIEVE, "%s the%s entered the dungeon",
                        svp.plname, buf);
         if (Race_if(PM_ANACRUSIS))
-            pline("Beware: your song is strong, but your voice has already begun to fade...");
+            pline("Beware: your voice has already begun to fade...");
     } else {
         /* if restoring in Gehennom, give same hot/smoky message as when
            first entering it */

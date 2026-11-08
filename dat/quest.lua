@@ -151,6 +151,34 @@ As you descend toward the complex, the air is filled with the peal of
 tocsins and the clang of church bells, announcing your arrival alongside
 the sun's. War has come to Yendor, and it shall not be caught unprepared.]],
       },
+      anacrusis_legacy = {
+         synopsis = "[%dC has promised that the Amulet of Yendor can restore your voice.]",
+         output = "menu",
+         text = [[
+         It is written in the Book of %d:
+
+    In the Beginning, there was silence.
+    After the Creation, there was song.
+
+At the direction of Marduk, the Anacruses, the many-voiced
+angels, welcomed the first dawn with a song of their own
+creation. Even now, after years of strife and bloodshed,
+it is said that the song of the Anacruses is carved into
+the grooves in the heart of every mortal.
+
+Yet no voice lasts forever. In the millenia since the Creation,
+the voices of your friends have failed one by one grown silent.
+To an anacrusis, silence means mortality, and all mortals know
+that mortality means death. Only you remain, struggling through
+a solo with a voice that has long since faded to a whisper.
+
+In the depths of your despair, %d appeared to you.
+%dH promised that with the power of the Amulet of Yendor,
+your voice could be restored. Is it true? You do not know.
+
+Go bravely with %d, %p.
+Before your voice fades forevermore...]],
+      },
       legacy = {
          synopsis = "[%dC has chosen you to recover the Amulet of Yendor for %dI.]",
          output = "menu",

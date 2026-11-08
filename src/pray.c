@@ -1608,13 +1608,22 @@ offer_real_amulet(struct obj *otmp, aligntyp altaralign)
         u.uevent.ascended = 1;
         adjalign(10);
         pline("An invisible choir sings, and you are bathed in radiance...");
-        godvoice(altaralign, "Mortal, thou hast done well!");
-        display_nhwindow(WIN_MESSAGE, FALSE);
-        SetVoice((struct monst *) 0, 0, 80, voice_deity);
-        verbalize(
-          "In return for thy service, I grant thee the gift of Immortality!");
-        You("ascend to the status of Demigod%s...",
-            flags.female ? "dess" : "");
+        if (!Race_if(PM_ANACRUSIS)) {
+            godvoice(altaralign, "Mortal, thou hast done well!");
+            display_nhwindow(WIN_MESSAGE, FALSE);
+            SetVoice((struct monst *) 0, 0, 80, voice_deity);
+            verbalize(
+            "In return for thy service, I grant thee the gift of Immortality!");
+            You("ascend to the status of Demigod%s...",
+                flags.female ? "dess" : "");
+        } else {
+            godvoice(altaralign, "Broken angel, thou hast done well!");
+            display_nhwindow(WIN_MESSAGE, FALSE);
+            SetVoice((struct monst *) 0, 0, 80, voice_deity);
+            verbalize(
+            "In return for thy service, I restore thy voice to thee!");
+            You("join the heavenly choir, and your heart soars. You are home.");
+        }
         done(ASCENDED);
         /*NOTREACHED*/
     }

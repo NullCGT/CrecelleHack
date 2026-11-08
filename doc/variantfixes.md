@@ -13,6 +13,12 @@
     for gold.
   - Recognize detect treasure, gold detection, and booze.
   - Deal double damage while confused.
+- Anacrusis
+  - Unique starting text added.
+  - Clamped fading rate to 100 turns / seconds with no way to modify it.
+  - Start with flying.
+  - After 20,000 turns, voice is considered to have fully faded. Can no
+    longer talk.
 
 ## Status Effects
 - Bleeding

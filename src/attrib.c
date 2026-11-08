@@ -109,7 +109,8 @@ static const struct innate {
 
   hum_abil[] = { { 0, 0, 0, 0 } },
 
-  anc_abil[] = { { 0, 0, 0, 0 } };
+  anc_abil[] = { { 1, &HFlying, "", "" },
+                 { 0, 0, 0, 0 } };
 
 staticfn void exerper(void);
 staticfn int rnd_attr(void);
@@ -1041,10 +1042,12 @@ adjabil(int oldlevel, int newlevel)
     case PM_KOBOLD:
         rabil = kob_abil;
         break;
+    case PM_ANACRUSIS:
+        rabil = anc_abil;
+        break;
     case PM_HUMAN:
     case PM_DWARF:
     case PM_GNOME:
-    case PM_ANACRUSIS:
     default:
         rabil = 0;
         break;

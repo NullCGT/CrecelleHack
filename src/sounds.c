@@ -1367,6 +1367,10 @@ dochat(void)
               an(pmname(gy.youmonst.data, flags.female ? FEMALE : MALE)));
         return ECMD_OK;
     }
+    if (Race_if(PM_ANACRUSIS) && svm.moves >= ANC_VOICE_GONE) {
+        You_cant("speak. Your voice is gone...");
+        return ECMD_OK;
+    }
     if (Strangled) {
         You_cant("speak.  You're choking!");
         return ECMD_OK;

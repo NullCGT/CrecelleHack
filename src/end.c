@@ -1440,7 +1440,8 @@ really_done(int how)
                 ? (const char *) ((flags.female && gu.urole.name.f)
                     ? gu.urole.name.f
                     : gu.urole.name.m)
-                : (const char *) (flags.female ? "Demigoddess" : "Demigod"));
+                : (const char *) (Race_if(PM_ANACRUSIS) ? "Singer"
+                                    : flags.female ? "Demigoddess" : "Demigod"));
 
 #if defined(DUMPLOG) || defined(DUMPHTML)
     dump_redirect(TRUE);

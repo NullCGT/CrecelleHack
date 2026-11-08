@@ -3,7 +3,6 @@ default values in [].)
 
 Boolean Crecelle Options
 altstarts               gnomes start in gnomish mines              [True]
-anacrusis_fade          anacrusis song fade rate in turns/seconds  [False]
 anacrusis_rt            anacrusis voice fades in real time         [False]
 biome_overview          displays dungeon biome in overview         [False]
 bold_coatings           indicate coated areas using bold           [True]

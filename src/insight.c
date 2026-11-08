@@ -770,8 +770,8 @@ background_enlightenment(int unused_mode UNUSED, int final)
         enlght_out(buf);
     }
     if (Race_if(PM_ANACRUSIS)) {
-        Sprintf(buf, "a voice fading at a rate of 1%% per %ld %s",
-                u.uroleplay.anacrusis_fade,
+        Sprintf(buf, "a voice fading at a rate of 1%% per %d %s",
+                ANC_VOICE_INCREMENT,
                 u.uroleplay.anacrusis_rt ? "seconds" : "turns");
         you_have_X(buf);
     }

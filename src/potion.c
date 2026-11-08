@@ -4105,9 +4105,9 @@ how_resistant_core(int which, boolean id)
         if (Race_if(PM_ANACRUSIS)) {
             if (u.uroleplay.anacrusis_rt)
                 race_adjust -= ((timet_delta(getnow(), urealtime.start_timing))
-                                    / u.uroleplay.anacrusis_fade);
+                                    / ANC_VOICE_INCREMENT);
             else
-                race_adjust -= (svm.moves / u.uroleplay.anacrusis_fade);
+                race_adjust -= (svm.moves / ANC_VOICE_INCREMENT);
         }
         ret += race_adjust;
     }

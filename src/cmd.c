@@ -5816,6 +5816,8 @@ doshout(void)
         You("cannot speak, so you just shout \"%s\" mentally.", buf);
     } else if (Race_if(PM_KOBOLD)) {
         You("bark something that sounds like \"%s\".", buf);
+    } else if (Race_if(PM_ANACRUSIS) && svm.moves >= ANC_VOICE_GONE) {
+        You("can no longer sing.");
     } else {
         You("raise your voice and %s: \"%s\"", Race_if(PM_ANACRUSIS) ? "sing out" : "shout", buf);
         wake_nearby(FALSE);

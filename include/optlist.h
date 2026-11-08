@@ -171,9 +171,6 @@ static int optfn_##a(int, int, boolean, char *, char *);
     NHOPTB(altstarts, Advanced, 0, opt_out, set_in_config,
            On, Yes, No, No, NoAlias, &u.uroleplay.altstarts, Term_False,
            "start in gnomish mines if playing a gnome")
-    NHOPTC(anacrusis_fade, Variant, 20, opt_in, set_in_config,
-           Yes, Yes, No, No, NoAlias,
-           "anacrusis fade speed in turns/seconds")
     NHOPTB(anacrusis_rt, Advanced, 0, opt_in, set_in_config,
            Off, Yes, No, No, NoAlias, &u.uroleplay.anacrusis_rt, Term_False,
            "anacrusis voice fades in real time")

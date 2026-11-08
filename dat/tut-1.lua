@@ -57,8 +57,8 @@ nh.parse_config("OPTIONS=taunt:do the tutorial shuffle.");
 -------- Entrance Area -----------
 des.object({ coord = { 1, 6 }, id = "statue", montype = "blood golem", historic = true });
 des.object({ coord = { 5, 6 }, id = "statue", montype = "black hole", historic = true });
-des.object({ coord = { 1, 10 }, id = "statue", montype = "illusion", historic = true });
-des.object({ coord = { 5, 10 }, id = "statue", montype = "squonk", historic = true });
+des.object({ coord = { 1, 10 }, id = "statue", montype = "Seth", historic = true });
+des.object({ coord = { 5, 10 }, id = "statue", montype = "Alfred the Alfchemist", historic = true });
 des.engraving({ coord = { 3, 5 }, type = "engrave", text = "You can leave the tutorial via the magic portal", degrade = false });
 des.trap({ type = "magic portal", coord = { 3, 4 }, seen = true });
 -- des.engraving({ coord = { 3, 5 }, type = "engrave", text = "Use this teleporter if you wish to skip to role and race explanations.", degrade = false });

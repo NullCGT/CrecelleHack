@@ -17,12 +17,25 @@
   - Like in EvilHack, it has a were attack.
 
 - **Puss in Boots**
-  - Harmonizes with many kinds of terrain.
   - Fast cat that wields a weapon.
   - Spawns with cats.
 
 - **Colossus**
   - Enormous golem with a stunning gaze.
 
-- **The Blob**
-  - Blob with huge hp and the ability to split.
+- **Alfred the Alfchemist**
+  - Q-class monster that spawns with many throwable potions.
+
+- **Xerniax the Cursed**
+  - Dangerous lich that casts curse items with extreme frequency.
+
+- **Seth the Covetous**
+  - Humanoid monster with dangerous melee attacks.
+  - Can be bribed, but only with an enormous amount of money.
+
+- **Kroo the Kobold King**
+  - Especially dangerous kobold.
+
+- **Hellstrider Virgil**
+  - Appears only in Gehennom.
+  - Notable for having teleportation, teleport control, and many daggers.

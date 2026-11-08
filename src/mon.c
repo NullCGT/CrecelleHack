@@ -826,7 +826,6 @@ make_corpse(struct monst *mtmp, unsigned int corpseflags)
     case PM_GIANT_SILVERFISH: case PM_QUEEN_BEE:
 
     case PM_QUIVERING_BLOB: case PM_ACID_BLOB: case PM_GELATINOUS_CUBE:
-    case PM_BLOB:
     case PM_CHICKATRICE: case PM_COCKATRICE: case PM_PYROLISK:
 
     case PM_JACKAL: case PM_FOX: case PM_COYOTE: case PM_WEREJACKAL:
@@ -848,12 +847,12 @@ make_corpse(struct monst *mtmp, unsigned int corpseflags)
 
     case PM_HOBBIT: case PM_DWARF: case PM_BUGBEAR: case PM_DWARF_LEADER:
     case PM_DWARF_RULER:
-    case PM_MIND_FLAYER: case PM_MASTER_MIND_FLAYER: case PM_MANES:
+    case PM_MIND_FLAYER: case PM_MASTER_MIND_FLAYER: case PM_SETH: case PM_MANES:
     case PM_HOMUNCULUS: case PM_IMP: case PM_LEMURE: case PM_QUASIT:
     case PM_BLOOD_IMP:
     case PM_TENGU: case PM_BLUE_JELLY: case PM_SPOTTED_JELLY:
     case PM_OCHRE_JELLY: case PM_KOBOLD: case PM_LARGE_KOBOLD:
-    case PM_KOBOLD_LEADER: case PM_KOBOLD_SHAMAN: case PM_LEPRECHAUN:
+    case PM_KOBOLD_LEADER: case PM_KOBOLD_SHAMAN: case PM_KROO: case PM_LEPRECHAUN:
     case PM_SMALL_MIMIC: case PM_LARGE_MIMIC: case PM_GIANT_MIMIC:
     case PM_BOULDERER:
     case PM_WOOD_NYMPH: case PM_WATER_NYMPH: case PM_MOUNTAIN_NYMPH:
@@ -915,7 +914,7 @@ make_corpse(struct monst *mtmp, unsigned int corpseflags)
     case PM_KOP_SERGEANT: case PM_KOP_LIEUTENANT: 
     case PM_KNIGHT_WATCH: case PM_KOP_KAPTAIN:
     case PM_LICH: case PM_DEMILICH:
-    case PM_MASTER_LICH: case PM_ARCH_LICH:
+    case PM_MASTER_LICH: case PM_ARCH_LICH: case PM_XERNIAX:
 
     case PM_RED_NAGA_HATCHLING: case PM_BLACK_NAGA_HATCHLING:
     case PM_GOLDEN_NAGA_HATCHLING: case PM_GUARDIAN_NAGA_HATCHLING:
@@ -925,6 +924,7 @@ make_corpse(struct monst *mtmp, unsigned int corpseflags)
     case PM_OGRE: case PM_OGRE_LEADER: case PM_OGRE_MAGE: case PM_OGRE_TYRANT:
 
     case PM_QUANTUM_MECHANIC: case PM_GENETIC_ENGINEER:
+    case PM_ALFRED_THE_ALFCHEMIST:
     case PM_RUST_MONSTER: case PM_DISENCHANTER:
     case PM_TRANSMUTER:
 
@@ -956,7 +956,7 @@ make_corpse(struct monst *mtmp, unsigned int corpseflags)
     case PM_SOLDIER: case PM_SERGEANT: case PM_NURSE:
     case PM_SERVANT: case PM_HEAD_SERVANT:
     case PM_LIEUTENANT: case PM_CAPTAIN: case PM_WATCHMAN:
-    case PM_WATCH_CAPTAIN:
+    case PM_WATCH_CAPTAIN: case PM_HELLSTRIDER_VIRGIL:
 
     case PM_MEDUSA: case PM_WIZARD_OF_YENDOR: case PM_CROESUS:
     case PM_ILLUSION: case PM_POLTERGEIST: case PM_GHOST: case PM_SPECTRE:
@@ -6350,8 +6350,8 @@ adj_midbosses(void)
         pm->mflags3 &= ~M3_WANTSARTI;
         pm->mflags3 &= ~M3_WAITFORU;
         pm->mflags3 &= ~M3_CLOSE;
-        if (index <= PM_DARK_ONE) {
-            if (!(Role_if(PM_ROGUE) && index == roles[flags.rogvictim].ldrnum)) {
+        if (index <= PM_DARK_ONE && Role_if(PM_TOURIST)) {
+            if (index == roles[flags.rogvictim].ldrnum) {
                 pm->geno &= ~G_NOGEN;
             }
             pm->msound = MS_SILENT;

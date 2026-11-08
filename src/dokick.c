@@ -388,6 +388,8 @@ ghitm(struct monst *mtmp, struct obj *gold)
                 goldreqd = 500L;
             else if (mtmp->data == &mons[PM_CAPTAIN])
                 goldreqd = 750L;
+            else if (mtmp->data == &mons[PM_SETH])
+                goldreqd = 3000L;
 
             if (goldreqd && rn2(3)) {
                 umoney = money_cnt(gi.invent);

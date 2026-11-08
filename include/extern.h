@@ -1579,6 +1579,7 @@ extern boolean propagate(int, boolean, boolean);
 extern void summon_furies(int);
 extern void dump_mongen(void);
 extern void advance_monster(struct monst *);
+extern int rndmidboss(void);
 
 /* ### mcastu.c ### */
 
@@ -1751,7 +1752,6 @@ extern struct obj *mksobj_migr_to_species(int, unsigned, boolean, boolean);
 extern struct obj *mkobj(int, boolean) NONNULL;
 extern int rndmonnum_adj(int, int);
 extern int rndmonnum(void);
-extern int rndmidboss(void);
 extern boolean bogon_is_pname(char);
 extern struct obj *splitobj(struct obj *, long) NONNULLARG1;
 extern unsigned next_ident(void);

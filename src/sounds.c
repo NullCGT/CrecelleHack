@@ -913,6 +913,8 @@ domonnoise(struct monst *mtmp)
                 if (ptr != &mons[PM_DINGO]) /* dingos do not actually bark */
                     pline_msg = "barks.";
             }
+        } else if (mtmp->data == &mons[PM_CERBERUS]) {
+            pline_msg = "barks, growls, and yips.";
         } else {
             pline_msg = "growls.";
         }
@@ -1102,6 +1104,16 @@ domonnoise(struct monst *mtmp)
         FALLTHROUGH;
         /*FALLTHRU*/
     case MS_HUMANOID:
+        if (!mtmp->mpeaceful && ptr == &mons[PM_HELLSTRIDER_VIRGIL]) {
+            /* 50% dmc, 50% historical figure, 100% cringe */
+            if (Hallucination)
+                verbl_msg = "Shkum.";
+            else if (u.uhp < mtmp->mhp)
+                verbl_msg = "Thou art not worthy as my opponent.";
+            else
+                verbl_msg = "I shalt be thy guide to this place.";
+            break;
+        }
         if (!mtmp->mpeaceful) {
             if (In_endgame(&u.uz) && is_mplayer(ptr))
                 mplayer_talk(mtmp);

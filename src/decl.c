@@ -938,6 +938,7 @@ static const struct instance_globals_saved_m init_svm = {
     UNDEFINED_PTR,                       /* mapseenchn */
     /* decl.c */
     0L,                                  /* moves; misnamed turn counter */
+    0L,                                  /* midboss_counter */
     { UNDEFINED_VALUES }                 /* mvitals */
 };
 

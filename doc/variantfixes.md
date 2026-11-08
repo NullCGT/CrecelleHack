@@ -3,6 +3,8 @@
 ## Roles
 - Rogues now begin the game with a master key instead of lockpicks, allowing them
   to access shortcuts more easily than any other role.
+- Only tourists can encounter characters from other roles as minibosses, as opposed
+  to previously in which they were considered valid minibosses for anyone.
 
 ## Races
 - Dwarves
@@ -62,6 +64,13 @@
   certain oprops.
 - Gnomes know all traps in the gnomish mines, and monsters flagged as devious known all traps
   generally.
+- Removed The Blob.
+- Many new unique midbosses:
+  - Seth
+  - Alfred the Alfchemist
+  - Kroo the Kobold King
+  - Xerniax the Cursed
+  - Virgel
 
 ## Dungeon
 - Shopkeeper Services

@@ -810,7 +810,7 @@ hitum(struct monst *mon, struct attack *uattk)
     /* Had to modify this code to account for if cleaver fuzzes into a
        dual axe. */
     if ((u_wield_art(ART_CLEAVER)
-            || (is_cleaving_weapon(uwep) && weapon_skill_activation(&gy.youmonst, uwep)))
+            || (uwep && is_cleaving_weapon(uwep) && weapon_skill_activation(&gy.youmonst, uwep)))
         && !u.twoweap && !u.uswallow && !u.ustuck && !NODIAG(u.umonnum)) {
         ret = hitum_cleave(mon, uattk);
         if (ret && u.dualweap)
@@ -819,7 +819,7 @@ hitum(struct monst *mon, struct attack *uattk)
     }
 
     /* Spears can skewer opponents */
-    if (is_skewering_weapon(uwep) && !u.twoweap
+    if (uwep && is_skewering_weapon(uwep) && !u.twoweap
         && !u.uswallow
         && weapon_skill_activation(&gy.youmonst, uwep)) {
         return hitum_skewer(mon, uattk);
@@ -1731,8 +1731,7 @@ hmon_hitmon_splitmon(
 {
     if ((hmd->mdat == &mons[PM_BLACK_PUDDING]
          || hmd->mdat == &mons[PM_BROWN_PUDDING]
-         || hmd->mdat == &mons[PM_HELLBAT]
-         || hmd->mdat == &mons[PM_BLOB])
+         || hmd->mdat == &mons[PM_HELLBAT])
         /* pudding is alive and healthy enough to split */
         && mon->mhp > 1 && !mon->mcan && !hmd->offmap
         /* iron weapon using melee or polearm hit [3.6.1: metal weapon too;
@@ -7160,7 +7159,7 @@ int
 mon_weapon_skill(struct monst *mon, struct obj *obj)
 {
     int skill_rating = P_UNSKILLED;
-    if (is_minion(mon->data) || is_prince(mon->data))
+    if (is_minion(mon->data) || is_prince(mon->data) || unique_corpstat(mon->data))
         skill_rating = P_EXPERT;
     else if (is_ndemon(mon->data) || is_lord(mon->data))
         skill_rating = P_SKILLED;

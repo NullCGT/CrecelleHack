@@ -119,6 +119,7 @@ thitu(
         /* Hack for oprop hits */
         if (obj && (obj->oprop || obj->oartifact)) {
             (void) artifact_hit((struct monst *) 0, &gy.youmonst, obj, &dam, rn1(18, 2));
+            losehp(dam, knm, kprefix);
             return 1;
         }
 

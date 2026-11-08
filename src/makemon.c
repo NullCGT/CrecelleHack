@@ -11,7 +11,6 @@
 #define quest_mon_represents_role(mptr, role_pm) \
     (mptr->mlet == S_HUMAN && Role_if(role_pm)   \
      && (mptr->msound == MS_LEADER || mptr->msound == MS_NEMESIS))
-#define MIDBOSS_CHANCE 25
 
 staticfn boolean uncommon(int);
 staticfn int align_shift(struct permonst *);
@@ -100,7 +99,7 @@ m_get_squadmon(struct permonst *pm) {
     } else if (mm == PM_RAT_RULER) {
         return rn2(2) ? &mons[PM_GIANT_RAT] : &mons[PM_RABID_RAT];
     } else if (mm == PM_DUDLEY) {
-        return rndmonst();
+        return &mons[PM_DOG];
     }
     return mkclass(pm->mlet, 0);
 }
@@ -490,6 +489,15 @@ m_initweap(struct monst *mtmp)
                 otmp->spe = 5;
                 (void) mpickobj(mtmp, otmp);
                 break;
+            case PM_HELLSTRIDER_VIRGIL:
+                otmp = mksobj(KATANA, FALSE, FALSE);
+                otmp->spe = 5;
+                (void) mpickobj(mtmp, otmp);
+                m_initthrow(mtmp, DAGGER, 30);
+                break;
+            case PM_DUDLEY:
+                (void) mongets(mtmp, rnd_class(SPEAR, BULLWHIP));
+                break;
             }
         }
         break;
@@ -605,6 +613,10 @@ m_initweap(struct monst *mtmp)
             } else {
                 (void) mongets(mtmp, !rn2(3) ? PICK_AXE : DAGGER);
             }
+        } else if (ptr == &mons[PM_SETH]) {
+            mongets(mtmp, HALBERD);
+            mongets(mtmp, TWO_HANDED_SWORD);
+            mongets(mtmp, ARCHAIC_PLATE_MAIL);
         }
         break;
     case S_KOP:
@@ -1019,6 +1031,12 @@ m_initinv(struct monst *mtmp)
                 otmp->owt = weight(otmp);
             }
             (void) mpickobj(mtmp, otmp);
+        } else if (ptr == &mons[PM_ALFRED_THE_ALFCHEMIST]) {
+            (void) mongets(mtmp, POT_ALKAHEST);
+            (void) mongets(mtmp, POT_ACID);
+            (void) mongets(mtmp, POT_CONFUSION);
+            (void) mongets(mtmp, POT_PARALYSIS);
+            (void) mongets(mtmp, SCALPEL);
         }
         break;
     case S_LEPRECHAUN:
@@ -1263,7 +1281,7 @@ monhp_per_lvl(struct monst *mon)
     int hp = rnd(hd_size(ptr)); /* default is d8 */
 
     /* like newmonhp, but home elementals are ignored, riders use normal d8 */
-    if (is_golem(ptr) || ptr == &mons[PM_BLOB]) {
+    if (is_golem(ptr)) {
         /* draining usually won't be applicable for these critters */
         hp = golemhp(monsndx(ptr)) / (int) ptr->mlevel;
     } else if (ptr->mlevel > 49) {
@@ -1443,7 +1461,8 @@ makemon(
             allow_minvent = ((mmflags & NO_MINVENT) == 0),
             countbirth = ((mmflags & MM_NOCOUNTBIRTH) == 0),
             allowtail = ((mmflags & MM_NOTAIL) == 0),
-            allowadvance = ((mmflags & MM_EDOG) == 0);
+            allowadvance = ((mmflags & MM_EDOG) == 0),
+            midboss;
     mmflags_nht gpflags = (((mmflags & MM_IGNOREWATER) ? MM_IGNOREWATER : 0)
                            | GP_CHECKSCARY | GP_AVOID_MONPOS);
 
@@ -1755,16 +1774,22 @@ makemon(
                               ? !eminp->renegade
                               : eminp->renegade;
     }
+    midboss = ((mtmp->data->geno & G_MIDBOSS) != 0);
     set_malign(mtmp); /* having finished peaceful changes */
     if (anymon && !(mmflags & MM_NOGRP)) {
-        if ((ptr->geno & G_SGROUP) && (rn2(2) || (ptr->geno & G_MIDBOSS))) {
+        if ((ptr->geno & G_SGROUP) && (rn2(2) || midboss)) {
             m_initsgrp(mtmp, mtmp->mx, mtmp->my, mmflags);
         } else if (ptr->geno & G_LGROUP) {
-            if (rn2(3))
+            if (rn2(3) || midboss)
                 m_initlgrp(mtmp, mtmp->mx, mtmp->my, mmflags);
             else
                 m_initsgrp(mtmp, mtmp->mx, mtmp->my, mmflags);
         }
+    }
+
+    /* Midboss counter gets reset */
+    if (midboss && !svm.midboss_counter) {
+        svm.midboss_counter = rn1(4000, 1000);
     }
 
     if (allow_minvent) {
@@ -1922,14 +1947,13 @@ create_critters(
 staticfn boolean
 uncommon(int mndx)
 {
-    if (mons[mndx].geno & (G_NOGEN | G_UNIQ)) {
-        if (mons[mndx].geno & (G_MIDBOSS)){
-            if (!rn2(MIDBOSS_CHANCE)) {
-                goto not_nogen_or_uniq;
-            }
-        }
-        return TRUE;
+    if ((mons[mndx].geno & (G_MIDBOSS))
+        && !svm.midboss_counter) {
+        /* only spawn midbosses if the counter is up */
+        goto not_nogen_or_uniq;
     }
+    if (mons[mndx].geno & (G_NOGEN | G_UNIQ))
+        return TRUE;
 not_nogen_or_uniq:
     if (svm.mvitals[mndx].mvflags & G_GONE)
         return TRUE;
@@ -2079,7 +2103,9 @@ rndmonst_adj(int minadj, int maxadj)
          * earlier are exactly canceled out by having more monsters to
          * potentially steal its spot.
          */
-        freq = (ptr->geno & G_MIDBOSS) ? 1 : (int) (ptr->geno & G_FREQ);
+        freq = (int) (ptr->geno & G_FREQ);
+        if (!weight && ((ptr->geno & G_MIDBOSS) != 0))
+            weight += 1;
         weight = freq + align_shift(ptr);
         weight += temperature_shift(ptr);
         weight += biome_shift(ptr);
@@ -2673,8 +2699,6 @@ golemhp(int type)
         return 100;
     case PM_GLASS_GOLEM:
         return 80;
-    case PM_BLOB:
-        return 100;
     case PM_IRON_GOLEM:
         return 120;
     case PM_COLOSSUS:
@@ -3055,6 +3079,33 @@ advance_monster(struct monst *mon)
     /* Advanced monsters are usually faster */
     mon_adjust_speed(mon, factor, (struct obj *) 0);
     mon->madvanced = 1;
+}
+
+/* select a random midboss, adjusted for level difficulty */
+int
+rndmidboss(void)
+{
+    unsigned short excludeflags = (Inhell ? G_NOHELL : G_HELL) | (night() ? G_DAY : G_NIGHT);
+    int tryct = 0;
+    int i;
+    struct permonst *ptr;
+
+    while (1) {
+        i = rn1(PM_STUDENT, LOW_PM);
+        ptr = &mons[i];
+        
+        if (tryct++ > 300)
+            return NON_PM;
+        if ((ptr->geno & excludeflags) != 0)
+            continue;
+        if ((svm.mvitals[i].mvflags & G_GONE) != 0)
+            continue;
+        if ((ptr->geno & G_MIDBOSS) == 0)
+            continue;
+        if (!montoostrong(i, monmax_difficulty(level_difficulty() + 4)))
+            break;
+    }
+    return i;
 }
 
 /*makemon.c*/

@@ -61,6 +61,7 @@ static int mon_trickster_spells[] = { MCAST_PSI_BOLT, MCAST_DISGUISE, MCAST_GREA
                                         MCAST_DISAPPEAR, MCAST_LEVITATE_YOU, MCAST_CURSE_ITEMS,
                                         MCAST_AGGRAVATION, MCAST_SUMMON_MONS, MCAST_TELEPORT };
 static int mon_support_spells[] = { MCAST_OPEN_WOUNDS, MCAST_CURE_ALLIES };
+static int mon_xerniax_spells[] = { MCAST_CURSE_ITEMS | MCAST_PSI_BOLT };
 
 DISABLE_WARNING_FORMAT_NONLITERAL
 
@@ -157,6 +158,9 @@ choose_monster_spell(struct monst *mtmp, int adtyp)
     } else if (mtmp->data == &mons[PM_DARK_ONE]) {
         list = mon_shadow_mage_spells;
         len = SIZE(mon_shadow_mage_spells);
+    } else if (mtmp->data == &mons[PM_XERNIAX]) {
+        list = mon_xerniax_spells;
+        len = SIZE(mon_xerniax_spells);
     } else if (is_undead(mtmp->data) || mtmp->data == &mons[PM_ORCUS]) {
         list = mon_undead_spells;
         len = SIZE(mon_undead_spells);

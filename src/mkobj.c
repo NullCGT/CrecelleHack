@@ -455,33 +455,6 @@ rndmonnum_adj(int minadj, int maxadj)
     return i;
 }
 
-/* select a random midboss, adjusted for level difficulty */
-int
-rndmidboss(void)
-{
-    unsigned short excludeflags = (Inhell ? G_NOHELL : G_HELL) | (night() ? G_DAY : G_NIGHT);
-    int tryct = 0;
-    int i;
-    struct permonst *ptr;
-
-    while (1) {
-        i = rn1(PM_STUDENT, LOW_PM);
-        ptr = &mons[i];
-        
-        if (tryct++ > 300)
-            return NON_PM;
-        if ((ptr->geno & excludeflags) != 0)
-            continue;
-        if ((svm.mvitals[i].mvflags & G_GONE) != 0)
-            continue;
-        if ((ptr->geno & G_MIDBOSS) == 0)
-            continue;
-        if (!montoostrong(i, monmax_difficulty(level_difficulty() + 4)))
-            break;
-    }
-    return i;
-}
-
 void
 copy_oextra(struct obj *obj2, struct obj *obj1)
 {

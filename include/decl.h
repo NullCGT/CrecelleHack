@@ -1183,6 +1183,7 @@ struct instance_globals_saved_m {
     mapseen *mapseenchn; /*DUNGEON_OVERVIEW*/
     /* decl.c */
     long moves; /* turn counter */
+    long midboss_counter; /* midboss counter */
     struct mvitals mvitals[NUMMONS];
 };
 

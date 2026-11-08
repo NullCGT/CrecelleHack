@@ -292,6 +292,8 @@ moveloop_core(void)
                 settrack();
 
                 svm.moves++;
+                if (svm.midboss_counter > 0)
+                    svm.midboss_counter--;
                 /*
                  * Never allow 'moves' to grow big enough to wrap.
                  * We don't care what the maximum possible 'long int'
@@ -954,6 +956,7 @@ newgame(void)
     urealtime.realtime = 0L;
     urealtime.start_timing = getnow();
     program_state.something_worth_saving++; /* useful data now exists */
+    svm.midboss_counter = rn1(3000, 2000);
 #ifdef INSURANCE
     save_currentstate();
 #endif

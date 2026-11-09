@@ -21,6 +21,7 @@
     longer talk.
 - Elf
   - Reverted alignment penalty and vomitting for eating meat.
+  - Increase the dex cap of elves to 20.
 
 ## Status Effects
 - Bleeding

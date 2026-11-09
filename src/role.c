@@ -700,7 +700,7 @@ const struct Race races[NUM_RACES + 1] = {
         MH_ORC | MH_KOBOLD,
         /*  Str    Int Wis Dex Con Cha */
         { 3, 3, 3, 3, 3, 3 },
-        { 18, 20, 20, 18, 16, 18 },
+        { 18, 20, 20, 20, 16, 18 },
         { -20, 0, 0, 0, 0, 0 }, /* Race resists */
         /* Init   Lower  Higher */
         { 1, 0, 0, 1, 1, 0 }, /* Hit points */

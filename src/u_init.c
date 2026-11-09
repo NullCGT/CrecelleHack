@@ -1127,7 +1127,7 @@ u_init_misc(void)
      *  For now, everyone starts out with a night vision range of 1 and
      *  their xray_range disabled.
      */
-    u.nv_range = 1;
+    u.nv_range = Race_if(PM_ELF) ? 2 : 1;
     u.xray_range = -1;
     u.unblind_telepat_range = -1;
 

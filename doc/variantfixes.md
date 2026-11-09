@@ -22,6 +22,7 @@
 - Elf
   - Reverted alignment penalty and vomitting for eating meat.
   - Increase the dex cap of elves to 20.
+  - Rather than infravision, elves can see one square further in the dark.
 
 ## Status Effects
 - Bleeding

@@ -671,7 +671,8 @@ vision_recalc(int control)
             }
         }
 
-        visrange = (!night() && exposed_to_elements(&u.uz)) ? u.uenvirons.dt_vis : u.nv_range;
+        visrange = (!night() && exposed_to_elements(&u.uz))
+                        ? max(u.uenvirons.dt_vis, u.nv_range) : u.nv_range;
 
         if ((has_night_vision && u.xray_range < visrange) || (!night() && exposed_to_elements(&u.uz))) {
             if (!visrange) { /* range is 0 */

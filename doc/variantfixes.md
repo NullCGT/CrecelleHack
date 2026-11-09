@@ -23,6 +23,10 @@
   - Reverted alignment penalty and vomitting for eating meat.
   - Increase the dex cap of elves to 20.
   - Rather than infravision, elves can see one square further in the dark.
+- Gnome
+  - Increase resizing kit charges.
+  - Generally much easier now due to the ability to pay shopkeepers for recharging,
+    making spending resizing kit charges much easier to acquire.
 
 ## Status Effects
 - Bleeding
@@ -37,6 +41,7 @@
 
 ## Objects
 - Always display the material of an item if it would burn the player.
+- Ensure that resizing kits can be recharged.
 - All weapons now have some sort of special functionality (documented in the tutorial
   and in weapon descriptions). The chance of this ability activating is dependent
   upon skill level with the weapon.

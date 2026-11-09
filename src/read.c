@@ -1011,6 +1011,7 @@ recharge(struct obj *obj, int curse_bless)
         case FIRE_HORN:
         case ELECTRIC_GUITAR:
         case DRUM_OF_EARTHQUAKE:
+        case RESIZING_KIT:
             if (is_cursed) {
                 stripspe(obj);
             } else if (is_blessed) {

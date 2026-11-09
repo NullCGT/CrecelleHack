@@ -6904,6 +6904,7 @@ void shk_charge(struct monst *shkp) {
 				obj->spe += 1;
 		}
 	}
+    update_inventory();
 }
 
 /*

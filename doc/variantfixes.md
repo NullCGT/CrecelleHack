@@ -7,7 +7,7 @@
   to previously in which they were considered valid minibosses for anyone.
 
 ## Races
-- Dwarves
+- Dwarf
   - Gold items and items made of precious metals (including coins) weigh less for
     dwarves, but wood items weigh far more. This reduction is particularly intense
     for gold.
@@ -19,6 +19,8 @@
   - Start with flying.
   - After 20,000 turns, voice is considered to have fully faded. Can no
     longer talk.
+- Elf
+  - Reverted alignment penalty and vomitting for eating meat.
 
 ## Status Effects
 - Bleeding

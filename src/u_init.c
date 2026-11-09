@@ -945,6 +945,11 @@ u_init_race(void)
     case PM_GNOME:
         ini_inv(Resizing);
         knows_object(GNOMISH_POINTY_HAT, FALSE);
+        
+        const struct trobj GnomeBook[] =
+            { { UNDEF_TYP, UNDEF_SPE, SPBOOK_CLASS, 1, 1, UNDEF_BLESS },
+                { 0, 0, 0, 0, 0, 0 } };
+        ini_inv(GnomeBook);
         break;
 
     case PM_ORC:

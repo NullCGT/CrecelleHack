@@ -27,6 +27,7 @@
   - Increase resizing kit charges.
   - Generally much easier now due to the ability to pay shopkeepers for recharging,
     making spending resizing kit charges much easier to acquire.
+  - Gnomes start with a random level 1 spellbook.
 
 ## Status Effects
 - Bleeding

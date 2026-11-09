@@ -4953,7 +4953,7 @@ swap_stance(struct obj *obj)
     }
     obj->altmode++;
     if (obj->altmode >= STANCE_MAX)
-        obj->altmode = 0;
+        obj->altmode = 1;
     switch (obj->altmode) {
     case STANCE_DEFLECT:
         You("switch to a deflecting stance with your %s.", xname(obj));

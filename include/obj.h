@@ -489,10 +489,10 @@ struct obj {
 
 /* weapon skills */
 /* Longsword stances */
-#define STANCE_DEFLECT 0
-#define STANCE_PARRY 1
-#define STANCE_BLEED 2
-#define STANCE_MAX 3
+#define STANCE_DEFLECT 1
+#define STANCE_PARRY 2
+#define STANCE_BLEED 3
+#define STANCE_MAX 4
 
 #define is_bleeding_weapon(otmp)                 \
     (otmp->oclass == WEAPON_CLASS                \

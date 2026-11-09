@@ -34,6 +34,7 @@
     reducing fun.
 
 ## Objects
+- Always display the material of an item if it would burn the player.
 - All weapons now have some sort of special functionality (documented in the tutorial
   and in weapon descriptions). The chance of this ability activating is dependent
   upon skill level with the weapon.

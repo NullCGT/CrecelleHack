@@ -732,7 +732,7 @@ xname_flags(
             Strcat(buf, OBJ_NAME(objects[obj->gemtype]));
             Strcat(buf, " ");
         } else if (dknown && (obj->material != objects[typ].oc_material
-                       || force_material_name(typ))) {
+                       || force_material_name(typ) || Hate_material(obj->material))) {
             Strcat(buf, MAT_NAME(obj->material));
             Strcat(buf, " ");
         }
@@ -765,7 +765,7 @@ xname_flags(
         if (obj->oprop)
             add_oprop_text(obj, pknown, buf);
         if ((obj->material != objects[typ].oc_material
-             || force_material_name(typ)) && dknown) {
+             || force_material_name(typ) || Hate_material(obj->material)) && dknown) {
             Strcat(buf, MAT_NAME(obj->material));
             Strcat(buf, " ");
         }

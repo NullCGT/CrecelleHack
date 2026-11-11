@@ -1893,6 +1893,7 @@ eatcorpse(struct obj *otmp)
     long rotted = 0L;
     int ll_conduct = 0;
     boolean stoneable,
+            zombifying = obj_has_timer(otmp, ZOMBIFY_MON),
             slimeable = (mnum == PM_GREEN_SLIME && !Slimed && !Unchanging
                          && !slimeproof(gy.youmonst.data)),
             glob = otmp->globby ? TRUE : FALSE;
@@ -1926,6 +1927,8 @@ eatcorpse(struct obj *otmp)
             rotted -= 2L;
         else if (svl.level.flags.temperature == -1)
             rotted -= 10L;
+        if (zombifying)
+            rotted += 5L;
     }
 
     /* 5.0: globs don't become tainted, they shrink away */

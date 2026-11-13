@@ -79,6 +79,8 @@ enum invoke_prop_types {
     BLINDING_RAY,
     STONEPROOF,
     CHORALE,
+    BLOOD_DRENCH,
+    MASS_CONFUSE,
 };
 
 /* artifact tracking; gift and wish imply found; it also gets set for items

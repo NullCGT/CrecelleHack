@@ -1031,7 +1031,8 @@ hmon_hitmon_weapon_melee(
         You("strike %s from behind!", mon_nam(mon));
         hmd->dmg += rnd(u.ulevel);
         hmd->hittxt = TRUE;
-    } else if (hmd->dieroll == 2 && obj == uwep
+    } else if ((hmd->dieroll == 2  || (is_art(obj, ART_DURANDAL) && hmd->dieroll <= 10))
+                && obj == uwep
                && obj->oclass == WEAPON_CLASS
                && (u_bimanual(obj)
                    || (Role_if(PM_SAMURAI) && obj->otyp == KATANA

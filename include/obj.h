@@ -496,7 +496,9 @@ struct obj {
 
 #define is_bleeding_weapon(otmp)                 \
     (otmp->oclass == WEAPON_CLASS                \
-     && (objects[otmp->otyp].oc_skill == P_KNIFE || otmp->altmode == STANCE_BLEED))
+     && (objects[otmp->otyp].oc_skill == P_KNIFE \
+            || otmp->altmode == STANCE_BLEED    \
+            || otmp->oartifact == ART_BLOODLINE))
 #define is_pulping_weapon(otmp)                  \
     (otmp->oclass == WEAPON_CLASS                \
      && objects[otmp->otyp].oc_skill == P_HAMMER)

@@ -105,6 +105,16 @@
 - The oracle can now be asked for enlightenment or to locate specific dungeon levels.
 - Science labs contain potions.
 
+## New Artifacts
+- Bloodline (Silver orcish short sword)
+  - Causes bleeding and flays.
+  - Engraves in blood.
+- Durandal (Two-Handed Sword)
+  - Very high chance of shattering opponent's weapons.
+  - Invoke to confuse all monsters on the level.
+- Tessesract (Javelin)
+  - Teleports the thrower to the location it is thrown.
+
 ## Balance
 - Object materials give more drastic adjustments to partial resistances.
 - Expand backstababble monsters to match xnethack: fleeing, trapped, immobilized,

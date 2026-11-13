@@ -1869,6 +1869,9 @@ throwit(
             return;
         }
         obj_no_longer_held(obj);
+        if (obj && is_art(obj, ART_TESSERACT)) {
+            teleds(gb.bhitpos.x, gb.bhitpos.y, TELEDS_TELEPORT);
+        }
         if (mon && mon->isshk && is_pick(obj)) {
             if (cansee(gb.bhitpos.x, gb.bhitpos.y))
                 pline("%s snatches up %s.", Monnam(mon), the(xname(obj)));

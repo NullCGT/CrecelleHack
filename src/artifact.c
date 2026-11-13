@@ -54,6 +54,8 @@ staticfn int count_surround_traps(coordxy, coordxy);
 staticfn void dispose_of_orig_obj(struct obj *);
 staticfn struct artifact *artifact_from_index(int);
 staticfn int invoke_chorale(struct obj *) NONNULLARG1;
+staticfn int invoke_blood_drench(struct obj *) NONNULLARG1;
+staticfn int invoke_mass_confuse(struct obj *) NONNULLARG1;
 
 /* The amount added to the victim's total hit points to insure that the
    victim will be killed even after damage bonus/penalty adjustments.
@@ -2446,6 +2448,8 @@ arti_invoke(struct obj *obj)
         case FIRESTORM: res = invoke_storm_spell(obj); break;
         case BLINDING_RAY: res = invoke_blinding_ray(obj); break;
         case CHORALE: res = invoke_chorale(obj); break;
+        case BLOOD_DRENCH: res = invoke_blood_drench(obj); break;
+        case MASS_CONFUSE: res = invoke_mass_confuse(obj); break;
         case STONEPROOF: {
             You("are covered in a protective sheath of acid!");
             if (Stoned)
@@ -3198,6 +3202,37 @@ invoke_chorale(struct obj *obj)
     }
     wake_nearby(FALSE);
     add_oprop_to_object(obj, index);
+    update_inventory();
+    return ECMD_TIME;
+}
+
+/* Bloodline rains down blood. */
+staticfn int
+invoke_blood_drench(struct obj *obj)
+{
+    You("raise %s high and cut the very sky itself.", the(xname(obj)));
+    pline("Blood pours down around you!");
+    potion_splatter(u.ux, u.uy, POT_BLOOD, PM_HUMAN);
+    make_dripping(rn1(10, 10), POT_BLOOD, PM_HUMAN);
+    return ECMD_TIME;
+}
+
+/* Durandal's confusion affects everyone on the level. */
+staticfn int
+invoke_mass_confuse(struct obj *obj)
+{
+    pline("The rage of Durandal runs red!");
+    for (struct monst *mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+        /* only skip tame monsters */
+        if (mtmp->mtame)
+            continue;
+        if (flags.verbose && canseemon(mtmp)) {
+            pline_mon(mtmp, "%s goes wild!", Monnam(mtmp));
+        }
+        mtmp->mconf = 1;
+    }
+    make_confused((HConfusion & TIMEOUT) + d(3, 4), TRUE);
+    obj->blessed = 1;
     update_inventory();
     return ECMD_TIME;
 }

@@ -174,15 +174,13 @@ struct monst {
     Bitfield(mtraitor, 1);  /* mon has turned traitor */
     Bitfield(mprone, 1);    /* mon is prone after being tripped */
     Bitfield(maware, 1);    /* mon is aware of you */
-    Bitfield(mbaby, 1);     /* mon is baby */
     Bitfield(mdripping, 1); /* mon is dripping with liquid */
-    Bitfield(madvanced, 1); /* mon is advanced beyond normal means */
     Bitfield(mwandexp, 1);  /* mon has experience with wands */
-    
     Bitfield(mgenmklev, 1); /* made by the level generation */
     Bitfield(mwounded_legs, 1); /* wounded legs */
+
     Bitfield(mbleeding, 1); /* mon is bleeding */
-    /* 5 spare bits */
+    /* 7 spare bits */
 
     unsigned long mstrategy; /* for monsters with mflag3: current strategy */
 #ifdef NHSTDC

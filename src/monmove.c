@@ -337,12 +337,6 @@ mon_regen(struct monst *mon, boolean digest_meal)
         || (mon->data == &mons[PM_WATER_ELEMENTAL] 
             && IS_RAINING && exposed_to_elements(&u.uz)))
         healmon(mon, 1, 0);
-    /* special regen */
-    if ((mon->data == &mons[PM_DUST_VORTEX])
-            && IS_SUBMASKABLE(levl[mon->mx][mon->my].typ)
-            && (levl[mon->mx][mon->my].submask == SM_DIRT
-                || levl[mon->mx][mon->my].submask == SM_SAND))
-        healmon(mon, 5, 0);
     /* actual regen stuff */
     if (mon->mspec_used)
         mon->mspec_used--;
@@ -767,7 +761,6 @@ void
 m_postmove_effect(struct monst *mtmp)
 {
     boolean is_u = (mtmp == &gy.youmonst) ? TRUE : FALSE;
-    boolean vortex_growth = FALSE;
     coordxy x = is_u ? u.ux0 : mtmp->mx,
             y = is_u ? u.uy0 : mtmp->my;
 
@@ -795,35 +788,6 @@ m_postmove_effect(struct monst *mtmp)
         /* tornados suck up everything */
         remove_coating(x, y, COAT_ALL);
         wipe_engr_at(x, y, 8, FALSE);
-    } 
-    /* vortex growth */
-    if (!is_u) {
-        if (mtmp->data == &mons[PM_ICE_VORTEX]
-            && has_coating(x, y, COAT_FROST)) {
-            vortex_growth = TRUE;
-            remove_coating(x, y, COAT_FROST);
-        } else if (mtmp->data == &mons[PM_FIRE_VORTEX]
-                    && has_coating(x, y, COAT_ASHES)) {
-            vortex_growth = TRUE;
-            remove_coating(x, y, COAT_ASHES);
-        } else if (mtmp->data == &mons[PM_STEAM_VORTEX]
-                    && has_coating(x, y, COAT_POTION)
-                    && levl[x][y].pindex == POT_WATER) {
-            vortex_growth = TRUE;
-            remove_coating(x, y, COAT_POTION);
-        }
-        /* Now we actually grow. */
-        if (vortex_growth) {
-            if (canseemon(mtmp)) {
-                pline("%s absorbs nearby material!", Monnam(mtmp));
-            }
-            if (rn2(7))
-                healmon(mtmp, 10, 0);
-            else {
-                (void) grow_up(mtmp, (struct monst *) 0);
-                if (!canseemon(mtmp)) You_hear("churning air.");
-            }
-        }
     }
     /* Servants mop up gross things */
     if (is_cleaner(mtmp->data) && !is_u

@@ -320,7 +320,7 @@ struct _create_particular_data {
     char monclass;
     boolean randmonst;
     boolean maketame, makepeaceful, makehostile;
-    boolean sleeping, saddled, invisible, hidden, advanced;
+    boolean sleeping, saddled, invisible, hidden;
 };
 
 /* dig_check() results */

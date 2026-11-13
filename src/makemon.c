@@ -1461,7 +1461,6 @@ makemon(
             allow_minvent = ((mmflags & NO_MINVENT) == 0),
             countbirth = ((mmflags & MM_NOCOUNTBIRTH) == 0),
             allowtail = ((mmflags & MM_NOTAIL) == 0),
-            allowadvance = ((mmflags & MM_EDOG) == 0),
             midboss;
     mmflags_nht gpflags = (((mmflags & MM_IGNOREWATER) ? MM_IGNOREWATER : 0)
                            | GP_CHECKSCARY | GP_AVOID_MONPOS);
@@ -1562,10 +1561,6 @@ makemon(
 
     /* set up level and hit points */
     newmonhp(mtmp, mndx);
-
-    /* advance the monster, maybe? */
-    if (allowadvance && advanceable(ptr) && !rn2(38))
-        advance_monster(mtmp);
 
     femaleok = (!is_male(ptr) && !is_neuter(ptr));
     maleok = (!is_female(ptr) && !is_neuter(ptr));
@@ -2511,7 +2506,6 @@ grow_up(struct monst *mtmp, struct monst *victim)
         lev_limit = 50;   /* recalc below */
     }
 
-    mtmp->mbaby = 0;
     mtmp->mhpmax += max_increase;
     mtmp->mhp += cur_increase;
     if (mtmp->mhpmax <= hp_threshold)
@@ -3062,23 +3056,6 @@ summon_furies(int limit) /* number to create, or 0 to create until extinct */
         makemon(&mons[PM_ERINYS], u.ux, u.uy, MM_ADJACENTOK | MM_NOWAIT);
         i++;
     }
-}
-
-/* advance a monster beyond its usual level, creating a supermonster */
-void
-advance_monster(struct monst *mon)
-{
-    struct permonst *ptr = mon->data;
-    int target = min(level_difficulty(), 49);
-    int factor;
-    if (target <= (3 * ptr->mlevel / 2))
-        return;
-    factor = (target - ptr->mlevel) / 10;
-    mon->m_lev = level_difficulty();
-    mon->mhpmax = mon->mhp = monmaxhp(ptr, mon->m_lev);
-    /* Advanced monsters are usually faster */
-    mon_adjust_speed(mon, factor, (struct obj *) 0);
-    mon->madvanced = 1;
 }
 
 /* select a random midboss, adjusted for level difficulty */

@@ -308,8 +308,6 @@
 #define resists_pierce(ptr) (((ptr)->mflags4 & M4_RPIERCE) != 0L)
 #define resists_slash(ptr) (((ptr)->mflags4 & M4_RSLASH) != 0L)
 #define is_deathdropper(ptr) (((ptr)->mflags2 & M2_DEATHDROP) != 0L)
-#define advanceable(ptr) (!unique_corpstat(ptr) \
-            && (!humanoid(ptr) || mindless(ptr) || is_demon(ptr)))
 #define is_jouster(ptr) ((ptr)->mlet == S_CENTAUR \
                             || (ptr)->mlet == S_QUADRUPED || is_rider(ptr))
 #define is_cleaner(ptr) (ptr == &mons[PM_SERVANT] || ptr == &mons[PM_HEAD_SERVANT])

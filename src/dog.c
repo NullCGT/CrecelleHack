@@ -277,9 +277,6 @@ makedog(void)
     if (!mtmp)
         return ((struct monst *) 0); /* pets were genocided [how?] */
 
-    /* chance that the pet is a baby. has no impact on gameplay */
-    if (!rn2(6)) mtmp->mbaby = 1;
-
     /* Kobolds are usually very slow */
     if (pettype == PM_KOBOLD) {
         mon_adjust_speed(mtmp, 2, (struct obj *) 0);

@@ -1152,10 +1152,7 @@ hatch_egg(anything *arg, long timeout)
                monster, checked below
             */
         }
-        if (mnum == egg->corpsenm) {
-            /* If it doesn't have an explicit baby form, make one. */
-            mon->mbaby = 1;
-        }
+        
         switch (egg->where) {
         case OBJ_INVENT:
             knows_egg = TRUE; /* true even if you are blind */

@@ -161,10 +161,9 @@ put_saddle_on_mon(struct obj *saddle, struct monst *mtmp)
     mtmp->misc_worn_check |= W_SADDLE;
     saddle->owornmask = W_SADDLE;
     saddle->leashmon = mtmp->m_id;
-    if ((saddle->oartifact == ART_SELENIC_SEAT) && !mtmp->madvanced) {
+    if ((saddle->oartifact == ART_SELENIC_SEAT)) {
         if (canseemon(mtmp))
             pline("%s glows with a silvery light!", Monnam(mtmp));
-        advance_monster(mtmp);
     }
     update_mon_extrinsics(mtmp, saddle, TRUE, FALSE);
 }

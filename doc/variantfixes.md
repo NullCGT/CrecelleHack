@@ -62,6 +62,12 @@
   - Two-handed club that deals greater damage.
 
 ## Monsters
+- Remove advanced monsters and baby monsters.
+  - Advanced monsters were tedious to fight and uninteresting.
+  - Baby feature caused bugs and was uninteresting.
+- Removed vortex growth.
+  - No one knew this existed, it caused a bottleneck in the code, and
+    it could create unfairly difficult monsters.
 - Iron golems drip oil occasionally.
 - Monsters are able to release a wider variety of substances when dying.
 - Some monsters are able to inflict bleeding wounds.

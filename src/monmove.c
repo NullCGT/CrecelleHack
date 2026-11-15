@@ -2156,6 +2156,17 @@ m_move(struct monst *mtmp, int after)
             if (m_avoid_kicked_loc(mtmp, nx, ny))
                 continue;
 
+            if (MON_AT(nx, ny) && mergeable_pms(mtmp->data, m_at(nx, ny)->data)) {
+                struct monst *mergemon = m_at(nx, ny);
+                if (mergemon->m_lev > mtmp->m_lev) {
+                    merge_monsters(mergemon, mtmp);
+                    return MMOVE_DIED;
+                } else {
+                    merge_monsters(mtmp, mergemon);
+                    return MMOVE_DONE;
+                }
+            }
+
             if (MON_AT(nx, ny) && (mfp.info[i] & ALLOW_MDISP)
                 && !(mfp.info[i] & ALLOW_M) && !better_with_displacing)
                 continue;

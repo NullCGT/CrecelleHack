@@ -2586,6 +2586,11 @@ mm_2way_aggression(struct monst *magr, struct monst *mdef)
                || In_W_tower(mdef->mx, mdef->my, &u.uz)))
             return 0L;
     }
+    /* Mergeable monsters will attempt to attack each other, resulting 
+       in merges. */
+    if (mergeable_pms(magr->data, mdef->data) && !magr->mspec_used) {
+        return (ALLOW_M | ALLOW_TM);
+    }
     /* liches/zombies vs things that can be zombified
 
        Note: avoid this on the Castle level, partly for balance reasons
@@ -6778,6 +6783,20 @@ make_mbleeding(struct monst *mon)
     if (!blood_coat(mon->data))
         return;
     mon->mbleeding = 1;
+}
+
+/* Merge two similar monsters into a single one. Essentially the
+   reverse of cloning a monster. */
+void
+merge_monsters(struct monst *magr, struct monst *mdef)
+{
+    if (canseemon(magr))
+        pline("%s merges with %s.", Monnam(magr), mon_nam(mdef));
+    mdef->mhp += magr->mhp;
+    if (mdef->mhp > mdef->mhpmax)
+        mdef->mhpmax = mdef->mhp;
+    mongone(magr);
+    grow_up(mdef, (struct monst *) 0);
 }
 /* cleanup for 'onefile' processing */
 #undef LEVEL_SPECIFIC_NOCORPSE

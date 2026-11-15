@@ -313,6 +313,11 @@
 #define is_cleaner(ptr) (ptr == &mons[PM_SERVANT] || ptr == &mons[PM_HEAD_SERVANT])
 #define is_supporter(ptr) (((ptr)->mflags2 & M2_SUPPORTER) != 0L)
 #define acid_dripper(ptr) (((ptr)->mflags2 & M2_ACID_TRAIL) != 0L)
+#define is_merger(ptr) ((ptr)->mlet == S_PUDDING \
+                            || ptr == &mons[PM_FIRE_VORTEX] \
+                            || ptr == &mons[PM_ICE_VORTEX] \
+                            || ptr == &mons[PM_DUST_VORTEX])
+#define mergeable_pms(m1, m2) (is_merger(m1) && m1 == m2)
 /* monkeys are tamable via bananas but not pacifiable via food,
    otherwise their theft attack could be nullified too easily;
    dogs and cats can be tamed by anything they like to eat and are

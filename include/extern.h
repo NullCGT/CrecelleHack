@@ -1973,6 +1973,7 @@ extern int blood_index(struct permonst *) NONNULLARG1;
 extern void shed_blood(struct permonst *, coordxy, coordxy, boolean);
 extern void make_bleeding(long, boolean);
 extern void make_mbleeding(struct monst *) NONNULLARG1;
+extern void merge_monsters(struct monst *, struct monst *) NONNULLARG12;
 
 /* ### mondata.c ### */
 

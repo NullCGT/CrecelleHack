@@ -1158,6 +1158,10 @@ clone_mon(
     m2->ispriest = 0;
     /* ms->isminion handled below */
 
+    /* mspec_used used for tracking monster merging */
+    mon->mspec_used = d(3, 3);
+    m2->mspec_used = mon->mspec_used;
+
     /* clone shouldn't be reluctant to move on spots 'parent' just moved on */
     mon_track_clear(m2);
 

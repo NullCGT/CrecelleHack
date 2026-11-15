@@ -73,6 +73,8 @@
 - Some monsters are able to inflict bleeding wounds.
 - Monsters killed by explosions now explode into many pieces.
   - Known issue: does not occur with monsters exploded outside the player's turn.
+- Some monsters (currently puddings and certain vorticies) can merge with their
+  fellows.
 - Recolored dwarf zombies to account for ghasts.
 - New monsters:
   - Added a number of monsters to allow for greater biome variations.

@@ -496,7 +496,8 @@ m_initweap(struct monst *mtmp)
                 m_initthrow(mtmp, DAGGER, 30);
                 break;
             case PM_DUDLEY:
-                (void) mongets(mtmp, rnd_class(SPEAR, BULLWHIP));
+                w1 = rnd_class(SPEAR, BULLWHIP);
+                (void) mongets(mtmp, w1);
                 break;
             }
         }
@@ -769,20 +770,23 @@ m_initweap(struct monst *mtmp)
             }
             break;
         case 3:
-            (void) mongets(mtmp, rnd_class(BOW, YUMI));
+            w1 = rnd_class(BOW, YUMI);
+            (void) mongets(mtmp, w1);
             m_initthrow(mtmp, ARROW, 12);
             break;
         case 4:
-            if (strongmonst(ptr))
-                (void) mongets(mtmp, rnd_class(SPEAR, BULLWHIP));
-            else
+            if (strongmonst(ptr)) {
+                w1 = rnd_class(SHORT_SWORD, LONG_SWORD);
+                (void) mongets(mtmp, w1);
+            } else
                 m_initthrow(mtmp, (svl.level.flags.temperature == -1)
                                     ? ICICLE : DAGGER, 3);
             break;
         case 5:
-            if (strongmonst(ptr))
-                (void) mongets(mtmp, rnd_class(PARTISAN, BEC_DE_CORBIN));
-            else
+            if (strongmonst(ptr)) {
+                w1 = rnd_class(PARTISAN, BEC_DE_CORBIN);
+                (void) mongets(mtmp, w1);
+            } else
                 (void) mongets(mtmp, AKLYS);
             break;
         default:

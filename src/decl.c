@@ -549,7 +549,7 @@ static const struct instance_globals_n g_init_n = {
     0, /* now_or_before_idx */
     /* decl.c */
     NULL, /* nomovemsg */
-    0, /* nsubroom */
+    0,    /* nsubroom */
     /* dokick.c */
     UNDEFINED_VALUES, /* nowhere */
     /* files.c */
@@ -558,7 +558,7 @@ static const struct instance_globals_n g_init_n = {
     /* mhitm.c */
     0L, /* noisetime */
     /* mkmap.c */
-    UNDEFINED_PTR, /* new_locations */
+    UNDEFINED_PTR,   /* new_locations */
     UNDEFINED_VALUE, /* n_loc_filled */
     /* options.c */
     0, /* n_menu_mapped */
@@ -575,7 +575,13 @@ static const struct instance_globals_n g_init_n = {
     STRANGE_OBJECT, /* nocreate2 */
     STRANGE_OBJECT, /* nocreate3 */
     STRANGE_OBJECT, /* nocreate4 */
-    TRUE, /* havestate*/
+#ifdef NO_TERMS
+    TRUE,
+#else
+    FALSE,
+#endif
+
+TRUE, /* havestate*/
 };
 
 static const struct instance_globals_o g_init_o = {
@@ -783,6 +789,9 @@ static const struct instance_globals_u g_init_u = {
     FALSE, /* update_all */
     /* decl.c */
     FALSE, /* unweapon */
+    /* polyself.c */
+    0UL,   /* uasmon_generation */
+    0UL,   /* uasmon_top_of_moveloop */
     /* revision.c */
     0, /* uplift_needed_rev0_to_rev1 */
     /* role.c */

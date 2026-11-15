@@ -2028,6 +2028,8 @@ struct ext_func_tab extcmdlist[] = {
               wiz_smell, IFBURIED | AUTOCOMPLETE | WIZMODECMD, NULL },
     { '\0',   "wiztelekinesis", "telekinesis",
               wiz_telekinesis, IFBURIED | AUTOCOMPLETE | WIZMODECMD, NULL },
+    { '\0',   "wizthrowranges", "throw/hurtle range calc", wiz_throwranges,
+              IFBURIED | AUTOCOMPLETE | WIZMODECMD, NULL },
     { '\0',   "wiztime", "advance the time of day",
               wiz_time, IFBURIED | AUTOCOMPLETE | WIZMODECMD, "wiztod" },
     { '\0',   "wizweather", "show locations of special levels",

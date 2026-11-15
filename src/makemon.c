@@ -816,7 +816,7 @@ mkmonmoney(struct monst *mtmp, long amount)
 staticfn void
 m_initinv(struct monst *mtmp)
 {
-    int cnt;
+    int cnt, otyp;
     struct obj *otmp;
     struct permonst *ptr = mtmp->data;
 
@@ -930,11 +930,13 @@ m_initinv(struct monst *mtmp)
                     (void) mongets(mtmp, BUGLE);
             }
         } else if (ptr == &mons[PM_SHOPKEEPER]) {
+            otyp = rnd_class(SPEAR, BULLWHIP);
+            (void) mongets(mtmp, otyp);
             (void) mongets(mtmp, SKELETON_KEY);
             switch (rn2(4)) {
             /* MAJOR fall through ... */
             case 0:
-                (void) mongets(mtmp, WAN_MAGIC_MISSILE);
+                (void) mongets(mtmp, POT_HAZARDOUS_WASTE);
                 FALLTHROUGH;
                 /*FALLTHRU*/
             case 1:
@@ -946,7 +948,7 @@ m_initinv(struct monst *mtmp)
                 FALLTHROUGH;
                 /*FALLTHRU*/
             case 3:
-                (void) mongets(mtmp, rn2(3) ? WAN_STRIKING : WAN_AQUA_BOLT);
+                (void) mongets(mtmp, WAN_SLEEP);
             }
         } else if (ptr->msound == MS_PRIEST
                    || quest_mon_represents_role(ptr, PM_CLERIC)) {

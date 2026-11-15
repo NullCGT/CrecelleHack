@@ -62,6 +62,10 @@
   - Two-handed club that deals greater damage.
 
 ## Monsters
+- Shopkeepers are much more dangerous.
+  - Considered expert in weapon skills.
+  - Randomly generate with a powerful weapon.
+  - Have a wand of sleep instead of striking and hazardous waste instead of magic missile.
 - Remove advanced monsters and baby monsters.
   - Advanced monsters were tedious to fight and uninteresting.
   - Baby feature caused bugs and was uninteresting.

@@ -7160,7 +7160,9 @@ int
 mon_weapon_skill(struct monst *mon, struct obj *obj)
 {
     int skill_rating = P_UNSKILLED;
-    if (is_minion(mon->data) || is_prince(mon->data) || unique_corpstat(mon->data))
+    if (is_minion(mon->data) || is_prince(mon->data)
+        || unique_corpstat(mon->data)
+        || mon->data == &mons[PM_SHOPKEEPER])
         skill_rating = P_EXPERT;
     else if (is_ndemon(mon->data) || is_lord(mon->data))
         skill_rating = P_SKILLED;

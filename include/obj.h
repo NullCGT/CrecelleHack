@@ -179,7 +179,8 @@ struct obj {
 #define gemtype usecount    /* index of the type of gemstone for gemstone items */
 #define altmode usecount    /* weapon in an alternate mode of some kind (stance, etc.) */
     unsigned oeaten;        /* nutrition left in food, if partly eaten */
-    int oprop;              /* The oprop of the item */
+    short oprop;              /* The oprop of the item */
+    int tuner_slots;        /* Number of slots for tuners */
     long age;               /* creation date */
     long owornmask;        /* bit mask indicating which equipment slot(s) an
                             * item is worn in [by hero or by monster; could
@@ -486,6 +487,9 @@ struct obj {
     (humanoid(mptr) && (mptr)->msize >= MZ_SMALL && (mptr)->msize <= MZ_HUGE \
      && !noncorporeal(mptr) && (mptr)->mlet != S_CENTAUR                     \
      && (mptr) != &mons[PM_WINGED_GARGOYLE] && (mptr) != &mons[PM_MARILITH])
+
+#define is_tunable(o) ((o)->oclass == WEAPON_CLASS || (o)->oclass == ARMOR_CLASS \
+                        || is_weptool(o))
 
 /* weapon skills */
 /* Longsword stances */

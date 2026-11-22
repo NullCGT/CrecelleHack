@@ -3051,6 +3051,9 @@ get_cost(
     if (obj->oprop)
         tmp *= 2L;
 
+    if (is_tunable(obj) && obj->tuner_slots)
+        tmp *= (obj->tuner_slots + 1);
+
     /* anger surcharge should match rile_shk's, so we do it separately
        from the multiplier/divisor calculation */
     if (shkp && ESHK(shkp)->surcharge)

@@ -22,6 +22,7 @@ obscure_role_obj_names  disable role-specific object names         [False]
 perfect_bestiary        enable perfect monster knowledge           [False]
 player_sized_wishes     wishes are player sized by default         [True]
 shorten_buc             shortens buc text to +/-                   [False]
+showtuning              display tuning slots of objects            [True]
 
 
 Compound Crecelle Options

@@ -417,6 +417,8 @@ itemactions(struct obj *otmp)
         ia_addmenu(win, IA_APPLY_OBJ, 'a', "Break this wand");
     else if (is_stance_weapon(otmp))
         ia_addmenu(win, IA_APPLY_OBJ, 'a', "Switch stances");
+    else if (otmp->oclass == TUNER_CLASS)
+        ia_addmenu(win, IA_APPLY_OBJ, 'a', "Tune an object with this tuner");
 
     /* 'c', 'C' - call an item or its type something */
     if (item_naming_classification(otmp, buf, buf2)) {

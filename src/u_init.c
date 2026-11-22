@@ -1351,6 +1351,7 @@ ini_inv_adjust_obj(const struct trobj *trop, struct obj *obj)
         }
         obj->cursed = 0;
         obj->oprop = 0;
+        obj->tuner_slots = 0;
         if (obj->opoisoned && u.ualign.type != A_CHAOTIC)
             obj->opoisoned = 0;
         if (obj->oclass == WEAPON_CLASS || obj->oclass == TOOL_CLASS) {
@@ -1505,11 +1506,7 @@ ini_inv(const struct trobj *trop)
 staticfn void
 fixup_starting_material(struct obj *obj)
 {
-    if ((obj->oclass == WEAPON_CLASS || is_weptool(obj))
-        && !is_ammo(obj) && !is_launcher(obj)
-        && abs(objects[obj->otyp].oc_skill) != P_MISSILES) {
-        force_material(obj, WOOD);
-    } else if (Race_if(PM_ELF) && objects[obj->otyp].oc_material == IRON
+    if (Race_if(PM_ELF) && objects[obj->otyp].oc_material == IRON
             && valid_obj_material(obj, COPPER)) {
         set_material(obj, COPPER);
     } else if (Race_if(PM_ORC) && objects[obj->otyp].oc_material == MITHRIL

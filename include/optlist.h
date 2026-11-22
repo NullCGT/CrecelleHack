@@ -743,6 +743,9 @@ static int optfn_##a(int, int, boolean, char *, char *);
            Off, Yes, No, No, NoAlias, (boolean *) 0, Term_False,
            (char *)0)
 #endif
+    NHOPTB(showtuning, Variant, 0, opt_out, set_in_game,
+           On, Yes, No, No, "invtuning", &iflags.showtuning, Term_False,
+           "display tuner slots of items" )
     NHOPTB(showvers, Advanced, 0, opt_in, set_in_game,
            Off, Yes, No, No, NoAlias, &flags.showvers, Term_False,
            "show version info on status line")

@@ -155,7 +155,8 @@ loot_classify(Loot *sort_item, struct obj *obj)
     static char def_srt_order[MAXOCLASSES] = {
         COIN_CLASS, AMULET_CLASS, RING_CLASS, WAND_CLASS, POTION_CLASS,
         SCROLL_CLASS, SPBOOK_CLASS, GEM_CLASS, FOOD_CLASS, TOOL_CLASS,
-        WEAPON_CLASS, ARMOR_CLASS, ROCK_CLASS, BALL_CLASS, CHAIN_CLASS, 0,
+        WEAPON_CLASS, ARMOR_CLASS, ROCK_CLASS, BALL_CLASS, CHAIN_CLASS,
+        TUNER_CLASS, 0,
     };
     static char armcat[8];
     const char *classorder;
@@ -4577,8 +4578,11 @@ mergable(
             (Blind || Hallucination))
         || obj->oeroded != otmp->oeroded || obj->oeroded2 != otmp->oeroded2
         || obj->greased != otmp->greased || obj->oprop != otmp->oprop
-        || obj->material != otmp->material
+        || obj->material != otmp->material || obj->tuner_slots != otmp->tuner_slots
         || obj->gemtype != otmp->gemtype)
+        return FALSE;
+
+    if (is_tunable(obj) && obj->cobj)
         return FALSE;
 
     if ((erosion_matters(obj))
@@ -4943,7 +4947,7 @@ useupf(struct obj *obj, long numused)
 static NEARDATA const char *names[] = {
     0, "Illegal objects", "Weapons", "Armor", "Rings", "Amulets", "Tools",
     "Comestibles", "Tonics", "Scrolls", "Spellbooks", "Wands", "Coins",
-    "Gems/Stones", "Boulders/Statues", "Iron balls", "Junk", "Venoms"
+    "Gems/Stones", "Boulders/Statues", "Iron balls", "Junk", "Tuners", "Venoms"
 };
 static NEARDATA const char oth_symbols[] = { CONTAINED_SYM, '\0' };
 static NEARDATA const char *oth_names[] = { "Bagged/Boxed items" };

@@ -212,6 +212,7 @@ start: Blank
         S_tree: \032
         S_troll: \032
         S_trwall: \032
+		S_tuner: \032
         S_tuwall: \032
         S_umber: \032
         S_unicorn: \032

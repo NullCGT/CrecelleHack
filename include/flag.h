@@ -443,6 +443,7 @@ struct instance_flags {
     boolean customsymbols;   /* support customsymbols defined in glyphmap */
     boolean msg_is_alert;    /* suggest windowport should grab player's attention
                               * and request <TAB> acknowlegement */
+    boolean showtuning;      /* display tuner slots of everything */
     /*
      * Window capability support.
      */

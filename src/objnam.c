@@ -28,7 +28,7 @@ struct _readobjnam_data {
     int wetness, gsize;
     int osize;
     int ftype;
-    int oprop;
+    int oprop, tuning;
     int material;
     boolean zombify;
     char globbuf[BUFSZ];
@@ -67,7 +67,7 @@ struct Jitem {
     const char *name;
 };
 
-#define OPROP(id, nam, prob, val) nam
+#define OPROP(id, nam, prob, val, bit) nam
 static const char *oprop_nams[] = { OPROP_LIST };
 #undef OPROP
 
@@ -714,6 +714,7 @@ xname_flags(
             Strcpy(buf, "poisoned ");
         FALLTHROUGH;
         /*FALLTHRU*/
+    case TUNER_CLASS:
     case VENOM_CLASS:
     case TOOL_CLASS:
         if (size_matters(obj) && (!flags.implicit_medium || obj->osize != MZ_MEDIUM)){
@@ -1132,6 +1133,7 @@ minimal_xname(struct obj *obj)
     bareobj.oclass = obj->oclass;
     bareobj.osize = (flags.implicit_medium) ? MZ_MEDIUM : obj->osize;
     bareobj.oprop = obj->oprop;
+    bareobj.tuner_slots = 0;
     bareobj.pknown = obj->pknown;
     /* not observe_object, either the hero observed the object already or this
        is overriding ID and shouldn't discover the object */
@@ -1488,7 +1490,8 @@ doname_base(
     if (obj->greased)
         Strcat(prefix, "greased ");
 
-    if (cknown && Has_contents(obj) && bpspaceleft > 0) {
+    if (cknown && Has_contents(obj) && bpspaceleft > 0
+        && !is_tunable(obj)) {
         /* we count the number of separate stacks, which corresponds
            to the number of inventory slots needed to be able to take
            everything out if no merges occur */
@@ -1674,6 +1677,11 @@ doname_base(
             ConcatF1(bp, 0, " (%s to you)",
                      (obj->owornmask & W_BALL) ? "chained" : "attached");
         break;
+    case TUNER_CLASS:
+        if (known) {
+            Sprintf(eos(prefix), "%+d ", obj->spe); /* sitoa(obj->spe)+" " */
+        }
+        break;
     }
 
     if ((obj->otyp == STATUE || obj->otyp == CORPSE || obj->otyp == FIGURINE 
@@ -1764,6 +1772,7 @@ doname_base(
         case WAND_CLASS:
         case COIN_CLASS:
         case GEM_CLASS:
+        case TUNER_CLASS:
             Qtyp = 2; /* small, non-bow: "in quiver pouch" */
             break;
         default: /* odd things */
@@ -1821,6 +1830,15 @@ doname_base(
         (void) just_an(prefix, *tmpbuf ? tmpbuf : bp);
         /* append remainder of original prefix */
         Strcat(prefix, tmpbuf);
+    }
+
+    if (iflags.showtuning && !gm.mrg_to_wielded && obj->tuner_slots) {
+        if (with_price)
+            ConcatF1(bp, 1, (obj->cobj) ? " (%d)" : " [%d]", obj->tuner_slots);
+        else
+            ConcatF1(bp, 0, (obj->cobj) ? " (%d)" : " [%d]", obj->tuner_slots);
+        nhUse(bp_eos);
+        nhUse(bpspaceleft);
     }
 
     /* show weight for items (debug tourist info);
@@ -2485,16 +2503,19 @@ paydoname(struct obj *obj)
     char *p;
     unsigned save_cknown = obj->cknown;
     boolean save_invweight = iflags.invweight;
+    boolean save_tuning = iflags.showtuning;
 
     if (Has_contents(obj))
         obj->cknown = 0;
     /* avoid showing item weights to unclutter billing's pay-menu a bit */
     iflags.invweight = FALSE;
+    iflags.showtuning = FALSE;
     /* suppress invent-style price; caller will add billing-style price */
     iflags.suppress_price++;
     p = doname_base(obj, 0U);
     iflags.suppress_price--;
     iflags.invweight = save_invweight;
+    iflags.showtuning = save_tuning;
 
     if (Has_contents(obj)) {
         /* buy_container() sets no_charge for a container that has just
@@ -3536,6 +3557,7 @@ static NEARDATA const struct o_range o_ranges[] = {
     { "venom", VENOM_CLASS, BLINDING_VENOM, ACID_VENOM },
     { "gray stone", GEM_CLASS, LUCKSTONE, FLINT },
     { "grey stone", GEM_CLASS, LUCKSTONE, FLINT },
+    { "tuner", TUNER_CLASS, BLOOD_TUNER, PURE_TUNER },
 };
 
 /* alternate spellings; if the difference is only the presence or
@@ -4143,7 +4165,7 @@ readobjnam_init(char *bp, struct _readobjnam_data *d)
         = d->trapped = d->locked = d->unlocked = d->broken
         = d->open = d->closed = d->doorless /* wizard mode door */
         = d->looted /* wizard mode fountain/sink/throne/tree and grave */
-        = d->real = d->fake = d->oprop = d->material = 0; /* Amulet */
+        = d->real = d->fake = d->oprop = d->tuning = d->material = 0; /* Amulet */
     d->tvariety = RANDOM_TIN;
     d->mgend = -1; /* not specified, aka random */
     d->mntmp = NON_PM;
@@ -4294,6 +4316,8 @@ readobjnam_preparse(struct _readobjnam_data *d)
             d->very = 0;
         } else if (!strncmpi(d->bp, "harmonic ", l = 9)) {
             d->oprop = -1;
+        } else if (!strncmpi(d->bp, "tunable ", l = 8)){
+            d->tuning = rnd(3);
         } else if (!strncmpi(d->bp, "corroded ", l = 9)
                    || !strncmpi(d->bp, "rotted ", l = 7)) {
             d->eroded2 = 1 + d->very;
@@ -5329,6 +5353,10 @@ readobjnam(char *bp, struct obj *no_wish)
         case MAGIC_LAMP:
             d.typ = OIL_LAMP;
             break;
+        case SCR_ENCHANT_ARMOR:
+        case SCR_ENCHANT_WEAPON:
+            d.typ = PURE_TUNER;
+            break;
         default:
             /* catch any other non-wishable objects (venom) */
             if (objects[d.typ].oc_nowish)
@@ -5729,6 +5757,7 @@ readobjnam(char *bp, struct obj *no_wish)
             consume_oeaten(d.otmp, 1);
         }
     }
+    /* oprop handling */
     if (d.oprop && (d.otmp->oclass == WEAPON_CLASS
                     || d.otmp->oclass == ARMOR_CLASS)) {
         if (wizard
@@ -5740,6 +5769,12 @@ readobjnam(char *bp, struct obj *no_wish)
             else
                 add_oprop_to_object(d.otmp, d.oprop);
         }
+    }
+    /* tuning handling */
+    if (d.tuning && is_tunable(d.otmp) && wizard) {
+        d.otmp->tuner_slots = d.tuning;
+    } else {
+        d.otmp->tuner_slots = 0;
     }
     /* material handling */
     if (d.material > 0

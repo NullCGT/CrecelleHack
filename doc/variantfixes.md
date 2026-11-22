@@ -29,6 +29,15 @@
     making spending resizing kit charges much easier to acquire.
   - Gnomes start with a random level 1 spellbook.
 
+## Tuner System
+- Scrolls of enchant armor and enchant weapon have been replaced by tuners.
+- Tuners are a new class of items which can be slotted into weapons and armor
+  with free tuning slots.
+- Slotting a tuner alters the item in some way, such as by changing its enchantment
+  or giving it an object property.
+- A tuner can be freely removed at any time and slotted into a different item.
+- Items with tuner slots are denoted with square brackets at the end of the item name.
+
 ## Status Effects
 - Bleeding
   - Lose 1 hp per turn and shed blood on the ground. You cannot bleed out
@@ -41,6 +50,7 @@
     reducing fun.
 
 ## Objects
+- Starting items are no longer made of wood.
 - Always display the material of an item if it would burn the player.
 - Ensure that resizing kits can be recharged.
 - All weapons now have some sort of special functionality (documented in the tutorial

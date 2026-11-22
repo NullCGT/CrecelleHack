@@ -103,7 +103,8 @@ GENERIC("gem",        GEM_CLASS,     GENERIC_GEM),     /* [13] */
 GENERIC("large rock", ROCK_CLASS,    GENERIC_ROCK),    /* [14] bldr+statue */
 GENERIC("iron ball",  BALL_CLASS,    GENERIC_BALL),    /* [15] */
 GENERIC("junk",       CHAIN_CLASS,   GENERIC_CHAIN),   /* [16] */
-GENERIC("venom",      VENOM_CLASS,   GENERIC_VENOM),   /* [17] */
+GENERIC("tuner",      TUNER_CLASS,   GENERIC_TUNER),   /* [17] */
+GENERIC("venom",      VENOM_CLASS,   GENERIC_VENOM),   /* [18] */
 #undef GENERIC
 /* FIRST_OBJECT: it would be simpler just to use MARKER(FIRST_OBJECT,ARROW)
    below but that is vulnerable to neglecting to update the marker enum
@@ -1166,6 +1167,7 @@ TOOL("leather drum",      "drum", 0, 0, 0, 0,  4, 25, 25, LEATHER, HI_LEATHER,
                                                                 LEATHER_DRUM),
 TOOL("drum of earthquake","drum", 0, 0, 1, 1,  2, 25, 25, LEATHER, HI_LEATHER,
                                                           DRUM_OF_EARTHQUAKE),
+
 /* tools useful as weapons */
 WEPTOOL("pick-axe", NoDes,
         1, 0, 0, 0, 20, 100,  50,  1,  6, A_STR, WHACK,  P_PICK_AXE, IRON, HI_METAL,
@@ -1363,7 +1365,7 @@ POTION("water",                 "clear",  0, 0, 80, 100, CLR_CYAN,
            BITS(0, 1, 0, 0, mgc, 0, 0, 0, 0, 0, 0, 0, P_NONE, PAPER),    \
            0, SCROLL_CLASS, prob, 0, 5, cost, CHARS(0, 0, 0, 0), 6, \
            HI_PAPER, sn)
-SCROLL("enchant armor",           "4TN ETC MOTD",  1,  63,  80,
+SCROLL("enchant armor",           "4TN ETC MOTD",  1,   0,  80,
                                                         SCR_ENCHANT_ARMOR),
 SCROLL("destroy armor",              "ET ITANIS",  1,  45, 100,
                                                         SCR_DESTROY_ARMOR),
@@ -1373,7 +1375,7 @@ SCROLL("scare monster",           "UDLER BASTRT",  1,  35, 100,
                                                         SCR_SCARE_MONSTER),
 SCROLL("remove curse",                "BOFH PFY",  1,  65,  80,
                                                         SCR_REMOVE_CURSE),
-SCROLL("enchant weapon",         "FOOELS DAIYEN",  1,  80,  60,
+SCROLL("enchant weapon",         "FOOELS DAIYEN",  1,   0,  60,
                                                         SCR_ENCHANT_WEAPON),
 SCROLL("create monster",            "FUHUHUHUHU",  1,  45, 200,
                                                         SCR_CREATE_MONSTER),
@@ -1857,6 +1859,34 @@ OBJECT(OBJ("banana peel", NoDes),
        BITS(1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, P_NONE, VEGGY), 0,
        CHAIN_CLASS, 1000, 0, 2, 0, CHARS(0, 0, 0, 0),  0, CLR_YELLOW, BANANA_PEEL),
         /* +1 both l & s */
+
+/* Tuners */
+#define TUNER(name,desc,power,prob,wt,cost,color,sn) \
+    OBJECT(OBJ(name, desc),                                             \
+           BITS(0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, P_NONE, METAL), \
+           power, TUNER_CLASS, prob, 0, wt, cost, CHARS(0, 0, 0, 0), wt, color, sn)
+TUNER("blood tuner",  "wavy tuning fork", OPROP_SANGUINE,
+                                  4,  2, 25, HI_METAL, BLOOD_TUNER),
+TUNER("ice tuner",    "thin tuning fork", OPROP_BOREAL,
+                                  4,  2, 25, HI_METAL, ICE_TUNER),
+TUNER("fire tuner",   "thick tuning fork", OPROP_BLAZING,
+                                  4,  2, 25, HI_METAL, FIRE_TUNER),
+TUNER("storm tuner",  "long tuning fork", OPROP_CRACKLING,
+                                  4,  2, 25, HI_METAL, STORM_TUNER),
+TUNER("venom tuner",  "short tuning fork", OPROP_SUBTLE,
+                                  4,  2, 25, HI_METAL, VENOM_TUNER),
+TUNER("hex tuner",    "soft tuning fork", OPROP_HEXED,
+                                  4,  2, 25, HI_METAL, HEX_TUNER),
+TUNER("acid tuner",   "loud tuning fork", OPROP_ACIDIC,
+                                  4,  2, 25, HI_METAL, ACID_TUNER),
+TUNER("drain tuner",  "runed tuning fork", OPROP_HUNGRY,
+                                  4,  2, 25, HI_METAL, DRAIN_TUNER),
+TUNER("null tuner",   "notched tuning fork", OPROP_ANTIMAGIC,
+                                  4,  2, 25, HI_METAL, NULL_TUNER),
+TUNER("water tuner",  "cold tuning fork", OPROP_BRINY,
+                                  4,  2, 25, HI_METAL, WATER_TUNER),
+TUNER("pure tuner",   "simple tuning fork", 0,
+                                  60, 2, 25, HI_METAL, PURE_TUNER),
 
 /* Venom is normally a transitory missile (spit by various creatures)
  * but can be wished for in wizard mode so could occur in bones data.

@@ -38,9 +38,7 @@ cost(struct obj *otmp)
         return 12;
     case SCR_IDENTIFY:
         return 14;
-    case SCR_ENCHANT_ARMOR:
     case SCR_REMOVE_CURSE:
-    case SCR_ENCHANT_WEAPON:
     case SCR_CHARGING:
         return 16;
     case SCR_SCARE_MONSTER:
@@ -52,6 +50,9 @@ cost(struct obj *otmp)
     case SCR_TRANSMUTE_MATERIAL:
     case SCR_GENOCIDE:
         return 30;
+    case SCR_ENCHANT_ARMOR:
+    case SCR_ENCHANT_WEAPON:
+        return 1000;
     case SCR_BLANK_PAPER:
     default:
         impossible("You can't write such a weird scroll!");

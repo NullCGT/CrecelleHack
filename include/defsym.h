@@ -486,7 +486,8 @@
     OBJCLASS(14,  '`', ROCK,   S_rock, "large stones", "boulder or statue")
     OBJCLASS(15,  '0', BALL,   S_ball, "iron balls", "iron ball")
     OBJCLASS(16,  '_', CHAIN,  S_chain, "junk", "piece of junk")
-    OBJCLASS(17,  '.', VENOM,  S_venom, "venoms", "splash of venom")
+    OBJCLASS(17,  '|', TUNER,  S_tuner, "tuners", "tuning fork")
+    OBJCLASS(18,  '.', VENOM,  S_venom, "venoms", "splash of venom")
 
 #undef OBJCLASS
 #undef OBJCLASS2

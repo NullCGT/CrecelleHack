@@ -160,7 +160,8 @@ enum achivements {
     ACH_LOST_BOOT = 36, /* get your boots removed by honey */
     ACH_BPEEL = 37, /* slip on a banana peel */
     ACH_SHORTCUT = 38, /* opened a shortcut */
-    N_ACH = 39     /* allocate room for 63 plus a slot for 0 terminator */
+    ACH_TUNEUP = 39, /* used a tuner (not to be confused with ACH_TUNE)*/
+    N_ACH = 40     /* allocate room for 63 plus a slot for 0 terminator */
 };
     /*
      * Other potential achievements to track (this comment briefly resided

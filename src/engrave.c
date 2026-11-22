@@ -810,6 +810,11 @@ doengrave_sfx_item(struct _doengrave_ctx *de)
               de->frosted ? "all frosty" : "too dirty");
         de->ptext = FALSE;
         break;
+    case TUNER_CLASS:
+        pline("You would ruin the delicate tonality of %s.",
+                yname(de->otmp));
+        de->ptext = FALSE;
+        break;
     case RANDOM_CLASS: /* This should mean fingers */
         break;
 

@@ -304,6 +304,7 @@ obj_shuffle_range(
     case RING_CLASS:
     case WAND_CLASS:
     case VENOM_CLASS:
+    case TUNER_CLASS:
         /* entire class */
         *lo_p = svb.bases[ocls];
         *hi_p = svb.bases[ocls + 1] - 1;
@@ -328,7 +329,7 @@ shuffle_all(void)
     /* entire classes; obj_shuffle_range() handles their exceptions */
     static char shuffle_classes[] = {
         AMULET_CLASS, POTION_CLASS, RING_CLASS,  SCROLL_CLASS,
-        SPBOOK_CLASS, WAND_CLASS,   VENOM_CLASS,
+        SPBOOK_CLASS, WAND_CLASS,   VENOM_CLASS, TUNER_CLASS,
     };
     /* sub-class type ranges (one item from each group) */
     static short shuffle_types[] = {

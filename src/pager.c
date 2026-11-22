@@ -2470,6 +2470,16 @@ do_supplemental_item_info(struct obj *otmp)
         if (is_stance_weapon(otmp))
             add_menu_str(datawin, "It can be applied to switch stances.");
     }
+    /* Tuners */
+    if (is_tunable(otmp) && otmp->tuner_slots) {
+        if (Has_contents(otmp)) {
+            long count = count_contents(otmp, FALSE, FALSE, TRUE, FALSE);
+            Sprintf(buf, "It has %ld / %d tuner%s affixed.", count, otmp->tuner_slots, (count > 1) ? "s" : "");
+        } else {
+            Sprintf(buf, "It has %d tuner slots.", otmp->tuner_slots);
+        }
+        add_menu_str(datawin, buf);
+    }
     add_menu_str(datawin, "");
     /* Basic info */
     add_menu_heading(datawin, "Basics");

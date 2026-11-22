@@ -3039,6 +3039,10 @@ out_container(struct obj *obj)
     obj_extract_self(obj);
     gc.current_container->owt = weight(gc.current_container);
 
+    /* Handle tuners */
+    if (is_tunable(gc.current_container) && obj->oclass == TUNER_CLASS)
+        unslot_tuner(obj, gc.current_container);
+
     if (Icebox)
         removed_from_icebox(obj);
 
@@ -3545,7 +3549,7 @@ traditional_loot(boolean put_in)
 }
 
 /* loot current_container (take things out or put things in), using a menu */
-staticfn int
+int
 menu_loot(int retry, boolean put_in)
 {
     int n, i, n_looted = 0;
@@ -3985,6 +3989,8 @@ dotip(void)
         return tiphat() ? ECMD_TIME : ECMD_OK;
     else if (cobj->otyp == STATUE)
         pline("Nothing interesting happens.");
+    else if (is_tunable(cobj) && Has_contents(cobj))
+        pline("The tuners remain in their slots.");
     else
         pline1(nothing_happens);
     return ECMD_OK;

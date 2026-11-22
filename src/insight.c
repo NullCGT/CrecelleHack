@@ -2602,6 +2602,9 @@ show_achievements(
         case ACH_SHORTCUT:
             you_have_X("opened a shortcut");
             break;
+        case ACH_TUNEUP:
+            you_have_X("tuned an item");
+            break;
         default:
             Sprintf(buf, " [Unexpected achievement #%d.]", achidx);
             enlght_out(buf);

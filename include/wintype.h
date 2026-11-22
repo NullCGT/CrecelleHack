@@ -164,7 +164,7 @@ typedef struct glyphinfo {
    menu_shift_left are for interacting with persistent inventory window */
 /* clang-format off */
 #define MENU_FIRST_PAGE         '^'
-#define MENU_LAST_PAGE          '|'
+#define MENU_LAST_PAGE          '&'
 #define MENU_NEXT_PAGE          '>'
 #define MENU_PREVIOUS_PAGE      '<'
 #define MENU_SHIFT_RIGHT        '}'

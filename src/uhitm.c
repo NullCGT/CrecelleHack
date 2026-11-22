@@ -7055,15 +7055,9 @@ oprop_effects_pre(struct monst *magr, struct monst *mdef, struct obj *weapon)
         create_bonfire(dx, dy, rnd(7), d(2, 4));
     } else if (weapon->oprop == OPROP_ACIDIC) {
         /* message? */
-        if (rn2(20))
-            floor_spillage(dx, dy, POT_ACID, NON_PM);
-        else
-            potion_splatter(dx, dy, POT_ACID, NON_PM);
+        potion_splatter(dx, dy, POT_ACID, NON_PM);
     } else if (weapon->oprop == OPROP_BRINY) {
-        if (rn2(20))
-            floor_spillage(dx, dy, POT_WATER, NON_PM);
-        else
-            potion_splatter(dx, dy, POT_ACID, NON_PM);
+        floor_spillage(dx, dy, POT_WATER, NON_PM);
     }
     /* Make it known */
     if (pkn && !weapon->pknown) {

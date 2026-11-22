@@ -1638,7 +1638,8 @@ container_contents(
     boolean cat, dumping = iflags.in_dumplog;
 
     for (box = list; box; box = box->nobj) {
-        if (Is_container(box) || box->otyp == STATUE) {
+        if (Is_container(box) || box->otyp == STATUE
+            || is_tunable(box)) {
             if (!box->cknown || (identified && !box->lknown)) {
                 box->cknown = 1; /* we're looking at the contents now */
                 if (identified)

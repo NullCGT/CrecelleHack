@@ -37,7 +37,7 @@ struct icp {
     char iclass; /* item class */
 };
 
-#define OPROP(id, nam, prob, val) {prob, OPROP_##id}
+#define OPROP(id, nam, prob, val, bit) {prob, OPROP_##id}
 static const struct icp oprop_probs[] = {
     OPROP_LIST
 };
@@ -49,7 +49,8 @@ static const struct icp mkobjprobs[] = { { 10, WEAPON_CLASS },
                                          { 8, TOOL_CLASS },
                                          { 7, GEM_CLASS },
                                          { 16, POTION_CLASS },
-                                         { 16, SCROLL_CLASS },
+                                         { 12, SCROLL_CLASS },
+                                         { 4, TUNER_CLASS },
                                          { 4, SPBOOK_CLASS },
                                          { 4, WAND_CLASS },
                                          { 3, RING_CLASS },
@@ -58,11 +59,12 @@ static const struct icp mkobjprobs[] = { { 10, WEAPON_CLASS },
 static const struct icp boxiprobs[] = { { 18, GEM_CLASS },
                                         { 15, FOOD_CLASS },
                                         { 18, POTION_CLASS },
-                                        { 18, SCROLL_CLASS },
+                                        { 16, SCROLL_CLASS },
                                         { 12, SPBOOK_CLASS },
                                         { 7, COIN_CLASS },
                                         { 6, WAND_CLASS },
                                         { 5, RING_CLASS },
+                                        { 2, TUNER_CLASS },
                                         { 1, AMULET_CLASS } };
 
 static const struct icp rogueprobs[] = { { 12, WEAPON_CLASS },
@@ -75,13 +77,14 @@ static const struct icp rogueprobs[] = { { 12, WEAPON_CLASS },
 
 static const struct icp hellprobs[] = { { 20, WEAPON_CLASS },
                                         { 20, ARMOR_CLASS },
-                                        { 16, FOOD_CLASS },
+                                        { 12, FOOD_CLASS },
                                         { 12, TOOL_CLASS },
                                         { 10, GEM_CLASS },
                                         { 1, POTION_CLASS },
                                         { 1, SCROLL_CLASS },
                                         { 8, WAND_CLASS },
                                         { 8, RING_CLASS },
+                                        { 4, TUNER_CLASS },
                                         { 4, AMULET_CLASS } };
 
 static const struct oextra zerooextra = DUMMY;
@@ -945,6 +948,9 @@ mksobj_init(struct obj **obj, boolean artif)
             otmp = mk_artifact(otmp, (aligntyp) A_NONE, 99, TRUE);
             *obj = otmp;
         }
+        /* Chance of having tuner slots */
+        if (!is_multigen(otmp) && !rn2(4))
+            otmp->tuner_slots = rnd(3);
         /* Small chance of making the object harmonic. */
         if (!rn2(60)) {
             add_oprop_to_object(otmp, 0);
@@ -1202,6 +1208,9 @@ mksobj_init(struct obj **obj, boolean artif)
             otmp->oerodeproof = otmp->rknown = 1;
 #endif
         }
+        /* Chance of having tuner slots */
+        if (!is_multigen(otmp) && !rn2(4))
+            otmp->tuner_slots = rnd(3);
         /* Armor has a slightly lower chance than weapons of being harmonic */
         if (!rn2(65)) {
             add_oprop_to_object(otmp, 0);
@@ -1259,6 +1268,11 @@ mksobj_init(struct obj **obj, boolean artif)
         break;
     case COIN_CLASS:
         break; /* do nothing */
+    case TUNER_CLASS:
+        blessorcurse(otmp, 10);
+        otmp->spe = max(1, rne(3));
+        otmp->spe = min(3, otmp->spe);
+        break;
     default:
         /* 3.6.3: this used to be impossible() followed by return 0
            but most callers aren't prepared to deal with Null result
@@ -4433,8 +4447,9 @@ material_list(struct obj *obj)
     } else if (obj->oclass == AMULET_CLASS) {
         /* could use metal_materials too */
         return shiny_materials;
-    }
-    else if (obj->oclass == WEAPON_CLASS || obj->oclass == TOOL_CLASS
+    } else if (obj->oclass == TUNER_CLASS) {
+        return resonant_materials;
+    } else if (obj->oclass == WEAPON_CLASS || obj->oclass == TOOL_CLASS
              || obj->oclass == ARMOR_CLASS) {
         if (default_material == IRON || default_material == METAL
             || default_material == NIGHTIRON) {

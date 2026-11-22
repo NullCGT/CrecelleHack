@@ -93,6 +93,7 @@ extern int dowield(void);            /**/
 extern int dowieldquiver(void);      /**/
 extern int dozap(void);              /**/
 extern int doorganize(void);         /**/
+extern int dotune(void);             /**/
 #endif /* DUMB */
 
 staticfn struct Cmd_bind *cmdbind_get(uchar);
@@ -1937,6 +1938,8 @@ struct ext_func_tab extcmdlist[] = {
               dotravel, CMD_M_PREFIX, NULL },
     { M('>'),   "trip", "trip a nearby monster",
               dotrip,  AUTOCOMPLETE, NULL },
+    { M('U'), "tune", "tune an item",
+              dotune, AUTOCOMPLETE, NULL },
     { M('t'), "turn", "turn undead away",
               doturn, IFBURIED | AUTOCOMPLETE, NULL },
     { 'X',    "twoweapon", "toggle two-weapon combat",

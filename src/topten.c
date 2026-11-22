@@ -600,6 +600,9 @@ encode_extended_achievements(char *buf)
         case ACH_SHORTCUT:
             achievement = "shortcut";
             break;
+        case ACH_TUNEUP:
+            achievement = "tuneup";
+            break;
         default:
             continue;
         }

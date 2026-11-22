@@ -92,18 +92,18 @@ enum obj_armor_types {
     ARM_SHIRT  = 6
 };
 
-#define OPROP_LIST OPROP(NONE, "buggy", 0, 0), \
-OPROP(SANGUINE,  "sanguine",    50,     1), \
-OPROP(BOREAL,    "boreal",      150,    2), \
-OPROP(BLAZING,   "blazing",     150,    3), \
-OPROP(CRACKLING, "crackling",   150,    4), \
-OPROP(SUBTLE,    "subtle",      100,    5), \
-OPROP(HEXED,     "hexed",       100,    6), \
-OPROP(ACIDIC,    "mordant",     100,    7), \
-OPROP(HUNGRY,    "hungry",      100,    8), \
-OPROP(ANTIMAGIC, "nulling",      50,    9), \
-OPROP(BRINY,     "briny",       100,    10)
-#define OPROP(id, nam, prob, val) OPROP_##id = val
+#define OPROP_LIST OPROP(NONE, "buggy", 0, 0, 0), \
+OPROP(SANGUINE,  "sanguine",    50,     1,  0x0001), \
+OPROP(BOREAL,    "boreal",      150,    2,  0x0002), \
+OPROP(BLAZING,   "blazing",     150,    3,  0x0004), \
+OPROP(CRACKLING, "crackling",   150,    4,  0x0010), \
+OPROP(SUBTLE,    "subtle",      100,    5,  0x0020), \
+OPROP(HEXED,     "hexed",       100,    6,  0x0040), \
+OPROP(ACIDIC,    "mordant",     100,    7,  0x0080), \
+OPROP(HUNGRY,    "hungry",      100,    8,  0x0100), \
+OPROP(ANTIMAGIC, "nulling",      50,    9,  0x0200), \
+OPROP(BRINY,     "briny",       100,   10,  0x0400)
+#define OPROP(id, nam, prob, val, bit) OPROP_##id = val
 enum oprops_enum {OPROP_LIST, NUM_OPROPS};
 #undef OPROP
 

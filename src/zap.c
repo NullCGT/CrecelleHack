@@ -164,6 +164,8 @@ bhitm(struct monst *mtmp, struct obj *otmp)
     boolean reveal_invis = FALSE, learn_it = FALSE;
     boolean dbldam = Role_if(PM_KNIGHT) && u.uhave.questart;
     boolean skilled_spell, helpful_gesture = FALSE;
+    /* dozap() tracks the wand being zapped through gc.current_wand */
+    boolean tracked = (otmp == gc.current_wand);
     int dmg, otyp = otmp->otyp; /* otmp is not NULL */
     const char *zap_type_text = "spell";
     struct obj *obj;
@@ -586,6 +588,10 @@ bhitm(struct monst *mtmp, struct obj *otmp)
         if (mtmp->isshk && !*u.ushops)
             hot_pursuit(mtmp);
     }
+    /* angering a temple priest brings down his god's lightning, which
+       might have destroyed the wand */
+    if (tracked && !gc.current_wand)
+        learn_it = FALSE;
     /* note: gb.bhitpos won't be set if swallowed, but that's okay since
      * reveal_invis will be false.  We can't use mtmp->mx, my since it
      * might be an invisible worm hit on the tail.
@@ -2768,7 +2774,8 @@ backfire(struct obj *otmp)
     otmp->in_use = TRUE; /* in case losehp() is fatal */
     pline("%s suddenly explodes!", The(xname(otmp)));
     dmg = d(otmp->spe + 2, 6);
-    losehp(Maybe_Half_Phys(dmg), "exploding wand", KILLED_BY_AN);
+    losehp(Maybe_Adjust_Phys(dmg, STRANGE_OBJECT), "exploding wand",
+           KILLED_BY_AN);
     useupall(otmp);
 }
 
@@ -2814,13 +2821,18 @@ dozap(void)
             pline("%s glows and fades.", The(xname(obj)));
         /* make him pay for knowing !NODIR */
     } else if (need_dir && !u.dx && !u.dy && !u.dz) {
-        if ((damage = zapyourself(obj, TRUE)) != 0) {
-            char buf[BUFSZ];
+        char buf[BUFSZ];
 
-            Sprintf(buf, "zapped %sself with %s",
-                    uhim(), killer_xname(obj));
-            losehp(Maybe_Half_Phys(damage), buf, NO_KILLER_PREFIX);
-        }
+        /* the effect might use up the wand, so name it first and track
+           it through current_wand, which dealloc_obj() clears */
+        Sprintf(buf, "zapped %sself with %s", uhim(), killer_xname(obj));
+        gc.current_wand = obj;
+        damage = zapyourself(obj, TRUE);
+        obj = gc.current_wand;
+        gc.current_wand = 0;
+        if (damage)
+            losehp(Maybe_Adjust_Phys(damage, STRANGE_OBJECT), buf,
+                   NO_KILLER_PREFIX);
     } else {
         /*      Are we having fun yet?
          * weffects -> buzz(obj->otyp) -> zhitm (temple priest) ->
@@ -2864,6 +2876,8 @@ int
 zapyourself(struct obj *obj, boolean ordinary)
 {
     boolean learn_it = FALSE;
+    /* dozap() tracks the wand being zapped through gc.current_wand */
+    boolean tracked = (obj == gc.current_wand);
     int damage = 0;
     int orig_dmg = 0; /* for passing to destroy_items() */
 
@@ -3199,6 +3213,10 @@ zapyourself(struct obj *obj, boolean ordinary)
         impossible("zapyourself: object %d used?", obj->otyp);
         break;
     }
+    /* the effect might have used up the wand (dealloc_obj() clears
+       current_wand when it does) */
+    if (tracked && !gc.current_wand)
+        learn_it = FALSE;
     /* if effect was observable then discover the wand type provided
        that the wand itself has been seen */
     if (learn_it)
@@ -3244,7 +3262,7 @@ lightdamage(
         Sprintf(buf, "%s %sself with %s", ordinary ? "zapped" : "blasted",
                 uhim(), how);
         /* might rehumanize(); could be fatal, but only for Unchanging */
-        losehp(Maybe_Half_Phys(dmg), buf, NO_KILLER_PREFIX);
+        losehp(Maybe_Adjust_Phys(dmg, STRANGE_OBJECT), buf, NO_KILLER_PREFIX);
     }
     return dmg;
 }
@@ -3537,7 +3555,7 @@ zap_updown(struct obj *obj) /* wand or spell, nonnull */
             pline("A rock is dislodged from the %s and falls on your %s.",
                   ceiling(x, y), body_part(HEAD));
             dmg = rnd(hard_helmet(uarmh) ? 2 : 6);
-            losehp(Maybe_Half_Phys(dmg), "falling rock", KILLED_BY_AN);
+            losehp(Maybe_Adjust_Phys(dmg, ROCK), "falling rock", KILLED_BY_AN);
             if ((otmp = mksobj_at(ROCK, x, y, FALSE, FALSE)) != 0) {
                 (void) xname(otmp); /* set dknown, maybe bknown */
                 stackobj(otmp);
@@ -3658,6 +3676,8 @@ weffects(struct obj *obj)
 {
     int otyp = obj->otyp;
     boolean disclose = FALSE, was_unkn = !objects[otyp].oc_name_known;
+    /* dozap() tracks the wand being zapped through gc.current_wand */
+    boolean tracked = (obj == gc.current_wand);
 
     exercise(A_WIS, TRUE);
     if (u.usteed && (objects[otyp].oc_dir != NODIR) && !u.dx && !u.dy
@@ -3693,6 +3713,10 @@ weffects(struct obj *obj)
             impossible("weffects: unexpected spell or wand");
         disclose = TRUE;
     }
+    /* angering a temple priest brings down his god's lightning, which
+       might have destroyed the wand */
+    if (tracked && !gc.current_wand)
+        disclose = FALSE;
     if (disclose) {
         learnwand(obj);
         if (was_unkn)
@@ -4117,7 +4141,9 @@ zap_map(
  *  is the monster hit (weapon != ZAPPED_WAND), or a null monster pointer.
  *
  *  Thrown and kicked objects (THROWN_WEAPON or KICKED_WEAPON) may be
- *  destroyed and *pobj set to NULL to indicate this.
+ *  destroyed and *pobj set to NULL to indicate this.  So may a zapped
+ *  wand (ZAPPED_WAND), if hitting a temple priest brings down his god's
+ *  lightning.
  *
  *  Check !u.uswallow before calling bhit().
  *  This function reveals the absence of a remembered invisible monster in
@@ -4142,6 +4168,8 @@ bhit(
     boolean shopdoor = FALSE, point_blank = TRUE;
     boolean in_skip = FALSE, allow_skip = FALSE;
     boolean tethered_weapon = FALSE;
+    /* dozap() tracks the wand being zapped through gc.current_wand */
+    boolean tracked = (weapon == ZAPPED_WAND && obj == gc.current_wand);
     int skiprange_start = 0, skiprange_end = 0, skipcount = 0;
     struct obj *was_returning = (iflags.returning_missile == obj) ? obj
                                 : (struct obj *) 0;
@@ -4352,6 +4380,12 @@ bhit(
                     result = mtmp;
                     goto bhit_done;
                 }
+                /* angering a temple priest brings down his god's
+                   lightning, which might have destroyed the wand */
+                if (tracked && !gc.current_wand) {
+                    *pobj = (struct obj *) 0;
+                    break;
+                }
                 range -= 3;
             }
         } else {
@@ -4525,7 +4559,7 @@ boomhit(struct obj *obj, int dx, int dy)
                 int dam = dmgval(obj, &gy.youmonst, &gy.youmonst);
 
                 /* we hit ourselves */
-                (void) thitu(10 + obj->spe, Maybe_Half_Phys(dam), &obj,
+                (void) thitu(10 + obj->spe, Maybe_Adjust_Phys(dam, obj->otyp), &obj,
                              "boomerang");
                 endmultishot(TRUE);
                 break;

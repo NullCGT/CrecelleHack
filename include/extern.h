@@ -2571,7 +2571,6 @@ extern void getlock(void);
 
 /* ### pickup.c ### */
 
-extern void debottle_potion(struct obj *);
 extern int collect_obj_classes(char *, struct obj *, boolean,
                                boolean(*)(struct obj *), int *) NONNULLARG5;
 extern boolean rider_corpse_revival(struct obj *, boolean) NO_NNARGS;
@@ -2612,6 +2611,7 @@ extern int dotip(void);
 extern struct autopickup_exception *check_autopickup_exceptions(struct obj *) NONNULLARG1;
 extern boolean autopick_testobj(struct obj *, boolean) NONNULLARG1;
 extern boolean u_safe_from_fatal_corpse(struct obj *obj, int) NONNULLARG1;
+extern void debottle_potion(struct obj *);
 
 /* ### pline.c ### */
 

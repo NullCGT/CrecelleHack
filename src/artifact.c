@@ -1053,7 +1053,7 @@ touch_artifact(struct obj *obj, struct monst *mon)
 
     if (((badclass || badalign) && self_willed)
         || (badalign && (!yours || !rn2(4)))) {
-        int dmg;
+        int tmp, dmg;
         char buf[BUFSZ];
 
         if (!yours)
@@ -1063,7 +1063,8 @@ touch_artifact(struct obj *obj, struct monst *mon)
         dmg = d((Antimagic ? 2 : 4), (self_willed ? 10 : 4));
         /* add half of the usual material damage bonus */
         if (Hate_material(obj->material)) {
-            dmg += (rnd(sear_damage(obj->material)) / 2) + 1;
+            tmp = (rnd(sear_damage(obj->material)) / 2) + 1;
+            dmg += Maybe_Adjust_Phys(tmp, obj->otyp);
         }
         Sprintf(buf, "touching %s", oart->name);
         losehp(dmg, buf, KILLED_BY); /* magic damage, not physical */
@@ -2848,7 +2849,7 @@ retouch_object(
             /* damage is somewhat arbitrary; half the usual 1d20 physical
                for silver, 1d10 magical for <foo>bane, potentially both */
             if (hatemat && direct)
-                tmp = rnd(sear_damage(obj->material) / 2), dmg += Maybe_Half_Phys(tmp);
+                tmp = rnd(sear_damage(obj->material) / 2), dmg += Maybe_Adjust_Phys(tmp, obj->otyp);
             if (bane)
                 dmg += rnd(10);
             Sprintf(buf, "handling %s", what);

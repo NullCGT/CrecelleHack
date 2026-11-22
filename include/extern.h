@@ -2573,7 +2573,6 @@ extern void getlock(void);
 
 /* ### pickup.c ### */
 
-extern void debottle_potion(struct obj *);
 extern int collect_obj_classes(char *, struct obj *, boolean,
                                boolean(*)(struct obj *), int *) NONNULLARG5;
 extern boolean rider_corpse_revival(struct obj *, boolean) NO_NNARGS;
@@ -2615,6 +2614,7 @@ extern struct autopickup_exception *check_autopickup_exceptions(struct obj *) NO
 extern boolean autopick_testobj(struct obj *, boolean) NONNULLARG1;
 extern boolean u_safe_from_fatal_corpse(struct obj *obj, int) NONNULLARG1;
 extern int menu_loot(int, boolean);
+extern void debottle_potion(struct obj *);
 
 /* ### pline.c ### */
 
@@ -3215,6 +3215,7 @@ extern const char *maybe_gasp(struct monst *) NONNULLARG1;
 extern const char *cry_sound(struct monst *) NONNULLARG1;
 extern int domonnoise(struct monst *) NONNULLARG1;
 extern int dotalk(void);
+extern const char *walltalkmsg(void);
 extern int tiphat(void);
 #ifdef USER_SOUNDS
 extern int add_sound_mapping(const char *) NONNULLARG1;

@@ -639,6 +639,7 @@ struct _hitmon_data {
     boolean stunning;
     boolean lowhp;
     /* end of weapon skills */
+    boolean obj_gone; /* obj was used up; the helpers get it by value */
     char saved_oname[BUFSZ];
 };
 

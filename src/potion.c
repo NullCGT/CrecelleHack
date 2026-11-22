@@ -828,7 +828,8 @@ peffect_water(struct obj *otmp)
                     you_unwere(FALSE);
                 set_ulycn(NON_PM); /* cure lycanthropy */
             }
-            losehp(Maybe_Half_Phys(d(2, 6)), "tonic of holy water",
+            losehp(Maybe_Adjust_Phys(d(2, 6), STRANGE_OBJECT),
+                   "tonic of holy water",
                    KILLED_BY_AN);
         } else if (otmp->cursed) {
             You_feel("quite proud of yourself.");
@@ -849,7 +850,8 @@ peffect_water(struct obj *otmp)
         } else {
             if (u.ualign.type == A_LAWFUL) {
                 pline("This burns like %s!", hliquid("acid"));
-                losehp(Maybe_Half_Phys(d(2, 6)), "tonic of unholy water",
+                losehp(Maybe_Adjust_Phys(d(2, 6), STRANGE_OBJECT),
+                       "tonic of unholy water",
                        KILLED_BY_AN);
             } else
                 You_feel("full of dread.");
@@ -1412,7 +1414,8 @@ peffect_levitation(struct obj *otmp)
 
             You("hit your %s on the %s.", body_part(HEAD),
                 ceiling(u.ux, u.uy));
-            losehp(Maybe_Half_Phys(dmg), "colliding with the ceiling",
+            losehp(Maybe_Adjust_Phys(dmg, STRANGE_OBJECT),
+                   "colliding with the ceiling",
                    KILLED_BY);
             gp.potion_nothing = 0; /* not nothing after all */
         }
@@ -1517,7 +1520,8 @@ peffect_acid(struct obj *otmp)
               otmp->blessed ? " a little" : otmp->cursed ? " a lot"
                                                          : " like acid");
         dmg = d(otmp->cursed ? 2 : 1, otmp->blessed ? 4 : 8);
-        losehp(Maybe_Half_Phys(dmg), "tonic of acid", KILLED_BY_AN);
+        losehp(Maybe_Adjust_Phys(dmg, STRANGE_OBJECT), "tonic of acid",
+               KILLED_BY_AN);
         exercise(A_CON, FALSE);
     }
     if (Stoned)
@@ -1549,7 +1553,8 @@ peffect_waste(struct obj *otmp)
         int dmg;
         dmg = d(otmp->cursed ? 1 : 2, otmp->blessed ? 8 : 4);
         pline("You're drinking toxic waste!");
-        losehp(Maybe_Half_Phys(dmg), "tonic of volatile chemicals", KILLED_BY_AN);
+        losehp(Maybe_Adjust_Phys(dmg, STRANGE_OBJECT),
+                "tonic of volatile chemicals", KILLED_BY_AN);
         exercise(A_CHA, FALSE);
     }
 }
@@ -2485,7 +2490,7 @@ potionhit(struct monst *mon, struct obj *obj, int how)
         /* distance = 0; */
         pline_The("%s crashes on your %s and breaks into shards.", botlnam,
                   body_part(HEAD));
-        losehp(Maybe_Half_Phys(rnd(2)),
+        losehp(Maybe_Adjust_Phys(rnd(2), STRANGE_OBJECT),
                (how == POTHIT_OTHER_THROW) ? "propelled tonic" /* scatter */
                                            : "thrown tonic",
                KILLED_BY_AN);
@@ -2565,7 +2570,8 @@ potionhit(struct monst *mon, struct obj *obj, int how)
                       obj->blessed ? " a little"
                                    : obj->cursed ? " a lot" : "");
                 dmg = d(obj->cursed ? 2 : 1, obj->blessed ? 4 : 8);
-                losehp(dmg, "tonic of acid", KILLED_BY_AN);
+                losehp(Maybe_Adjust_Phys(dmg, STRANGE_OBJECT),
+                        "tonic of acid", KILLED_BY_AN);
             }
             break;
         case POT_ALKAHEST:

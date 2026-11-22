@@ -408,7 +408,7 @@ weather_effects(void)
     if (CURR_WEATHER(WTH_HAIL)) {
         if (!rn2(4)) {
             You("are pounded by hailstones!");
-            losehp(Maybe_Half_Phys(d(1, 4)), "pounded by hailstones",
+            losehp(Maybe_Adjust_Phys(d(1, 4), STRANGE_OBJECT), "pounded by hailstones",
                 NO_KILLER_PREFIX);
         }
     }

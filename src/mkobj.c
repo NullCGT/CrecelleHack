@@ -2095,7 +2095,8 @@ weight(struct obj *obj)
            general initialization is benignly redundant for globs] */
         return (int) obj->owt;
     }
-    if (Is_container(obj) || obj->otyp == STATUE) {
+    if (Is_container(obj) || obj->otyp == STATUE
+        || (is_tunable(obj) && obj->cobj)) {
         struct obj *contents;
         int cwt;
 

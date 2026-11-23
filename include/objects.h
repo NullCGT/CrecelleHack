@@ -1863,7 +1863,7 @@ OBJECT(OBJ("banana peel", NoDes),
 /* Tuners */
 #define TUNER(name,desc,power,prob,wt,cost,color,sn) \
     OBJECT(OBJ(name, desc),                                             \
-           BITS(0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, P_NONE, METAL), \
+           BITS(0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, P_NONE, METAL), \
            power, TUNER_CLASS, prob, 0, wt, cost, CHARS(0, 0, 0, 0), wt, color, sn)
 TUNER("blood tuner",  "wavy tuning fork", OPROP_SANGUINE,
                                   4,  2, 25, HI_METAL, BLOOD_TUNER),

@@ -4613,6 +4613,9 @@ slot_tuner(struct obj *tuner, struct obj *otmp)
         makeknown(tuner->otyp);
     else if (objects[tuner->otyp].oc_name_known)
         otmp->pknown = 1;
+    
+    if (otmp->known)
+        tuner->known = 1;
     return;
 }
 
@@ -4626,6 +4629,9 @@ unslot_tuner(struct obj *tuner, struct obj *otmp)
         makeknown(tuner->otyp);
     else if (objects[tuner->otyp].oc_name_known)
         otmp->pknown = 1;
+
+    if (otmp->known)
+        tuner->known = 1;
     return;
 }
 /*pickup.c*/

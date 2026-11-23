@@ -44,6 +44,7 @@ staticfn int tip_ok(struct obj *);
 staticfn int choose_tip_container_menu(void);
 staticfn struct obj *tipcontainer_gettarget(struct obj *, boolean *, int *);
 staticfn int tipcontainer_checks(struct obj *, struct obj *, boolean);
+staticfn int menu_loot(int, boolean);
 staticfn char in_or_out_menu(const char *, struct obj *, boolean, boolean,
                            boolean, boolean);
 staticfn boolean able_to_loot(coordxy, coordxy, boolean);
@@ -52,6 +53,11 @@ staticfn boolean mon_beside(coordxy, coordxy);
 staticfn int do_loot_cont(struct obj **, int, int);
 staticfn int doloot_core(void);
 staticfn void tipcontainer(struct obj *);
+staticfn int tuner_checks(struct obj *);
+staticfn int tune_ok(struct obj *);
+staticfn int tuner_ok(struct obj *);
+staticfn void slot_tuner(struct obj *, struct obj *);
+staticfn void unslot_tuner(struct obj *, struct obj *);
 
 /* define for query_objlist() and autopickup() */
 #define FOLLOW(curr, flags) \
@@ -2995,6 +3001,10 @@ in_container(struct obj *obj)
         Strcpy(buf, the(xname(gc.current_container)));
         You("put %s into %s.", doname(obj), buf);
 
+        /* Handle tuners */
+        if (is_tunable(gc.current_container) && obj->oclass == TUNER_CLASS)
+            slot_tuner(obj, gc.current_container);
+
         /* gold in container always needs to be added to credit */
         if (floor_container && obj->oclass == COIN_CLASS)
             sellobj(obj, gc.current_container->ox, gc.current_container->oy);
@@ -3567,7 +3577,7 @@ traditional_loot(boolean put_in)
 }
 
 /* loot current_container (take things out or put things in), using a menu */
-int
+staticfn int
 menu_loot(int retry, boolean put_in)
 {
     int n, i, n_looted = 0;
@@ -4450,5 +4460,172 @@ debottle_potion(struct obj *cobj) {
     bobj = mksobj(BOTTLE, FALSE, FALSE);
     hold_another_object(bobj, "Oops!", (const char *) 0,
                                 (const char *) 0);
+}
+
+/* specifically find items that can be tuned. */
+staticfn int
+tune_ok(struct obj *obj)
+{
+    if (!obj)
+        return GETOBJ_EXCLUDE;
+    if (is_tunable(obj))
+        return (obj->tuner_slots && obj->quan == 1L) ? GETOBJ_SUGGEST : GETOBJ_DOWNPLAY;
+    /* For YAFM purposes */
+    if (obj->otyp >= HARP && obj->otyp <= ELECTRIC_GUITAR)
+        return GETOBJ_DOWNPLAY;
+    return GETOBJ_EXCLUDE;
+}
+
+/* find only tuners */
+staticfn int
+tuner_ok(struct obj *obj)
+{
+    if (!obj)
+        return GETOBJ_EXCLUDE;
+    if (obj->oclass == TUNER_CLASS)
+        return GETOBJ_SUGGEST;
+    return GETOBJ_EXCLUDE;
+}
+
+/* Messages depending on whether or not something is considered a
+   valid tunable object. */
+staticfn int
+tuner_checks(struct obj *otmp)
+{
+    if (!otmp)
+        return ECMD_CANCEL;
+    if (!is_tunable(otmp)) {
+        pline("It's already in tune.");
+        return ECMD_CANCEL;
+    }
+    if ((!otmp->tuner_slots)) {
+        pline("%s has no tuner slots.", Yobjnam2(otmp, (char *) 0));
+        return ECMD_CANCEL;
+    }
+    if (otmp->quan > 1) {
+        You("can only tune a single object at a time.");
+        return ECMD_CANCEL;
+    }
+    return ECMD_OK;
+}
+
+/* apply a tuner. also used in dotune(). */
+int
+use_tuner(struct obj *fork, struct obj *otmp)
+{
+    int ret;
+    if (!otmp)
+        otmp = getobj("tune", tune_ok, GETOBJ_NOFLAGS);
+
+    if (tuner_checks(otmp) == ECMD_CANCEL)
+        return ECMD_CANCEL;
+
+    if (count_contents(otmp, FALSE, FALSE, TRUE, FALSE) >= otmp->tuner_slots) {
+        pline("There are no available slots for %s.", yname(fork));
+        return ECMD_CANCEL;
+    }
+
+    gc.current_container = otmp;
+    ret = in_container(fork);
+    if (ret == 1) {
+        ret = ECMD_OK;
+        record_achievement(ACH_TUNEUP);
+    } else {
+        ret = ECMD_CANCEL;
+    }
+    update_inventory();
+    gc.current_container = 0;
+    return ret;
+}
+
+/* #tune command */
+int dotune(void)
+{
+    menu_item *selected = (menu_item *) 0;
+    winid win;
+    anything any;
+    int n, i;
+    struct obj *fork;
+    struct obj *otmp = getobj("tune", tune_ok, GETOBJ_NOFLAGS);
+    
+    if (tuner_checks(otmp) == ECMD_CANCEL)
+        return ECMD_CANCEL;
+
+    if (!Has_contents(otmp)) {
+        fork = getobj("tune with", tuner_ok, GETOBJ_NOFLAGS);
+        if (!fork)
+            return ECMD_CANCEL;
+        return use_tuner(fork, otmp);
+    }
+
+    /* Menu-based tuning selection */
+    win = create_nhwindow(NHW_MENU);
+    start_menu(win, MENU_BEHAVE_STANDARD);
+    any.a_char = 's';
+    add_menu(win, &nul_glyphinfo, &any, flags.lootabc ? 0 : any.a_char, '\0',
+                            ATR_NONE, NO_COLOR, "Slot Tuners", MENU_ITEMFLAGS_NONE);
+    any.a_char = 'r';
+    add_menu(win, &nul_glyphinfo, &any, flags.lootabc ? 0 : any.a_char, '\0',
+                            ATR_NONE, NO_COLOR, "Remove Tuners", MENU_ITEMFLAGS_NONE);
+    any.a_char = 'v';
+    add_menu(win, &nul_glyphinfo, &any, flags.lootabc ? 0 : any.a_char, '\0',
+                            ATR_NONE, NO_COLOR, "View Tuners", MENU_ITEMFLAGS_NONE);
+    end_menu(win, "What type of tuning?");
+    n = select_menu(win, PICK_ONE, &selected);
+    destroy_nhwindow(win);
+    if (n > 0) {
+        i = selected->item.a_char;
+        free((genericptr_t) selected);
+    } else {
+        return ECMD_CANCEL;
+    }
+
+    switch (i) {
+    case 's':
+        fork = getobj("tune with", tuner_ok, GETOBJ_NOFLAGS);
+        if (!fork)
+            return ECMD_CANCEL;
+        return use_tuner(fork, otmp);
+    case 'r':
+        gc.current_container = otmp;
+        menu_loot(0, FALSE);
+        gc.current_container = 0;
+        update_inventory();
+        return ECMD_OK;
+    case 'v':
+        gc.current_container = otmp;
+        container_contents(gc.current_container, FALSE, FALSE, TRUE);
+        gc.current_container = 0;
+        return ECMD_CANCEL;
+    default:
+        return ECMD_CANCEL;
+    }
+    return ECMD_CANCEL;
+}
+
+/* Put a tuner into an object */
+staticfn void
+slot_tuner(struct obj *tuner, struct obj *otmp)
+{
+    otmp->spe += tuner->spe;
+    otmp->oprop = objects[tuner->otyp].oc_oprop;
+    if (otmp->pknown)
+        makeknown(tuner->otyp);
+    else if (objects[tuner->otyp].oc_name_known)
+        otmp->pknown = 1;
+    return;
+}
+
+/* Remove a tuner from an object */
+staticfn void
+unslot_tuner(struct obj *tuner, struct obj *otmp)
+{
+    otmp->spe -= tuner->spe;
+    otmp->oprop = 0;
+    if (otmp->pknown)
+        makeknown(tuner->otyp);
+    else if (objects[tuner->otyp].oc_name_known)
+        otmp->pknown = 1;
+    return;
 }
 /*pickup.c*/

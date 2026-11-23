@@ -140,8 +140,6 @@ extern void maybe_dunk_boulders(coordxy, coordxy);
 extern void fig_transform(union any *, long) NONNULLARG1;
 extern int unfixable_trouble_count(boolean);
 extern boolean bagowinds(struct obj *, boolean);
-extern int dotune(void);
-extern void unslot_tuner(struct obj *, struct obj *);
 
 /* ### artifact.c ### */
 extern void fix_bones_artifact_otyp(struct obj *) NONNULLARG1;
@@ -2613,8 +2611,9 @@ extern int dotip(void);
 extern struct autopickup_exception *check_autopickup_exceptions(struct obj *) NONNULLARG1;
 extern boolean autopick_testobj(struct obj *, boolean) NONNULLARG1;
 extern boolean u_safe_from_fatal_corpse(struct obj *obj, int) NONNULLARG1;
-extern int menu_loot(int, boolean);
 extern void debottle_potion(struct obj *);
+extern int use_tuner(struct obj *, struct obj *);
+extern int dotune(void);
 
 /* ### pline.c ### */
 

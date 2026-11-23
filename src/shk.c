@@ -6357,7 +6357,7 @@ shk_other_services(void) {
 
     /* All shopkeepers can tell you rumors */
     any.a_int = 6;
-    add_menu(tmpwin, &nul_glyphinfo, &any, flags.lootabc ? 0 : 'r', 0, ATR_NONE,
+    add_menu(tmpwin, &nul_glyphinfo, &any, flags.lootabc ? 0 : 'u', 0, ATR_NONE,
             NO_COLOR, "Rumors", MENU_ITEMFLAGS_NONE);
 
 	end_menu(tmpwin, "Which service?");

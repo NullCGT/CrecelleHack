@@ -1122,20 +1122,16 @@ mwepgone(struct monst *mon)
 }
 
 /* attack bonus for strength & dexterity */
-/* TODO: Take in a monster struct as well so that monsters can use finesse.*/
 int
 abon(struct obj *obj)
 {
     int sbon;
-    int finesse = obj ? objects[obj->otyp].oc_finesse : 0;
 
     if (Upolyd)
         return (adj_lev(&mons[u.umonnum]) - 3);
 
     sbon = AMOD(A_STR);
 
-    if (finesse)
-        sbon = max(sbon, AMOD(A_DEX));
     /* Game tuning kludge: make it a bit easier for a low level character to
      * hit */
     sbon += (u.ulevel < 3) ? 1 : 0;

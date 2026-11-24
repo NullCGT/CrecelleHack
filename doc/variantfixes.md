@@ -141,6 +141,7 @@
 - Object materials give more drastic adjustments to partial resistances.
 - Expand backstababble monsters to match xnethack: fleeing, trapped, immobilized,
   sleeping, stunned, confused, or blinded
+- Remove finesse weapon flag.
 
 # 1.6.1
 

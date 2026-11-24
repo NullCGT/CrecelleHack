@@ -2508,8 +2508,7 @@ do_supplemental_item_info(struct obj *otmp)
     /* Statistics */
     add_menu_heading(datawin, "Statistics");
     if (otmp->oclass == WEAPON_CLASS || is_weptool(otmp)) {
-        Sprintf(buf, "Type: %s%sweapon", objects[otmp->otyp].oc_bimanual ? "two-handed " : "one-handed ",
-                                 objects[otmp->otyp].oc_finesse ? "finesse " : "");
+        Sprintf(buf, "Type: %sweapon", objects[otmp->otyp].oc_bimanual ? "two-handed " : "one-handed ");
         add_menu_str(datawin, buf);
         stringify_dmgval(buf, &gy.youmonst, otmp);
         add_menu_str(datawin, buf);

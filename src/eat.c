@@ -2533,6 +2533,11 @@ eatspecial(void)
         makeknown(HUNK_OF_CHARCOAL);
         exercise(A_CON, TRUE);
     }
+    /* Suggested by Demo */
+    if (otmp->oclass == TUNER_CLASS) {
+        pline("Tastes like tuna.");
+        exercise(A_CHA, TRUE);
+    }
 
     if (otmp == uwep && otmp->quan == 1L)
         uwepgone();

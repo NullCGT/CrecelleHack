@@ -1401,6 +1401,11 @@ cancel_item(struct obj *obj)
                 obj->odiluted = 0; /* same as any other water */
             }
             break;
+        case TUNER_CLASS:
+            costly_alteration(obj, COST_CANCEL);
+            obj->otyp = PURE_TUNER;
+            obj->spe = 0;
+            break;
         }
     }
     /* cancelling a troll's corpse prevents it from reviving (on its own;
@@ -1543,7 +1548,7 @@ obj_shudders(struct obj *obj)
     if (svc.context.bypasses && obj->bypass)
         return FALSE;
 
-    if (obj->oclass == WAND_CLASS)
+    if (obj->oclass == WAND_CLASS || obj->oclass == TUNER_CLASS)
         zap_odds = 3; /* half-life = 2 zaps */
     else if (obj->cursed)
         zap_odds = 3; /* half-life = 2 zaps */

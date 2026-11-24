@@ -287,8 +287,8 @@ stringify_dmgval(char *buf, struct monst *mon, struct obj *otmp)
     int bonus = dmgval_dbonus(otmp, mon);
     if (!otmp->known && (otmp->oclass == WEAPON_CLASS || is_weptool(otmp)))
         bonus -= otmp->spe;
-    Sprintf(buf, "%s Damage: %dd%d%s%d%s%s%s",
-                mon ? "Adjusted" : "Base",
+    Sprintf(buf, "Damage [%s]: %dd%d%s%d%s%s%s",
+                get_scaling_type(otmp) >= A_STR ? attr_name(get_scaling_type(otmp)) : "No Scaling",
                 ndice, nsides,
                 (bonus >= 0) ? "+" : "-", abs(bonus),
                 (objects[otmp->otyp].oc_dir & PIERCE) ? " piercing" : "",

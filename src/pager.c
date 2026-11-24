@@ -2432,20 +2432,6 @@ do_supplemental_item_info(struct obj *otmp)
             add_menu_str(datawin, "It can be poisoned.");
         Sprintf(buf, "It uses your %s skill.", skill_name(abs(objects[otmp->otyp].oc_skill)));
         add_menu_str(datawin, buf);
-        if (get_scaling_type(otmp) >= A_STR) {
-            Sprintf(buf, "Its damage scales with your %s.",
-                    attr_name(get_scaling_type(otmp)));
-            add_menu_str(datawin, buf);
-        } else {
-            add_menu_str(datawin, "Its damage does not scale.");
-        }
-        if (get_hitbon_type(otmp) >= A_STR) {
-            Sprintf(buf, "Its accuracy scales with your %s.",
-                    attr_name(get_hitbon_type(otmp)));
-            add_menu_str(datawin, buf);
-        } else {
-            add_menu_str(datawin, "Its accuracy does not scale.");
-        }
         /* weapaon skills */
         if (is_bleeding_weapon(otmp))
             add_menu_str(datawin, "It may inflict bleeding wounds.");
@@ -2527,7 +2513,8 @@ do_supplemental_item_info(struct obj *otmp)
         add_menu_str(datawin, buf);
         stringify_dmgval(buf, &gy.youmonst, otmp);
         add_menu_str(datawin, buf);
-        Sprintf(buf, "Adjusted Accuracy: %s%d",
+        Sprintf(buf, "Accuracy [%s]: %s%d",
+                get_hitbon_type(otmp) >= A_STR ? attr_name(get_hitbon_type(otmp)) : "No Scaling",
                 (weapon_hit_bonus(otmp) >= 0) ? "+" : "", weapon_hit_bonus(otmp));
         add_menu_str(datawin, buf);
     }

@@ -1168,7 +1168,7 @@ kick_nondoor(coordxy x, coordxy y, int avrg_attrib)
         return ECMD_TIME;
     }
     if (gm.maploc->typ == IRONBARS) {
-        if (uarmf && uarmf->oprop == OPROP_ACIDIC
+        if (uarmf && has_oprop(uarmf, OPROP_ACIDIC)
             && !rn2(6)) {
             pline_The("iron bars melt!");
             uarmf->pknown = 1;

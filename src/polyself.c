@@ -1507,13 +1507,13 @@ dobreathe(void)
     if (!getdir((char *) 0))
         return ECMD_CANCEL;
 
-    if (uarmh && uarmh->oprop == OPROP_BLAZING) {
+    if (uarmh && has_oprop(uarmh, OPROP_BLAZING)) {
         mattk = attacktype_fordmg(&mons[PM_RED_DRAGON], AT_BREA, AD_ANY);
-    } else if (uarmh && uarmh->oprop == OPROP_ACIDIC) {
+    } else if (uarmh && has_oprop(uarmh, OPROP_ACIDIC)) {
         mattk = attacktype_fordmg(&mons[PM_YELLOW_DRAGON], AT_BREA, AD_ANY);
-    } else if (uarmh && uarmh->oprop == OPROP_CRACKLING) {
+    } else if (uarmh && has_oprop(uarmh, OPROP_CRACKLING)) {
         mattk = attacktype_fordmg(&mons[PM_BLUE_DRAGON], AT_BREA, AD_ANY);
-    } else if (uarmh && uarmh->oprop == OPROP_BOREAL) {
+    } else if (uarmh && has_oprop(uarmh, OPROP_BOREAL)) {
         mattk = attacktype_fordmg(&mons[PM_WHITE_DRAGON], AT_BREA, AD_ANY);
     } else {
         mattk = attacktype_fordmg(gy.youmonst.data, AT_BREA, AD_ANY);

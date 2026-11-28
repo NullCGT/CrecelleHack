@@ -835,62 +835,58 @@ oprop_armor_handling(struct obj *otmp, boolean puton)
     if (!otmp || !otmp->oprop)
         return;
     long mask = armcat_to_wornmask(objects[otmp->otyp].oc_armcat);
-    switch(otmp->oprop) {
-        case OPROP_SUBTLE:
-            if (puton) {
-                EStealth |= mask;
-            } else {
-                EStealth &= ~mask;
-            }
-            break;
-        case OPROP_ACIDIC:
-            if (puton){
-                EAcid_resistance |= mask;
-            } else {
-                EAcid_resistance &= !mask;
-            }
-            break;
-        case OPROP_HUNGRY:
-            if (puton) {
-                EHunger |= mask;
-            } else {
-                EHunger &= !mask;
-            }
-            break;
-        case OPROP_ANTIMAGIC:
-            if (puton) {
-                EAntimagic |= mask;
-            } else {
-                EAntimagic &= !mask;
-            }
-            break;
-        case OPROP_BRINY:
-            if (puton) {
-                if (is_helmet(otmp))
-                    EMagical_breathing |= mask;
-                else
-                    ESwimming |= mask;
-            } else {
-                if (is_helmet(otmp))
-                    ESwimming &= !mask;
-                else
-                    EMagical_breathing &= !mask;
-            }
-            break;
-        case OPROP_HEXED:
-            if (!otmp->cursed) {
-                if (Blind)
-                    pline("%s for a moment.", Tobjnam(otmp, "vibrate"));
-                else
-                    pline("%s %s for a moment.", Tobjnam(otmp, "glow"),
-                          hcolor(NH_BLACK));
-                otmp->pknown = 1;
-            }
-            curse(otmp);
-            update_inventory();
-            break;
-        default:
-            break;
+    if (has_oprop(otmp, OPROP_SUBTLE)) {
+        if (puton) {
+            EStealth |= mask;
+        } else {
+            EStealth &= ~mask;
+        }
+    }
+    if (has_oprop(otmp, OPROP_ACIDIC)) {
+        if (puton){
+            EAcid_resistance |= mask;
+        } else {
+            EAcid_resistance &= !mask;
+        }
+    }
+    if (has_oprop(otmp, OPROP_HUNGRY)) {
+        if (puton) {
+            EHunger |= mask;
+        } else {
+            EHunger &= !mask;
+        }
+    }
+    if (has_oprop(otmp, OPROP_ANTIMAGIC)) {
+        if (puton) {
+            EAntimagic |= mask;
+        } else {
+            EAntimagic &= !mask;
+        }
+    }
+    if (has_oprop(otmp, OPROP_BRINY)) {
+        if (puton) {
+            if (is_helmet(otmp))
+                EMagical_breathing |= mask;
+            else
+                ESwimming |= mask;
+        } else {
+            if (is_helmet(otmp))
+                ESwimming &= !mask;
+            else
+                EMagical_breathing &= !mask;
+        }
+    }
+    if (has_oprop(otmp, OPROP_HEXED)) {
+        if (!otmp->cursed) {
+            if (Blind)
+                pline("%s for a moment.", Tobjnam(otmp, "vibrate"));
+            else
+                pline("%s %s for a moment.", Tobjnam(otmp, "glow"),
+                        hcolor(NH_BLACK));
+            otmp->pknown = 1;
+        }
+        curse(otmp);
+        update_inventory();
     }
 }
 

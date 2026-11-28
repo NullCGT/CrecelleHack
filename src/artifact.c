@@ -1651,14 +1651,8 @@ artifact_hit(
                        /* feel the effect even if not seen */
                        || (youattack && mdef == u.ustuck));
 
-    /* identify the oprop if it is not yet known*/
-    if (realizes_damage && gs.spec_oprop_applies && !(otmp->pknown)) {
-        otmp->pknown = 1;
-        update_inventory();
-    }
-
     /* Oprop attacks */
-    if (otmp->oprop == OPROP_SANGUINE && has_coating(x, y, COAT_BLOOD)) {
+    if (has_oprop(otmp, OPROP_SANGUINE) && has_coating(x, y, COAT_BLOOD)) {
         if (realizes_damage)
             pline_The("%s absorbs nearby blood!", weapon_simple_name(otmp));
         *dmgptr *= 2;
@@ -1667,9 +1661,11 @@ artifact_hit(
             otmp->pknown = 1;
             update_inventory();
         }
-    } else if (otmp->oprop == OPROP_ANTIMAGIC && !rn2(3)) {
+    }
+    if (has_oprop(otmp, OPROP_ANTIMAGIC) && !rn2(3)) {
         cancel_monst(mdef, otmp, youattack, FALSE, FALSE);
-    } else if (otmp->oprop == OPROP_BRINY) {
+    }
+    if (has_oprop(otmp, OPROP_BRINY)) {
         if (realizes_damage)
             pline_The("%s soaks %s!", weapon_simple_name(otmp), hittee);
         if (youdefend)
@@ -1679,17 +1675,34 @@ artifact_hit(
         if (completelyrusts(mdef->data))
             *dmgptr = 1000;
     }
+
+    /* identify the oprop if it is not yet known*/
+    if (realizes_damage && gs.spec_oprop_applies && !(otmp->pknown)) {
+        if (has_oprop(otmp, OPROP_ACIDIC)) {
+            pline_The("%s hisses and spits!", weapon_simple_name(otmp));
+        }
+        if (has_oprop(otmp, OPROP_BLAZING)) {
+            pline_The("%s sparks!", weapon_simple_name(otmp));
+        }
+        if (has_oprop(otmp, OPROP_BOREAL)) {
+            pline_The("%s sparkles with rime!", weapon_simple_name(otmp));
+        }
+        if (has_oprop(otmp, OPROP_CRACKLING)) {
+            pline_The("%s crackles with electricity!", weapon_simple_name(otmp));
+        }
+        otmp->pknown = 1;
+        update_inventory();
+    }
     /* the four basic attacks: fire, cold, shock and missiles */
-    if (attacks(AD_FIRE, otmp) || otmp->oprop == OPROP_BLAZING) {
+    if (attacks(AD_FIRE, otmp)) {
         if (realizes_damage)
-            pline_The("fiery %s %s %s%c",
-                      weapon_simple_name(otmp),
-                      !(gs.spec_dbon_applies || gs.spec_oprop_applies)
+            pline_The("fiery blade %s %s%c",
+                      !gs.spec_dbon_applies
                           ? "hits"
                           : (mdef->data == &mons[PM_WATER_ELEMENTAL])
                                 ? "vaporizes part of"
                                 : "burns",
-                      hittee, !(gs.spec_dbon_applies || gs.spec_oprop_applies) ? '.' : '!');
+                      hittee, !gs.spec_dbon_applies ? '.' : '!');
         if (!rn2(4)) {
             int itemdmg = destroy_items(mdef, AD_FIRE, *dmgptr);
             if (!youdefend)
@@ -1700,12 +1713,11 @@ artifact_hit(
             burn_away_slime();
         return realizes_damage;
     }
-    if (attacks(AD_COLD, otmp) || otmp->oprop == OPROP_BOREAL) {
+    if (attacks(AD_COLD, otmp)) {
         if (realizes_damage)
-            pline_The("ice-cold %s %s %s%c",
-                      weapon_simple_name(otmp),
-                      !(gs.spec_dbon_applies || gs.spec_oprop_applies) ? "hits" : "freezes", hittee,
-                      !(gs.spec_dbon_applies || gs.spec_oprop_applies) ? '.' : '!');
+            pline_The("ice-cold blade %s %s%c",
+                      !gs.spec_dbon_applies ? "hits" : "freezes", hittee,
+                      !gs.spec_dbon_applies ? '.' : '!');
         if (!rn2(4)) {
             int itemdmg = destroy_items(mdef, AD_COLD, *dmgptr);
             if (!youdefend)
@@ -1713,25 +1725,11 @@ artifact_hit(
         }
         return realizes_damage;
     }
-    if (attacks(AD_ACID, otmp) || otmp->oprop == OPROP_ACIDIC) {
+    if (attacks(AD_ELEC, otmp)) {
         if (realizes_damage)
-            pline_The("sizzling %s %s %s%c",
-                      weapon_simple_name(otmp),
-                      !(gs.spec_dbon_applies || gs.spec_oprop_applies) ? "hits" : "melts", hittee,
-                      !(gs.spec_dbon_applies || gs.spec_oprop_applies) ? '.' : '!');
-        if (!rn2(4)) {
-            int itemdmg = destroy_items(mdef, AD_ACID, *dmgptr);
-            if (!youdefend)
-                *dmgptr += itemdmg; /* item destruction dmg */
-        }
-        return realizes_damage;
-    }
-    if (attacks(AD_ELEC, otmp) || otmp->oprop == OPROP_CRACKLING) {
-        if (realizes_damage)
-            pline_The("%s hits%s %s%c",
-                      weapon_simple_name(otmp),
-                      !(gs.spec_dbon_applies || gs.spec_oprop_applies) ? "" : "!  Lightning strikes",
-                      hittee, !(gs.spec_dbon_applies || gs.spec_oprop_applies) ? '.' : '!');
+            pline_The("massive hammer hits%s %s%c",
+                      !gs.spec_dbon_applies ? "" : "!  Lightning strikes",
+                      hittee, !gs.spec_dbon_applies ? '.' : '!');
         if (gs.spec_dbon_applies)
             wake_nearto(mdef->mx, mdef->my, 4 * 4);
         if (!rn2(5)) {
@@ -1871,8 +1869,7 @@ artifact_hit(
     }
     /* technically, there is no way to get here with Stormbringer without special damage, but check anyway */
     if ((spec_ability(otmp, SPFX_DRLI) && gs.spec_dbon_applies) ||
-        (otmp->oprop == OPROP_HUNGRY && gs.spec_oprop_applies
-         && !rn2(4))) {
+        (has_oprop(otmp, OPROP_HUNGRY) && gs.spec_oprop_applies && !rn2(4))) {
         /* some non-living creatures (golems, vortices) are vulnerable to
            life drain effects so can get "<Arti> draws the <life>" feedback */
         const char *life = nonliving(mdef->data) ? "animating force" : "life";
@@ -3160,7 +3157,7 @@ otyp_from_artifact_index(int artidx)
 boolean
 permapoisoned(struct obj *obj)
 {
-    return (obj && (is_art(obj, ART_GRIMTOOTH) || obj->oprop == OPROP_SUBTLE));
+    return (obj && (is_art(obj, ART_GRIMTOOTH) || has_oprop(obj, OPROP_SUBTLE)));
 }
 #endif /* SFCTOOL */
 

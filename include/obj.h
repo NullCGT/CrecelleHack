@@ -491,6 +491,7 @@ struct obj {
 
 #define is_tunable(o) ((o)->oclass == WEAPON_CLASS || (o)->oclass == ARMOR_CLASS \
                         || is_weptool(o))
+#define has_oprop(o, prop) (((o)->oprop & oprops[prop].bits) != 0)
 
 /* weapon skills */
 /* Longsword stances */

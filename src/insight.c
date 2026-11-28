@@ -296,7 +296,7 @@ cause_known(
             && objects[o->otyp].oc_name_known && o->dknown)
             return TRUE;
         if (o->oprop && o->pknown) {
-            if (propindx == HUNGER && o->oprop == OPROP_HUNGRY) {
+            if (propindx == HUNGER && has_oprop(o, OPROP_HUNGRY)) {
                 return TRUE;
             }
         }

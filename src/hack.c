@@ -2351,7 +2351,7 @@ domove_fight_empty(coordxy x, coordxy y)
             cancel_force_field(x, y);
 
         /* Ice harmonic weapons can fire icicles even when force attacking */
-        if (uwep && uwep->oprop == OPROP_BOREAL
+        if (uwep && has_oprop(uwep, OPROP_BOREAL)
             && (has_coating(u.ux, u.uy, COAT_FROST) || levl[u.ux][u.uy].typ == ICE)) {
             struct obj *otmp = mksobj(ICICLE, FALSE, FALSE);
             otmp->spe = 1;

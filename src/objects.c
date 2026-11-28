@@ -36,6 +36,13 @@ struct material materials[NUM_MATERIAL_TYPES] = {
 };
 #undef OMAT
 #undef OBJ_MATERIAL_LIST
+#define OPROP(id, nam, prob, bit) \
+    {nam, prob, bit}
+struct oprop oprops[NUM_OPROPS] = {
+    OPROP_LIST
+};
+#undef OPROP
+#undef OPROP_LIST
 
 void
 objects_globals_init(void)

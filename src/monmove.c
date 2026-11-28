@@ -626,7 +626,7 @@ mind_blast(struct monst *mtmp)
     if (mtmp->mpeaceful
         && (!Conflict || resist_conflict(mtmp))) {
         pline("It feels quite soothing.");
-    } else if (uarmh && uarmh->oprop == OPROP_ANTIMAGIC) {
+    } else if (uarmh && has_oprop(uarmh,OPROP_ANTIMAGIC)) {
         pline("Your helmet nullifies it.");
         uarmh->pknown = 1;
         update_inventory();

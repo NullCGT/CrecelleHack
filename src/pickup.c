@@ -4608,7 +4608,7 @@ staticfn void
 slot_tuner(struct obj *tuner, struct obj *otmp)
 {
     otmp->spe += tuner->spe;
-    otmp->oprop = objects[tuner->otyp].oc_oprop;
+    otmp->oprop |= oprops[objects[tuner->otyp].oc_oprop].bits;
     if (otmp->pknown)
         makeknown(tuner->otyp);
     else if (objects[tuner->otyp].oc_name_known)
@@ -4624,7 +4624,7 @@ staticfn void
 unslot_tuner(struct obj *tuner, struct obj *otmp)
 {
     otmp->spe -= tuner->spe;
-    otmp->oprop = 0;
+    otmp->oprop &= ~(oprops[objects[tuner->otyp].oc_oprop].bits);
     if (otmp->pknown)
         makeknown(tuner->otyp);
     else if (objects[tuner->otyp].oc_name_known)

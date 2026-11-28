@@ -619,7 +619,7 @@ rndcurse(void)
         You(mal_aura, "the magic-absorbing blade");
         return;
     }
-    if (uwep && uwep->oprop == OPROP_HEXED && !uwep->cursed) {
+    if (uwep && has_oprop(uwep, OPROP_HEXED) && !uwep->cursed) {
         You(mal_aura, "the hexed weapon");
         uwep->pknown = TRUE;
         curse(uwep);

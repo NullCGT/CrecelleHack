@@ -3417,7 +3417,7 @@ lesshungry(int num)
                     && (svc.context.victual.reqtime
                         - svc.context.victual.usedtime) > 1) {
                     /* food with one bite left will not survive a stop */
-                    if (!(uarmh && uarmh->oprop == OPROP_HUNGRY)
+                    if (!(uarmh && has_oprop(uarmh, OPROP_HUNGRY))
                         && !paranoid_query(ParanoidEating, "Continue eating?")) {
                         reset_eat();
                         gn.nomovemsg = (char *) 0;

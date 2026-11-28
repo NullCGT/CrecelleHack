@@ -911,10 +911,10 @@ domonability(void)
     }
     if (can_breathe(uptr)
         || (uarmh && uarmh->oprop && uarmh->pknown
-            && (uarmh->oprop == OPROP_ACIDIC
-                || uarmh->oprop == OPROP_BLAZING
-                || uarmh->oprop == OPROP_CRACKLING
-                || uarmh->oprop == OPROP_BOREAL)))
+            && (has_oprop(uarmh, OPROP_ACIDIC)
+                || has_oprop(uarmh, OPROP_BLAZING)
+                || has_oprop(uarmh, OPROP_CRACKLING)
+                || has_oprop(uarmh, OPROP_BOREAL))))
         return dobreathe();
     else if (attacktype(uptr, AT_SPIT))
         return dospit();

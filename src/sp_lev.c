@@ -2317,7 +2317,7 @@ create_object(object *o, struct mkroom *croom)
     }
     if (o->oprop.str){
         oprop = lookup_oprop_by_name(o->oprop.str, &oprop);
-        if (oprop) otmp->oprop = oprop;
+        if (oprop) otmp->oprop = oprops[oprop].bits;
     }
 
     /* contents (of a container or monster's inventory) */

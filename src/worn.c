@@ -971,7 +971,7 @@ m_dowear_type(
     /* same auto-cursing behavior as for hero */
     autocurse = ((best->otyp == HELM_OF_OPPOSITE_ALIGNMENT
                   || best->otyp == DUNCE_CAP
-                  || best->oprop == OPROP_HEXED) && !best->cursed);
+                  || has_oprop(best, OPROP_HEXED)) && !best->cursed);
     /* if wearing a cloak, account for the time spent removing
        and re-wearing it when putting on a suit or shirt */
     if ((flag == W_ARM || flag == W_ARMU) && (mon->misc_worn_check & W_ARMC))

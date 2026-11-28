@@ -7032,12 +7032,13 @@ oprop_effects_pre(struct monst *magr, struct monst *mdef, struct obj *weapon)
 
     icy = (has_coating(x, y, COAT_FROST) || levl[x][y].typ == ICE);
     if (is_u) {
-        if (weapon->oprop == OPROP_BOREAL && icy) {
+        if (has_oprop(weapon, OPROP_BOREAL) && icy) {
             otmp = mksobj(ICICLE, FALSE, FALSE);
             otmp->spe = 1;
             throwit(otmp, 0L, FALSE, (struct obj *) 0);
             pkn = 1;
-        } else if (weapon->oprop == OPROP_CRACKLING && rn2(2)) {
+        }
+        if (has_oprop(weapon, OPROP_CRACKLING) && rn2(2)) {
             if (cansee(dx, dy) && flags.verbose)
                 pline("Lightning arcs from the %s!", simpleonames(weapon));
             gc.current_wand = weapon;
@@ -7046,14 +7047,15 @@ oprop_effects_pre(struct monst *magr, struct monst *mdef, struct obj *weapon)
             pkn = 1;
         }
     } else {
-        if (weapon->oprop == OPROP_BOREAL && icy) {
+        if (has_oprop(weapon, OPROP_BOREAL) && icy) {
             (void) linedup(x, y, dx, dy, 0); /* set up gt.tbx and gt.tby */
             otmp = mksobj(ICICLE, FALSE, FALSE);
             otmp->spe = 1;
             m_throw(magr, x, y, sgn(gt.tbx), sgn(gt.tby),
                     distmin(x, y, dx, dy), otmp);
             pkn = 1;
-        } else if (weapon->oprop == OPROP_CRACKLING && rn2(2)) {
+        }
+        if (has_oprop(weapon, OPROP_CRACKLING) && rn2(2)) {
             if (cansee(x, y)) {
                 pline("Lightning arcs from the %s!", simpleonames(weapon));
                 pkn = 1;
@@ -7064,18 +7066,17 @@ oprop_effects_pre(struct monst *magr, struct monst *mdef, struct obj *weapon)
         }
     }
     /* Universal stuff */
-    if (weapon->oprop == OPROP_BLAZING && !rn2(5)) {
+    if (has_oprop(weapon, OPROP_BLAZING) && !rn2(5)) {
         if (cansee(dx, dy)) {
             pline_The("%s ignites!", simpleonames(weapon));
             pkn = 1;
         }
         create_bonfire(dx, dy, rnd(7), d(2, 4));
-    } else if (weapon->oprop == OPROP_ACIDIC) {
-        /* message? */
-        potion_splatter(dx, dy, POT_ACID, NON_PM);
-    } else if (weapon->oprop == OPROP_BRINY) {
-        floor_spillage(dx, dy, POT_WATER, NON_PM);
     }
+    if (has_oprop(weapon, OPROP_ACIDIC))
+        potion_splatter(dx, dy, POT_ACID, NON_PM);
+    if (has_oprop(weapon, OPROP_BRINY))
+        floor_spillage(dx, dy, POT_WATER, NON_PM);
     /* Make it known */
     if (pkn && !weapon->pknown) {
         weapon->pknown = 1;

@@ -37,7 +37,7 @@ struct icp {
     char iclass; /* item class */
 };
 
-#define OPROP(id, nam, prob, val, bit) {prob, OPROP_##id}
+#define OPROP(id, nam, prob, bit) {prob, OPROP_##id}
 static const struct icp oprop_probs[] = {
     OPROP_LIST
 };
@@ -4640,7 +4640,7 @@ add_oprop_to_object(struct obj *obj, int force)
     int i;
     const struct icp* props = oprop_probs;
     if (force) {
-        obj->oprop = force;
+        obj->oprop = oprops[force].bits;
     } else if (force >= NUM_OPROPS || force < 0) {
         impossible("Attempting to set invalid oprop %d?", obj->oprop);
     } else {
@@ -4651,7 +4651,7 @@ add_oprop_to_object(struct obj *obj, int force)
             i -= props->iprob;
             props++;
         }
-        obj->oprop = props->iclass;
+        obj->oprop = oprops[props->iclass].bits;
     }
 }
 

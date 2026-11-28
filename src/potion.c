@@ -759,11 +759,11 @@ peffect_hallucination(struct obj *otmp)
 staticfn void
 peffect_blood(struct obj *otmp) {
     if (is_vampire(gy.youmonst.data)
-        || (uarmh && uarmh->oprop == OPROP_SANGUINE)) {
+        || (uarmh && has_oprop(uarmh, OPROP_SANGUINE))) {
         You_feel("better.");
         healup(8 + d(4 + 2 * bcsign(otmp), 4), !otmp->cursed ? 1 : 0,
            !!otmp->blessed, !otmp->cursed);
-        if (uarmh && uarmh->oprop == OPROP_SANGUINE && !uarmh->pknown) {
+        if (uarmh && has_oprop(uarmh, OPROP_SANGUINE) && !uarmh->pknown) {
             uarmh->pknown = TRUE;
             update_inventory();
         }
@@ -4183,21 +4183,23 @@ partial_armor_resistance(int res, struct obj *obj, boolean id)
             ret -= 1;
     }
     if (obj->oprop && (id || obj->pknown)) {
-        if (obj->oprop == OPROP_BOREAL) {
+        if (has_oprop(obj, OPROP_BOREAL)) {
             if (res == COLD_RES)
                 ret += 30;
             else if (res == FIRE_RES)
                 ret -= 20;
-        } else if (obj->oprop == OPROP_BLAZING) {
+        }
+        if (has_oprop(obj, OPROP_BLAZING)) {
             if (res == FIRE_RES)
                 ret += 30;
             else if (res == COLD_RES)
                 ret -= 20;
-        } else if (obj->oprop == OPROP_CRACKLING && res == SHOCK_RES)
+        }
+        if (has_oprop(obj, OPROP_CRACKLING) && res == SHOCK_RES)
             ret += 30;
-        else if (obj->oprop == OPROP_SUBTLE && res == POISON_RES)
+        if (has_oprop(obj, OPROP_SUBTLE) && res == POISON_RES)
             ret += 30;
-        else if (obj->oprop == OPROP_ANTIMAGIC)
+        if (has_oprop(obj, OPROP_ANTIMAGIC))
             ret -= 5;
     }
     ret += OBJ_RESIST(objects[obj->otyp], res);

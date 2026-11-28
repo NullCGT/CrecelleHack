@@ -67,10 +67,6 @@ struct Jitem {
     const char *name;
 };
 
-#define OPROP(id, nam, prob, val, bit) nam
-static const char *oprop_nams[] = { OPROP_LIST };
-#undef OPROP
-
 #define BSTRCMPI(base, ptr, str) ((ptr) < base || strcmpi((ptr), str))
 #define BSTRNCMPI(base, ptr, str, num) \
     ((ptr) < base || strncmpi((ptr), str, num))
@@ -1229,7 +1225,7 @@ add_oprop_text(struct obj *obj, boolean known, char *prefix)
 {
     if (!obj->oprop)
         return;
-    if (obj->oprop >= NUM_OPROPS || obj->oprop < 0) {
+    if (obj->oprop < 0) {
         impossible("Invalid oprop %d?", obj->oprop);
         Strcat(prefix, "bugged ");
         return;
@@ -1238,8 +1234,12 @@ add_oprop_text(struct obj *obj, boolean known, char *prefix)
     if (!known) {
         Strcat(prefix, "harmonic ");
     } else {
-        Strcat(prefix, oprop_nams[obj->oprop]);
-        Strcat(prefix, " ");
+        for (int i = 1; i < NUM_OPROPS; i++) {
+            if ((obj->oprop & oprops[i].bits) != 0) {
+                Strcat(prefix, OPROP_NAME(i));
+                Strcat(prefix, " ");
+            }
+        }
     }
 }
 
@@ -6137,7 +6137,7 @@ int
 lookup_oprop_by_name(char *buf, int *l)
 {
     for (int i = 1; i < NUM_OPROPS; i++) {
-        if (!strncmpi(buf, oprop_nams[i], *l = strlen(oprop_nams[i]))) {
+        if (!strncmpi(buf, OPROP_NAME(i), *l = strlen(OPROP_NAME(i)))) {
             return i;
         }
     }
